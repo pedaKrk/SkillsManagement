@@ -44,6 +44,10 @@ const userSchema = mongoose.Schema({
     skills: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Skills"
+    }],
+    futureSkills: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FutureSkills"
     }]
 }, { collection: 'users' })
 
