@@ -7,7 +7,7 @@ exports.getAllSkills = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Failed to get skills', error })
   }
-};
+}
 
 exports.getSkillById = async (req, res) => {
   try {
@@ -19,7 +19,7 @@ exports.getSkillById = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Failed to get skill', error })
   }
-};
+}
 
 exports.createSkill = async (req, res) => {
   try {
@@ -28,7 +28,7 @@ exports.createSkill = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Failed to create skill', error })
   }
-};
+}
 
 exports.updateSkill = async (req, res) => {
   try {
@@ -40,7 +40,7 @@ exports.updateSkill = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Failed to update skill', error })
   }
-};
+}
 
 exports.deleteSkill = async (req, res) => {
   try {
@@ -52,4 +52,4 @@ exports.deleteSkill = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Failed to delete skill', error })
   }
-};
+}
