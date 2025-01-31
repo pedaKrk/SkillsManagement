@@ -13,18 +13,20 @@ This project consists of an Angular frontend and an ExpressJS backend. Below are
 
 ### Install Angular CLI globally (if not already installed):
 
-npm install -g @angular/cli
+`npm install -g @angular/cli`
 
 ## 1. Backend Setup (ExpressJS)
 
 ### Navigate to the backend folder and install dependencies:
 
+```
 cd backend
 npm install
+```
 
 ### Run the Backend Server
 
-npm start
+`npm start`
 
 This starts the backend server on http://localhost:3000/.
 
@@ -32,11 +34,13 @@ This starts the backend server on http://localhost:3000/.
 
 ### Navigate to the frontend folder and install dependencies:
 
+```
 cd ../frontend
 npm install
+```
 
 ### Run the Frontend
 
-ng serve
+`ng serve -o`
 
 This starts the Angular app on http://localhost:4200/.
