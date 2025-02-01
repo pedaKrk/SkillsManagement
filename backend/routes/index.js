@@ -1,6 +1,6 @@
 const express = require('express')
-const userRoutes = require('./users')
-const skillRoutes = require('./skills')
+const userRoutes = require('./userRoutes')
+const skillRoutes = require('./skillRoutes')
 
 const router = express.Router()
 
