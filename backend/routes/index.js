@@ -1,6 +1,7 @@
 const express = require('express')
 const userRoutes = require('./userRoutes')
 const skillRoutes = require('./skillRoutes')
+const commentRoutes = require('./commentRoutes')
 
 const router = express.Router()
 
