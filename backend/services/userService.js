@@ -1,22 +1,22 @@
-//const User = require('../models/User');
+const User = require('../models/userSchema')
 
 exports.getAllUsers = async () => {
-  try {
-    return 'List of users'
-    //const users = await User.find()
-    //return users
-  } catch (err) {
-    throw new Error('Error fetching users: ' + err.message)
-  }
-};
-/*
+  return User.find().populate('skills futureSkills comments')
+}
+
+exports.getUserById = async (id) => {
+  return User.findById(id).populate('skills futureSkills comments')
+}
+
 exports.createUser = async (userData) => {
-  try {
-    const newUser = new User(userData)
-    await newUser.save()
-    return newUser
-  } catch (err) {
-    throw new Error('Error creating user: ' + err.message)
-  }
-};
-*/
+  const user = new User(userData)
+  return user.save()
+}
+
+exports.updateUser = async (id, userData) => {
+  return User.findByIdAndUpdate(id, userData, { new: true })
+}
+
+exports.deleteUser = async (id) => {
+  return User.findByIdAndDelete(id)
+}
