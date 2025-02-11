@@ -1,6 +1,6 @@
 import userService from '../services/userService'
 
-const getAllUsers = async (req, res) => {
+export const getAllUsers = async (req, res) => {
   try {
     const users = await userService.getAllUsers()
     res.status(200).json(users)
@@ -9,7 +9,7 @@ const getAllUsers = async (req, res) => {
   }
 }
 
-const getUserById = async (req, res) => {
+export const getUserById = async (req, res) => {
   try {
     const user = await userService.getUserById(req.params.id)
     if (!user) {
@@ -21,7 +21,7 @@ const getUserById = async (req, res) => {
   }
 }
 
-const createUser = async (req, res) => {
+export const createUser = async (req, res) => {
   try {
     const newUser = await userService.createUser(req.body)
     res.status(201).json(newUser)
@@ -30,7 +30,7 @@ const createUser = async (req, res) => {
   }
 }
 
-const updateUser = async (req, res) => {
+export const updateUser = async (req, res) => {
   try {
     const updatedUser = await userService.updateUser(req.params.id, req.body)
     if (!updatedUser) {
@@ -42,7 +42,7 @@ const updateUser = async (req, res) => {
   }
 }
 
-const deleteUser = async (req, res) => {
+export const deleteUser = async (req, res) => {
   try {
     const result = await userService.deleteUser(req.params.id)
     if (!result) {
@@ -53,5 +53,3 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ message: 'Failed to delete user', error })
   }
 }
-
-export default { getAllUsers, getUserById, createUser, updateUser, deleteUser }

@@ -6,7 +6,7 @@ import commentService from '../services/commentService'
 import User from '../models/user.model'
 import Comment from '../models/comment.model'
 
-const getCommentsForUser = async (req, res) => {
+export const getCommentsForUser = async (req, res) => {
   const session = await mongoose.startSession()
   session.startTransaction()
 
@@ -25,7 +25,7 @@ const getCommentsForUser = async (req, res) => {
   }
 }
 
-const addCommentToUser = async (req, res) => {
+export const addCommentToUser = async (req, res) => {
   const { userId } = req.params
   const { content, authorId } = req.body
 
@@ -37,7 +37,7 @@ const addCommentToUser = async (req, res) => {
   }
 }
 
-const updateComment = async (req, res) => {
+export const updateComment = async (req, res) => {
   const { userId, commentId } = req.params
   const { content } = req.body
 
@@ -52,7 +52,7 @@ const updateComment = async (req, res) => {
   }
 }
 
-const deleteComment = async (req, res) => {
+export const deleteComment = async (req, res) => {
   const { userId, commentId } = req.params
 
   try {
@@ -65,5 +65,3 @@ const deleteComment = async (req, res) => {
     res.status(500).json({ message: 'Failed to delete comment', error })
   }
 }
-
-export default { getCommentsForUser, addCommentToUser, updateComment, deleteComment }
