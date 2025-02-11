@@ -1,7 +1,7 @@
 import express from 'express'
-import userRoutes from './userRoutes'
-import skillRoutes from './skillRoutes'
-import commentRoutes from './commentRoutes'
+import userRoutes from './user.routes.js'
+import skillRoutes from './skill.routes.js'
+import commentRoutes from './comment.routes.js'
 
 const router = express.Router()
 

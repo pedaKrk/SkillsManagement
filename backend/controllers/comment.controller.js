@@ -1,11 +1,26 @@
+// move logic from services to controllers and remove services
+// use transactions when creating stuff
+
+import mongoose from 'mongoose'
 import commentService from '../services/commentService'
+import User from '../models/user.model'
+import Comment from '../models/comment.model'
 
 const getCommentsForUser = async (req, res) => {
-  const { userId } = req.params
+  const session = await mongoose.startSession()
+  session.startTransaction()
+
   try {
-    const comments = await commentService.getCommentsForUser(userId)
+    const { userId } = req.params
+
+    const comments = await Comment.find({ author: userId }).populate('author', 'username').exec()
+        //await commentService.getCommentsForUser(userId)
+    await session.commitTransaction()
     res.status(200).json(comments)
   } catch (error) {
+    await session.abortTransaction()
+    await session.endSession()
+    console.log('Failed to retrieve comments', error)
     res.status(500).json({ message: 'Failed to retrieve comments', error })
   }
 }

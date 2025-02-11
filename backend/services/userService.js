@@ -1,4 +1,4 @@
-const User = require('../models/userSchema')
+const User = require('../models/user.model.js')
 
 const getAllUsers = async () => {
   return User.find().populate('skills futureSkills comments')

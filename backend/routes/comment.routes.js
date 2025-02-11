@@ -1,6 +1,6 @@
 import express from 'express'
 const router = express.Router()
-import commentController from '../controllers/commentController'
+import commentController from '../controllers/comment.controller.js'
 
 router.get('/:userId', commentController.getCommentsForUser)
 router.post('/:userId', commentController.addCommentToUser)

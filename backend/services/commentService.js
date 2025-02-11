@@ -1,5 +1,5 @@
-import Comment from '../models/commentSchema'
-import User from '../models/userSchema'
+import Comment from '../models/comment.model.js'
+import User from '../models/user.model.js'
 
 const getCommentsForUser = async (userId) => {
   return Comment.find({ author: userId }).populate('author', 'username').exec()

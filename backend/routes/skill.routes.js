@@ -1,6 +1,6 @@
 import express from 'express'
 const router = express.Router()
-import skillController from '../controllers/skillController'
+import skillController from '../controllers/skill.controller.js'
 
 router.get('/', skillController.getAllSkills)
 router.get('/:id', skillController.getSkillById)

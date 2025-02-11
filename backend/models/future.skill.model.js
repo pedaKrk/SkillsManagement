@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
-import skillLevelEnum from './enums/skillLevelEnum'
+import skillLevelEnum from './enums/skill.level.enum.js'
 
-const futureSkillSchema = new mongoose.Schema({
+const futureSkillModel = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
@@ -23,4 +23,4 @@ const futureSkillSchema = new mongoose.Schema({
     }
 }, { timestamps: true })
 
-export default mongoose.model("FutureSkill", futureSkillSchema)
+export default mongoose.model("FutureSkill", futureSkillModel)

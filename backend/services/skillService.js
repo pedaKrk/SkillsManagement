@@ -1,4 +1,4 @@
-import Skill from '../models/skillSchema'
+import Skill from '../models/skill.model.js'
 
 const getAllSkills = async () => {
   return Skill.find()
