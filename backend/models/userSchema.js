@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const roleEnum = require('./enums/roleEnum')
 const employmentTypeEnum = require('./enums/employmentTypeEnum')
 
-const userSchema = mongoose.Schema({
+const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,

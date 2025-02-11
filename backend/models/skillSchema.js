@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const skillSchema = mongoose.Schema({
+const skillSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
