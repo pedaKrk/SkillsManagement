@@ -1,6 +1,6 @@
-const skillService = require('../services/skillService');
+import skillService from '../services/skillService'
 
-exports.getAllSkills = async (req, res) => {
+const getAllSkills = async (req, res) => {
   try {
     const skills = await skillService.getAllSkills()
     res.status(200).json(skills)
@@ -9,7 +9,7 @@ exports.getAllSkills = async (req, res) => {
   }
 }
 
-exports.getSkillById = async (req, res) => {
+const getSkillById = async (req, res) => {
   try {
     const skill = await skillService.getSkillById(req.params.id)
     if (!skill) {
@@ -21,7 +21,7 @@ exports.getSkillById = async (req, res) => {
   }
 }
 
-exports.createSkill = async (req, res) => {
+const createSkill = async (req, res) => {
   try {
     const newSkill = await skillService.createSkill(req.body)
     res.status(201).json(newSkill)
@@ -30,7 +30,7 @@ exports.createSkill = async (req, res) => {
   }
 }
 
-exports.updateSkill = async (req, res) => {
+const updateSkill = async (req, res) => {
   try {
     const updatedSkill = await skillService.updateSkill(req.params.id, req.body)
     if (!updatedSkill) {
@@ -42,7 +42,7 @@ exports.updateSkill = async (req, res) => {
   }
 }
 
-exports.deleteSkill = async (req, res) => {
+const deleteSkill = async (req, res) => {
   try {
     const result = await skillService.deleteSkill(req.params.id)
     if (!result) {
@@ -53,3 +53,5 @@ exports.deleteSkill = async (req, res) => {
     res.status(500).json({ message: 'Failed to delete skill', error })
   }
 }
+
+export default { getAllSkills, getSkillById, createSkill, updateSkill, deleteSkill }

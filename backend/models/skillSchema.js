@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose  from "mongoose";
 
 const skillSchema = new mongoose.Schema({
     name: {
@@ -17,4 +17,4 @@ const skillSchema = new mongoose.Schema({
     }]
 }, { timestamps: true })
 
-module.exports = mongoose.model('Skills', skillSchema)
+export default mongoose.model('Skills', skillSchema)

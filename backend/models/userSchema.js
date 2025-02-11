@@ -1,6 +1,6 @@
-const mongoose = require('mongoose')
-const roleEnum = require('./enums/roleEnum')
-const employmentTypeEnum = require('./enums/employmentTypeEnum')
+import mongoose from 'mongoose'
+import roleEnum from './enums/roleEnum'
+import employmentTypeEnum from './enums/employmentTypeEnum'
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -51,6 +51,4 @@ const userSchema = new mongoose.Schema({
     }]
 }, { collection: 'users' })
 
-const User = mongoose.model("User", userSchema)
-
-module.exports = User
+export default mongoose.model("User", userSchema)

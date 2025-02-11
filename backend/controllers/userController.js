@@ -1,6 +1,6 @@
-const userService = require('../services/userService')
+import userService from '../services/userService'
 
-exports.getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res) => {
   try {
     const users = await userService.getAllUsers()
     res.status(200).json(users)
@@ -9,7 +9,7 @@ exports.getAllUsers = async (req, res) => {
   }
 }
 
-exports.getUserById = async (req, res) => {
+const getUserById = async (req, res) => {
   try {
     const user = await userService.getUserById(req.params.id)
     if (!user) {
@@ -21,7 +21,7 @@ exports.getUserById = async (req, res) => {
   }
 }
 
-exports.createUser = async (req, res) => {
+const createUser = async (req, res) => {
   try {
     const newUser = await userService.createUser(req.body)
     res.status(201).json(newUser)
@@ -30,7 +30,7 @@ exports.createUser = async (req, res) => {
   }
 }
 
-exports.updateUser = async (req, res) => {
+const updateUser = async (req, res) => {
   try {
     const updatedUser = await userService.updateUser(req.params.id, req.body)
     if (!updatedUser) {
@@ -42,7 +42,7 @@ exports.updateUser = async (req, res) => {
   }
 }
 
-exports.deleteUser = async (req, res) => {
+const deleteUser = async (req, res) => {
   try {
     const result = await userService.deleteUser(req.params.id)
     if (!result) {
@@ -53,3 +53,5 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ message: 'Failed to delete user', error })
   }
 }
+
+export default { getAllUsers, getUserById, createUser, updateUser, deleteUser }

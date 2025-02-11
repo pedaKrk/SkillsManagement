@@ -3,4 +3,4 @@ const employmentTypeEnum = {
     EXTERNAL: 'External'
 }
 
-module.exports = employmentTypeEnum
+export default employmentTypeEnum

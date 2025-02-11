@@ -1,7 +1,6 @@
-const commentService = require('../services/commentService')
-const userService = require('../services/userService')
+import commentService from '../services/commentService'
 
-exports.getCommentsForUser = async (req, res) => {
+const getCommentsForUser = async (req, res) => {
   const { userId } = req.params
   try {
     const comments = await commentService.getCommentsForUser(userId)
@@ -11,7 +10,7 @@ exports.getCommentsForUser = async (req, res) => {
   }
 }
 
-exports.addCommentToUser = async (req, res) => {
+const addCommentToUser = async (req, res) => {
   const { userId } = req.params
   const { content, authorId } = req.body
 
@@ -23,7 +22,7 @@ exports.addCommentToUser = async (req, res) => {
   }
 }
 
-exports.updateComment = async (req, res) => {
+const updateComment = async (req, res) => {
   const { userId, commentId } = req.params
   const { content } = req.body
 
@@ -38,7 +37,7 @@ exports.updateComment = async (req, res) => {
   }
 }
 
-exports.deleteComment = async (req, res) => {
+const deleteComment = async (req, res) => {
   const { userId, commentId } = req.params
 
   try {
@@ -51,3 +50,5 @@ exports.deleteComment = async (req, res) => {
     res.status(500).json({ message: 'Failed to delete comment', error })
   }
 }
+
+export default { getCommentsForUser, addCommentToUser, updateComment, deleteComment }

@@ -1,11 +1,11 @@
-const Comment = require('../models/commentSchema')
-const User = require('../models/userSchema')
+import Comment from '../models/commentSchema'
+import User from '../models/userSchema'
 
-exports.getCommentsForUser = async (userId) => {
+const getCommentsForUser = async (userId) => {
   return Comment.find({ author: userId }).populate('author', 'username').exec()
 }
 
-exports.addCommentToUser = async (userId, authorId, content) => {
+const addCommentToUser = async (userId, authorId, content) => {
   const comment = new Comment({ content, author: authorId })
 
   const savedComment = await comment.save()
@@ -15,7 +15,7 @@ exports.addCommentToUser = async (userId, authorId, content) => {
   return savedComment
 }
 
-exports.updateComment = async (userId, commentId, content) => {
+const updateComment = async (userId, commentId, content) => {
 
   const user = await User.findById(userId)
   if (!user.comments.includes(commentId)) {
@@ -25,9 +25,11 @@ exports.updateComment = async (userId, commentId, content) => {
   return Comment.findByIdAndUpdate(commentId, { content }, { new: true })
 }
 
-exports.deleteComment = async (userId, commentId) => {
+const deleteComment = async (userId, commentId) => {
 
   await User.findByIdAndUpdate(userId, { $pull: { comments: commentId } })
 
   return Comment.findByIdAndDelete(commentId)
 }
+
+export default {getCommentsForUser, addCommentToUser, updateComment, deleteComment}

@@ -1,22 +1,24 @@
-const Skill = require('../models/skillSchema')
+import Skill from '../models/skillSchema'
 
-exports.getAllSkills = async () => {
+const getAllSkills = async () => {
   return Skill.find()
 }
 
-exports.getSkillById = async (id) => {
+const getSkillById = async (id) => {
   return Skill.findById(id)
 }
 
-exports.createSkill = async (skillData) => {
+const createSkill = async (skillData) => {
   const skill = new Skill(skillData)
   return skill.save()
 }
 
-exports.updateSkill = async (id, skillData) => {
+const updateSkill = async (id, skillData) => {
   return Skill.findByIdAndUpdate(id, skillData, { new: true })
 }
 
-exports.deleteSkill = async (id) => {
+const deleteSkill = async (id) => {
   return Skill.findByIdAndDelete(id)
 }
+
+export default { getAllSkills, getSkillById, createSkill, updateSkill, deleteSkill }

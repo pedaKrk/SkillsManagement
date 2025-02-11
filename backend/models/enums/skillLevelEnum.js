@@ -4,4 +4,4 @@ const skillLevelEnum = {
     ADVANCED: 'Advanced',
 }
 
-module.exports = skillLevelEnum
+export default skillLevelEnum
