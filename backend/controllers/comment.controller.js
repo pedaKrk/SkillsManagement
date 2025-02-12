@@ -1,37 +1,33 @@
-// move logic from services to controllers and remove services
-// use transactions when creating stuff
-
 import mongoose from 'mongoose'
-import commentService from '../services/commentService'
+
 import User from '../models/user.model'
 import Comment from '../models/comment.model'
 
 export const getCommentsForUser = async (req, res) => {
-  const session = await mongoose.startSession()
-  session.startTransaction()
-
   try {
     const { userId } = req.params
 
     const comments = await Comment.find({ author: userId }).populate('author', 'username').exec()
-        //await commentService.getCommentsForUser(userId)
-    await session.commitTransaction()
+
     res.status(200).json(comments)
   } catch (error) {
-    await session.abortTransaction()
-    await session.endSession()
     console.log('Failed to retrieve comments', error)
     res.status(500).json({ message: 'Failed to retrieve comments', error })
   }
 }
 
 export const addCommentToUser = async (req, res) => {
-  const { userId } = req.params
-  const { content, authorId } = req.body
+
 
   try {
-    const newComment = await commentService.addCommentToUser(userId, authorId, content)
-    res.status(201).json(newComment)
+    const { userId } = req.params
+    const { content, authorId } = req.body
+
+    const newComment = new Comment({ content, author: authorId })
+    const savedComment = await newComment.save()
+    await User.findByIdAndUpdate(userId, { $push: { comments: savedComment._id } })
+
+    res.status(201).json(savedComment)
   } catch (error) {
     res.status(500).json({ message: 'Failed to add comment', error })
   }
@@ -42,7 +38,13 @@ export const updateComment = async (req, res) => {
   const { content } = req.body
 
   try {
-    const updatedComment = await commentService.updateComment(userId, commentId, content)
+    const user = await User.findById(userId)
+    if (!user.comments.includes(commentId)) {
+      throw new Error('Comment not found for this user')
+    }
+
+    const updatedComment = await Comment.findByIdAndUpdate(commentId, { content }, { new: true })
+
     if (!updatedComment) {
       return res.status(404).json({ message: 'Comment not found' })
     }
@@ -56,7 +58,9 @@ export const deleteComment = async (req, res) => {
   const { userId, commentId } = req.params
 
   try {
-    const result = await commentService.deleteComment(userId, commentId)
+    await User.findByIdAndUpdate(userId, { $pull: { comments: commentId } })
+
+    const result = await Comment.findByIdAndDelete(commentId)
     if (!result) {
       return res.status(404).json({ message: 'Comment not found' })
     }
