@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
-import User from '../models/user.model'
-import Comment from '../models/comment.model'
+import User from '../models/user.model.js'
+import Comment from '../models/comment.model.js'
 
 export const getCommentsForUser = async (req, res) => {
   try {
