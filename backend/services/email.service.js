@@ -1,18 +1,19 @@
 import nodemailer from 'nodemailer'
 import {SMTP_HOST, SMTP_PASSWORD, SMTP_PORT, SMTP_USER} from "../config/env.js";
 
+//https://www.nodemailer.com/
+
 let transporter;
 
 export const connectToSMTP = async () => {
-    //https://www.nodemailer.com/
     try {
         transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
-            port: process.env.SMTP_PORT,
+            host: SMTP_HOST,
+            port: SMTP_PORT,
             secure: true,
             auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASSWORD,
+                user: SMTP_USER,
+                pass: SMTP_PASSWORD,
             },
             tls: {
                 rejectUnauthorized: false,
