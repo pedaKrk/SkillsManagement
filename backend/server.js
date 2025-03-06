@@ -3,9 +3,9 @@ import userRoutes from './routes/user.routes.js'
 import skillRoutes from './routes/skill.routes.js'
 import commentRoutes from './routes/comment.routes.js'
 import connectToDB from "./database/mongodb.js";
+import { PORT } from "./config/env.js";
 
 const app = express()
-const PORT = 3000
 
 app.use(express.json())
 

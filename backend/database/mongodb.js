@@ -1,8 +1,9 @@
 import mongoose from 'mongoose'
+import {DB_URI} from "../config/env.js";
 
 const connectToDB = async () => {
     try{
-        await mongoose.connect('mongodb+srv://peterkarkulik:R0X7jBjQ3K3aJP4h@skillsmanagement.ylpom.mongodb.net/')
+        await mongoose.connect(DB_URI)
         console.log("Connected to DB")
     }catch(err){
         console.log("Error connecting to DB: ", err)
