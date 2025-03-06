@@ -24,12 +24,6 @@ cd backend
 npm install
 ```
 
-### Run the Backend Server
-
-`npm start`
-
-This starts the backend server on http://localhost:3000/.
-
 ## Frontend Setup (Angular)
 
 ### Navigate to the frontend folder and install dependencies:
@@ -39,23 +33,32 @@ cd ../frontend
 npm install
 ```
 
-### Run the Frontend
-
-`ng serve -o`
-
-This starts the Angular app on http://localhost:4200/.
-
 ## Environment Variables
 Create a **.env.development.local** file in the backend folder.
 The **env.js** file in the config folder makes those variables easily accessible in 
 the backend of the project.
-Take a look at the **env.js** file to see what env variables are required.
+Take a look at the **env.js** file to see what variables are required.
 
 The env.development.local file should contain parameters for:
 - Database
 - SMTP-Server
 - Ports
 - JWT
+
+By default, the backend runs on Port **3000** and the frontend on Port **4200**.
+
+## Run the Project
+### Navigate to the backend folder and run the Server
+
+`npm start`
+
+This starts the server by default on http://localhost:3000/, or the port you specified in the .env file.
+
+### Navigate to the frontend folder and run the Frontend
+
+`ng serve -o`
+
+This starts the Angular app on http://localhost:4200/.
 
 ## Project Structure
 The project is divided in frontend and backend.
