@@ -1,5 +1,5 @@
 # Skills Management
-This project consists of an Angular frontend and an ExpressJS backend. Below are the instructions to set up and run the project.
+This project consists of an Angular frontend and an Express.js backend. Below are the instructions to set up and run the project.
 
 ## Prerequisites
 
@@ -15,7 +15,7 @@ This project consists of an Angular frontend and an ExpressJS backend. Below are
 
 `npm install -g @angular/cli`
 
-## 1. Backend Setup (ExpressJS)
+## Backend Setup (ExpressJS)
 
 ### Navigate to the backend folder and install dependencies:
 
@@ -30,7 +30,7 @@ npm install
 
 This starts the backend server on http://localhost:3000/.
 
-## 2. Frontend Setup (Angular)
+## Frontend Setup (Angular)
 
 ### Navigate to the frontend folder and install dependencies:
 
@@ -44,3 +44,34 @@ npm install
 `ng serve -o`
 
 This starts the Angular app on http://localhost:4200/.
+
+## Environment Variables
+Create a **.env.development.local** file in the backend folder.
+The **env.js** file in the config folder makes those variables easily accessible in 
+the backend of the project.
+Take a look at the **env.js** file to see what env variables are required.
+
+The env.development.local file should contain parameters for:
+- Database
+- SMTP-Server
+- Ports
+- JWT
+
+## Project Structure
+The project is divided in frontend and backend.
+When installing new packages, make sure to install them in the corresponding folder,
+so that there is no node_modules folder in the root of the project.
+
+### Backend
+The backend is divided in a routes-, controller-, services- and models-folder.
+- add new routes using express-router
+- each route file should have its own controller
+- services inside the services folder
+- if necessary, change the mongoose-schemas in the models folder
+
+### Frontend
+The frontend is using angular.
+Make sure to create **reusable** Components and reuse them via dependency injection.
+
+## Contributors
+- [Peter Karkulik](https://github.com/pedaKrk)
