@@ -1,5 +1,6 @@
 import { sendEmail } from "../services/email.service.js";
 import { hashPassword, comparePassword } from "../services/auth.service.js";
+import { generateToken } from "../services/jwt.service.js";
 import User from "../models/user.model.js";
 
 export const registerUser = async (req, res) => {
@@ -21,10 +22,16 @@ export const registerUser = async (req, res) => {
         
         await newUser.save();
         
+        // Generate JWT token
+        const token = generateToken(newUser);
+        
         // Send confirmation email
         await sendEmail(email, "Registration successful");
 
-        res.status(201).json({ message: "User successfully registered" });
+        res.status(201).json({ 
+            message: "User successfully registered",
+            token: token
+        });
     } catch (err) {
         console.error("Registration error:", err);
         res.status(500).json({ message: "Registration failed", error: err.message });
@@ -47,7 +54,13 @@ export const login = async (req, res) => {
             return res.status(401).json({ message: "Invalid credentials" });
         }
         
-        res.status(200).json({ message: "Successfully logged in" });
+        // Generate JWT token
+        const token = generateToken(user);
+        
+        res.status(200).json({ 
+            message: "Successfully logged in",
+            token: token
+        });
     } catch (err) {
         console.error("Login error:", err);
         res.status(500).json({ message: "Login failed" });
