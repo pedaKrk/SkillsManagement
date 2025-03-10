@@ -1,14 +1,55 @@
 import { sendEmail } from "../services/email.service.js";
+import { hashPassword, comparePassword } from "../services/auth.service.js";
+import User from "../models/user.model.js";
 
 export const registerUser = async (req, res) => {
-    try{
-        const { email } = req.body;
-        const password = Math.random().toString(36).slice(-8);
+    try {
+        const { email, password } = req.body;
+        
+        if (!email || !password) {
+            return res.status(400).json({ message: "Email and password are required" });
+        }
 
-        await sendEmail(email, password)
+        // Hash the password
+        const hashedPassword = await hashPassword(password);
+        
+        // Create new user with hashed password
+        const newUser = new User({
+            ...req.body,
+            password: hashedPassword
+        });
+        
+        await newUser.save();
+        
+        // Send confirmation email
+        await sendEmail(email, "Registration successful");
 
-        res.status(201).json(email)
-    }catch(err){
-        res.status(500).json({})
+        res.status(201).json({ message: "User successfully registered" });
+    } catch (err) {
+        console.error("Registration error:", err);
+        res.status(500).json({ message: "Registration failed", error: err.message });
     }
-}
+};
+
+export const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        
+        // Find user
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+        
+        // Verify password
+        const isPasswordValid = await comparePassword(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+        
+        res.status(200).json({ message: "Successfully logged in" });
+    } catch (err) {
+        console.error("Login error:", err);
+        res.status(500).json({ message: "Login failed" });
+    }
+};
