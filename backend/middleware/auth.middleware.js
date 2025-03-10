@@ -9,10 +9,13 @@ export const authenticateToken = async (req, res, next) => {
             return res.status(401).json({ message: 'Authentication required' });
         }
 
-        const decoded = verifyToken(token);
+        const decoded = await verifyToken(token);
         req.user = decoded;
         next();
     } catch (error) {
+        if (error.message === 'Token is blacklisted') {
+            return res.status(401).json({ message: 'Token has been invalidated' });
+        }
         return res.status(403).json({ message: 'Invalid or expired token' });
     }
 };
