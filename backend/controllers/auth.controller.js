@@ -1,19 +1,19 @@
 import { sendEmail } from "../services/email.service.js";
-import { hashPassword, comparePassword } from "../services/auth.service.js";
+import {hashPassword, comparePassword, generatePassword} from "../services/auth.service.js";
 import { generateToken, blacklistToken } from "../services/jwt.service.js";
 import User from "../models/user.model.js";
 
 export const registerUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email } = req.body;
         
-        if (!email || !password) {
-            return res.status(400).json({ message: "Email and password are required" });
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
         }
 
-        // Hash the password
-        const hashedPassword = await hashPassword(password);
-        
+        const generatedPassword = generatePassword();
+        const hashedPassword = await hashPassword(generatedPassword);
+
         // Create new user with hashed password
         const newUser = new User({
             ...req.body,
@@ -21,16 +21,12 @@ export const registerUser = async (req, res) => {
         });
         
         await newUser.save();
-        
-        // Generate JWT token
-        const token = generateToken(newUser);
-        
-        // Send confirmation email
-        await sendEmail(email, "Registration successful");
+
+        // Send email with generated password
+        await sendEmail(email, generatedPassword);
 
         res.status(201).json({ 
-            message: "User successfully registered",
-            token: token
+            message: "User successfully created"
         });
     } catch (err) {
         console.error("Registration error:", err);
@@ -69,7 +65,7 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
     try {
-        // Token aus dem Authorization Header extrahieren
+        // Get token from auth header
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
 
@@ -77,7 +73,7 @@ export const logout = async (req, res) => {
             return res.status(400).json({ message: "No token provided" });
         }
 
-        // Token zur Blacklist hinzufügen
+        // Add token to blacklist
         await blacklistToken(token);
 
         res.status(200).json({ 
