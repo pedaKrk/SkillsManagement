@@ -1,4 +1,5 @@
 import express from 'express'
+import cors from 'cors'
 
 import userRoutes from './routes/user.routes.js'
 import skillRoutes from './routes/skill.routes.js'
@@ -10,8 +11,10 @@ import {connectToSMTP} from "./services/email.service.js";
 
 import { PORT } from "./config/env.js";
 
-
 const app = express()
+
+//  CORS for all Routs
+app.use(cors());
 
 app.use(express.json())
 
