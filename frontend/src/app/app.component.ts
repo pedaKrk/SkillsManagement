@@ -3,10 +3,20 @@ import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   imports: [RouterOutlet],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  template: `
+    <main>
+      <router-outlet></router-outlet>
+    </main>
+  `,
+  styles: [`
+    main {
+      width: 100%;
+      height: 100%;
+    }
+  `]
 })
 export class AppComponent {
-  title = 'frontend';
+  title = 'SkillsManagement';
 }
