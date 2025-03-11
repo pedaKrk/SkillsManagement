@@ -32,6 +32,7 @@ const userModel = new mongoose.Schema({
         unique: true
     },
     phoneNumber: String,
+    mustChangePassword: Boolean,
     employmentType: {
         type: String,
         enum: employmentTypeEnum,
