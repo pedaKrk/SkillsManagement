@@ -17,7 +17,8 @@ export const registerUser = async (req, res) => {
         // Create new user with hashed password
         const newUser = new User({
             ...req.body,
-            password: hashedPassword
+            password: hashedPassword,
+            mustChangePassword: true,
         });
         
         await newUser.save();
@@ -42,6 +43,10 @@ export const login = async (req, res) => {
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        if(user.mustChangePassword === true) {
+            return res.status(403).json({ message: "User needs to change default password" });
         }
         
         // Verify password
