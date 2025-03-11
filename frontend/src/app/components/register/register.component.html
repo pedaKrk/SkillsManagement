@@ -1,0 +1,124 @@
+<div class="register-container">
+  <div class="register-box">
+    <h2>Registrierung</h2>
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">Vorname</label>
+          <input
+            type="text"
+            id="firstName"
+            formControlName="firstName"
+            class="form-control"
+            [ngClass]="{'is-invalid': submitted && registerForm.get('firstName')?.errors}"
+          />
+          <div *ngIf="submitted && registerForm.get('firstName')?.errors" class="invalid-feedback">
+            <div *ngIf="registerForm.get('firstName')?.errors?.['required']">Vorname ist erforderlich</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Nachname</label>
+          <input
+            type="text"
+            id="lastName"
+            formControlName="lastName"
+            class="form-control"
+            [ngClass]="{'is-invalid': submitted && registerForm.get('lastName')?.errors}"
+          />
+          <div *ngIf="submitted && registerForm.get('lastName')?.errors" class="invalid-feedback">
+            <div *ngIf="registerForm.get('lastName')?.errors?.['required']">Nachname ist erforderlich</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="username">Benutzername</label>
+        <input
+          type="text"
+          id="username"
+          formControlName="username"
+          class="form-control"
+          [ngClass]="{'is-invalid': submitted && registerForm.get('username')?.errors}"
+        />
+        <div *ngIf="submitted && registerForm.get('username')?.errors" class="invalid-feedback">
+          <div *ngIf="registerForm.get('username')?.errors?.['required']">Benutzername ist erforderlich</div>
+          <div *ngIf="registerForm.get('username')?.errors?.['minlength']">Benutzername muss mindestens 3 Zeichen lang sein</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">E-Mail</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-control"
+          [ngClass]="{'is-invalid': submitted && registerForm.get('email')?.errors}"
+        />
+        <div *ngIf="submitted && registerForm.get('email')?.errors" class="invalid-feedback">
+          <div *ngIf="registerForm.get('email')?.errors?.['required']">E-Mail ist erforderlich</div>
+          <div *ngIf="registerForm.get('email')?.errors?.['email']">Bitte geben Sie eine gültige E-Mail-Adresse ein</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Passwort</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="form-control"
+          [ngClass]="{'is-invalid': submitted && registerForm.get('password')?.errors}"
+        />
+        <div *ngIf="submitted && registerForm.get('password')?.errors" class="invalid-feedback">
+          <div *ngIf="registerForm.get('password')?.errors?.['required']">Passwort ist erforderlich</div>
+          <div *ngIf="registerForm.get('password')?.errors?.['minlength']">Passwort muss mindestens 6 Zeichen lang sein</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Passwort bestätigen</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          formControlName="confirmPassword"
+          class="form-control"
+          [ngClass]="{'is-invalid': submitted && registerForm.get('confirmPassword')?.errors}"
+        />
+        <div *ngIf="submitted && registerForm.get('confirmPassword')?.errors" class="invalid-feedback">
+          <div *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">Passwortbestätigung ist erforderlich</div>
+          <div *ngIf="registerForm.get('confirmPassword')?.errors?.['passwordMismatch']">Passwörter stimmen nicht überein</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="employmentType">Beschäftigungsart</label>
+        <select
+          id="employmentType"
+          formControlName="employmentType"
+          class="form-control"
+          [ngClass]="{'is-invalid': submitted && registerForm.get('employmentType')?.errors}"
+        >
+          <option value="Internal">Intern</option>
+          <option value="External">Extern</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          {{ loading ? 'Wird geladen...' : 'Registrieren' }}
+        </button>
+      </div>
+
+      <div *ngIf="error" class="alert alert-danger mt-3">
+        {{error}}
+      </div>
+    </form>
+    
+    <!-- Login link -->
+    <div class="login-link mt-3">
+      <p>Bereits registriert? <a [routerLink]="['/login']">Jetzt anmelden</a></p>
+    </div>
+  </div>
+</div> 

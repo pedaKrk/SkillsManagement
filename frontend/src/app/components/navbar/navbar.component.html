@@ -1,0 +1,41 @@
+<nav class="navbar">
+  <div class="container">
+    <div class="navbar-left">
+      <a class="fh-link" href="https://www.technikum-wien.at/" target="_blank">
+        <img src="assets/FH_Technikum_Wien_logo.png" alt="FH Technikum Wien" class="fh-logo">
+      </a>
+    </div>
+    
+    <!-- Navigation links for logged in users -->
+    <ul class="navbar-nav" *ngIf="isLoggedIn">
+      <li class="nav-item">
+        <a class="nav-link" [routerLink]="['/']" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Hauptseite</a>
+      </li>
+      <li class="nav-item" *ngIf="isAdmin">
+        <a class="nav-link" [routerLink]="['/register']" routerLinkActive="active">Neue/n BenutzerIn hinzufügen</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [routerLink]="['/future-skills']" routerLinkActive="active">Future Skills</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [routerLink]="['/user']" routerLinkActive="active">Benutzer</a>
+      </li>
+    </ul>
+    
+    <!-- User menu -->
+    <div class="user-menu" *ngIf="isLoggedIn">
+      <span class="username">{{ username }}</span>
+      <button class="btn btn-logout" (click)="logout()">Ausloggen</button>
+    </div>
+    
+    <!-- Login/Register links for guests -->
+    <ul class="navbar-nav" *ngIf="!isLoggedIn">
+      <li class="nav-item">
+        <a class="nav-link" [routerLink]="['/login']" routerLinkActive="active">Login</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [routerLink]="['/register']" routerLinkActive="active">Registrieren</a>
+      </li>
+    </ul>
+  </div>
+</nav> 

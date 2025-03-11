@@ -3,6 +3,7 @@ import {hashPassword, comparePassword, generatePassword} from "../services/auth.
 import { generateToken, blacklistToken } from "../services/jwt.service.js";
 import User from "../models/user.model.js";
 
+// Register new user
 export const registerUser = async (req, res) => {
     try {
         const { email } = req.body;
@@ -19,6 +20,7 @@ export const registerUser = async (req, res) => {
             ...req.body,
             password: hashedPassword,
             mustChangePassword: true,
+            role: 'Lecturer' // Default role for new users
         });
         
         await newUser.save();
@@ -35,13 +37,24 @@ export const registerUser = async (req, res) => {
     }
 };
 
+// Login user with email/username and password
 export const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { identifier, password } = req.body;
+        console.log('Login attempt with identifier:', identifier);
         
-        // Find user
-        const user = await User.findOne({ email });
+        // Find user by email or username
+        const user = await User.findOne({
+            $or: [
+                { email: identifier },
+                { username: identifier }
+            ]
+        });
+        console.log('User found:', !!user);
+        
+        // Return error if user not found
         if (!user) {
+            console.log('User not found for identifier:', identifier);
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
@@ -49,18 +62,28 @@ export const login = async (req, res) => {
             return res.status(403).json({ message: "User needs to change default password" });
         }
         
-        // Verify password
+        // Check if password matches
         const isPasswordValid = await comparePassword(password, user.password);
+        console.log('Password valid:', isPasswordValid);
+        
         if (!isPasswordValid) {
+            console.log('Invalid password for user:', identifier);
             return res.status(401).json({ message: "Invalid credentials" });
         }
         
-        // Generate JWT token
+        // Generate JWT token for authentication
         const token = generateToken(user);
+        console.log('Login successful for:', identifier);
         
+        // Return success with user data and token
         res.status(200).json({ 
             message: "Successfully logged in",
-            token: token
+            token: token,
+            user: {
+                email: user.email,
+                username: user.username,
+                role: user.role
+            }
         });
     } catch (err) {
         console.error("Login error:", err);
@@ -68,6 +91,7 @@ export const login = async (req, res) => {
     }
 };
 
+// Logout user and invalidate token
 export const logout = async (req, res) => {
     try {
         // Get token from auth header
