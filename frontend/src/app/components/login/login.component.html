@@ -1,0 +1,54 @@
+<div class="login-container">
+  <div class="login-box">
+    <h2>Login</h2>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="identifier">E-Mail oder Benutzername</label>
+        <input
+          type="text"
+          id="identifier"
+          formControlName="identifier"
+          class="form-control"
+          [ngClass]="{'is-invalid': submitted && loginForm.get('identifier')?.errors}"
+        />
+        <div *ngIf="submitted && loginForm.get('identifier')?.errors" class="invalid-feedback">
+          <div *ngIf="loginForm.get('identifier')?.errors?.['required']">E-Mail oder Benutzername ist erforderlich</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Passwort</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="form-control"
+          [ngClass]="{'is-invalid': submitted && loginForm.get('password')?.errors}"
+        />
+        <div *ngIf="submitted && loginForm.get('password')?.errors" class="invalid-feedback">
+          <div *ngIf="loginForm.get('password')?.errors?.['required']">Passwort ist erforderlich</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          {{ loading ? 'Wird geladen...' : 'Anmelden' }}
+        </button>
+      </div>
+
+      <div *ngIf="error" class="alert alert-danger mt-3">
+        {{error}}
+      </div>
+    </form>
+    
+    <!-- Registration link -->
+    <div class="register-link mt-3">
+      <p>Noch kein Konto? <a [routerLink]="['/register']">Jetzt registrieren</a></p>
+    </div>
+    
+    <!-- Password reset link (optional) -->
+    <div class="forgot-password mt-2">
+      <a [routerLink]="['/reset-password']">Passwort vergessen?</a>
+    </div>
+  </div>
+</div> 

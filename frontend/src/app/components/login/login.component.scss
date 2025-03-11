@@ -1,0 +1,224 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  background-color: #f5f5f5;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 400px;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+}
+
+h2 {
+  color: #0077a9;
+  text-align: center;
+  margin-bottom: 25px;
+  font-weight: 600;
+  position: relative;
+  
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    width: 50px;
+    height: 3px;
+    background-color: #0077a9;
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+  }
+  
+  &:hover:after {
+    width: 100px;
+  }
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: #0077a9;
+  }
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: #0077a9;
+    box-shadow: 0 0 0 3px rgba(0, 119, 169, 0.2);
+    transform: translateY(-2px);
+  }
+  
+  &:hover:not(:focus) {
+    border-color: #0077a9;
+  }
+  
+  &.is-invalid {
+    border-color: #dc3545;
+    animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translateX(-1px);
+  }
+  20%, 80% {
+    transform: translateX(2px);
+  }
+  30%, 50%, 70% {
+    transform: translateX(-3px);
+  }
+  40%, 60% {
+    transform: translateX(3px);
+  }
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background-color: #0077a9;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: all 0.6s ease;
+    z-index: -1;
+  }
+  
+  &:hover {
+    background-color: #005e86;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    
+    &:before {
+      left: 100%;
+    }
+  }
+  
+  &:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    
+    &:before {
+      display: none;
+    }
+  }
+}
+
+.invalid-feedback {
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 5px;
+  transition: opacity 0.3s ease;
+  opacity: 0.9;
+  
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 12px;
+  border-radius: 4px;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background-color: #f5c2c7;
+    border-color: #f1aeb5;
+  }
+}
+
+// Styles for registration and password reset links
+.register-link, .forgot-password {
+  text-align: center;
+  margin-top: 15px;
+  
+  a {
+    color: #0077a9;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+    
+    &:after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -2px;
+      left: 0;
+      background-color: #0077a9;
+      transition: width 0.3s ease;
+    }
+    
+    &:hover {
+      color: #005e86;
+      
+      &:after {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.mt-3 {
+  margin-top: 15px;
+}
+
+.mt-2 {
+  margin-top: 10px;
+} 
