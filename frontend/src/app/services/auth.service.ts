@@ -7,6 +7,7 @@ interface User {
   id: string;
   email: string;
   username?: string;
+  role?: string;
   token?: string;
 }
 
@@ -16,6 +17,7 @@ interface LoginResponse {
   user: {
     email: string;
     username: string;
+    role: string;
   };
 }
 
@@ -55,6 +57,7 @@ export class AuthService {
         id: '',
         email: response.user.email,
         username: response.user.username,
+        role: response.user.role,
         token: response.token
       };
       localStorage.setItem('currentUser', JSON.stringify(user));
