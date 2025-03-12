@@ -49,4 +49,12 @@ export class UserService {
       { headers: this.getAuthHeaders() }
     );
   }
+
+  // Delete User
+  deleteUser(userId: string): Observable<any> {
+    return this.http.delete(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.users.all}/${userId}`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
 } 
