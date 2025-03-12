@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UserService } from '../../core/services/user/user.service';
@@ -20,7 +20,7 @@ import { RouterModule } from '@angular/router';
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss'
 })
-export class UserListComponent implements OnInit {
+export class UserListComponent implements OnInit, OnDestroy {
   users: User[] = [];
   filteredUsers: User[] = [];
   isLoading = false;
@@ -34,9 +34,17 @@ export class UserListComponent implements OnInit {
   searchTerm: string = '';
   selectedEmploymentType: string = '';
   selectedRole: string = '';
+  selectedSkill: string = '';
+  selectedSkills: string[] = [];
   
   // for multiple selection
   selectedUsers: string[] = [];
+  
+  // for skill filtering dropdown
+  isSkillDropdownOpen: boolean = false;
+  skillSearchTerm: string = '';
+  filteredSkillsList: string[] = [];
+  allSkills: string[] = [];
   
   constructor(
     private userService: UserService,
@@ -46,6 +54,22 @@ export class UserListComponent implements OnInit {
   ngOnInit(): void {
     this.loadUsers();
     console.log('UserListComponent initialisiert');
+    
+    // click outside of skill dropdown to close it
+    document.addEventListener('click', this.closeSkillDropdownOnOutsideClick.bind(this));
+  }
+  
+  ngOnDestroy(): void {
+    //click event listener remove
+    document.removeEventListener('click', this.closeSkillDropdownOnOutsideClick.bind(this));
+  }
+  
+  // helper function to close the dropdown on click outside
+  closeSkillDropdownOnOutsideClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.dropdown-wrapper') && this.isSkillDropdownOpen) {
+      this.isSkillDropdownOpen = false;
+    }
   }
   
   loadUsers(): void {
@@ -73,6 +97,9 @@ export class UserListComponent implements OnInit {
         this.users.forEach((user, index) => {
           console.log(`User ${index}:`, user.username, 'ID:', user.id);
         });
+        
+        // Alle verfügbaren Skills laden
+        this.loadAllSkills();
         
         this.applyFilters();
         this.isLoading = false;
@@ -128,6 +155,23 @@ export class UserListComponent implements OnInit {
       filtered = filtered.filter(user => 
         user.role === this.selectedRole
       );
+    }
+    
+    // filtering after skills (mehrere Skills)
+    if (this.selectedSkills.length > 0) {
+      filtered = filtered.filter(user => {
+        if (!user.skills || user.skills.length === 0) {
+          return false;
+        }
+        
+        // check if the user has at least one of the selected skills
+        return this.selectedSkills.some(selectedSkill => {
+          return user.skills!.some(skill => {
+            const skillName = skill.name || this.getSkillName(skill);
+            return skillName.toLowerCase() === selectedSkill.toLowerCase();
+          });
+        });
+      });
     }
     
     // sorting
@@ -244,6 +288,8 @@ export class UserListComponent implements OnInit {
     this.searchTerm = '';
     this.selectedEmploymentType = '';
     this.selectedRole = '';
+    this.selectedSkill = '';
+    this.selectedSkills = [];
     this.applyFilters();
   }
   
@@ -282,5 +328,108 @@ export class UserListComponent implements OnInit {
     
     // fallback
     return '-';
+  }
+  
+  // method to filter by skills (multiple)
+  filterBySkill(skill: string): void {
+    const index = this.selectedSkills.indexOf(skill);
+    
+    if (index === -1) {
+      // skill is not selected, so add it
+      this.selectedSkills.push(skill);
+    } else {
+      // skill is already selected, so remove it
+      this.selectedSkills.splice(index, 1);
+    }
+    
+    // for backwards compatibility
+    this.selectedSkill = this.selectedSkills.length > 0 ? this.selectedSkills[0] : '';
+    
+    this.applyFilters();
+  }
+  
+  // method to check if a skill is selected
+  isSkillSelected(skill: string): boolean {
+    return this.selectedSkills.includes(skill);
+  }
+  
+  /**
+   * checks if active filters are set
+   */
+  hasActiveFilters(): boolean {
+    return this.searchTerm.trim() !== '' || 
+           this.selectedEmploymentType !== '' || 
+           this.selectedRole !== '' || 
+           this.selectedSkills.length > 0;
+  }
+  
+  /**
+   * removes a skill from the selection
+   */
+  removeSkill(skill: string): void {
+    const index = this.selectedSkills.indexOf(skill);
+    if (index !== -1) {
+      this.selectedSkills.splice(index, 1);
+      
+      // for backwards compatibility
+      this.selectedSkill = this.selectedSkills.length > 0 ? this.selectedSkills[0] : '';
+      
+      this.applyFilters();
+    }
+  }
+  
+  // method to reset all selected skills
+  clearAllSkills(): void {
+    this.selectedSkills = [];
+    this.selectedSkill = '';
+    this.applyFilters();
+  }
+  
+  // method to load all skills
+  loadAllSkills(): void {
+    const skillsSet = new Set<string>();
+    
+    this.users.forEach(user => {
+      if (user.skills && user.skills.length > 0) {
+        user.skills.forEach(skill => {
+          const skillName = skill.name || this.getSkillName(skill);
+          if (skillName !== '-') {
+            skillsSet.add(skillName);
+          }
+        });
+      }
+    });
+    
+    this.allSkills = Array.from(skillsSet).sort();
+    this.filteredSkillsList = [...this.allSkills];
+  }
+  
+  // method to open/close the skill dropdown
+  toggleSkillDropdown(): void {
+    this.isSkillDropdownOpen = !this.isSkillDropdownOpen;
+    
+    if (this.isSkillDropdownOpen) {
+      // when the dropdown is opened, reset the skill list
+      this.skillSearchTerm = '';
+      this.filteredSkillsList = [...this.allSkills];
+    }
+  }
+  
+  // method to filter the skill list based on the search term
+  filterSkillsList(): void {
+    if (!this.skillSearchTerm) {
+      this.filteredSkillsList = [...this.allSkills];
+      return;
+    }
+    
+    const searchTerm = this.skillSearchTerm.toLowerCase();
+    this.filteredSkillsList = this.allSkills.filter(skill => 
+      skill.toLowerCase().includes(searchTerm)
+    );
+  }
+  
+  // method to get all available skills
+  getAllSkills(): string[] {
+    return this.allSkills;
   }
 }

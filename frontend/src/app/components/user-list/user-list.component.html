@@ -1,29 +1,105 @@
 <div class="user-list-container">
   <!-- action bar -->
   <div class="action-bar">
-    <div class="action-buttons">
-      <button class="btn btn-primary" (click)="generatePDF()" [disabled]="selectedUsers.length === 0">
-        PDF generieren und herunterladen
-      </button>
-      <button class="btn btn-primary" (click)="sendEmail()" [disabled]="selectedUsers.length === 0">
-        E-Mail an ausgewählte Person(en) senden
-      </button>
-      <button class="btn btn-secondary" (click)="sortUsers('username')">
-        Aufsteigend sortieren
-      </button>
-      <button class="btn btn-secondary" (click)="resetFilters()">
-        Alle Filter löschen
-      </button>
-    </div>
-    
-    <div class="search-bar">
-      <input 
-        type="text" 
-        [(ngModel)]="searchTerm" 
-        (ngModelChange)="applyFilters()"
-        placeholder="Suchen..." 
-        class="form-control"
-      >
+    <div class="action-buttons-container">
+      <div class="action-buttons">
+        <button class="btn btn-primary" (click)="generatePDF()" [disabled]="selectedUsers.length === 0">
+          PDF generieren und herunterladen
+        </button>
+        <button class="btn btn-primary" (click)="sendEmail()" [disabled]="selectedUsers.length === 0">
+          E-Mail an ausgewählte Person(en) senden
+        </button>
+        <button class="btn btn-secondary" (click)="sortUsers('username')">
+          Aufsteigend sortieren
+        </button>
+      </div>
+      
+      <div class="filter-controls">
+        <!-- Suchfeld -->
+        <div class="search-bar">
+          <input 
+            type="text" 
+            [(ngModel)]="searchTerm" 
+            (ngModelChange)="applyFilters()"
+            placeholder="Nach Namen suchen..." 
+            class="form-control"
+          >
+        </div>
+        
+        <div class="filter-row">
+          <!-- Skill-Filter Dropdown -->
+          <div class="skill-filter">
+            <div class="dropdown-wrapper">
+              <!-- Dropdown toggle button -->
+              <div class="skills-dropdown-toggle" (click)="toggleSkillDropdown()">
+                <span>{{ selectedSkills.length > 0 ? 'Skills: ' + selectedSkills.length + ' ausgewählt' : 'Nach Skills filtern' }}</span>
+                <span class="dropdown-arrow">{{ isSkillDropdownOpen ? '▲' : '▼' }}</span>
+              </div>
+              
+              <!-- Dropdown menu -->
+              <div *ngIf="isSkillDropdownOpen" class="skills-dropdown-menu">
+                <!-- Search input -->
+                <div class="skills-search">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="skillSearchTerm" 
+                    (ngModelChange)="filterSkillsList()"
+                    placeholder="Skills suchen..." 
+                    class="form-control"
+                    (click)="$event.stopPropagation()"
+                  >
+                </div>
+                
+                <!-- Skills list -->
+                <div class="skills-list">
+                  <div 
+                    class="skill-item" 
+                    [class.selected]="selectedSkills.length === 0"
+                    (click)="clearAllSkills(); toggleSkillDropdown()"
+                  >
+                    <div class="skill-checkbox">
+                      <span *ngIf="selectedSkills.length === 0" class="check-mark">✓</span>
+                    </div>
+                    <span class="skill-name">Alle Skills anzeigen</span>
+                  </div>
+                  
+                  <div *ngIf="filteredSkillsList.length === 0" class="no-skills">
+                    Keine passenden Skills gefunden
+                  </div>
+                  
+                  <div 
+                    *ngFor="let skill of filteredSkillsList" 
+                    class="skill-item" 
+                    [class.selected]="isSkillSelected(skill)"
+                    (click)="filterBySkill(skill); $event.stopPropagation()"
+                  >
+                    <div class="skill-checkbox">
+                      <span *ngIf="isSkillSelected(skill)" class="check-mark">✓</span>
+                    </div>
+                    <span class="skill-name">{{ skill }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Selected skills badges (if any) -->
+            <div *ngIf="selectedSkills.length > 0" class="selected-skills-container">
+              <div *ngFor="let skill of selectedSkills" class="selected-skill-badge">
+                <span class="skill-name">{{ skill }}</span>
+                <span class="remove-skill" (click)="removeSkill(skill)">×</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Reset Filter Button -->
+          <button class="btn reset-filter-btn" 
+            [class.btn-secondary]="!hasActiveFilters()" 
+            [class.btn-primary]="hasActiveFilters()" 
+            (click)="resetFilters()">
+            Alle Filter löschen
+          </button>
+        </div>
+      </div>
     </div>
   </div>
   
@@ -133,10 +209,22 @@
             <div class="skills-list">
               <span *ngIf="!user.skills || user.skills.length === 0">-</span>
               <ng-container *ngFor="let skill of user.skills">
-                <span class="skill-badge" *ngIf="skill.name">
+                <span 
+                  class="skill-badge" 
+                  *ngIf="skill.name"
+                  (click)="filterBySkill(skill.name); $event.stopPropagation()"
+                  [class.active]="isSkillSelected(skill.name)"
+                  title="Nach diesem Skill filtern"
+                >
                   {{ skill.name }}
                 </span>
-                <span class="skill-badge" *ngIf="!skill.name && getSkillName(skill)">
+                <span 
+                  class="skill-badge" 
+                  *ngIf="!skill.name && getSkillName(skill)"
+                  (click)="filterBySkill(getSkillName(skill)); $event.stopPropagation()"
+                  [class.active]="isSkillSelected(getSkillName(skill))"
+                  title="Nach diesem Skill filtern"
+                >
                   {{ getSkillName(skill) }}
                 </span>
               </ng-container>
