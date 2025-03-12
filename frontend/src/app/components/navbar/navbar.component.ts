@@ -50,6 +50,10 @@ export class NavbarComponent implements OnInit {
     event.stopPropagation();
   }
 
+  isRouteActive(route: string): boolean {
+    return this.router.url === route;
+  }
+
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);

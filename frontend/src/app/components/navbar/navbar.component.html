@@ -17,9 +17,21 @@
       <li class="nav-item dropdown" [class.open]="isDropdownOpen">
         <a class="nav-link dropdown-toggle" (click)="toggleDropdown($event)" routerLinkActive="active">Future Skills <span class="dropdown-arrow">▾</span></a>
         <div class="dropdown-menu">
-          <a class="dropdown-item" [routerLink]="['/future-skills']" routerLinkActive="active" (click)="onDropdownItemClick($event)">Dashboard</a>
-          <a class="dropdown-item" [routerLink]="['/future-skills/plan']" routerLinkActive="active" (click)="onDropdownItemClick($event)">Plan</a>
-          <a class="dropdown-item" [routerLink]="['/future-skills/manage-progress']" routerLinkActive="active" (click)="onDropdownItemClick($event)">Manage Progress</a>
+          <a class="dropdown-item" [routerLink]="['/future-skills']" routerLinkActive="active" (click)="onDropdownItemClick($event)">
+            <span>Dashboard</span>
+            <div class="left-line" *ngIf="isRouteActive('/future-skills')"></div>
+            <div class="bottom-line" *ngIf="isRouteActive('/future-skills')"></div>
+          </a>
+          <a class="dropdown-item" [routerLink]="['/future-skills/plan']" routerLinkActive="active" (click)="onDropdownItemClick($event)">
+            <span>Plan</span>
+            <div class="left-line" *ngIf="isRouteActive('/future-skills/plan')"></div>
+            <div class="bottom-line" *ngIf="isRouteActive('/future-skills/plan')"></div>
+          </a>
+          <a class="dropdown-item" [routerLink]="['/future-skills/manage-progress']" routerLinkActive="active" (click)="onDropdownItemClick($event)">
+            <span>Manage Progress</span>
+            <div class="left-line" *ngIf="isRouteActive('/future-skills/manage-progress')"></div>
+            <div class="bottom-line" *ngIf="isRouteActive('/future-skills/manage-progress')"></div>
+          </a>
         </div>
       </li>
       <li class="nav-item">
