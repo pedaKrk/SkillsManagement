@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UserService } from '../../core/services/user/user.service';
+import { PdfService } from '../../core/services/pdf/pdf.service';
 import { User, Skill } from '../../models/user.model';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
@@ -37,7 +38,10 @@ export class UserListComponent implements OnInit {
   // for multiple selection
   selectedUsers: string[] = [];
   
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private pdfService: PdfService
+  ) {}
   
   ngOnInit(): void {
     this.loadUsers();
@@ -212,8 +216,21 @@ export class UserListComponent implements OnInit {
   
   // generate PDF
   generatePDF(): void {
-    console.log('generate PDF for selected users:', this.selectedUsers);
-    // here PDF generation logic implement
+    console.log('Generiere PDF für ausgewählte Benutzer:', this.selectedUsers);
+    
+    // filter the selected users
+    const selectedUserData = this.filteredUsers.filter(user => 
+      this.selectedUsers.includes(user.id)
+    );
+    
+    // call the PDF service to generate the PDF
+    this.pdfService.generateUserListPDF(selectedUserData)
+      .then(() => {
+        console.log('PDF wurde erfolgreich generiert');
+      })
+      .catch(error => {
+        console.error('Fehler bei der PDF-Generierung:', error);
+      });
   }
   
   // send email
