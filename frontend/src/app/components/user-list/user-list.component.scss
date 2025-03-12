@@ -596,12 +596,20 @@
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  width: 90%;
-  max-width: 600px;
+  width: 95%;
+  max-width: 800px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  
+  &.delete-dialog {
+    max-width: 600px;
+  }
+  
+  &.success-dialog {
+    max-width: 550px;
+  }
 }
 
 .email-dialog-header {
@@ -635,6 +643,50 @@
 .email-dialog-body {
   padding: 1.5rem;
   overflow-y: auto;
+  
+  .delete-message {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .delete-warning {
+    color: #dc3545;
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+  
+  .user-to-delete {
+    background-color: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 4px;
+    border-left: 4px solid #0077a9;
+  }
+  
+  .success-message {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    
+    .success-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      background-color: #28a745;
+      color: white;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    
+    p {
+      font-size: 1.1rem;
+      margin: 0;
+    }
+  }
   
   .form-group {
     margin-bottom: 1.25rem;
@@ -689,6 +741,15 @@
   padding: 1rem 1.5rem;
   border-top: 1px solid #e9ecef;
   background-color: #f8f9fa;
+  
+  .btn-danger {
+    background-color: #dc3545;
+    color: white;
+    
+    &:hover:not(:disabled) {
+      background-color: #c82333;
+    }
+  }
   
   .sending-indicator {
     display: flex;

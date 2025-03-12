@@ -10,3 +10,6 @@ export * from './pdf/pdf.service';
 // Email Services
 export * from './email/email.service';
 
+// Dialog Services
+export * from './dialog';
+

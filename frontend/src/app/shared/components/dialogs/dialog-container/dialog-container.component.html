@@ -1,0 +1,30 @@
+<div class="dialog-container" *ngIf="hasActiveDialogs">
+  <!-- Backdrop -->
+  <div class="dialog-backdrop" (click)="onBackdropClick()"></div>
+  
+  <!-- Confirm Dialogs -->
+  <ng-container *ngFor="let dialog of dialogState.confirmDialogs">
+    <app-confirm-dialog
+      [dialog]="dialog"
+      (confirm)="onConfirmDialog(dialog.id!, $event)"
+      (cancel)="onCancelDialog(dialog.id!)"
+    ></app-confirm-dialog>
+  </ng-container>
+  
+  <!-- Success Dialogs -->
+  <ng-container *ngFor="let dialog of dialogState.successDialogs">
+    <app-success-dialog
+      [dialog]="dialog"
+      (close)="onCloseDialog(dialog.id!)"
+    ></app-success-dialog>
+  </ng-container>
+  
+  <!-- Form Dialogs -->
+  <ng-container *ngFor="let dialog of dialogState.formDialogs">
+    <app-form-dialog
+      [dialog]="dialog"
+      (submit)="onSubmitFormDialog(dialog.id!, $event)"
+      (cancel)="onCancelDialog(dialog.id!)"
+    ></app-form-dialog>
+  </ng-container>
+</div> 

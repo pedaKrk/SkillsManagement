@@ -5,6 +5,7 @@ import { UserService } from '../../core/services/user/user.service';
 import { PdfService } from '../../core/services/pdf/pdf.service';
 import { EmailService } from '../../core/services/email/email.service';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { DialogService } from '../../core/services/dialog';
 import { User, Skill } from '../../models/user.model';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
@@ -54,11 +55,21 @@ export class UserListComponent implements OnInit, OnDestroy {
   emailMessage: string = 'Hallo,\n\nDies ist eine Nachricht vom Skills Management System.\n\nMit freundlichen Grüßen,\nIhr Skills Management Team';
   isSendingEmail: boolean = false;
   
+  // for delete dialog
+  showDeleteDialog: boolean = false;
+  userToDelete: User | null = null;
+  
+  // for success dialog
+  showSuccessDialog: boolean = false;
+  successDialogTitle: string = '';
+  successDialogMessage: string = '';
+  
   constructor(
     private userService: UserService,
     private pdfService: PdfService,
     private emailService: EmailService,
     private authService: AuthService,
+    private dialogService: DialogService,
     private router: Router
   ) {}
   
@@ -293,19 +304,56 @@ export class UserListComponent implements OnInit, OnDestroy {
     console.log('Opening email dialog for selected users:', this.selectedUsers);
     
     if (this.selectedUsers.length === 0) {
-      alert('Please select at least one user.');
+      this.dialogService.showError('Error', 'Please select at least one user.');
       return;
     }
     
-    // Open email dialog
-    this.showEmailDialog = true;
-  }
-  
-  /**
-   * Closes the email dialog
-   */
-  closeEmailDialog(): void {
-    this.showEmailDialog = false;
+    // Verwende den Dialog-Service für das E-Mail-Formular
+    const selectedUsers = this.getSelectedUsers();
+    
+    this.dialogService.showFormDialog({
+      title: 'E-Mail an ausgewählte Benutzer senden',
+      message: `Sie senden eine E-Mail an ${selectedUsers.length} Benutzer.`,
+      formFields: [
+        {
+          id: 'recipients',
+          label: 'Empfänger',
+          type: 'textarea',
+          defaultValue: selectedUsers.map((user: User) => `${user.firstName} ${user.lastName} (${user.email})`).join('\n'),
+          required: true,
+          disabled: true,
+          rows: Math.min(selectedUsers.length, 4)
+        },
+        {
+          id: 'subject',
+          label: 'Betreff',
+          type: 'text',
+          defaultValue: this.emailSubject,
+          required: true,
+          placeholder: 'Betreff eingeben...'
+        },
+        {
+          id: 'message',
+          label: 'Nachricht',
+          type: 'textarea',
+          defaultValue: this.emailMessage,
+          required: true,
+          placeholder: 'Nachricht eingeben...',
+          rows: 6
+        }
+      ],
+      submitText: 'E-Mail senden',
+      cancelText: 'Abbrechen'
+    }).subscribe(formData => {
+      if (formData) {
+        
+        this.emailSubject = formData.subject;
+        this.emailMessage = formData.message;
+        
+        // send email to users
+        this.sendEmailToUsers(selectedUsers, formData.subject, formData.message);
+      }
+    });
   }
   
   /**
@@ -318,31 +366,29 @@ export class UserListComponent implements OnInit, OnDestroy {
   }
   
   /**
-   * Confirms sending the email
+   * sends an email to the selected users
    */
-  confirmSendEmail(): void {
-    const selectedUserData = this.getSelectedUsers();
+  sendEmailToUsers(users: User[], subject: string, message: string): void {
+    // show loading animation
+    this.isLoading = true;
     
-    if (selectedUserData.length === 0) {
-      alert('No users selected');
-      return;
-    }
-    
-    // Show loading animation
-    this.isSendingEmail = true;
-    
-    // Send email directly from the system
-    this.emailService.sendEmailToUsers(selectedUserData, this.emailSubject, this.emailMessage)
+    // send email directly from the system
+    this.emailService.sendEmailToUsers(users, subject, message)
       .subscribe({
         next: (response) => {
           console.log('Email sent successfully', response);
-          this.isSendingEmail = false;
-          alert('Email was sent successfully!');
-          this.closeEmailDialog();
+          this.isLoading = false;
+          
+          // show success message with the dialog service
+          this.dialogService.showSuccess({
+            title: 'Success',
+            message: 'Email was sent successfully!',
+            buttonText: 'OK'
+          });
         },
         error: (error) => {
           console.error('Error sending email', error);
-          this.isSendingEmail = false;
+          this.isLoading = false;
           
           let errorMessage = 'Error sending email. ';
           
@@ -359,7 +405,8 @@ export class UserListComponent implements OnInit, OnDestroy {
             errorMessage += 'Please try again later.';
           }
           
-          alert(errorMessage);
+          // show error message with the dialog service
+          this.dialogService.showError('Error', errorMessage);
         }
       });
   }
@@ -388,10 +435,101 @@ export class UserListComponent implements OnInit, OnDestroy {
   
   // delete user
   deleteUser(userId: string): void {
-    if (confirm('Are you sure you want to delete this user?')) {
-      console.log('delete user:', userId);
-      // here delete logic implement
+    // Find the user to delete
+    const user = this.filteredUsers.find(u => u.id === userId);
+    if (!user) {
+      console.error('User not found:', userId);
+      return;
     }
+    
+    
+    this.dialogService.showConfirmation({
+      title: 'Delete User',
+      message: 'Are you sure you want to delete this user?',
+      confirmText: 'Delete User',
+      cancelText: 'Cancel',
+      dangerMode: true,
+      data: { user }
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this.confirmDeleteUser(user);
+      }
+    });
+  }
+  
+  // Confirm delete user
+  confirmDeleteUser(user: User): void {
+    this.isLoading = true;
+    
+    this.userService.deleteUser(user.id).subscribe({
+      next: () => {
+        console.log('User deleted successfully:', user.id);
+        // Remove user from the lists
+        this.users = this.users.filter(u => u.id !== user.id);
+        this.applyFilters(); // This will update filteredUsers
+        
+        // Remove from selected users if selected
+        if (this.selectedUsers.includes(user.id)) {
+          this.selectedUsers = this.selectedUsers.filter(id => id !== user.id);
+        }
+        
+        this.isLoading = false;
+        
+        // Zeige Erfolgsmeldung mit dem Dialog-Service
+        this.dialogService.showSuccess({
+          title: 'Success',
+          message: 'User was deleted successfully!',
+          buttonText: 'OK'
+        });
+      },
+      error: (error) => {
+        console.error('Error deleting user:', error);
+        this.isLoading = false;
+        
+        let errorMessage = 'Error deleting user. ';
+        
+        if (error.status === 401) {
+          errorMessage += 'You are not authorized. Please log in again.';
+          // Log out user and redirect to login page
+          this.authService.logout();
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 1500);
+        } else if (error.status === 403) {
+          errorMessage += 'You do not have permission to delete users.';
+        } else {
+          errorMessage += 'Please try again later.';
+        }
+        
+        // show error message with the dialog service
+        this.dialogService.showError('Error', errorMessage);
+      }
+    });
+  }
+  
+  // The following methods are not needed anymore, since we now use the dialog service
+  // They can be removed when the dialog service is fully implemented
+  
+  // Cancel delete user
+  cancelDeleteUser(): void {
+    this.showDeleteDialog = false;
+    this.userToDelete = null;
+  }
+  
+  /**
+   * Shows a success message in a custom dialog
+   */
+  showSuccessMessage(title: string, message: string, isSuccess: boolean = true): void {
+    this.successDialogTitle = title;
+    this.successDialogMessage = message;
+    this.showSuccessDialog = true;
+  }
+  
+  /**
+   * Closes the success dialog
+   */
+  closeSuccessDialog(): void {
+    this.showSuccessDialog = false;
   }
   
   // helper method to get the skill name
