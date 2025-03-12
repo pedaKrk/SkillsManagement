@@ -67,13 +67,9 @@ export class AddUserComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required],
       employmentType: ['Internal', Validators.required],
       role: [UserRole.LECTURER, Validators.required], // Default role is LektorIn
       skills: this.formBuilder.array([])
-    }, {
-      validator: this.passwordMatchValidator
     });
   }
 
@@ -258,18 +254,6 @@ export class AddUserComponent implements OnInit {
     return this.skillsFormArray.controls.findIndex(control => control.value === skillId);
   }
 
-  // custom validator to check if password and confirm password match
-  passwordMatchValidator(formGroup: FormGroup) {
-    const password = formGroup.get('password')?.value;
-    const confirmPassword = formGroup.get('confirmPassword')?.value;
-    
-    if (password !== confirmPassword) {
-      formGroup.get('confirmPassword')?.setErrors({ passwordMismatch: true });
-    } else {
-      formGroup.get('confirmPassword')?.setErrors(null);
-    }
-  }
-
   // handle form submission
   onSubmit() {
     this.submitted = true;
@@ -289,7 +273,6 @@ export class AddUserComponent implements OnInit {
       email: this.addUserForm.get('email')?.value,
       firstName: this.addUserForm.get('firstName')?.value,
       lastName: this.addUserForm.get('lastName')?.value,
-      password: this.addUserForm.get('password')?.value,
       employmentType: this.addUserForm.get('employmentType')?.value,
       role: this.addUserForm.get('role')?.value,
       skills: this.skillsFormArray.value
