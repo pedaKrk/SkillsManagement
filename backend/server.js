@@ -5,6 +5,7 @@ import userRoutes from './routes/user.routes.js'
 import skillRoutes from './routes/skill.routes.js'
 import commentRoutes from './routes/comment.routes.js'
 import authRoutes from "./routes/auth.routes.js";
+import emailRoutes from "./routes/email.routes.js";
 
 import connectToDB from "./database/mongodb.js";
 import {connectToSMTP} from "./services/email.service.js";
@@ -22,6 +23,7 @@ app.use('/api/v1/users', userRoutes)
 app.use('/api/v1/skills', skillRoutes)
 app.use('/api/v1/comments', commentRoutes)
 app.use('/api/v1/auth', authRoutes)
+app.use('/api/v1/email', emailRoutes)
 
 app.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`);

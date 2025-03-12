@@ -3,9 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UserService } from '../../core/services/user/user.service';
 import { PdfService } from '../../core/services/pdf/pdf.service';
+import { EmailService } from '../../core/services/email/email.service';
+import { AuthService } from '../../core/services/auth/auth.service';
 import { User, Skill } from '../../models/user.model';
 import { HttpClientModule } from '@angular/common/http';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-list',
@@ -46,21 +48,30 @@ export class UserListComponent implements OnInit, OnDestroy {
   filteredSkillsList: string[] = [];
   allSkills: string[] = [];
   
+  // for email dialog
+  showEmailDialog: boolean = false;
+  emailSubject: string = 'Nachricht vom Skills Management System';
+  emailMessage: string = 'Hallo,\n\nDies ist eine Nachricht vom Skills Management System.\n\nMit freundlichen Grüßen,\nIhr Skills Management Team';
+  isSendingEmail: boolean = false;
+  
   constructor(
     private userService: UserService,
-    private pdfService: PdfService
+    private pdfService: PdfService,
+    private emailService: EmailService,
+    private authService: AuthService,
+    private router: Router
   ) {}
   
   ngOnInit(): void {
     this.loadUsers();
-    console.log('UserListComponent initialisiert');
+    console.log('UserListComponent initialized');
     
     // click outside of skill dropdown to close it
     document.addEventListener('click', this.closeSkillDropdownOnOutsideClick.bind(this));
   }
   
   ngOnDestroy(): void {
-    //click event listener remove
+    // remove click event listener
     document.removeEventListener('click', this.closeSkillDropdownOnOutsideClick.bind(this));
   }
   
@@ -91,14 +102,14 @@ export class UserListComponent implements OnInit, OnDestroy {
           return user;
         });
         
-        console.log('Benutzer geladen:', this.users.length);
+        console.log('Users loaded:', this.users.length);
         
         // Debug: Check the user IDs
         this.users.forEach((user, index) => {
           console.log(`User ${index}:`, user.username, 'ID:', user.id);
         });
         
-        // Alle verfügbaren Skills laden
+        // Load all available skills
         this.loadAllSkills();
         
         this.applyFilters();
@@ -106,7 +117,7 @@ export class UserListComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error loading users:', error);
-        this.error = 'Fehler beim Laden der Benutzer. Bitte versuchen Sie es später erneut.';
+        this.error = 'Error loading users. Please try again later.';
         this.isLoading = false;
       }
     });
@@ -143,21 +154,21 @@ export class UserListComponent implements OnInit, OnDestroy {
       );
     }
     
-    // filtering after employment type
+    // filtering by employment type
     if (this.selectedEmploymentType) {
       filtered = filtered.filter(user => 
         user.employmentType === this.selectedEmploymentType
       );
     }
     
-    // filtering after role
+    // filtering by role
     if (this.selectedRole) {
       filtered = filtered.filter(user => 
         user.role === this.selectedRole
       );
     }
     
-    // filtering after skills (mehrere Skills)
+    // filtering by skills (multiple skills)
     if (this.selectedSkills.length > 0) {
       filtered = filtered.filter(user => {
         if (!user.skills || user.skills.length === 0) {
@@ -210,8 +221,8 @@ export class UserListComponent implements OnInit, OnDestroy {
       event.stopPropagation();
     }
     
-    console.log('Toggle für Benutzer mit ID:', userId);
-    console.log('Aktuelle Auswahl vor Toggle:', [...this.selectedUsers]);
+    console.log('Toggle for user with ID:', userId);
+    console.log('Current selection before toggle:', [...this.selectedUsers]);
     
     // check if the user is already selected
     const index = this.selectedUsers.indexOf(userId);
@@ -227,7 +238,7 @@ export class UserListComponent implements OnInit, OnDestroy {
       console.log('User removed:', userId);
     }
     
-    console.log('Ausgewählte Benutzer nach Toggle:', [...this.selectedUsers]);
+    console.log('Selected users after toggle:', [...this.selectedUsers]);
     
     // Debug: Check if the checkbox states are correct
     setTimeout(() => {
@@ -235,7 +246,7 @@ export class UserListComponent implements OnInit, OnDestroy {
         const isSelected = this.isUserSelected(user.id);
         const checkbox = document.getElementById('user-checkbox-' + user.id) as HTMLInputElement;
         if (checkbox) {
-          console.log(`Checkbox für ${user.username} (ID: ${user.id}): checked=${checkbox.checked}, isSelected=${isSelected}`);
+          console.log(`Checkbox for ${user.username} (ID: ${user.id}): checked=${checkbox.checked}, isSelected=${isSelected}`);
         }
       });
     }, 0);
@@ -250,7 +261,7 @@ export class UserListComponent implements OnInit, OnDestroy {
       this.selectedUsers = this.filteredUsers.map(user => user.id).filter(Boolean);
     }
     
-    console.log('Alle Benutzer ausgewählt:', this.selectedUsers);
+    console.log('All users selected:', this.selectedUsers);
   }
   
   // helper method to check if a user is selected
@@ -260,7 +271,7 @@ export class UserListComponent implements OnInit, OnDestroy {
   
   // generate PDF
   generatePDF(): void {
-    console.log('Generiere PDF für ausgewählte Benutzer:', this.selectedUsers);
+    console.log('Generating PDF for selected users:', this.selectedUsers);
     
     // filter the selected users
     const selectedUserData = this.filteredUsers.filter(user => 
@@ -270,17 +281,87 @@ export class UserListComponent implements OnInit, OnDestroy {
     // call the PDF service to generate the PDF
     this.pdfService.generateUserListPDF(selectedUserData)
       .then(() => {
-        console.log('PDF wurde erfolgreich generiert');
+        console.log('PDF was successfully generated');
       })
       .catch(error => {
-        console.error('Fehler bei der PDF-Generierung:', error);
+        console.error('Error generating PDF:', error);
       });
   }
   
   // send email
   sendEmail(): void {
-    console.log('send email to selected users:', this.selectedUsers);
-    // here email sending logic implement
+    console.log('Opening email dialog for selected users:', this.selectedUsers);
+    
+    if (this.selectedUsers.length === 0) {
+      alert('Please select at least one user.');
+      return;
+    }
+    
+    // Open email dialog
+    this.showEmailDialog = true;
+  }
+  
+  /**
+   * Closes the email dialog
+   */
+  closeEmailDialog(): void {
+    this.showEmailDialog = false;
+  }
+  
+  /**
+   * Returns the selected users
+   */
+  getSelectedUsers(): User[] {
+    return this.filteredUsers.filter(user => 
+      this.selectedUsers.includes(user.id)
+    );
+  }
+  
+  /**
+   * Confirms sending the email
+   */
+  confirmSendEmail(): void {
+    const selectedUserData = this.getSelectedUsers();
+    
+    if (selectedUserData.length === 0) {
+      alert('No users selected');
+      return;
+    }
+    
+    // Show loading animation
+    this.isSendingEmail = true;
+    
+    // Send email directly from the system
+    this.emailService.sendEmailToUsers(selectedUserData, this.emailSubject, this.emailMessage)
+      .subscribe({
+        next: (response) => {
+          console.log('Email sent successfully', response);
+          this.isSendingEmail = false;
+          alert('Email was sent successfully!');
+          this.closeEmailDialog();
+        },
+        error: (error) => {
+          console.error('Error sending email', error);
+          this.isSendingEmail = false;
+          
+          let errorMessage = 'Error sending email. ';
+          
+          if (error.status === 401) {
+            errorMessage += 'You are not authorized. Please log in again.';
+            // Log out user and redirect to login page
+            this.authService.logout();
+            setTimeout(() => {
+              this.router.navigate(['/login']);
+            }, 1500);
+          } else if (error.status === 400) {
+            errorMessage += 'Invalid input. Please check the email addresses.';
+          } else {
+            errorMessage += 'Please try again later.';
+          }
+          
+          alert(errorMessage);
+        }
+      });
   }
   
   // reset filters
@@ -354,7 +435,7 @@ export class UserListComponent implements OnInit, OnDestroy {
   }
   
   /**
-   * checks if active filters are set
+   * Checks if active filters are set
    */
   hasActiveFilters(): boolean {
     return this.searchTerm.trim() !== '' || 
@@ -364,7 +445,7 @@ export class UserListComponent implements OnInit, OnDestroy {
   }
   
   /**
-   * removes a skill from the selection
+   * Removes a skill from the selection
    */
   removeSkill(skill: string): void {
     const index = this.selectedSkills.indexOf(skill);

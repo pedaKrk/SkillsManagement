@@ -253,3 +253,53 @@
     </table>
   </div>
 </div>
+
+<!-- E-Mail-Dialog -->
+<div *ngIf="showEmailDialog" class="email-dialog-overlay">
+  <div class="email-dialog">
+    <div class="email-dialog-header">
+      <h3>E-Mail an ausgewählte Benutzer senden</h3>
+      <button class="close-button" (click)="closeEmailDialog()">×</button>
+    </div>
+    <div class="email-dialog-body">
+      <div class="form-group">
+        <label for="email-recipients">Empfänger:</label>
+        <div class="recipients-list">
+          <div *ngFor="let user of getSelectedUsers()" class="recipient-badge">
+            {{ user.firstName }} {{ user.lastName }} ({{ user.email }})
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="email-subject">Betreff:</label>
+        <input 
+          type="text" 
+          id="email-subject" 
+          [(ngModel)]="emailSubject" 
+          class="form-control"
+          placeholder="Betreff eingeben..."
+        >
+      </div>
+      <div class="form-group">
+        <label for="email-message">Nachricht:</label>
+        <textarea 
+          id="email-message" 
+          [(ngModel)]="emailMessage" 
+          class="form-control"
+          rows="6"
+          placeholder="Nachricht eingeben..."
+        ></textarea>
+      </div>
+    </div>
+    <div class="email-dialog-footer">
+      <button class="btn btn-secondary" (click)="closeEmailDialog()" [disabled]="isSendingEmail">Abbrechen</button>
+      <button class="btn btn-primary" (click)="confirmSendEmail()" [disabled]="isSendingEmail">
+        <span *ngIf="!isSendingEmail">E-Mail senden</span>
+        <span *ngIf="isSendingEmail" class="sending-indicator">
+          <span class="spinner-small"></span>
+          Wird gesendet...
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
