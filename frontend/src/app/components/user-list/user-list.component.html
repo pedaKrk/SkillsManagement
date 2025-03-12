@@ -47,8 +47,11 @@
           <th class="select-column">
             <input 
               type="checkbox" 
+              id="select-all-checkbox"
               [checked]="selectedUsers.length === filteredUsers.length && filteredUsers.length > 0"
               (change)="selectAllUsers()"
+              aria-label="Alle Benutzer auswählen"
+              class="custom-checkbox"
             >
           </th>
           <th (click)="sortUsers('username')" class="sortable">
@@ -103,13 +106,21 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let user of filteredUsers">
+        <tr *ngFor="let user of filteredUsers" [class.selected]="isUserSelected(user.id)" class="user-row">
           <td class="select-column">
-            <input 
-              type="checkbox" 
-              [checked]="selectedUsers.includes(user.id)"
-              (change)="toggleUserSelection(user.id)"
-            >
+            <div class="checkbox-container">
+              <input 
+                type="checkbox" 
+                [id]="'user-checkbox-' + user.id"
+                [checked]="isUserSelected(user.id)"
+                (change)="toggleUserSelection(user.id, $event)"
+                [attr.aria-label]="'Benutzer ' + user.firstName + ' ' + user.lastName + ' auswählen'"
+                class="custom-checkbox"
+              >
+              <label [for]="'user-checkbox-' + user.id" class="sr-only">
+                {{ user.firstName }} {{ user.lastName }} auswählen
+              </label>
+            </div>
           </td>
           <td>{{ user.username }}</td>
           <td>{{ user.title || '-' }}</td>
@@ -133,13 +144,13 @@
           </td>
           <td class="actions-column">
             <div class="action-buttons">
-              <button class="btn btn-icon btn-details" (click)="viewUserDetails(user.id)" title="Details anzeigen">
+              <button class="btn btn-icon btn-details" (click)="viewUserDetails(user.id); $event.stopPropagation()" title="Details anzeigen">
                 <i class="fa fa-cog"></i>
               </button>
-              <button class="btn btn-icon btn-edit" (click)="editUser(user.id)" title="Benutzer bearbeiten">
+              <button class="btn btn-icon btn-edit" (click)="editUser(user.id); $event.stopPropagation()" title="Benutzer bearbeiten">
                 <i class="fa fa-user"></i>
               </button>
-              <button class="btn btn-icon btn-delete" (click)="deleteUser(user.id)" title="Benutzer löschen">
+              <button class="btn btn-icon btn-delete" (click)="deleteUser(user.id); $event.stopPropagation()" title="Benutzer löschen">
                 <i class="fa fa-trash-can"></i>
               </button>
             </div>

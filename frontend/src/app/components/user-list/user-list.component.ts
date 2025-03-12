@@ -41,6 +41,7 @@ export class UserListComponent implements OnInit {
   
   ngOnInit(): void {
     this.loadUsers();
+    console.log('UserListComponent initialisiert');
   }
   
   loadUsers(): void {
@@ -49,7 +50,26 @@ export class UserListComponent implements OnInit {
     
     this.userService.getAllUsers().subscribe({
       next: (users) => {
-        this.users = users;
+        // map users to have an id
+        this.users = users.map(user => {
+          // if no id but _id exists, use _id as id
+          if (!user.id && (user as any)._id) {
+            return { ...user, id: (user as any)._id };
+          }
+          // if no id but _id exists, generate a temporary id
+          if (!user.id) {
+            return { ...user, id: 'temp-' + Math.random().toString(36).substr(2, 9) };
+          }
+          return user;
+        });
+        
+        console.log('Benutzer geladen:', this.users.length);
+        
+        // Debug: Check the user IDs
+        this.users.forEach((user, index) => {
+          console.log(`User ${index}:`, user.username, 'ID:', user.id);
+        });
+        
         this.applyFilters();
         this.isLoading = false;
       },
@@ -136,23 +156,58 @@ export class UserListComponent implements OnInit {
   }
   
   // user selection
-  toggleUserSelection(userId: string): void {
-    const index = this.selectedUsers.indexOf(userId);
-    if (index === -1) {
-      this.selectedUsers.push(userId);
-    } else {
-      this.selectedUsers.splice(index, 1);
+  toggleUserSelection(userId: string, event?: Event): void {
+    // always stop the event to prevent propagation
+    if (event) {
+      event.stopPropagation();
     }
+    
+    console.log('Toggle für Benutzer mit ID:', userId);
+    console.log('Aktuelle Auswahl vor Toggle:', [...this.selectedUsers]);
+    
+    // check if the user is already selected
+    const index = this.selectedUsers.indexOf(userId);
+    
+    // toggle logic for this one user
+    if (index === -1) {
+      // user is not selected, so add him
+      this.selectedUsers.push(userId);
+      console.log('User added:', userId);
+    } else {
+      // user is already selected, so remove him
+      this.selectedUsers.splice(index, 1);
+      console.log('User removed:', userId);
+    }
+    
+    console.log('Ausgewählte Benutzer nach Toggle:', [...this.selectedUsers]);
+    
+    // Debug: Check if the checkbox states are correct
+    setTimeout(() => {
+      this.filteredUsers.forEach(user => {
+        const isSelected = this.isUserSelected(user.id);
+        const checkbox = document.getElementById('user-checkbox-' + user.id) as HTMLInputElement;
+        if (checkbox) {
+          console.log(`Checkbox für ${user.username} (ID: ${user.id}): checked=${checkbox.checked}, isSelected=${isSelected}`);
+        }
+      });
+    }, 0);
   }
   
   selectAllUsers(): void {
+    // if all are selected, empty the selection
     if (this.selectedUsers.length === this.filteredUsers.length) {
-      // if all are selected, deselect all
       this.selectedUsers = [];
     } else {
       // otherwise select all
-      this.selectedUsers = this.filteredUsers.map(user => user.id);
+      this.selectedUsers = this.filteredUsers.map(user => user.id).filter(Boolean);
     }
+    
+    console.log('Alle Benutzer ausgewählt:', this.selectedUsers);
+  }
+  
+  // helper method to check if a user is selected
+  isUserSelected(userId: string): boolean {
+    return this.selectedUsers.includes(userId);
   }
   
   // generate PDF
@@ -199,8 +254,7 @@ export class UserListComponent implements OnInit {
   getSkillName(skill: any): string {
     // if skill is a string (ID), try to find the name from the skill list
     if (typeof skill === 'string') {
-      // we should actually have a skill list to find the name
-      // but we don't have it, so we return the ID
+    
       return `Skill-ID: ${skill}`;
     }
     
