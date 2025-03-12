@@ -29,6 +29,7 @@ export class RegisterComponent implements OnInit {
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       title: [''], // Optional title field
+      phoneNumber: [''], // Optional phone number field
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       employmentType: ['Internal', Validators.required]
@@ -55,6 +56,7 @@ export class RegisterComponent implements OnInit {
       username: this.registerForm.get('username')?.value,
       email: this.registerForm.get('email')?.value,
       title: this.registerForm.get('title')?.value,
+      phoneNumber: this.registerForm.get('phoneNumber')?.value,
       firstName: this.registerForm.get('firstName')?.value,
       lastName: this.registerForm.get('lastName')?.value,
       employmentType: this.registerForm.get('employmentType')?.value

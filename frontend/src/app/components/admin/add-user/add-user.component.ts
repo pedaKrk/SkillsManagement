@@ -70,6 +70,7 @@ export class AddUserComponent implements OnInit {
       lastName: ['', Validators.required],
       employmentType: ['Internal', Validators.required],
       role: [UserRole.LECTURER, Validators.required], // Default role is LektorIn
+      phoneNumber: [''], // Optional phone number field
       skills: this.formBuilder.array([])
     });
   }
@@ -277,6 +278,7 @@ export class AddUserComponent implements OnInit {
       lastName: this.addUserForm.get('lastName')?.value,
       employmentType: this.addUserForm.get('employmentType')?.value,
       role: this.addUserForm.get('role')?.value,
+      phoneNumber: this.addUserForm.get('phoneNumber')?.value,
       skills: this.skillsFormArray.value
     };
 
