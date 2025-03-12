@@ -71,7 +71,7 @@
       transition: width 0.3s ease;
     }
     
-    &:hover:after {
+    &:hover:not(:has(.active)):after {
       width: 100%;
     }
   }
@@ -191,12 +191,12 @@
           background-color: #f5f5f5;
           color: #0077a9;
           
-          //move the text to the right, not the background
+          /* Only move the text to the right, not the background */
           > span {
             transform: translateX(5px);
           }
           
-          //hover effect with underline for all dropdown items
+          /* Hover effect with underline for all dropdown items */
           &:after {
             content: '';
             position: absolute;
@@ -245,11 +245,11 @@
         &.active {
           font-weight: 600;
           color: #0077a9;
-          background-color: rgba(0, 119, 169, 0.1) !important; //force the background color
-          border: none !important; //remove all borders
+          background-color: rgba(0, 119, 169, 0.1) !important; /* Force the background color */
+          border: none !important; /* Remove all borders */
           position: relative;
           
-          //add a background that covers the whole width
+          /* Add a background that covers the entire width */
           &:before {
             content: '';
             position: absolute;
@@ -258,13 +258,26 @@
             top: 0;
             left: 0;
             background-color: rgba(0, 119, 169, 0.1);
-            z-index: 1; //under the lines
+            z-index: 1; /* Under the lines */
           }
           
-          //move the text to the right, not the background
+          /* Only move the text to the right, not the background */
           > span {
             position: relative;
-            z-index: 3; 
+            z-index: 3; /* Above the background and lines */
+          }
+          
+          /* Disable hover effects for active dropdown items */
+          &:hover {
+            background-color: rgba(0, 119, 169, 0.1) !important;
+            
+            > span {
+              transform: none; /* No transformation on hover for active links */
+            }
+            
+            &:after {
+              display: none; /* No additional underline on hover */
+            }
           }
         }
         
@@ -322,6 +335,11 @@
         bottom: -5px;
         left: 0;
         background-color: white;
+      }
+      
+      &:hover {
+        transform: none; /* No transformation on hover for active links */
+        color: white; /* Keeps full white color */
       }
     }
   }
