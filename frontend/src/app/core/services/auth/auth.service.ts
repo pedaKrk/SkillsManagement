@@ -2,58 +2,41 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-
-interface User {
-  id: string;
-  email: string;
-  username?: string;
-  role?: string;
-  token?: string;
-}
-
-interface LoginResponse {
-  message: string;
-  token: string;
-  user: {
-    email: string;
-    username: string;
-    role: string;
-  };
-}
+import { AuthUser, LoginResponse } from '../../../models/auth.model';
+import { API_CONFIG } from '../../config/api.config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private currentUserSubject: BehaviorSubject<User | null>;
-  public currentUser: Observable<User | null>;
-  private apiUrl = 'http://localhost:3000/api/v1';
+  private currentUserSubject: BehaviorSubject<AuthUser | null>;
+  public currentUser: Observable<AuthUser | null>;
 
   constructor(private http: HttpClient) {
-    this.currentUserSubject = new BehaviorSubject<User | null>(
+    this.currentUserSubject = new BehaviorSubject<AuthUser | null>(
       JSON.parse(localStorage.getItem('currentUser') || 'null')
     );
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
-  public get currentUserValue(): User | null {
+  public get currentUserValue(): AuthUser | null {
     return this.currentUserSubject.value;
   }
 
   // Register a new user
   register(userData: any) {
     return this.http.post(
-      `${this.apiUrl}/auth/register`,
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.auth.register}`,
       userData
     );
   }
 
   login(identifier: string, password: string) {
     return this.http.post<LoginResponse>(
-      `${this.apiUrl}/auth/login`,
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.auth.login}`,
       { identifier, password }
     ).pipe(map(response => {
-      const user: User = {
+      const user: AuthUser = {
         id: '',
         email: response.user.email,
         username: response.user.username,
@@ -74,7 +57,7 @@ export class AuthService {
       });
       
       this.http.post(
-        `${this.apiUrl}/auth/logout`,
+        `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.auth.logout}`,
         {},
         { headers }
       ).subscribe();
