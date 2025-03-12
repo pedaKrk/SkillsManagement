@@ -1,44 +1,35 @@
 import { sendEmail } from "../services/email.service.js";
-import { hashPassword, comparePassword } from "../services/auth.service.js";
+import {hashPassword, comparePassword, generatePassword} from "../services/auth.service.js";
 import { generateToken, blacklistToken } from "../services/jwt.service.js";
 import User from "../models/user.model.js";
 
 // Register new user
 export const registerUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email } = req.body;
         
-        // Validate required fields
-        if (!email || !password) {
-            return res.status(400).json({ message: "Email and password are required" });
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
         }
 
-        // Hash password for security
-        const hashedPassword = await hashPassword(password);
-        
-        // Create new user with default role
+        const generatedPassword = generatePassword();
+        const hashedPassword = await hashPassword(generatedPassword);
+
+        // Create new user with hashed password
         const newUser = new User({
             ...req.body,
             password: hashedPassword,
+            mustChangePassword: true,
             role: 'Lecturer' // Default role for new users
         });
         
         await newUser.save();
-        
-        // Generate authentication token
-        const token = generateToken(newUser);
-        
-        // Send welcome email - pass email and original password
-        try {
-            await sendEmail(email, password);
-        } catch (emailError) {
-            console.error("Email sending failed but user was created:", emailError);
-            // Continue with registration even if email fails
-        }
+
+        // Send email with generated password
+        await sendEmail(email, generatedPassword);
 
         res.status(201).json({ 
-            message: "User successfully registered",
-            token: token
+            message: "User successfully created"
         });
     } catch (err) {
         console.error("Registration error:", err);
@@ -65,6 +56,10 @@ export const login = async (req, res) => {
         if (!user) {
             console.log('User not found for identifier:', identifier);
             return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        if(user.mustChangePassword === true) {
+            return res.status(403).json({ message: "User needs to change default password" });
         }
         
         // Check if password matches
@@ -99,7 +94,7 @@ export const login = async (req, res) => {
 // Logout user and invalidate token
 export const logout = async (req, res) => {
     try {
-        // Extract token from authorization header
+        // Get token from auth header
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
 
@@ -107,7 +102,7 @@ export const logout = async (req, res) => {
             return res.status(400).json({ message: "No token provided" });
         }
 
-        // Add token to blacklist 
+        // Add token to blacklist
         await blacklistToken(token);
 
         res.status(200).json({ 

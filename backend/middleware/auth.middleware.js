@@ -1,4 +1,4 @@
-import { verifyToken } from '../services/jwt.service.js';
+import {verifyToken} from '../services/jwt.service.js';
 
 export const authenticateToken = async (req, res, next) => {
     try {
@@ -9,8 +9,7 @@ export const authenticateToken = async (req, res, next) => {
             return res.status(401).json({ message: 'Authentication required' });
         }
 
-        const decoded = await verifyToken(token);
-        req.user = decoded;
+        req.user = await verifyToken(token);
         next();
     } catch (error) {
         if (error.message === 'Token is blacklisted') {

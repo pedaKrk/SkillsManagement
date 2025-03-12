@@ -6,7 +6,6 @@ const router = express.Router()
 
 router.post('/register', registerUser);
 router.post('/login', login);
-// Logout-Route ist geschützt, nur eingeloggte User können sich ausloggen
 router.post('/logout', authenticateToken, logout);
 
 export default router

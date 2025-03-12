@@ -1,5 +1,9 @@
 import User from "../models/user.model.js";
 import mongoose from "mongoose";
+import {comparePassword, hashPassword} from "../services/auth.service.js";
+
+// only use transactions when changing multiple documents.
+// rather use findOneAndUpdate
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -79,5 +83,38 @@ export const deleteUser = async (req, res) => {
     res.status(200).json({ message: 'User deleted successfully' })
   } catch (error) {
     res.status(500).json({ message: 'Failed to delete user', error })
+  }
+}
+
+export const changePassword = async (req, res) => {
+  try{
+    const { email, currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (!email || !currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ error: "New passwords do not match" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user){
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const isMatch = await comparePassword(currentPassword, user.password);
+    if (!isMatch){
+      return res.status(400).json({ error: "Current password is incorrect" });
+    }
+
+    user.password = await hashPassword(newPassword);
+    user.mustChangePassword = false;
+
+    await user.save();
+
+    res.json({ message: "Password changed successfully. You can now log in." });
+  }catch(error){
+    res.status(500).json({message: 'Failed to change password', error})
   }
 }
