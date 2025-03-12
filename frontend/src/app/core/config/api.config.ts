@@ -1,5 +1,7 @@
+import { environment } from '../../../environments/environment';
+
 export const API_CONFIG = {
-  baseUrl: 'http://localhost:3000/api/v1',
+  baseUrl: environment.apiUrl,
   endpoints: {
     auth: {
       login: '/auth/login',
@@ -9,6 +11,9 @@ export const API_CONFIG = {
     users: {
       profile: '/users/profile',
       all: '/users'
+    },
+    skills: {
+      all: '/skills'
     }
     //  API-Endpoints
   }

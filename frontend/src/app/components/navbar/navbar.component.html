@@ -12,7 +12,7 @@
         <a class="nav-link" [routerLink]="['/']" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Hauptseite</a>
       </li>
       <li class="nav-item" *ngIf="isAdmin">
-        <a class="nav-link" [routerLink]="['/register']" routerLinkActive="active">Neue/n BenutzerIn hinzufügen</a>
+        <a class="nav-link" [routerLink]="['/admin/add-user']" routerLinkActive="active">Neue/n BenutzerIn hinzufügen</a>
       </li>
       <li class="nav-item dropdown" [class.open]="isDropdownOpen">
         <a class="nav-link dropdown-toggle" (click)="toggleDropdown($event)" routerLinkActive="active">Future Skills <span class="dropdown-arrow">▾</span></a>

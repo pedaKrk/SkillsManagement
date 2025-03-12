@@ -1,0 +1,228 @@
+<div class="add-user-container">
+  <div class="add-user-box">
+    <h2>Neuen Benutzer hinzufügen</h2>
+    <p class="admin-note">Als Administrator können Sie hier neue Benutzer anlegen.</p>
+    
+    <div *ngIf="success" class="alert alert-success">
+      {{success}}
+    </div>
+    
+    <form [formGroup]="addUserForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">Vorname</label>
+          <input
+            type="text"
+            id="firstName"
+            formControlName="firstName"
+            class="form-control"
+            [ngClass]="{'is-invalid': submitted && addUserForm.get('firstName')?.errors}"
+          />
+          <div *ngIf="submitted && addUserForm.get('firstName')?.errors" class="invalid-feedback">
+            <div *ngIf="addUserForm.get('firstName')?.errors?.['required']">Vorname ist erforderlich</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Nachname</label>
+          <input
+            type="text"
+            id="lastName"
+            formControlName="lastName"
+            class="form-control"
+            [ngClass]="{'is-invalid': submitted && addUserForm.get('lastName')?.errors}"
+          />
+          <div *ngIf="submitted && addUserForm.get('lastName')?.errors" class="invalid-feedback">
+            <div *ngIf="addUserForm.get('lastName')?.errors?.['required']">Nachname ist erforderlich</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="username">Benutzername</label>
+        <input
+          type="text"
+          id="username"
+          formControlName="username"
+          class="form-control"
+          [ngClass]="{'is-invalid': submitted && addUserForm.get('username')?.errors}"
+        />
+        <div *ngIf="submitted && addUserForm.get('username')?.errors" class="invalid-feedback">
+          <div *ngIf="addUserForm.get('username')?.errors?.['required']">Benutzername ist erforderlich</div>
+          <div *ngIf="addUserForm.get('username')?.errors?.['minlength']">Benutzername muss mindestens 3 Zeichen lang sein</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">E-Mail</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-control"
+          [ngClass]="{'is-invalid': submitted && addUserForm.get('email')?.errors}"
+        />
+        <div *ngIf="submitted && addUserForm.get('email')?.errors" class="invalid-feedback">
+          <div *ngIf="addUserForm.get('email')?.errors?.['required']">E-Mail ist erforderlich</div>
+          <div *ngIf="addUserForm.get('email')?.errors?.['email']">Bitte geben Sie eine gültige E-Mail-Adresse ein</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Passwort</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="form-control"
+          [ngClass]="{'is-invalid': submitted && addUserForm.get('password')?.errors}"
+        />
+        <div *ngIf="submitted && addUserForm.get('password')?.errors" class="invalid-feedback">
+          <div *ngIf="addUserForm.get('password')?.errors?.['required']">Passwort ist erforderlich</div>
+          <div *ngIf="addUserForm.get('password')?.errors?.['minlength']">Passwort muss mindestens 6 Zeichen lang sein</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Passwort bestätigen</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          formControlName="confirmPassword"
+          class="form-control"
+          [ngClass]="{'is-invalid': submitted && addUserForm.get('confirmPassword')?.errors}"
+        />
+        <div *ngIf="submitted && addUserForm.get('confirmPassword')?.errors" class="invalid-feedback">
+          <div *ngIf="addUserForm.get('confirmPassword')?.errors?.['required']">Passwortbestätigung ist erforderlich</div>
+          <div *ngIf="addUserForm.get('confirmPassword')?.errors?.['passwordMismatch']">Passwörter stimmen nicht überein</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="employmentType">Beschäftigungsart</label>
+          <select
+            id="employmentType"
+            formControlName="employmentType"
+            class="form-control"
+            [ngClass]="{'is-invalid': submitted && addUserForm.get('employmentType')?.errors}"
+          >
+            <option value="Internal">Intern</option>
+            <option value="External">Extern</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="role">Rolle</label>
+          <div class="role-options">
+            <div class="role-option" *ngFor="let role of roles">
+              <input 
+                type="radio" 
+                [id]="'role_' + role.id" 
+                [value]="role.id" 
+                formControlName="role"
+                class="role-radio"
+              >
+              <label [for]="'role_' + role.id" class="role-label">{{ role.name }}</label>
+            </div>
+          </div>
+          <div *ngIf="submitted && addUserForm.get('role')?.errors" class="invalid-feedback">
+            <div *ngIf="addUserForm.get('role')?.errors?.['required']">Rolle ist erforderlich</div>
+          </div>
+          <small class="form-text text-muted">
+            <strong>AdministratorIn:</strong> Kann Benutzer verwalten und hat vollen Zugriff auf alle Funktionen.<br>
+            <strong>KompetenzleiterIn:</strong> Kann Kompetenzen verwalten und Fortschritte überwachen.<br>
+            <strong>LektorIn:</strong> Kann Kurse unterrichten und Fortschritte einsehen.
+          </small>
+        </div>
+      </div>
+
+      <!-- Skills Section -->
+      <div class="form-group skills-section">
+        <label>Skills</label>
+        
+        <!-- Loading indicator -->
+        <div *ngIf="isLoadingSkills" class="skills-loading">
+          <div class="spinner"></div>
+          <span>Skills werden geladen...</span>
+        </div>
+        
+        <!-- Error message -->
+        <div *ngIf="skillsError" class="alert alert-danger">
+          {{ skillsError }}
+          <button type="button" class="btn btn-sm btn-outline-danger ml-2" (click)="retryLoadSkills()">Erneut versuchen</button>
+        </div>
+        
+        <!-- Skills dropdown -->
+        <div *ngIf="!isLoadingSkills && !skillsError" class="skills-dropdown-container">
+          <!-- Selected skills display -->
+          <div class="selected-skills">
+            <div *ngIf="skillsFormArray.length === 0" class="no-skills-selected">
+              Keine Skills ausgewählt
+            </div>
+            <div *ngIf="skillsFormArray.length > 0" class="selected-skills-list">
+              <div class="skill-badge selected" *ngFor="let skillName of getSelectedSkillsNames()">
+                {{ skillName }}
+              </div>
+            </div>
+          </div>
+          
+          <!-- Dropdown with Toggle and Menu -->
+          <div class="dropdown-wrapper">
+            <!-- Dropdown toggle button -->
+            <div class="skills-dropdown-toggle" (click)="toggleSkillDropdown()">
+              <span>Skills auswählen</span>
+              <span class="dropdown-arrow">{{ isSkillDropdownOpen ? '▲' : '▼' }}</span>
+            </div>
+            
+            <!-- Dropdown menu -->
+            <div *ngIf="isSkillDropdownOpen" class="skills-dropdown-menu">
+              <!-- Search input -->
+              <div class="skills-search">
+                <input 
+                  type="text" 
+                  [formControl]="skillSearchControl" 
+                  placeholder="Skills suchen..." 
+                  class="form-control"
+                  (click)="$event.stopPropagation()"
+                >
+              </div>
+              
+              <!-- Skills list -->
+              <div class="skills-list">
+                <div *ngIf="filteredSkills.length === 0" class="no-skills">
+                  Keine passenden Skills gefunden
+                </div>
+                <div 
+                  *ngFor="let skill of filteredSkills" 
+                  class="skill-item" 
+                  [class.selected]="isSkillSelected(skill._id)"
+                  (click)="toggleSkill(skill._id, $event)"
+                >
+                  <span class="skill-checkbox">
+                    <span *ngIf="isSkillSelected(skill._id)" class="check-mark">✓</span>
+                  </span>
+                  <span class="skill-name">{{ skill.name }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <small class="form-text text-muted">
+          Klicken Sie auf "Skills auswählen", um Skills hinzuzufügen oder zu entfernen.
+        </small>
+      </div>
+
+      <div class="form-group">
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          {{ loading ? 'Wird erstellt...' : 'Benutzer erstellen' }}
+        </button>
+      </div>
+
+      <div *ngIf="error" class="alert alert-danger mt-3">
+        {{error}}
+      </div>
+    </form>
+  </div>
+</div> 
