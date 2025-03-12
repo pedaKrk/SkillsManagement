@@ -65,6 +65,7 @@ export class AddUserComponent implements OnInit {
     this.addUserForm = this.formBuilder.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
+      title: [''], // Optional title field
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       employmentType: ['Internal', Validators.required],
@@ -271,6 +272,7 @@ export class AddUserComponent implements OnInit {
     const userData = {
       username: this.addUserForm.get('username')?.value,
       email: this.addUserForm.get('email')?.value,
+      title: this.addUserForm.get('title')?.value,
       firstName: this.addUserForm.get('firstName')?.value,
       lastName: this.addUserForm.get('lastName')?.value,
       employmentType: this.addUserForm.get('employmentType')?.value,

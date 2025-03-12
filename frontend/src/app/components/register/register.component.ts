@@ -28,6 +28,7 @@ export class RegisterComponent implements OnInit {
     this.registerForm = this.formBuilder.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
+      title: [''], // Optional title field
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       employmentType: ['Internal', Validators.required]
@@ -53,6 +54,7 @@ export class RegisterComponent implements OnInit {
     const userData = {
       username: this.registerForm.get('username')?.value,
       email: this.registerForm.get('email')?.value,
+      title: this.registerForm.get('title')?.value,
       firstName: this.registerForm.get('firstName')?.value,
       lastName: this.registerForm.get('lastName')?.value,
       employmentType: this.registerForm.get('employmentType')?.value

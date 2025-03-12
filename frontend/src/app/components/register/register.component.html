@@ -9,6 +9,18 @@
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
       <div class="form-row">
         <div class="form-group">
+          <label for="title">Titel (optional)</label>
+          <input
+            type="text"
+            id="title"
+            formControlName="title"
+            class="form-control"
+          />
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
           <label for="firstName">Vorname</label>
           <input
             type="text"
