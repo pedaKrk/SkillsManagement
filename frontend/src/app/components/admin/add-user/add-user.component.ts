@@ -278,8 +278,8 @@ export class AddUserComponent implements OnInit {
       skills: this.skillsFormArray.value
     };
 
-    // call register method from auth service
-    this.authService.register(userData).subscribe({
+    // call adminCreateUser method from auth service
+    this.authService.adminCreateUser(userData).subscribe({
       next: () => {
         // show success message and reset form
         this.success = 'Benutzer wurde erfolgreich erstellt';
