@@ -7,15 +7,23 @@ import { NavbarComponent } from './components/navbar/navbar.component';
   standalone: true,
   imports: [RouterOutlet, NavbarComponent],
   template: `
-    <app-navbar></app-navbar>
-    <main>
-      <router-outlet></router-outlet>
-    </main>
+    <div class="app-container">
+      <app-navbar></app-navbar>
+      <main>
+        <router-outlet></router-outlet>
+      </main>
+    </div>
   `,
   styles: [`
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
     main {
+      flex: 1;
       width: 100%;
-      min-height: calc(100vh - 70px);
       padding: 20px;
     }
   `]

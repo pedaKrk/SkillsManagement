@@ -14,8 +14,13 @@
       <li class="nav-item" *ngIf="isAdmin">
         <a class="nav-link" [routerLink]="['/register']" routerLinkActive="active">Neue/n BenutzerIn hinzufügen</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" [routerLink]="['/future-skills']" routerLinkActive="active">Future Skills</a>
+      <li class="nav-item dropdown" [class.open]="isDropdownOpen">
+        <a class="nav-link dropdown-toggle" (click)="toggleDropdown($event)" routerLinkActive="active">Future Skills <span class="dropdown-arrow">▾</span></a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" [routerLink]="['/future-skills']" routerLinkActive="active" (click)="onDropdownItemClick($event)">Dashboard</a>
+          <a class="dropdown-item" [routerLink]="['/future-skills/plan']" routerLinkActive="active" (click)="onDropdownItemClick($event)">Plan</a>
+          <a class="dropdown-item" [routerLink]="['/future-skills/manage-progress']" routerLinkActive="active" (click)="onDropdownItemClick($event)">Manage Progress</a>
+        </div>
       </li>
       <li class="nav-item">
         <a class="nav-link" [routerLink]="['/user']" routerLinkActive="active">Benutzer</a>
