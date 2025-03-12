@@ -9,6 +9,7 @@ export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find()
       .select('-password')
+      .populate('skills')
       .lean();
     res.status(200).json(users);
   } catch (error) {

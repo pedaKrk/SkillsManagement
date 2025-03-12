@@ -1,1 +1,156 @@
-<p>user-list works!</p>
+<div class="user-list-container">
+  <!-- action bar -->
+  <div class="action-bar">
+    <div class="action-buttons">
+      <button class="btn btn-primary" (click)="generatePDF()" [disabled]="selectedUsers.length === 0">
+        PDF generieren und herunterladen
+      </button>
+      <button class="btn btn-primary" (click)="sendEmail()" [disabled]="selectedUsers.length === 0">
+        E-Mail an ausgewählte Person(en) senden
+      </button>
+      <button class="btn btn-secondary" (click)="sortUsers('username')">
+        Aufsteigend sortieren
+      </button>
+      <button class="btn btn-secondary" (click)="resetFilters()">
+        Alle Filter löschen
+      </button>
+    </div>
+    
+    <div class="search-bar">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (ngModelChange)="applyFilters()"
+        placeholder="Suchen..." 
+        class="form-control"
+      >
+    </div>
+  </div>
+  
+  <!-- loading indicator -->
+  <div *ngIf="isLoading" class="loading-indicator">
+    <div class="spinner"></div>
+    <span>Benutzer werden geladen...</span>
+  </div>
+  
+  <!-- error message -->
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+    <button class="btn btn-sm btn-outline-danger ml-2" (click)="loadUsers()">Erneut versuchen</button>
+  </div>
+  
+  <!-- user table -->
+  <div *ngIf="!isLoading && !error" class="user-table-container">
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th class="select-column">
+            <input 
+              type="checkbox" 
+              [checked]="selectedUsers.length === filteredUsers.length && filteredUsers.length > 0"
+              (change)="selectAllUsers()"
+            >
+          </th>
+          <th (click)="sortUsers('username')" class="sortable">
+            <div class="header-content">
+              <span>Benutzername</span>
+              <span *ngIf="sortField === 'username'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
+            </div>
+          </th>
+          <th (click)="sortUsers('title')" class="sortable">
+            <div class="header-content">
+              <span>Titel</span>
+              <span *ngIf="sortField === 'title'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
+            </div>
+          </th>
+          <th (click)="sortUsers('firstName')" class="sortable">
+            <div class="header-content">
+              <span>Vorname</span>
+              <span *ngIf="sortField === 'firstName'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
+            </div>
+          </th>
+          <th (click)="sortUsers('lastName')" class="sortable">
+            <div class="header-content">
+              <span>Nachname</span>
+              <span *ngIf="sortField === 'lastName'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
+            </div>
+          </th>
+          <th (click)="sortUsers('email')" class="sortable">
+            <div class="header-content">
+              <span>Email</span>
+              <span *ngIf="sortField === 'email'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
+            </div>
+          </th>
+          <th (click)="sortUsers('phoneNumber')" class="sortable">
+            <div class="header-content">
+              <span>Telefonnummer</span>
+              <span *ngIf="sortField === 'phoneNumber'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
+            </div>
+          </th>
+          <th (click)="sortUsers('employmentType')" class="sortable">
+            <div class="header-content">
+              <span>Beschäftigungsart</span>
+              <span *ngIf="sortField === 'employmentType'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
+            </div>
+          </th>
+          <th (click)="sortUsers('skills')" class="sortable">
+            <div class="header-content">
+              <span>Skills</span>
+              <span *ngIf="sortField === 'skills'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
+            </div>
+          </th>
+          <th>Aktionen</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of filteredUsers">
+          <td class="select-column">
+            <input 
+              type="checkbox" 
+              [checked]="selectedUsers.includes(user.id)"
+              (change)="toggleUserSelection(user.id)"
+            >
+          </td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.title || '-' }}</td>
+          <td>{{ user.firstName }}</td>
+          <td>{{ user.lastName }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.phoneNumber || '-' }}</td>
+          <td>{{ user.employmentType === 'Internal' ? 'Intern' : 'Extern' }}</td>
+          <td>
+            <div class="skills-list">
+              <span *ngIf="!user.skills || user.skills.length === 0">-</span>
+              <ng-container *ngFor="let skill of user.skills">
+                <span class="skill-badge" *ngIf="skill.name">
+                  {{ skill.name }}
+                </span>
+                <span class="skill-badge" *ngIf="!skill.name && getSkillName(skill)">
+                  {{ getSkillName(skill) }}
+                </span>
+              </ng-container>
+            </div>
+          </td>
+          <td class="actions-column">
+            <div class="action-buttons">
+              <button class="btn btn-icon btn-details" (click)="viewUserDetails(user.id)" title="Details anzeigen">
+                <i class="icon-details">👁️</i>
+              </button>
+              <button class="btn btn-icon btn-edit" (click)="editUser(user.id)" title="Benutzer bearbeiten">
+                <i class="icon-edit">🔄</i>
+              </button>
+              <button class="btn btn-icon btn-delete" (click)="deleteUser(user.id)" title="Benutzer löschen">
+                <i class="icon-delete">🗑️</i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredUsers.length === 0">
+          <td colspan="10" class="no-results">
+            Keine Benutzer gefunden.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
