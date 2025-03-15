@@ -232,13 +232,13 @@
           </td>
           <td class="actions-column">
             <div class="action-buttons">
-              <button class="btn btn-icon btn-details" (click)="viewUserDetails(user.id); $event.stopPropagation()" title="Details anzeigen">
+              <button class="btn btn-icon btn-details" (click)="editUser(user.id); $event.stopPropagation()" title="Benutzer bearbeiten">
                 <i class="fa fa-cog"></i>
               </button>
-              <button class="btn btn-icon btn-edit" (click)="editUser(user.id); $event.stopPropagation()" title="Benutzer bearbeiten">
+              <button class="btn btn-icon btn-edit" (click)="viewUserDetails(user.id); $event.stopPropagation()" title="Benutzerdetails anzeigen">
                 <i class="fa fa-user"></i>
               </button>
-              <button class="btn btn-icon btn-delete" (click)="deleteUser(user.id); $event.stopPropagation()" title="Delete user">
+              <button class="btn btn-icon btn-delete" (click)="deleteUser(user.id); $event.stopPropagation()" title="Benutzer löschen">
                 <i class="fa fa-trash-can"></i>
               </button>
             </div>

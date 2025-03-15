@@ -46,32 +46,8 @@ export class FormDialogComponent implements OnInit {
       });
   }
   
-  getHeaderFields(): FormDialogConfig['formFields'] {
-    // Gibt die Kopfzeilen-Felder zurück (Empfänger, Betreff)
-    return this.dialog.formFields.filter(field => 
-      field.type === 'text' || field.type === 'email' || field.id === 'recipients' || field.id === 'subject'
-    );
-  }
-  
-  getBodyFields(): FormDialogConfig['formFields'] {
-    // Gibt die Nachrichtenfelder zurück (Nachrichtentext)
-    return this.dialog.formFields.filter(field => 
-      field.type === 'textarea' || field.id === 'message'
-    );
-  }
-  
-  getSubjectField(): FormDialogConfig['formFields'] {
-    // Gibt nur das Betreff-Feld zurück
-    return this.dialog.formFields.filter(field => field.id === 'subject');
-  }
-  
-  getRecipientsField(): FormDialogConfig['formFields'] {
-    // Gibt nur das Empfänger-Feld zurück
-    return this.dialog.formFields.filter(field => field.id === 'recipients');
-  }
-  
-  getMessageField(): FormDialogConfig['formFields'] {
-    // Gibt nur das Nachrichtenfeld zurück
-    return this.dialog.formFields.filter(field => field.id === 'message');
+  hasRequiredFields(): boolean {
+    // Prüft, ob es Pflichtfelder gibt
+    return this.dialog.formFields.some(field => field.required);
   }
 } 

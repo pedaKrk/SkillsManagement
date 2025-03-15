@@ -381,8 +381,8 @@ export class UserListComponent implements OnInit, OnDestroy {
           
           // show success message with the dialog service
           this.dialogService.showSuccess({
-            title: 'Success',
-            message: 'Email was sent successfully!',
+            title: 'Erfolg',
+            message: 'Die E-Mail wurde erfolgreich gesendet!',
             buttonText: 'OK'
           });
         },
@@ -390,23 +390,23 @@ export class UserListComponent implements OnInit, OnDestroy {
           console.error('Error sending email', error);
           this.isLoading = false;
           
-          let errorMessage = 'Error sending email. ';
+          let errorMessage = 'Fehler beim Senden der E-Mail. ';
           
           if (error.status === 401) {
-            errorMessage += 'You are not authorized. Please log in again.';
+            errorMessage += 'Sie sind nicht autorisiert. Bitte melden Sie sich erneut an.';
             // Log out user and redirect to login page
             this.authService.logout();
             setTimeout(() => {
               this.router.navigate(['/login']);
             }, 1500);
           } else if (error.status === 400) {
-            errorMessage += 'Invalid input. Please check the email addresses.';
+            errorMessage += 'Ungültige Eingabe. Bitte überprüfen Sie die E-Mail-Adressen.';
           } else {
-            errorMessage += 'Please try again later.';
+            errorMessage += 'Bitte versuchen Sie es später erneut.';
           }
           
           // show error message with the dialog service
-          this.dialogService.showError('Error', errorMessage);
+          this.dialogService.showError('Fehler', errorMessage);
         }
       });
   }
@@ -424,13 +424,198 @@ export class UserListComponent implements OnInit, OnDestroy {
   // edit user
   editUser(userId: string): void {
     console.log('edit user:', userId);
-    // navigate to edit page
+    
+    // Benutzer finden
+    const user = this.filteredUsers.find(u => u.id === userId);
+    if (!user) {
+      console.error('User not found:', userId);
+      return;
+    }
+    
+    // Formularfelder für den Dialog erstellen
+    const formFields = [
+      {
+        id: 'title',
+        label: 'Titel',
+        type: 'text',
+        defaultValue: user.title || '',
+        required: false
+      },
+      {
+        id: 'firstName',
+        label: 'Vorname',
+        type: 'text',
+        defaultValue: user.firstName,
+        required: true
+      },
+      {
+        id: 'lastName',
+        label: 'Nachname',
+        type: 'text',
+        defaultValue: user.lastName,
+        required: true
+      },
+      {
+        id: 'email',
+        label: 'E-Mail',
+        type: 'email',
+        defaultValue: user.email,
+        required: true
+      },
+      {
+        id: 'phoneNumber',
+        label: 'Telefonnummer',
+        type: 'text',
+        defaultValue: user.phoneNumber || '',
+        required: false
+      },
+      {
+        id: 'employmentType',
+        label: 'Beschäftigungsart',
+        type: 'select',
+        defaultValue: user.employmentType,
+        options: [
+          { value: 'Internal', label: 'Intern' },
+          { value: 'External', label: 'Extern' }
+        ],
+        required: true
+      }
+    ];
+    
+    // Dialog mit Formular anzeigen
+    this.dialogService.showFormDialog({
+      title: 'Benutzer bearbeiten',
+      message: `Bearbeiten Sie die Informationen für ${user.firstName} ${user.lastName}:`,
+      formFields: formFields,
+      submitText: 'Speichern',
+      cancelText: 'Abbrechen'
+    }).subscribe(formData => {
+      if (formData) {
+        // Benutzer aktualisieren
+        const userData: Partial<User> = {
+          title: formData.title,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          employmentType: formData.employmentType as any
+        };
+        
+        this.updateUser(userId, userData);
+      }
+    });
+  }
+  
+  // Benutzer aktualisieren
+  updateUser(userId: string, userData: Partial<User>): void {
+    this.userService.updateUser(userId, userData).subscribe({
+      next: (updatedUser) => {
+        console.log('User updated:', updatedUser);
+        
+        // Benutzer in der Liste aktualisieren
+        const index = this.users.findIndex(u => u.id === userId);
+        if (index !== -1) {
+          this.users[index] = { ...this.users[index], ...userData };
+        }
+        
+        // Filter anwenden, um die Liste zu aktualisieren
+        this.applyFilters();
+        
+        // Erfolgsmeldung anzeigen
+        this.showSuccessMessage(
+          'Benutzer aktualisiert',
+          `Die Informationen für ${userData.firstName} ${userData.lastName} wurden erfolgreich aktualisiert.`,
+          true
+        );
+      },
+      error: (error) => {
+        console.error('Error updating user:', error);
+        
+        // Fehlermeldung anzeigen
+        this.showSuccessMessage(
+          'Fehler',
+          'Beim Aktualisieren des Benutzers ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.',
+          false
+        );
+      }
+    });
   }
   
   // view user details
   viewUserDetails(userId: string): void {
     console.log('view user details:', userId);
-    // navigate to detail page or show details in a modal
+    
+    // Benutzer finden
+    const user = this.filteredUsers.find(u => u.id === userId);
+    if (!user) {
+      console.error('User not found:', userId);
+      return;
+    }
+    
+    // Beschäftigungsart formatieren
+    const employmentType = user.employmentType === 'Internal' ? 'Intern' : 'Extern';
+    
+    // Skills formatieren
+    const skillsList = user.skills && user.skills.length > 0 
+      ? user.skills.map(skill => skill.name || this.getSkillName(skill)).join(', ')
+      : 'Keine Skills';
+    
+    // Dialog mit Benutzerdetails anzeigen
+    this.dialogService.showConfirmation({
+      title: 'Benutzerdetails',
+      message: `
+        <div class="user-details-container">
+          <div class="user-avatar">
+            <div class="avatar-circle">
+              <span class="initials">${user.firstName.charAt(0)}${user.lastName.charAt(0)}</span>
+            </div>
+            <h2 class="user-name">${user.title ? user.title + ' ' : ''}${user.firstName} ${user.lastName}</h2>
+            <div class="user-username">@${user.username}</div>
+          </div>
+          
+          <div class="user-info-section">
+            <h3 class="section-title">Kontaktinformationen</h3>
+            <div class="info-row">
+              <div class="info-label">E-Mail:</div>
+              <div class="info-value">${user.email}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Telefonnummer:</div>
+              <div class="info-value">${user.phoneNumber || '-'}</div>
+            </div>
+          </div>
+          
+          <div class="user-info-section">
+            <h3 class="section-title">Beschäftigung</h3>
+            <div class="info-row">
+              <div class="info-label">Beschäftigungsart:</div>
+              <div class="info-value">${employmentType}</div>
+            </div>
+          </div>
+          
+          <div class="user-info-section">
+            <h3 class="section-title">Fähigkeiten</h3>
+            <div class="skills-container">
+              ${user.skills && user.skills.length > 0 
+                ? user.skills.map(skill => 
+                    `<span class="skill-badge">${skill.name || this.getSkillName(skill)}</span>`
+                  ).join('')
+                : '<span class="no-skills">Keine Skills</span>'
+              }
+            </div>
+          </div>
+        </div>
+      `,
+      confirmText: 'Bearbeiten',
+      cancelText: 'Schließen',
+      dangerMode: false,
+      closeOnBackdropClick: true
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        // Wenn "Bearbeiten" geklickt wurde, zur Bearbeitungsseite navigieren
+        this.editUser(userId);
+      }
+    });
   }
   
   // delete user
@@ -444,10 +629,22 @@ export class UserListComponent implements OnInit, OnDestroy {
     
     
     this.dialogService.showConfirmation({
-      title: 'Delete User',
-      message: 'Are you sure you want to delete this user?',
-      confirmText: 'Delete User',
-      cancelText: 'Cancel',
+      title: 'Benutzer löschen',
+      message: `
+        <div style="font-size: 1.2rem; margin-bottom: 1.5rem;">
+          Sind Sie sicher, dass Sie diesen Benutzer löschen möchten?
+        </div>
+        <div style="background-color: #f8f9fa; padding: 1rem; border-radius: 8px; border-left: 4px solid #0077a9; margin-bottom: 1rem;">
+          <div style="margin-bottom: 0.5rem;"><strong>Name:</strong> ${user.firstName} ${user.lastName}</div>
+          <div style="margin-bottom: 0.5rem;"><strong>Benutzername:</strong> ${user.username}</div>
+          <div><strong>E-Mail:</strong> ${user.email}</div>
+        </div>
+        <div style="color: #dc3545; font-weight: 500; margin-top: 1rem;">
+          Diese Aktion kann nicht rückgängig gemacht werden!
+        </div>
+      `,
+      confirmText: 'Benutzer löschen',
+      cancelText: 'Abbrechen',
       dangerMode: true,
       data: { user }
     }).subscribe(confirmed => {
@@ -477,8 +674,8 @@ export class UserListComponent implements OnInit, OnDestroy {
         
         // Zeige Erfolgsmeldung mit dem Dialog-Service
         this.dialogService.showSuccess({
-          title: 'Success',
-          message: 'User was deleted successfully!',
+          title: 'Erfolg',
+          message: `Der Benutzer ${user.firstName} ${user.lastName} wurde erfolgreich gelöscht.`,
           buttonText: 'OK'
         });
       },
@@ -486,23 +683,23 @@ export class UserListComponent implements OnInit, OnDestroy {
         console.error('Error deleting user:', error);
         this.isLoading = false;
         
-        let errorMessage = 'Error deleting user. ';
+        let errorMessage = 'Fehler beim Löschen des Benutzers. ';
         
         if (error.status === 401) {
-          errorMessage += 'You are not authorized. Please log in again.';
+          errorMessage += 'Sie sind nicht autorisiert. Bitte melden Sie sich erneut an.';
           // Log out user and redirect to login page
           this.authService.logout();
           setTimeout(() => {
             this.router.navigate(['/login']);
           }, 1500);
         } else if (error.status === 403) {
-          errorMessage += 'You do not have permission to delete users.';
+          errorMessage += 'Sie haben keine Berechtigung, Benutzer zu löschen.';
         } else {
-          errorMessage += 'Please try again later.';
+          errorMessage += 'Bitte versuchen Sie es später erneut.';
         }
         
         // show error message with the dialog service
-        this.dialogService.showError('Error', errorMessage);
+        this.dialogService.showError('Fehler', errorMessage);
       }
     });
   }
