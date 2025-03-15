@@ -35,6 +35,8 @@ export class UserDetailsComponent implements OnInit {
   dateFrom: string = '';
   dateTo: string = '';
   
+  isAuthorDropdownOpen: boolean = false;
+  
   // permissions
   canAddComments: boolean = false;
   isAdmin: boolean = false;
@@ -132,11 +134,9 @@ export class UserDetailsComponent implements OnInit {
       if (skill.name) {
         return skill;
       } else if (typeof skill === 'object' && skill._id) {
-        // Wenn nur die ID vorhanden ist, erstellen wir ein einfaches Objekt mit der ID
-        // aber ohne Dummy-Namen
         return {
           _id: skill._id,
-          name: 'Unbekannte Fähigkeit'
+          name: 'Unbekannte Skill'
         };
       }
       return null;
@@ -172,6 +172,27 @@ export class UserDetailsComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+  
+  /**
+   * Gibt alle eindeutigen Autoren zurück, die Kommentare geschrieben haben
+   * @returns Array von Autor-Objekten mit id und name
+   */
+  getUniqueAuthors(): {id: string, name: string}[] {
+    const uniqueAuthors = new Map<string, string>();
+    
+    // Füge jeden Autor nur einmal hinzu (basierend auf der ID)
+    this.comments.forEach(comment => {
+      if (comment.authorId && comment.authorName) {
+        uniqueAuthors.set(comment.authorId, comment.authorName);
+      }
+    });
+    
+    // Konvertiere die Map in ein Array von Objekten
+    return Array.from(uniqueAuthors.entries()).map(([id, name]) => ({
+      id,
+      name
+    }));
   }
   
   /**
@@ -346,6 +367,25 @@ export class UserDetailsComponent implements OnInit {
   }
   
   /**
+   * returns the german role name
+   * @returns The german role name
+   */
+  getFormattedRole(): string {
+    if (!this.user || !this.user.role) return '';
+    
+    switch (this.user.role) {
+      case 'admin':
+        return 'AdministratorIn';
+      case 'competence_leader':
+        return 'KompetenzleiterIn';
+      case 'lecturer':
+        return 'LektorIn';
+      default:
+        return this.user.role;
+    }
+  }
+  
+  /**
    * returns the name of a skill, regardless of the format
    * @param skill the skill object
    * @returns the name of the skill
@@ -356,6 +396,34 @@ export class UserDetailsComponent implements OnInit {
     if (skill.name) return skill.name;
     if (skill._id) return `Fähigkeit (ID: ${skill._id.substring(0, 5)}...)`;
     return 'Unbekannte Fähigkeit';
+  }
+  
+  /**
+   * Returns the name of an author by its ID
+   * @param authorId The ID of the author
+   * @returns The name of the author or "All authors", if no ID is given
+   */
+  getAuthorNameById(authorId: string): string {
+    if (!authorId) return 'Alle Autoren';
+    
+    const author = this.getUniqueAuthors().find(a => a.id === authorId);
+    return author ? author.name : 'Unbekannter Autor';
+  }
+  
+  /**
+   * Sets the selected author
+   * @param authorId The ID of the selected author or an empty string for "All authors"
+   */
+  selectAuthor(authorId: string): void {
+    this.selectedAuthor = authorId;
+    this.isAuthorDropdownOpen = false;
+  }
+  
+  /**
+   * Opens or closes the author dropdown
+   */
+  toggleAuthorDropdown(): void {
+    this.isAuthorDropdownOpen = !this.isAuthorDropdownOpen;
   }
   
   /**

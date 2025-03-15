@@ -36,7 +36,7 @@
         
         <div class="user-role" *ngIf="user.role">
           <span class="label">Rolle:</span>
-          <span class="value">{{ user.role }}</span>
+          <span class="value">{{ getFormattedRole() }}</span>
         </div>
         
         <div class="user-employment">
@@ -108,22 +108,60 @@
             class="search-input"
           >
           
-          <select [(ngModel)]="selectedAuthor" class="author-select">
-            <option value="">Alle Autoren</option>
-            <option value="admin1">Administrator</option>
-            <option value="lead1">Kompetenzleiter Informatik</option>
-          </select>
+          <div class="author-select-container">
+            <!-- Dropdown with Toggle and Menu -->
+            <div class="dropdown-wrapper">
+              <!-- Dropdown toggle button -->
+              <div class="author-dropdown-toggle" (click)="toggleAuthorDropdown()">
+                <span>{{ selectedAuthor ? getAuthorNameById(selectedAuthor) : 'Alle Autoren' }}</span>
+                <span class="dropdown-arrow">{{ isAuthorDropdownOpen ? '▲' : '▼' }}</span>
+              </div>
+              
+              <!-- Dropdown menu -->
+              <div *ngIf="isAuthorDropdownOpen" class="author-dropdown-menu">
+                <!-- Author list -->
+                <div class="author-list">
+                  <div 
+                    class="author-item" 
+                    [class.selected]="selectedAuthor === ''"
+                    (click)="selectAuthor('')"
+                  >
+                    <span class="author-checkbox">
+                      <span *ngIf="selectedAuthor === ''" class="check-mark">✓</span>
+                    </span>
+                    <span class="author-name">Alle Autoren</span>
+                  </div>
+                  
+                  <div 
+                    *ngFor="let author of getUniqueAuthors()" 
+                    class="author-item" 
+                    [class.selected]="selectedAuthor === author.id"
+                    (click)="selectAuthor(author.id)"
+                  >
+                    <span class="author-checkbox">
+                      <span *ngIf="selectedAuthor === author.id" class="check-mark">✓</span>
+                    </span>
+                    <span class="author-name">{{ author.name }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div class="filter-row date-filters">
           <div class="date-filter">
             <label>Von:</label>
-            <input type="date" [(ngModel)]="dateFrom" class="date-input">
+            <div class="date-input-container">
+              <input type="date" [(ngModel)]="dateFrom" class="date-input">
+            </div>
           </div>
           
           <div class="date-filter">
             <label>Bis:</label>
-            <input type="date" [(ngModel)]="dateTo" class="date-input">
+            <div class="date-input-container">
+              <input type="date" [(ngModel)]="dateTo" class="date-input">
+            </div>
           </div>
         </div>
       </div>
