@@ -22,12 +22,7 @@
         <div *ngIf="!user.profileImageUrl" class="user-avatar">
           <span class="initials">{{ getUserInitials() }}</span>
         </div>
-        <img *ngIf="user.profileImageUrl" [src]="user.profileImageUrl" alt="Profilbild" class="profile-image">
-        
-        <!-- Edit button (only for admins) -->
-        <button *ngIf="isAdmin" class="btn btn-edit" (click)="editUser()">
-          <i class="fa fa-pencil"></i> Bearbeiten
-        </button>
+        <img *ngIf="user.profileImageUrl" [src]="getProfileImageUrl(user.profileImageUrl)" alt="Profilbild" class="profile-image">
       </div>
       
       <div class="user-info">
@@ -42,6 +37,13 @@
         <div class="user-employment">
           <span class="label">Beschäftigungsart:</span>
           <span class="value">{{ getEmploymentType() }}</span>
+        </div>
+        
+        <!-- additional edit button for admins -->
+        <div *ngIf="isAdmin === true" class="admin-actions mt-3">
+          <button class="btn btn-primary" (click)="editUser()">
+            <i class="fa fa-pencil"></i> Profil bearbeiten
+          </button>
         </div>
       </div>
     </div>
@@ -188,7 +190,7 @@
             </button>
           </div>
           
-          <!-- Antwort-Button -->
+          <!-- reply button -->
           <div class="comment-actions">
             <button class="btn-reply" (click)="replyToComment(comment)">
               <i class="fa fa-reply"></i> Antworten

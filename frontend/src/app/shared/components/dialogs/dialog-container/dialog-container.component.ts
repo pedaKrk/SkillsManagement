@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { DialogService, DialogState } from '../../../../core/services/dialog';
+import { DialogService, DialogState } from '../../../../core/services/dialog/dialog.service';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { SuccessDialogComponent } from '../success-dialog/success-dialog.component';
 import { FormDialogComponent } from '../form-dialog/form-dialog.component';

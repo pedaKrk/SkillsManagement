@@ -1,5 +1,5 @@
 export enum UserRole{
-    ADMIN = 'admin',
+    ADMIN = 'Admin',
     COMPETENCE_LEADER = 'competence_leader',
     LECTURER = 'lecturer'
 }

@@ -167,6 +167,32 @@
       color: #212529;
     }
   }
+  
+  .admin-actions {
+    margin-top: 1.5rem;
+    
+    .btn-primary {
+      background-color: #0077a9;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 4px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      transition: background-color 0.2s ease;
+      
+      i {
+        margin-right: 0.5rem;
+        font-size: 1rem;
+      }
+      
+      &:hover {
+        background-color: #005d85;
+        text-decoration: none;
+      }
+    }
+  }
 }
 
 // Detail sections

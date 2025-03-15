@@ -1,12 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { UserService } from '../../core/services/user/user.service';
 import { AuthService } from '../../core/services/auth/auth.service';
-import { DialogService } from '../../core/services/dialog';
+import { DialogService } from '../../core/services/dialog/dialog.service';
 import { CommentService } from '../../core/services/comment/comment.service';
 import { User, Comment } from '../../models/user.model';
+import { UserRole } from '../../models/enums/user-roles.enum';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-user-details',
@@ -225,13 +227,23 @@ export class UserDetailsComponent implements OnInit {
    */
   checkPermissions(): void {
     const currentUser = this.authService.currentUserValue;
+    console.log('checkPermissions - currentUser:', currentUser);
+    
     if (currentUser) {
       // for development: allow all users to add comments
       this.canAddComments = true;
-      this.isAdmin = currentUser.role === 'admin';
+      
+      // check the role independently of the case
+      const role = currentUser.role?.toLowerCase() || '';
+      this.isAdmin = role === 'admin';
+      
+      console.log('checkPermissions - role:', currentUser.role);
+      console.log('checkPermissions - normalized role:', role);
+      console.log('checkPermissions - isAdmin:', this.isAdmin);
     } else {
       this.canAddComments = false;
       this.isAdmin = false;
+      console.log('checkPermissions - no currentUser, isAdmin set to false');
     }
   }
   
@@ -352,6 +364,7 @@ export class UserDetailsComponent implements OnInit {
    * navigates to the edit page of the user
    */
   editUser(): void {
+    console.log('Navigiere zur Bearbeitungsseite für Benutzer:', this.userId);
     this.router.navigate(['/users', this.userId, 'edit']);
   }
   
@@ -399,11 +412,11 @@ export class UserDetailsComponent implements OnInit {
     if (!this.user || !this.user.role) return '';
     
     switch (this.user.role) {
-      case 'admin':
+      case UserRole.ADMIN:
         return 'AdministratorIn';
-      case 'competence_leader':
+      case UserRole.COMPETENCE_LEADER:
         return 'KompetenzleiterIn';
-      case 'lecturer':
+      case UserRole.LECTURER:
         return 'LektorIn';
       default:
         return this.user.role;
@@ -628,5 +641,41 @@ export class UserDetailsComponent implements OnInit {
    */
   isReplyExpanded(replyId: string | undefined): boolean {
     return !!replyId && this.expandedReplies.has(replyId);
+  }
+  
+  /**
+   * returns the current user role for debugging purposes
+   */
+  getCurrentUserRole(): string {
+    const currentUser = this.authService.currentUserValue;
+    return currentUser?.role || 'keine Rolle';
+  }
+  
+  /**
+   * returns the full URL for a profile image
+   * @param profileImageUrl the relative URL of the profile image
+   * @returns the full URL of the profile image
+   */
+  getProfileImageUrl(profileImageUrl: string): string {
+    if (!profileImageUrl) return '';
+    
+    // if the URL is already absolute (starts with http or https), use it directly
+    if (profileImageUrl.startsWith('http')) {
+      return profileImageUrl;
+    }
+    
+    // if the URL starts with a slash, remove it
+    const cleanUrl = profileImageUrl.startsWith('/') ? profileImageUrl.substring(1) : profileImageUrl;
+    
+    // create the full URL
+    // use the base URL without the API path
+    const baseUrl = environment.apiUrl.split('/api/v1')[0];
+    
+    // use a direct URL to the backend server
+    const fullUrl = `${baseUrl}/${cleanUrl}`;
+    console.log('Profilbild-URL:', fullUrl);
+    
+    // use a static URL without timestamp to avoid Angular errors
+    return fullUrl;
   }
 }

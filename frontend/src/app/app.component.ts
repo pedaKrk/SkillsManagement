@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar.component';
-import { DialogContainerComponent } from './shared/components/dialogs';
+import { DialogContainerComponent } from './shared/components/dialogs/dialog-container/dialog-container.component';
 
 @Component({
   selector: 'app-root',

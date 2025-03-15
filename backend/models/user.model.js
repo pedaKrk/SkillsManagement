@@ -38,6 +38,10 @@ const userModel = new mongoose.Schema({
         enum: employmentTypeEnum,
         required: true
     },
+    profileImageUrl: {
+        type: String,
+        default: null
+    },
     comments: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Comment"

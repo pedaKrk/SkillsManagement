@@ -98,8 +98,10 @@ export class UserListComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.error = null;
     
+    
     this.userService.getAllUsers().subscribe({
       next: (users) => {
+        
         // map users to have an id
         this.users = users.map(user => {
           // if no id but _id exists, use _id as id
@@ -120,6 +122,8 @@ export class UserListComponent implements OnInit, OnDestroy {
           console.log(`User ${index}:`, user.username, 'ID:', user.id);
         });
         
+        this.filteredUsers = [...this.users];
+        
         // Load all available skills
         this.loadAllSkills();
         
@@ -127,9 +131,17 @@ export class UserListComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error loading users:', error);
-        this.error = 'Error loading users. Please try again later.';
+        // Debug: output of the error when loading the users
+        console.error('Error loading the users:', error);
+        
         this.isLoading = false;
+        if (error.status === 403) {
+          this.error = 'Sie haben keine Berechtigung, die Benutzerliste anzuzeigen.';
+        } else if (error.status === 401) {
+          this.error = 'Sie müssen angemeldet sein, um die Benutzerliste anzuzeigen.';
+        } else {
+          this.error = 'Fehler beim Laden der Benutzer. Bitte versuchen Sie es später erneut.';
+        }
       }
     });
   }

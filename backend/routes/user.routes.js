@@ -5,9 +5,12 @@ import {
     createUser,
     updateUser,
     deleteUser,
-    changePassword
+    changePassword,
+    uploadProfileImage,
+    removeProfileImage
 } from '../controllers/user.controller.js'
 import { authenticateToken, authorizeRole } from '../middleware/auth.middleware.js'
+import { handleProfileImageUpload } from '../middleware/upload.middleware.js'
 const router = express.Router()
 
 
@@ -22,5 +25,9 @@ router.put('/:id', authenticateToken, updateUser)
 router.delete('/:id', authenticateToken, authorizeRole(['Admin']), deleteUser)
 
 router.post('/change-password', changePassword)
+
+router.post('/:id/profile-image', authenticateToken, handleProfileImageUpload, uploadProfileImage)
+
+router.delete('/:id/profile-image', authenticateToken, removeProfileImage)
 
 export default router

@@ -10,5 +10,6 @@ export const routes: Routes = [
     { path: 'register', component: RegisterComponent },
     { path: 'admin/add-user', component: AddUserComponent },
     { path: 'users/:id', loadComponent: () => import('./components/user-details/user-details.component').then(m => m.UserDetailsComponent) },
+    { path: 'users/:id/edit', loadComponent: () => import('./components/user-edit/user-edit.component').then(m => m.UserEditComponent) },
     { path: '', redirectTo: '/login', pathMatch: 'full' },
 ];

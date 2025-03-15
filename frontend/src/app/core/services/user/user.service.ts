@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { User } from '../../../models/user.model';
 import { API_CONFIG } from '../../config/api.config';
 import { AuthService } from '../auth/auth.service';
-import { catchError, throwError } from 'rxjs';
+import { catchError, throwError, timeout } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -36,9 +36,17 @@ export class UserService {
 
   // Get All Users (only for Admins)
   getAllUsers(): Observable<User[]> {
+    console.log('UserService: Lade alle Benutzer...');
+    console.log('Auth-Headers:', this.getAuthHeaders());
+    
     return this.http.get<User[]>(
       `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.users.all}`,
       { headers: this.getAuthHeaders() }
+    ).pipe(
+      catchError(error => {
+        console.error('UserService: Fehler beim Laden der Benutzer:', error);
+        return throwError(() => error);
+      })
     );
   }
 
@@ -72,6 +80,47 @@ export class UserService {
       catchError(error => {
         console.error('Error fetching user by ID:', error);
         return throwError(() => new Error('Failed to fetch user details'));
+      })
+    );
+  }
+
+  /**
+   * loads a profile image for a user
+   * @param userId the ID of the user
+   * @param imageFile the image file
+   * @returns Observable with the updated user
+   */
+  uploadProfileImage(userId: string, imageFile: File): Observable<User> {
+    const formData = new FormData();
+    formData.append('profileImage', imageFile);
+    
+    return this.http.post<User>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.users.all}/${userId}/profile-image`,
+      formData,
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      // longer timeout for larger uploads (2 minutes)
+      timeout(120000),
+      catchError(error => {
+        console.error('Error uploading the profile image:', error);
+        return throwError(() => new Error('Profilbild konnte nicht hochgeladen werden'));
+      })
+    );
+  }
+  
+  /**
+   * removes the profile image of a user
+   * @param userId the ID of the user
+   * @returns Observable with the updated user
+   */
+  removeProfileImage(userId: string): Observable<User> {
+    return this.http.delete<User>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.users.all}/${userId}/profile-image`,
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      catchError(error => {
+        console.error('Fehler beim Entfernen des Profilbilds:', error);
+        return throwError(() => new Error('Profilbild konnte nicht entfernt werden'));
       })
     );
   }

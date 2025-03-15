@@ -1,6 +1,8 @@
 import User from "../models/user.model.js";
 import mongoose from "mongoose";
 import {comparePassword, hashPassword} from "../services/auth.service.js";
+import fs from 'fs';
+import path from 'path';
 
 // only use transactions when changing multiple documents.
 // rather use findOneAndUpdate
@@ -140,3 +142,92 @@ export const changePassword = async (req, res) => {
     res.status(500).json({message: 'Failed to change password', error})
   }
 }
+
+//upload 
+export const uploadProfileImage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Ungültige Benutzer-ID' });
+    }
+    
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'Benutzer nicht gefunden' });
+    }
+    
+    if (!req.file) {
+      return res.status(400).json({ message: 'Keine Datei hochgeladen' });
+    }
+    
+    if (user.profileImageUrl) {
+      const oldImagePath = path.join(process.cwd(), user.profileImageUrl.replace(/^\//, ''));
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+      }
+    }
+    
+    const profileImageUrl = `/uploads/${req.file.filename}`;
+    console.log('Speichere Profilbild-URL:', profileImageUrl);
+    console.log('Vollständiger Dateipfad:', path.join(process.cwd(), profileImageUrl.replace(/^\//, '')));
+    
+    user.profileImageUrl = profileImageUrl;
+    await user.save();
+    
+    res.status(200).json({
+      message: 'Profilbild erfolgreich hochgeladen',
+      user: {
+        ...user.toObject(),
+        password: undefined
+      }
+    });
+  } catch (error) {
+    console.error('Fehler beim Hochladen des Profilbilds:', error);
+    res.status(500).json({
+      message: 'Fehler beim Hochladen des Profilbilds',
+      error: error.message
+    });
+  }
+};
+
+export const removeProfileImage = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Ungültige Benutzer-ID' });
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'Benutzer nicht gefunden' });
+    }
+
+    if (!user.profileImageUrl) {
+      return res.status(400).json({ message: 'Benutzer hat kein Profilbild' });
+    }
+
+    const imagePath = path.join(process.cwd(), user.profileImageUrl.replace(/^\//, ''));
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
+    }
+
+    user.profileImageUrl = undefined;
+    await user.save();
+    
+    res.status(200).json({
+      message: 'Profilbild erfolgreich entfernt',
+      user: {
+        ...user.toObject(),
+        password: undefined
+      }
+    });
+  } catch (error) {
+    console.error('Fehler beim Entfernen des Profilbilds:', error);
+    res.status(500).json({
+      message: 'Fehler beim Entfernen des Profilbilds',
+      error: error.message
+    });
+  }
+};
