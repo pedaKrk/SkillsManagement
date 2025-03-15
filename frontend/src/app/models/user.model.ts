@@ -37,4 +37,6 @@ export interface Comment {
     id?: string;
     username: string;
   };
+  replies?: Comment[];
+  parentId?: string;
 }

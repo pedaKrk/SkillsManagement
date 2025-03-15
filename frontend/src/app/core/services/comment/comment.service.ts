@@ -122,4 +122,24 @@ export class CommentService {
       catchError(this.handleError)
     );
   }
+
+  /**
+   * Fügt eine Antwort zu einem Kommentar hinzu
+   * @param userId Die ID des Benutzers
+   * @param commentId Die ID des Kommentars
+   * @param content Der Inhalt der Antwort
+   * @returns Observable mit der erstellten Antwort
+   */
+  addReplyToComment(userId: string, commentId: string, content: string): Observable<any> {
+    console.log(`Füge Antwort zu Kommentar mit ID ${commentId} für Benutzer mit ID ${userId} hinzu`);
+    
+    return this.http.post<any>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.comments}/${userId}/${commentId}/replies`,
+      { content },
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      tap(reply => console.log('Antwort erfolgreich hinzugefügt:', reply)),
+      catchError(this.handleError)
+    );
+  }
 } 

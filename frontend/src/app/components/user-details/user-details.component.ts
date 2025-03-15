@@ -29,11 +29,20 @@ export class UserDetailsComponent implements OnInit {
   newComment: string = '';
   comments: Comment[] = [];
   
+  // für Antworten auf Kommentare
+  replyingToComment: Comment | null = null;
+  replyText: string = '';
+  
   // for filtering comments
   commentSearchTerm: string = '';
   selectedAuthor: string = '';
   dateFrom: string = '';
   dateTo: string = '';
+  
+  // for displaying long texts
+  expandedComments: Set<string> = new Set<string>();
+  expandedReplies: Set<string> = new Set<string>();
+  maxTextLength: number = 150; // Maximum number of characters before text is truncated
   
   isAuthorDropdownOpen: boolean = false;
   
@@ -128,8 +137,8 @@ export class UserDetailsComponent implements OnInit {
       (skill.name || typeof skill._id === 'string')
     );
     
-    // Entferne alle Referenzen auf Skills, die nicht mehr existieren
-    // oder die keine gültigen Namen haben
+    // remove all references to skills that no longer exist
+    // or that have no valid names
     this.user.skills = this.user.skills.map(skill => {
       if (skill.name) {
         return skill;
@@ -154,13 +163,29 @@ export class UserDetailsComponent implements OnInit {
         // convert comments to the correct format
         this.comments = comments.map(comment => {
           const author = comment.author || { username: 'Unbekannt' };
+          
+          // Konvertiere Antworten, falls vorhanden
+          const replies = comment.replies ? comment.replies.map((reply: any) => {
+            const replyAuthor = reply.author || { username: 'Unbekannt' };
+            return {
+              id: reply.id || reply._id || '',
+              userId: this.userId,
+              authorId: replyAuthor._id || replyAuthor.id || '',
+              authorName: replyAuthor.username,
+              text: reply.content || '',
+              createdAt: new Date(reply.time_stamp || new Date()),
+              parentId: comment.id || comment._id || ''
+            };
+          }) : [];
+          
           return {
             id: comment.id || comment._id || '',
             userId: this.userId,
             authorId: author._id || author.id || '',
             authorName: author.username,
             text: comment.content || '',
-            createdAt: new Date(comment.time_stamp || new Date())
+            createdAt: new Date(comment.time_stamp || new Date()),
+            replies: replies
           };
         });
         this.isLoading = false;
@@ -175,20 +200,20 @@ export class UserDetailsComponent implements OnInit {
   }
   
   /**
-   * Gibt alle eindeutigen Autoren zurück, die Kommentare geschrieben haben
-   * @returns Array von Autor-Objekten mit id und name
+   * returns all unique authors who have written comments
+   * @returns array of author objects with id and name
    */
   getUniqueAuthors(): {id: string, name: string}[] {
     const uniqueAuthors = new Map<string, string>();
     
-    // Füge jeden Autor nur einmal hinzu (basierend auf der ID)
+    // add each author only once (based on the ID)
     this.comments.forEach(comment => {
       if (comment.authorId && comment.authorName) {
         uniqueAuthors.set(comment.authorId, comment.authorName);
       }
     });
     
-    // Konvertiere die Map in ein Array von Objekten
+    // convert the map to an array of objects
     return Array.from(uniqueAuthors.entries()).map(([id, name]) => ({
       id,
       name
@@ -201,7 +226,7 @@ export class UserDetailsComponent implements OnInit {
   checkPermissions(): void {
     const currentUser = this.authService.currentUserValue;
     if (currentUser) {
-      // For development: allow all users to add comments
+      // for development: allow all users to add comments
       this.canAddComments = true;
       this.isAdmin = currentUser.role === 'admin';
     } else {
@@ -431,5 +456,177 @@ export class UserDetailsComponent implements OnInit {
    */
   goBack(): void {
     this.router.navigate(['/user']);
+  }
+  
+  /**
+   * sets the comment to reply to
+   * @param comment the comment to reply to
+   */
+  replyToComment(comment: Comment): void {
+    this.replyingToComment = comment;
+    this.replyText = '';
+  }
+  
+  /**
+   * cancels the reply to a comment
+   */
+  cancelReply(): void {
+    this.replyingToComment = null;
+    this.replyText = '';
+  }
+  
+  /**
+   * adds a reply to a comment
+   */
+  addReply(): void {
+    if (!this.replyingToComment || !this.replyText.trim()) {
+      return;
+    }
+    
+    this.isLoading = true;
+    
+    // check if user is logged in
+    const currentUser = this.authService.currentUserValue;
+    if (!currentUser || !currentUser.token) {
+      console.error('Benutzer ist nicht angemeldet');
+      this.dialogService.showError(
+        'Fehler',
+        'Sie müssen angemeldet sein, um auf Kommentare zu antworten.'
+      );
+      this.isLoading = false;
+      return;
+    }
+    
+    // save username for local display
+    const username = currentUser.username || 'Aktueller Benutzer';
+    
+    // add reply to comment
+    this.commentService.addReplyToComment(
+      this.userId, 
+      this.replyingToComment.id || this.replyingToComment._id || '', 
+      this.replyText
+    ).subscribe({
+      next: (reply: any) => {
+        if (reply && (reply.id || reply._id)) {
+          // create new reply
+          const newReply: Comment = {
+            id: reply.id || reply._id || '',
+            userId: this.userId,
+            authorId: reply.author?._id || currentUser.id,
+            authorName: reply.author?.username || username,
+            text: reply.content || this.replyText,
+            createdAt: new Date(reply.time_stamp) || new Date(),
+            parentId: this.replyingToComment?.id || this.replyingToComment?._id || ''
+          };
+          
+          // add reply to comment
+          if (this.replyingToComment && !this.replyingToComment.replies) {
+            this.replyingToComment.replies = [];
+          }
+          
+          if (this.replyingToComment && this.replyingToComment.replies) {
+            this.replyingToComment.replies.push(newReply);
+          }
+          
+          // clear input field and end reply mode
+          this.replyText = '';
+          this.replyingToComment = null;
+          
+          // show success message
+          this.dialogService.showSuccess({
+            title: 'Erfolg',
+            message: 'Antwort wurde erfolgreich hinzugefügt.',
+            buttonText: 'OK'
+          });
+        } else {
+          // show error message for invalid reply
+          console.error('Invalid reply from server:', reply);
+          this.dialogService.showError(
+            'Fehler',
+            'Die Antwort konnte nicht hinzugefügt werden. Ungültige Serverantwort.'
+          );
+        }
+        
+        this.isLoading = false;
+      },
+      error: (error: any) => {
+        console.error('Fehler beim Hinzufügen der Antwort:', error);
+        
+        // show error message
+        this.dialogService.showError(
+          'Fehler',
+          'Die Antwort konnte nicht hinzugefügt werden. Bitte versuchen Sie es später erneut.'
+        );
+        
+        this.isLoading = false;
+      }
+    });
+  }
+  
+  /**
+   * checks if a text is too long and should be truncated
+   * @param text the text to check
+   * @returns true, if the text is longer than maxTextLength
+   */
+  isTextTooLong(text: string | undefined): boolean {
+    return !!text && text.length > this.maxTextLength;
+  }
+  
+  /**
+   * returns a truncated text if it is too long
+   * @param text the text to truncate
+   * @param isExpanded whether the text is already expanded
+   * @returns the truncated text or the full text if it is expanded
+   */
+  getDisplayText(text: string | undefined, isExpanded: boolean): string {
+    if (!text) return '';
+    if (isExpanded || text.length <= this.maxTextLength) return text;
+    return text.substring(0, this.maxTextLength) + '...';
+  }
+  
+  /**
+   * toggles the expansion status of a comment
+   * @param commentId the ID of the comment
+   */
+  toggleCommentExpansion(commentId: string | undefined): void {
+    if (!commentId) return;
+    
+    if (this.expandedComments.has(commentId)) {
+      this.expandedComments.delete(commentId);
+    } else {
+      this.expandedComments.add(commentId);
+    }
+  }
+  
+  /**
+   * toggles the expansion status of a reply
+   * @param replyId the ID of the reply
+   */
+  toggleReplyExpansion(replyId: string | undefined): void {
+    if (!replyId) return;
+    
+    if (this.expandedReplies.has(replyId)) {
+      this.expandedReplies.delete(replyId);
+    } else {
+      this.expandedReplies.add(replyId);
+    }
+  }
+  
+  /**
+   * checks if a comment is expanded
+   * @param commentId the ID of the comment
+   * @returns true, if the comment is expanded
+   */
+  isCommentExpanded(commentId: string | undefined): boolean {
+    return !!commentId && this.expandedComments.has(commentId);
+  }
+  
+  /**
+   * checks if a reply is expanded
+   * @param replyId the ID of the reply
+   * @returns true, if the reply is expanded
+   */
+  isReplyExpanded(replyId: string | undefined): boolean {
+    return !!replyId && this.expandedReplies.has(replyId);
   }
 }

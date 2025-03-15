@@ -177,7 +177,68 @@
             <span class="comment-author">{{ comment.authorName }}</span>
             <span class="comment-date">{{ formatDate(comment.createdAt) }}</span>
           </div>
-          <div class="comment-text">{{ comment.text }}</div>
+          <div class="comment-text" [class.expanded]="isCommentExpanded(comment.id)">
+            {{ getDisplayText(comment.text, isCommentExpanded(comment.id)) }}
+            <button 
+              *ngIf="isTextTooLong(comment.text)" 
+              class="text-expand-btn"
+              (click)="toggleCommentExpansion(comment.id)"
+            >
+              {{ isCommentExpanded(comment.id) ? 'Weniger anzeigen' : 'Mehr anzeigen' }}
+            </button>
+          </div>
+          
+          <!-- Antwort-Button -->
+          <div class="comment-actions">
+            <button class="btn-reply" (click)="replyToComment(comment)">
+              <i class="fa fa-reply"></i> Antworten
+            </button>
+          </div>
+          
+          <!-- reply form -->
+          <div *ngIf="replyingToComment && replyingToComment.id === comment.id" class="reply-form">
+            <textarea 
+              [(ngModel)]="replyText" 
+              placeholder="Schreiben Sie eine Antwort..." 
+              class="reply-input"
+              rows="2"
+            ></textarea>
+            <div class="reply-actions">
+              <button 
+                class="btn btn-primary btn-sm" 
+                [disabled]="!replyText.trim()" 
+                (click)="addReply()"
+              >
+                Antworten
+              </button>
+              <button 
+                class="btn btn-secondary btn-sm" 
+                (click)="cancelReply()"
+              >
+                Abbrechen
+              </button>
+            </div>
+          </div>
+          
+          <!-- replies -->
+          <div *ngIf="comment.replies && comment.replies.length > 0" class="replies-container">
+            <div *ngFor="let reply of comment.replies" class="reply-card">
+              <div class="reply-header">
+                <span class="reply-author">{{ reply.authorName }}</span>
+                <span class="reply-date">{{ formatDate(reply.createdAt) }}</span>
+              </div>
+              <div class="reply-text" [class.expanded]="isReplyExpanded(reply.id)">
+                {{ getDisplayText(reply.text, isReplyExpanded(reply.id)) }}
+                <button 
+                  *ngIf="isTextTooLong(reply.text)" 
+                  class="text-expand-btn"
+                  (click)="toggleReplyExpansion(reply.id)"
+                >
+                  {{ isReplyExpanded(reply.id) ? 'Weniger anzeigen' : 'Mehr anzeigen' }}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
