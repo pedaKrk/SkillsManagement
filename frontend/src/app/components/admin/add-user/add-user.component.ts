@@ -99,15 +99,11 @@ export class AddUserComponent implements OnInit {
             this.availableSkills = skills;
             this.filteredSkills = [...skills];
             console.log('Available skills count:', this.availableSkills.length);
-            
-            // if no skills are loaded, load dummy skills
-            if (this.availableSkills.length === 0) {
-              this.loadDummySkills();
-            }
           } else {
             console.error('Received skills are not an array:', skills);
             this.skillsError = 'Ungültiges Datenformat für Skills erhalten.';
-            this.loadDummySkills();
+            this.availableSkills = [];
+            this.filteredSkills = [];
           }
           this.isLoadingSkills = false;
         },
@@ -127,29 +123,15 @@ export class AddUserComponent implements OnInit {
           
           this.skillsError = errorMessage;
           this.isLoadingSkills = false;
-          
-          // if there is an error, load dummy skills
-          this.loadDummySkills();
+          this.availableSkills = [];
+          this.filteredSkills = [];
         }
       });
   }
   
-  // load dummy skills for testing
-  loadDummySkills() {
-    console.log('Loading dummy skills for testing');
-    this.availableSkills = [
-      { _id: 'skill1', name: 'JavaScript' },
-      { _id: 'skill2', name: 'TypeScript' },
-      { _id: 'skill3', name: 'Angular' },
-      { _id: 'skill4', name: 'React' },
-      { _id: 'skill5', name: 'Node.js' },
-      { _id: 'skill6', name: 'Express' },
-      { _id: 'skill7', name: 'MongoDB' },
-      { _id: 'skill8', name: 'SQL' }
-    ];
-    this.filteredSkills = [...this.availableSkills];
-    this.skillsError = null;
-    this.isLoadingSkills = false;
+  // Keine Dummy-Skills mehr laden
+  retryLoadSkills() {
+    this.loadSkills();
   }
 
   // Filter skills based on search term
@@ -315,9 +297,5 @@ export class AddUserComponent implements OnInit {
         this.loading = false;
       }
     });
-  }
-
-  retryLoadSkills() {
-    this.loadSkills();
   }
 } 

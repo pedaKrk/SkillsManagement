@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { User } from '../../../models/user.model';
 import { API_CONFIG } from '../../config/api.config';
 import { AuthService } from '../auth/auth.service';
+import { catchError, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -55,6 +56,23 @@ export class UserService {
     return this.http.delete(
       `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.users.all}/${userId}`,
       { headers: this.getAuthHeaders() }
+    );
+  }
+
+  /**
+   * Gets a user by its ID
+   * @param userId The ID of the user
+   * @returns Observable with the user
+   */
+  getUserById(userId: string): Observable<User> {
+    return this.http.get<User>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.users.all}/${userId}`,
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      catchError(error => {
+        console.error('Error fetching user by ID:', error);
+        return throwError(() => new Error('Failed to fetch user details'));
+      })
     );
   }
 } 

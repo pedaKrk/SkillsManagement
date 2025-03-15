@@ -10,6 +10,8 @@ export interface LoginResponse {
   message: string;
   token: string;
   user: {
+    id?: string;
+    _id?: string;
     email: string;
     username: string;
     role: string;

@@ -12,6 +12,11 @@ import {connectToSMTP} from "./services/email.service.js";
 
 import { PORT } from "./config/env.js";
 
+import './models/user.model.js';
+import './models/comment.model.js';
+import './models/skill.model.js';
+import './models/future-skill.model.js';
+
 const app = express()
 
 //  CORS for all Routs

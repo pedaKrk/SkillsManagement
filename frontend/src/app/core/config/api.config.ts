@@ -14,7 +14,8 @@ export const API_CONFIG = {
     },
     skills: {
       all: '/skills'
-    }
+    },
+    comments: '/comments'
     //  API-Endpoints
   }
 }; 

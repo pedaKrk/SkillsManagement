@@ -24,12 +24,33 @@ export const getAllUsers = async (req, res) => {
 export const getUserById = async (req, res) => {
   try {
     const { id } = req.params
-    const user = await User.findById(id).populate('skills futureSkills comments')
-    if (!user) {
+    
+    const basicUser = await User.findById(id)
+    if (!basicUser) {
       return res.status(404).json({ message: 'User not found' })
     }
-    res.status(200).json(user)
+    
+    try {
+      const user = await User.findById(id)
+        .populate('skills')
+        .populate('futureSkills')
+        .populate('comments')
+      
+      res.status(200).json(user)
+    } catch (populateError) {
+      console.error('Error populating user references:', populateError)
+      
+      try {
+        const userWithSkills = await User.findById(id).populate('skills')
+        res.status(200).json(userWithSkills)
+      } catch (skillsError) {
+        console.error('Error populating skills:', skillsError)
+        
+        res.status(200).json(basicUser)
+      }
+    }
   } catch (error) {
+    console.error('Error in getUserById:', error)
     res.status(500).json({ message: 'Failed to get user', error })
   }
 }

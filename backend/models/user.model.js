@@ -40,7 +40,7 @@ const userModel = new mongoose.Schema({
     },
     comments: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Comments"
+        ref: "Comment"
     }],
     skills: [{
         type: mongoose.Schema.Types.ObjectId,

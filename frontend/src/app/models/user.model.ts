@@ -19,4 +19,22 @@ export interface User{
     phoneNumber?: string;
     employmentType: EmploymentType;
     skills?: Skill[]; 
+    profileImageUrl?: string;
+}
+
+export interface Comment {
+  id?: string;
+  _id?: string;
+  userId: string;
+  authorId: string;
+  authorName: string;
+  text: string;
+  content?: string;
+  createdAt: Date;
+  time_stamp?: Date;
+  author?: {
+    _id?: string;
+    id?: string;
+    username: string;
+  };
 }

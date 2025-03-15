@@ -1,0 +1,147 @@
+<div class="user-details-page">
+  <!-- Loading-Indikator -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <span>Benutzerdetails werden geladen...</span>
+  </div>
+  
+  <!-- Error message -->
+  <div *ngIf="error" class="error-container">
+    <div class="error-message">{{ error }}</div>
+    <div class="error-actions">
+      <button class="btn btn-primary" (click)="loadUserDetails()">Erneut versuchen</button>
+      <button class="btn btn-secondary" (click)="goBack()">Zurück zur Benutzerliste</button>
+    </div>
+  </div>
+  
+  <!-- User details -->
+  <div *ngIf="user && !isLoading && !error" class="user-details-container">
+    <!-- Header with profile image and main information -->
+    <div class="user-header">
+      <div class="user-avatar-container">
+        <div *ngIf="!user.profileImageUrl" class="user-avatar">
+          <span class="initials">{{ getUserInitials() }}</span>
+        </div>
+        <img *ngIf="user.profileImageUrl" [src]="user.profileImageUrl" alt="Profilbild" class="profile-image">
+        
+        <!-- Edit button (only for admins) -->
+        <button *ngIf="isAdmin" class="btn btn-edit" (click)="editUser()">
+          <i class="fa fa-pencil"></i> Bearbeiten
+        </button>
+      </div>
+      
+      <div class="user-info">
+        <h1 class="user-name">{{ getUserFullName() }}</h1>
+        <div class="user-username">{{'@'}}{{ user.username }}</div>
+        
+        <div class="user-role" *ngIf="user.role">
+          <span class="label">Rolle:</span>
+          <span class="value">{{ user.role }}</span>
+        </div>
+        
+        <div class="user-employment">
+          <span class="label">Beschäftigungsart:</span>
+          <span class="value">{{ getEmploymentType() }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Detail information -->
+    <div class="user-details-sections">
+      <!-- Contact information -->
+      <div class="details-section">
+        <h2 class="section-title">Kontaktinformationen</h2>
+        <div class="info-row">
+          <span class="info-label">E-Mail:</span>
+          <span class="info-value">{{ user.email }}</span>
+        </div>
+        <div class="info-row" *ngIf="user.phoneNumber">
+          <span class="info-label">Telefonnummer:</span>
+          <span class="info-value">{{ user.phoneNumber }}</span>
+        </div>
+      </div>
+      
+      <!-- Skills -->
+      <div class="details-section">
+        <h2 class="section-title">Skills</h2>
+        
+        <div class="skills-container" *ngIf="user.skills && user.skills.length > 0">
+          <span class="skill-badge" *ngFor="let skill of user.skills">
+            {{ skill.name }}
+          </span>
+        </div>
+        
+        <div class="no-skills" *ngIf="!user.skills || user.skills.length === 0">
+          Keine Fähigkeiten angegeben
+        </div>
+      </div>
+    </div>
+    
+    <!-- Comments -->
+    <div class="comments-section">
+      <h2 class="section-title">Kommentare</h2>
+      
+      <!-- Add comment (only for authorized users) -->
+      <div class="add-comment-container" *ngIf="canAddComments">
+        <textarea 
+          [(ngModel)]="newComment" 
+          placeholder="Schreiben Sie einen Kommentar..." 
+          class="comment-input"
+          rows="3"
+        ></textarea>
+        <button 
+          class="btn btn-primary" 
+          [disabled]="!newComment.trim()" 
+          (click)="addComment()"
+        >
+          Kommentar hinzufügen
+        </button>
+      </div>
+      
+      <!-- Comment filter -->
+      <div class="comments-filter">
+        <div class="filter-row">
+          <input 
+            type="text" 
+            [(ngModel)]="commentSearchTerm" 
+            placeholder="Kommentare durchsuchen..." 
+            class="search-input"
+          >
+          
+          <select [(ngModel)]="selectedAuthor" class="author-select">
+            <option value="">Alle Autoren</option>
+            <option value="admin1">Administrator</option>
+            <option value="lead1">Kompetenzleiter Informatik</option>
+          </select>
+        </div>
+        
+        <div class="filter-row date-filters">
+          <div class="date-filter">
+            <label>Von:</label>
+            <input type="date" [(ngModel)]="dateFrom" class="date-input">
+          </div>
+          
+          <div class="date-filter">
+            <label>Bis:</label>
+            <input type="date" [(ngModel)]="dateTo" class="date-input">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Comment list -->
+      <div class="comments-list">
+        <div *ngIf="filterComments().length === 0" class="no-comments">
+          Keine Kommentare gefunden
+        </div>
+        
+        <div *ngFor="let comment of filterComments()" class="comment-card">
+          <div class="comment-header">
+            <span class="comment-author">{{ comment.authorName }}</span>
+            <span class="comment-date">{{ formatDate(comment.createdAt) }}</span>
+          </div>
+          <div class="comment-text">{{ comment.text }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

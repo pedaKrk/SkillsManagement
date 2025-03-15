@@ -425,14 +425,14 @@ export class UserListComponent implements OnInit, OnDestroy {
   editUser(userId: string): void {
     console.log('edit user:', userId);
     
-    // Benutzer finden
+    // find user
     const user = this.filteredUsers.find(u => u.id === userId);
     if (!user) {
       console.error('User not found:', userId);
       return;
     }
     
-    // Formularfelder für den Dialog erstellen
+    // create form fields for the dialog
     const formFields = [
       {
         id: 'title',
@@ -482,7 +482,7 @@ export class UserListComponent implements OnInit, OnDestroy {
       }
     ];
     
-    // Dialog mit Formular anzeigen
+    // show dialog with form
     this.dialogService.showFormDialog({
       title: 'Benutzer bearbeiten',
       message: `Bearbeiten Sie die Informationen für ${user.firstName} ${user.lastName}:`,
@@ -491,7 +491,7 @@ export class UserListComponent implements OnInit, OnDestroy {
       cancelText: 'Abbrechen'
     }).subscribe(formData => {
       if (formData) {
-        // Benutzer aktualisieren
+        // update user
         const userData: Partial<User> = {
           title: formData.title,
           firstName: formData.firstName,
@@ -506,22 +506,22 @@ export class UserListComponent implements OnInit, OnDestroy {
     });
   }
   
-  // Benutzer aktualisieren
+  // update user
   updateUser(userId: string, userData: Partial<User>): void {
     this.userService.updateUser(userId, userData).subscribe({
       next: (updatedUser) => {
         console.log('User updated:', updatedUser);
         
-        // Benutzer in der Liste aktualisieren
+        // update user in the list
         const index = this.users.findIndex(u => u.id === userId);
         if (index !== -1) {
           this.users[index] = { ...this.users[index], ...userData };
         }
         
-        // Filter anwenden, um die Liste zu aktualisieren
+        // apply filters to update the list
         this.applyFilters();
         
-        // Erfolgsmeldung anzeigen
+        // show success message
         this.showSuccessMessage(
           'Benutzer aktualisiert',
           `Die Informationen für ${userData.firstName} ${userData.lastName} wurden erfolgreich aktualisiert.`,
@@ -531,7 +531,7 @@ export class UserListComponent implements OnInit, OnDestroy {
       error: (error) => {
         console.error('Error updating user:', error);
         
-        // Fehlermeldung anzeigen
+        // show error message
         this.showSuccessMessage(
           'Fehler',
           'Beim Aktualisieren des Benutzers ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.',
@@ -545,77 +545,8 @@ export class UserListComponent implements OnInit, OnDestroy {
   viewUserDetails(userId: string): void {
     console.log('view user details:', userId);
     
-    // Benutzer finden
-    const user = this.filteredUsers.find(u => u.id === userId);
-    if (!user) {
-      console.error('User not found:', userId);
-      return;
-    }
-    
-    // Beschäftigungsart formatieren
-    const employmentType = user.employmentType === 'Internal' ? 'Intern' : 'Extern';
-    
-    // Skills formatieren
-    const skillsList = user.skills && user.skills.length > 0 
-      ? user.skills.map(skill => skill.name || this.getSkillName(skill)).join(', ')
-      : 'Keine Skills';
-    
-    // Dialog mit Benutzerdetails anzeigen
-    this.dialogService.showConfirmation({
-      title: 'Benutzerdetails',
-      message: `
-        <div class="user-details-container">
-          <div class="user-avatar">
-            <div class="avatar-circle">
-              <span class="initials">${user.firstName.charAt(0)}${user.lastName.charAt(0)}</span>
-            </div>
-            <h2 class="user-name">${user.title ? user.title + ' ' : ''}${user.firstName} ${user.lastName}</h2>
-            <div class="user-username">@${user.username}</div>
-          </div>
-          
-          <div class="user-info-section">
-            <h3 class="section-title">Kontaktinformationen</h3>
-            <div class="info-row">
-              <div class="info-label">E-Mail:</div>
-              <div class="info-value">${user.email}</div>
-            </div>
-            <div class="info-row">
-              <div class="info-label">Telefonnummer:</div>
-              <div class="info-value">${user.phoneNumber || '-'}</div>
-            </div>
-          </div>
-          
-          <div class="user-info-section">
-            <h3 class="section-title">Beschäftigung</h3>
-            <div class="info-row">
-              <div class="info-label">Beschäftigungsart:</div>
-              <div class="info-value">${employmentType}</div>
-            </div>
-          </div>
-          
-          <div class="user-info-section">
-            <h3 class="section-title">Fähigkeiten</h3>
-            <div class="skills-container">
-              ${user.skills && user.skills.length > 0 
-                ? user.skills.map(skill => 
-                    `<span class="skill-badge">${skill.name || this.getSkillName(skill)}</span>`
-                  ).join('')
-                : '<span class="no-skills">Keine Skills</span>'
-              }
-            </div>
-          </div>
-        </div>
-      `,
-      confirmText: 'Bearbeiten',
-      cancelText: 'Schließen',
-      dangerMode: false,
-      closeOnBackdropClick: true
-    }).subscribe(confirmed => {
-      if (confirmed) {
-        // Wenn "Bearbeiten" geklickt wurde, zur Bearbeitungsseite navigieren
-        this.editUser(userId);
-      }
-    });
+    // navigate to user details page
+    this.router.navigate(['/users', userId]);
   }
   
   // delete user
@@ -704,9 +635,6 @@ export class UserListComponent implements OnInit, OnDestroy {
     });
   }
   
-  // The following methods are not needed anymore, since we now use the dialog service
-  // They can be removed when the dialog service is fully implemented
-  
   // Cancel delete user
   cancelDeleteUser(): void {
     this.showDeleteDialog = false;
@@ -731,19 +659,25 @@ export class UserListComponent implements OnInit, OnDestroy {
   
   // helper method to get the skill name
   getSkillName(skill: any): string {
-    // if skill is a string (ID), try to find the name from the skill list
-    if (typeof skill === 'string') {
+    if (!skill) return 'Unbekannte Fähigkeit';
     
-      return `Skill-ID: ${skill}`;
+    // if skill is a string (ID), return a generic name
+    if (typeof skill === 'string') {
+      return 'Unbekannte Fähigkeit';
+    }
+    
+    // if skill is an object with name
+    if (typeof skill === 'object' && skill.name) {
+      return skill.name;
     }
     
     // if skill is an object, but no name attribute
     if (typeof skill === 'object' && skill._id) {
-      return `Skill-ID: ${skill._id}`;
+      return 'Unbekannte Fähigkeit';
     }
     
     // fallback
-    return '-';
+    return 'Unbekannte Fähigkeit';
   }
   
   // method to filter by skills (multiple)

@@ -50,7 +50,7 @@ export class AuthService {
       { identifier, password }
     ).pipe(map(response => {
       const user: AuthUser = {
-        id: '',
+        id: response.user.id || response.user._id || '',
         email: response.user.email,
         username: response.user.username,
         role: response.user.role,
