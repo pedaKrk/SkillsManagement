@@ -1,0 +1,90 @@
+<div class="dialog-wrapper">
+  <div class="dialog form-dialog">
+    <div class="dialog-header">
+      <h3>{{ dialog.title }}</h3>
+      <button class="close-button" (click)="onCancel()">×</button>
+    </div>
+    <div class="dialog-body">
+      <p *ngIf="dialog.message" class="dialog-message">{{ dialog.message }}</p>
+      
+      <form (ngSubmit)="onSubmit()" #form="ngForm" class="form-container">
+        <div class="form-fields">
+          <!-- Alle Formularfelder anzeigen -->
+          <div *ngFor="let field of dialog.formFields" class="form-group">
+            <label [for]="field.id" class="form-label">
+              {{ field.label }}
+              <span *ngIf="field.required" class="required-indicator">*</span>
+            </label>
+            
+            <!-- Textfeld -->
+            <input 
+              *ngIf="field.type === 'text' || field.type === 'email' || field.type === 'password' || field.type === 'number'"
+              [type]="field.type"
+              [id]="field.id"
+              [name]="field.id"
+              [(ngModel)]="formData[field.id]"
+              [required]="field.required"
+              [placeholder]="field.placeholder || ''"
+              [disabled]="field.disabled"
+              class="form-control"
+            >
+            
+            <!-- Textarea -->
+            <textarea 
+              *ngIf="field.type === 'textarea'"
+              [id]="field.id"
+              [name]="field.id"
+              [(ngModel)]="formData[field.id]"
+              [required]="field.required"
+              [placeholder]="field.placeholder || ''"
+              [rows]="field.rows || 10"
+              [disabled]="field.disabled"
+              class="form-control textarea"
+            ></textarea>
+            
+            <!-- Select -->
+            <select 
+              *ngIf="field.type === 'select'"
+              [id]="field.id"
+              [name]="field.id"
+              [(ngModel)]="formData[field.id]"
+              [required]="field.required"
+              [disabled]="field.disabled"
+              class="form-control select"
+            >
+              <option *ngFor="let option of field.options" [value]="option.value">{{ option.label }}</option>
+            </select>
+            
+            <!-- Checkbox -->
+            <div *ngIf="field.type === 'checkbox'" class="checkbox-container">
+              <input 
+                type="checkbox"
+                [id]="field.id"
+                [name]="field.id"
+                [(ngModel)]="formData[field.id]"
+                [required]="field.required"
+                [disabled]="field.disabled"
+                class="form-control-checkbox"
+              >
+              <label [for]="field.id" class="checkbox-label">
+                {{ field.checkboxLabel || field.label }}
+                <span *ngIf="field.required" class="required-indicator">*</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="dialog-footer">
+      <div class="required-note" *ngIf="hasRequiredFields()">* Pflichtfeld</div>
+      <div class="button-group">
+        <button type="button" class="btn btn-secondary" (click)="onCancel()">
+          {{ dialog.cancelText }}
+        </button>
+        <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="!isFormValid()">
+          {{ dialog.submitText }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

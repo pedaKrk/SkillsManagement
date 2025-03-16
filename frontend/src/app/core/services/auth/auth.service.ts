@@ -31,18 +31,32 @@ export class AuthService {
     );
   }
 
+  // Admin creates a new user
+  adminCreateUser(userData: any) {
+    const headers = new HttpHeaders({
+      'x-admin-creation': 'true'
+    });
+    
+    return this.http.post(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.auth.register}`,
+      userData,
+      { headers }
+    );
+  }
+
   login(identifier: string, password: string) {
     return this.http.post<LoginResponse>(
       `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.auth.login}`,
       { identifier, password }
     ).pipe(map(response => {
       const user: AuthUser = {
-        id: '',
+        id: response.user.id || response.user._id || '',
         email: response.user.email,
         username: response.user.username,
         role: response.user.role,
         token: response.token
       };
+      
       localStorage.setItem('currentUser', JSON.stringify(user));
       this.currentUserSubject.next(user);
       return user;

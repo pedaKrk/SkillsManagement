@@ -1,0 +1,27 @@
+<div class="dialog-wrapper">
+  <div class="dialog" [class.danger-mode]="dialog.dangerMode">
+    <div class="dialog-header">
+      <h3>{{ dialog.title }}</h3>
+      <button class="close-button" (click)="onCancel()">×</button>
+    </div>
+    <div class="dialog-body">
+      <p class="dialog-message" [innerHTML]="dialog.message"></p>
+      <div *ngIf="dialog.data?.content" class="dialog-content">
+        <ng-container *ngTemplateOutlet="dialog.data.content"></ng-container>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn btn-secondary" (click)="onCancel()">
+        {{ dialog.cancelText }}
+      </button>
+      <button 
+        class="btn" 
+        [class.btn-primary]="!dialog.dangerMode"
+        [class.btn-danger]="dialog.dangerMode"
+        (click)="onConfirm()"
+      >
+        {{ dialog.confirmText }}
+      </button>
+    </div>
+  </div>
+</div> 

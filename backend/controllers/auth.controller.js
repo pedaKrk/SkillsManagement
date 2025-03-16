@@ -6,27 +6,30 @@ import User from "../models/user.model.js";
 // Register new user
 export const registerUser = async (req, res) => {
     try {
-        const { email } = req.body;
+        const { email, role } = req.body;
+        const isAdminCreation = req.headers['x-admin-creation'] === 'true';
         
         if (!email) {
             return res.status(400).json({ message: "Email is required" });
         }
 
-        const generatedPassword = generatePassword();
-        const hashedPassword = await hashPassword(generatedPassword);
+        // Generate password for all users
+        const userPassword = generatePassword();
+        const hashedPassword = await hashPassword(userPassword);
 
         // Create new user with hashed password
         const newUser = new User({
             ...req.body,
             password: hashedPassword,
-            mustChangePassword: true,
-            role: 'Lecturer' // Default role for new users
+            mustChangePassword: true, // All users must change their password on first login
+            // For admin creation, use the provided role; for self-registration, always use 'lecturer'
+            role: isAdminCreation ? (role || 'lecturer') : 'lecturer'
         });
         
         await newUser.save();
 
-        // Send email with generated password
-        await sendEmail(email, generatedPassword);
+        // Send email with generated password to all users
+        await sendEmail(email, userPassword);
 
         res.status(201).json({ 
             message: "User successfully created"

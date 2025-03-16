@@ -1,6 +1,7 @@
 const roleEnum = {
     ADMIN: 'Admin',
-    LECTURER: 'Lecturer',
+    COMPETENCE_LEADER: 'competence_leader',
+    LECTURER: 'lecturer',
 }
 
 export default roleEnum

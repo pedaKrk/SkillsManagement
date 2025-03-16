@@ -1,1 +1,255 @@
-<p>user-list works!</p>
+<div class="user-list-container">
+  <!-- action bar -->
+  <div class="action-bar">
+    <div class="action-buttons-container">
+      <div class="action-buttons">
+        <button class="btn btn-primary" (click)="generatePDF()" [disabled]="selectedUsers.length === 0">
+          PDF generieren und herunterladen
+        </button>
+        <button class="btn btn-primary" (click)="sendEmail()" [disabled]="selectedUsers.length === 0">
+          E-Mail an ausgewählte Person(en) senden
+        </button>
+        <button class="btn btn-secondary" (click)="sortUsers('username')">
+          Aufsteigend sortieren
+        </button>
+      </div>
+      
+      <div class="filter-controls">
+        <!-- Suchfeld -->
+        <div class="search-bar">
+          <input 
+            type="text" 
+            [(ngModel)]="searchTerm" 
+            (ngModelChange)="applyFilters()"
+            placeholder="Nach Namen suchen..." 
+            class="form-control"
+          >
+        </div>
+        
+        <div class="filter-row">
+          <!-- Skill-Filter Dropdown -->
+          <div class="skill-filter">
+            <div class="dropdown-wrapper">
+              <!-- Dropdown toggle button -->
+              <div class="skills-dropdown-toggle" (click)="toggleSkillDropdown()">
+                <span>{{ selectedSkills.length > 0 ? 'Skills: ' + selectedSkills.length + ' ausgewählt' : 'Nach Skills filtern' }}</span>
+                <span class="dropdown-arrow">{{ isSkillDropdownOpen ? '▲' : '▼' }}</span>
+              </div>
+              
+              <!-- Dropdown menu -->
+              <div *ngIf="isSkillDropdownOpen" class="skills-dropdown-menu">
+                <!-- Search input -->
+                <div class="skills-search">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="skillSearchTerm" 
+                    (ngModelChange)="filterSkillsList()"
+                    placeholder="Skills suchen..." 
+                    class="form-control"
+                    (click)="$event.stopPropagation()"
+                  >
+                </div>
+                
+                <!-- Skills list -->
+                <div class="skills-list">
+                  <div 
+                    class="skill-item" 
+                    [class.selected]="selectedSkills.length === 0"
+                    (click)="clearAllSkills(); toggleSkillDropdown()"
+                  >
+                    <div class="skill-checkbox">
+                      <span *ngIf="selectedSkills.length === 0" class="check-mark">✓</span>
+                    </div>
+                    <span class="skill-name">Alle Skills anzeigen</span>
+                  </div>
+                  
+                  <div *ngIf="filteredSkillsList.length === 0" class="no-skills">
+                    Keine passenden Skills gefunden
+                  </div>
+                  
+                  <div 
+                    *ngFor="let skill of filteredSkillsList" 
+                    class="skill-item" 
+                    [class.selected]="isSkillSelected(skill)"
+                    (click)="filterBySkill(skill); $event.stopPropagation()"
+                  >
+                    <div class="skill-checkbox">
+                      <span *ngIf="isSkillSelected(skill)" class="check-mark">✓</span>
+                    </div>
+                    <span class="skill-name">{{ skill }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Selected skills badges (if any) -->
+            <div *ngIf="selectedSkills.length > 0" class="selected-skills-container">
+              <div *ngFor="let skill of selectedSkills" class="selected-skill-badge">
+                <span class="skill-name">{{ skill }}</span>
+                <span class="remove-skill" (click)="removeSkill(skill)">×</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Reset Filter Button -->
+          <button class="btn reset-filter-btn" 
+            [class.btn-secondary]="!hasActiveFilters()" 
+            [class.btn-primary]="hasActiveFilters()" 
+            (click)="resetFilters()">
+            Alle Filter löschen
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- loading indicator -->
+  <div *ngIf="isLoading" class="loading-indicator">
+    <div class="spinner"></div>
+    <span>Benutzer werden geladen...</span>
+  </div>
+  
+  <!-- error message -->
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+    <button class="btn btn-sm btn-outline-danger ml-2" (click)="loadUsers()">Erneut versuchen</button>
+  </div>
+  
+  <!-- user table -->
+  <div *ngIf="!isLoading && !error" class="user-table-container">
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th class="select-column">
+            <input 
+              type="checkbox" 
+              id="select-all-checkbox"
+              [checked]="selectedUsers.length === filteredUsers.length && filteredUsers.length > 0"
+              (change)="selectAllUsers()"
+              aria-label="Alle Benutzer auswählen"
+              class="custom-checkbox"
+            >
+          </th>
+          <th (click)="sortUsers('username')" class="sortable">
+            <div class="header-content">
+              <span>Benutzername</span>
+              <span *ngIf="sortField === 'username'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
+            </div>
+          </th>
+          <th (click)="sortUsers('title')" class="sortable">
+            <div class="header-content">
+              <span>Titel</span>
+              <span *ngIf="sortField === 'title'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
+            </div>
+          </th>
+          <th (click)="sortUsers('firstName')" class="sortable">
+            <div class="header-content">
+              <span>Vorname</span>
+              <span *ngIf="sortField === 'firstName'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
+            </div>
+          </th>
+          <th (click)="sortUsers('lastName')" class="sortable">
+            <div class="header-content">
+              <span>Nachname</span>
+              <span *ngIf="sortField === 'lastName'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
+            </div>
+          </th>
+          <th (click)="sortUsers('email')" class="sortable">
+            <div class="header-content">
+              <span>Email</span>
+              <span *ngIf="sortField === 'email'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
+            </div>
+          </th>
+          <th (click)="sortUsers('phoneNumber')" class="sortable">
+            <div class="header-content">
+              <span>Telefonnummer</span>
+              <span *ngIf="sortField === 'phoneNumber'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
+            </div>
+          </th>
+          <th (click)="sortUsers('employmentType')" class="sortable">
+            <div class="header-content">
+              <span>Beschäftigungsart</span>
+              <span *ngIf="sortField === 'employmentType'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
+            </div>
+          </th>
+          <th (click)="sortUsers('skills')" class="sortable">
+            <div class="header-content">
+              <span>Skills</span>
+              <span *ngIf="sortField === 'skills'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
+            </div>
+          </th>
+          <th>Aktionen</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of filteredUsers" [class.selected]="isUserSelected(user.id)" class="user-row">
+          <td class="select-column">
+            <div class="checkbox-container">
+              <input 
+                type="checkbox" 
+                [id]="'user-checkbox-' + user.id"
+                [checked]="isUserSelected(user.id)"
+                (change)="toggleUserSelection(user.id, $event)"
+                [attr.aria-label]="'Benutzer ' + user.firstName + ' ' + user.lastName + ' auswählen'"
+                class="custom-checkbox"
+              >
+              <label [for]="'user-checkbox-' + user.id" class="sr-only">
+                {{ user.firstName }} {{ user.lastName }} auswählen
+              </label>
+            </div>
+          </td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.title || '-' }}</td>
+          <td>{{ user.firstName }}</td>
+          <td>{{ user.lastName }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.phoneNumber || '-' }}</td>
+          <td>{{ user.employmentType === 'Internal' ? 'Intern' : 'Extern' }}</td>
+          <td>
+            <div class="skills-list">
+              <span *ngIf="!user.skills || user.skills.length === 0">-</span>
+              <ng-container *ngFor="let skill of user.skills">
+                <span 
+                  class="skill-badge" 
+                  *ngIf="skill.name"
+                  (click)="filterBySkill(skill.name); $event.stopPropagation()"
+                  [class.active]="isSkillSelected(skill.name)"
+                  title="Nach diesem Skill filtern"
+                >
+                  {{ skill.name }}
+                </span>
+                <span 
+                  class="skill-badge" 
+                  *ngIf="!skill.name && getSkillName(skill)"
+                  (click)="filterBySkill(getSkillName(skill)); $event.stopPropagation()"
+                  [class.active]="isSkillSelected(getSkillName(skill))"
+                  title="Nach diesem Skill filtern"
+                >
+                  {{ getSkillName(skill) }}
+                </span>
+              </ng-container>
+            </div>
+          </td>
+          <td class="actions-column">
+            <div class="action-buttons">
+              <button class="btn btn-icon btn-details" (click)="editUser(user.id); $event.stopPropagation()" title="Benutzer bearbeiten">
+                <i class="fa fa-cog"></i>
+              </button>
+              <button class="btn btn-icon btn-edit" (click)="viewUserDetails(user.id); $event.stopPropagation()" title="Benutzerdetails anzeigen">
+                <i class="fa fa-user"></i>
+              </button>
+              <button class="btn btn-icon btn-delete" (click)="deleteUser(user.id); $event.stopPropagation()" title="Benutzer löschen">
+                <i class="fa fa-trash-can"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredUsers.length === 0">
+          <td colspan="10" class="no-results">
+            Keine Benutzer gefunden.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
