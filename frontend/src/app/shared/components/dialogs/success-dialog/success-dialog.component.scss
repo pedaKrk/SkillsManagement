@@ -1,0 +1,125 @@
+.dialog-wrapper {
+  position: relative;
+  z-index: 10000;
+}
+
+.dialog {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  width: 95%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: dialog-fade-in 0.3s ease-out;
+}
+
+@keyframes dialog-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.75rem;
+  border-bottom: 1px solid #e9ecef;
+  background-color: #28a745;
+  color: white;
+}
+
+.dialog-header h3 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: white;
+  font-weight: 500;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.close-button:hover {
+  color: white;
+}
+
+.dialog-body {
+  padding: 1.5rem 2rem;
+  overflow-y: auto;
+}
+
+.success-message {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
+  height: 70px;
+  background-color: #28a745;
+  color: white;
+  border-radius: 50%;
+  font-size: 2rem;
+  font-weight: bold;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+}
+
+.success-message p {
+  font-size: 1.3rem;
+  margin: 0;
+  line-height: 1.5;
+  color: #212529;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.25rem 1.75rem;
+  border-top: 1px solid #e9ecef;
+  background-color: #f8f9fa;
+}
+
+.btn {
+  padding: 0.85rem 2rem;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-primary {
+  background-color: #28a745;
+  color: white;
+  box-shadow: 0 2px 5px rgba(40, 167, 69, 0.3);
+}
+
+.btn-primary:hover {
+  background-color: #218838;
+  box-shadow: 0 3px 8px rgba(40, 167, 69, 0.4);
+  transform: translateY(-1px);
+} 

@@ -14,7 +14,7 @@ const userModel = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: roleEnum,
+        enum: Object.values(roleEnum),
         required: true
     },
     title: String,
@@ -38,9 +38,13 @@ const userModel = new mongoose.Schema({
         enum: employmentTypeEnum,
         required: true
     },
+    profileImageUrl: {
+        type: String,
+        default: null
+    },
     comments: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Comments"
+        ref: "Comment"
     }],
     skills: [{
         type: mongoose.Schema.Types.ObjectId,

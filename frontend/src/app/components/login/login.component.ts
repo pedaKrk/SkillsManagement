@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -50,7 +50,21 @@ export class LoginComponent implements OnInit {
 
     // Attempt login with auth service
     this.authService.login(identifier, password).subscribe({
-      next: () => {
+      next: (user) => {
+        console.log('Login erfolgreich:', user);
+        
+        // check if token is present
+        if (!user.token) {
+          this.error = 'Fehler beim Login: Kein Token erhalten';
+          this.loading = false;
+          return;
+        }
+        
+        // check if id is present
+        if (!user.id) {
+          console.warn('User ID missing after login');
+        }
+        
         // Navigate to user page on success
         this.router.navigate(['/user']);
       },

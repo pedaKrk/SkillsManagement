@@ -1,24 +1,22 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar.component';
+import { DialogContainerComponent } from './shared/components/dialogs/dialog-container/dialog-container.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent],
+  imports: [RouterOutlet, NavbarComponent, DialogContainerComponent],
   template: `
-    <app-navbar></app-navbar>
-    <main>
-      <router-outlet></router-outlet>
-    </main>
+    <div class="app-container">
+      <app-navbar></app-navbar>
+      <main>
+        <router-outlet></router-outlet>
+      </main>
+      <app-dialog-container></app-dialog-container>
+    </div>
   `,
-  styles: [`
-    main {
-      width: 100%;
-      min-height: calc(100vh - 70px);
-      padding: 20px;
-    }
-  `]
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
   title = 'SkillsManagement';

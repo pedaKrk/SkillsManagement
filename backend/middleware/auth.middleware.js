@@ -21,7 +21,11 @@ export const authenticateToken = async (req, res, next) => {
 
 export const authorizeRole = (roles) => {
     return (req, res, next) => {
-        if (!roles.includes(req.user.role)) {
+        const userRole = req.user.role.toLowerCase();
+        
+        const hasPermission = roles.some(role => role.toLowerCase() === userRole);
+        
+        if (!hasPermission) {
             return res.status(403).json({ 
                 message: 'Access denied: insufficient permissions' 
             });

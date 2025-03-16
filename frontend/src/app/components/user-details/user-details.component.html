@@ -1,0 +1,258 @@
+<div class="user-details-page">
+  <!-- Loading-Indikator -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <span>Benutzerdetails werden geladen...</span>
+  </div>
+  
+  <!-- Error message -->
+  <div *ngIf="error" class="error-container">
+    <div class="error-message">{{ error }}</div>
+    <div class="error-actions">
+      <button class="btn btn-primary" (click)="loadUserDetails()">Erneut versuchen</button>
+      <button class="btn btn-secondary" (click)="goBack()">Zurück zur Benutzerliste</button>
+    </div>
+  </div>
+  
+  <!-- User details -->
+  <div *ngIf="user && !isLoading && !error" class="user-details-container">
+    <!-- Header with profile image and main information -->
+    <div class="user-header">
+      <div class="user-avatar-container">
+        <div *ngIf="!user.profileImageUrl" class="user-avatar">
+          <span class="initials">{{ getUserInitials() }}</span>
+        </div>
+        <div *ngIf="user.profileImageUrl" class="user-avatar">
+          <img 
+            [src]="getProfileImageUrl(user.profileImageUrl)" 
+            alt="Profilbild" 
+            class="profile-image"
+            (error)="handleImageError()"
+          >
+          <div *ngIf="showInitialsOnError" class="initials-fallback">
+            <span class="initials">{{ getUserInitials() }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="user-info">
+        <h1 class="user-name">{{ getUserFullName() }}</h1>
+        <div class="user-username">{{'@'}}{{ user.username }}</div>
+        
+        <div class="user-role" *ngIf="user.role">
+          <span class="label">Rolle:</span>
+          <span class="value">{{ getFormattedRole() }}</span>
+        </div>
+        
+        <div class="user-employment">
+          <span class="label">Beschäftigungsart:</span>
+          <span class="value">{{ getEmploymentType() }}</span>
+        </div>
+        
+        <!-- additional edit button for admins -->
+        <div *ngIf="isAdmin === true" class="admin-actions mt-3">
+          <button class="btn btn-primary" (click)="editUser()">
+            <i class="fa fa-pencil"></i> Profil bearbeiten
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Detail information -->
+    <div class="user-details-sections">
+      <!-- Contact information -->
+      <div class="details-section">
+        <h2 class="section-title">Kontaktinformationen</h2>
+        <div class="info-row">
+          <span class="info-label">E-Mail:</span>
+          <span class="info-value">{{ user.email }}</span>
+        </div>
+        <div class="info-row" *ngIf="user.phoneNumber">
+          <span class="info-label">Telefonnummer:</span>
+          <span class="info-value">{{ user.phoneNumber }}</span>
+        </div>
+      </div>
+      
+      <!-- Skills -->
+      <div class="details-section">
+        <h2 class="section-title">Skills</h2>
+        
+        <div class="skills-container" *ngIf="user.skills && user.skills.length > 0">
+          <span class="skill-badge" *ngFor="let skill of user.skills">
+            {{ skill.name }}
+          </span>
+        </div>
+        
+        <div class="no-skills" *ngIf="!user.skills || user.skills.length === 0">
+          Keine Fähigkeiten angegeben
+        </div>
+      </div>
+    </div>
+    
+    <!-- Comments -->
+    <div class="comments-section">
+      <h2 class="section-title">Kommentare</h2>
+      
+      <!-- Add comment (only for authorized users) -->
+      <div class="add-comment-container" *ngIf="canAddComments">
+        <textarea 
+          [(ngModel)]="newComment" 
+          placeholder="Schreiben Sie einen Kommentar..." 
+          class="comment-input"
+          rows="3"
+        ></textarea>
+        <button 
+          class="btn btn-primary" 
+          [disabled]="!newComment.trim()" 
+          (click)="addComment()"
+        >
+          Kommentar hinzufügen
+        </button>
+      </div>
+      
+      <!-- Comment filter -->
+      <div class="comments-filter">
+        <div class="filter-row">
+          <input 
+            type="text" 
+            [(ngModel)]="commentSearchTerm" 
+            placeholder="Kommentare durchsuchen..." 
+            class="search-input"
+          >
+          
+          <div class="author-select-container">
+            <!-- Dropdown with Toggle and Menu -->
+            <div class="dropdown-wrapper">
+              <!-- Dropdown toggle button -->
+              <div class="author-dropdown-toggle" (click)="toggleAuthorDropdown()">
+                <span>{{ selectedAuthor ? getAuthorNameById(selectedAuthor) : 'Alle Autoren' }}</span>
+                <span class="dropdown-arrow">{{ isAuthorDropdownOpen ? '▲' : '▼' }}</span>
+              </div>
+              
+              <!-- Dropdown menu -->
+              <div *ngIf="isAuthorDropdownOpen" class="author-dropdown-menu">
+                <!-- Author list -->
+                <div class="author-list">
+                  <div 
+                    class="author-item" 
+                    [class.selected]="selectedAuthor === ''"
+                    (click)="selectAuthor('')"
+                  >
+                    <span class="author-checkbox">
+                      <span *ngIf="selectedAuthor === ''" class="check-mark">✓</span>
+                    </span>
+                    <span class="author-name">Alle Autoren</span>
+                  </div>
+                  
+                  <div 
+                    *ngFor="let author of getUniqueAuthors()" 
+                    class="author-item" 
+                    [class.selected]="selectedAuthor === author.id"
+                    (click)="selectAuthor(author.id)"
+                  >
+                    <span class="author-checkbox">
+                      <span *ngIf="selectedAuthor === author.id" class="check-mark">✓</span>
+                    </span>
+                    <span class="author-name">{{ author.name }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="filter-row date-filters">
+          <div class="date-filter">
+            <label>Von:</label>
+            <div class="date-input-container">
+              <input type="date" [(ngModel)]="dateFrom" class="date-input">
+            </div>
+          </div>
+          
+          <div class="date-filter">
+            <label>Bis:</label>
+            <div class="date-input-container">
+              <input type="date" [(ngModel)]="dateTo" class="date-input">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Comment list -->
+      <div class="comments-list">
+        <div *ngIf="filterComments().length === 0" class="no-comments">
+          Keine Kommentare gefunden
+        </div>
+        
+        <div *ngFor="let comment of filterComments()" class="comment-card">
+          <div class="comment-header">
+            <span class="comment-author">{{ comment.authorName }}</span>
+            <span class="comment-date">{{ formatDate(comment.createdAt) }}</span>
+          </div>
+          <div class="comment-text" [class.expanded]="isCommentExpanded(comment.id)">
+            {{ getDisplayText(comment.text, isCommentExpanded(comment.id)) }}
+            <button 
+              *ngIf="isTextTooLong(comment.text)" 
+              class="text-expand-btn"
+              (click)="toggleCommentExpansion(comment.id)"
+            >
+              {{ isCommentExpanded(comment.id) ? 'Weniger anzeigen' : 'Mehr anzeigen' }}
+            </button>
+          </div>
+          
+          <!-- reply button -->
+          <div class="comment-actions">
+            <button class="btn-reply" (click)="replyToComment(comment)">
+              <i class="fa fa-reply"></i> Antworten
+            </button>
+          </div>
+          
+          <!-- reply form -->
+          <div *ngIf="replyingToComment && replyingToComment.id === comment.id" class="reply-form">
+            <textarea 
+              [(ngModel)]="replyText" 
+              placeholder="Schreiben Sie eine Antwort..." 
+              class="reply-input"
+              rows="2"
+            ></textarea>
+            <div class="reply-actions">
+              <button 
+                class="btn btn-primary btn-sm" 
+                [disabled]="!replyText.trim()" 
+                (click)="addReply()"
+              >
+                Antworten
+              </button>
+              <button 
+                class="btn btn-secondary btn-sm" 
+                (click)="cancelReply()"
+              >
+                Abbrechen
+              </button>
+            </div>
+          </div>
+          
+          <!-- replies -->
+          <div *ngIf="comment.replies && comment.replies.length > 0" class="replies-container">
+            <div *ngFor="let reply of comment.replies" class="reply-card">
+              <div class="reply-header">
+                <span class="reply-author">{{ reply.authorName }}</span>
+                <span class="reply-date">{{ formatDate(reply.createdAt) }}</span>
+              </div>
+              <div class="reply-text" [class.expanded]="isReplyExpanded(reply.id)">
+                {{ getDisplayText(reply.text, isReplyExpanded(reply.id)) }}
+                <button 
+                  *ngIf="isTextTooLong(reply.text)" 
+                  class="text-expand-btn"
+                  (click)="toggleReplyExpansion(reply.id)"
+                >
+                  {{ isReplyExpanded(reply.id) ? 'Weniger anzeigen' : 'Mehr anzeigen' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
