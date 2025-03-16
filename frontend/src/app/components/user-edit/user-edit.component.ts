@@ -230,9 +230,80 @@ export class UserEditComponent implements OnInit {
    * removes the profile image
    */
   markProfileImageForRemoval(): void {
-    this.previewImageUrl = null;
-    this.selectedImageFile = null;
-    this.removeImageFlag = true;
+    this.dialogService.showConfirmation({
+      title: 'Profilbild entfernen',
+      message: 'Möchten Sie das Profilbild wirklich entfernen?',
+      confirmText: 'Ja, entfernen',
+      cancelText: 'Abbrechen',
+      dangerMode: true
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this.isLoading = true;
+        this.previewImageUrl = null;
+        this.selectedImageFile = null;
+        this.removeImageFlag = true;
+        
+        // directly remove the image and save the data
+        const updatedUserData = {
+          ...this.user,
+          ...this.userForm.value
+        };
+        this.removeProfileImage(updatedUserData);
+      }
+    });
+  }
+  
+  /**
+   * removes the profile image
+   * @param userData the updated user data
+   */
+  private removeProfileImage(userData: any): void {
+    this.userService.removeProfileImage(this.userId).subscribe({
+      next: (updatedUser) => {
+        // directly remove the image and update the user state
+        if (this.user) {
+          const updatedUserData = {
+            ...this.user,
+            profileImageUrl: undefined
+          };
+          this.user = updatedUserData as User;
+        }
+        
+        // update the remaining user data
+        this.userService.updateUser(this.userId, userData).subscribe({
+          next: (response) => {
+            this.isLoading = false;
+            
+            // update the user state with the server response
+            if (this.user) {
+              const finalUserData = {
+                ...this.user,
+                ...response,
+                profileImageUrl: undefined
+              };
+              this.user = finalUserData as User;
+            }
+            
+            this.dialogService.showSuccess({
+              title: 'Erfolg',
+              message: 'Profilbild wurde erfolgreich entfernt.',
+              buttonText: 'OK'
+            });
+            
+            // reset all image-related flags
+            this.previewImageUrl = null;
+            this.selectedImageFile = null;
+            this.removeImageFlag = false;
+          },
+          error: (error) => {
+            this.handleError('Die Benutzerdaten konnten nicht aktualisiert werden. Bitte versuchen Sie es später erneut.');
+          }
+        });
+      },
+      error: (error) => {
+        this.handleError('Das Profilbild konnte nicht entfernt werden. Bitte versuchen Sie es später erneut.');
+      }
+    });
   }
   
   /**
@@ -286,27 +357,11 @@ export class UserEditComponent implements OnInit {
           buttonText: 'OK'
         });
         
-        // Zurück zur Benutzerdetailseite navigieren
+        // navigate back to the user detail page
         this.router.navigate(['/users', this.userId]);
       },
       error: (error) => {
         this.handleError('Das Profilbild konnte nicht hochgeladen werden. Bitte versuchen Sie es später erneut.');
-      }
-    });
-  }
-  
-  /**
-   * removes the profile image
-   * @param userData the updated user data
-   */
-  private removeProfileImage(userData: any): void {
-    this.userService.removeProfileImage(this.userId).subscribe({
-      next: (updatedUser) => {
-        // after removing the profile image, update the rest of the user data
-        this.updateUser(userData);
-      },
-      error: (error) => {
-        this.handleError('Das Profilbild konnte nicht entfernt werden. Bitte versuchen Sie es später erneut.');
       }
     });
   }
@@ -372,30 +427,30 @@ export class UserEditComponent implements OnInit {
   }
   
   /**
-   * Gibt die vollständige URL für ein Profilbild zurück
-   * @param profileImageUrl Die relative URL des Profilbilds
-   * @returns Die vollständige URL des Profilbilds
+   * returns the full URL for a profile image
+   * @param profileImageUrl the relative URL of the profile image
+   * @returns the full URL of the profile image
    */
   getProfileImageUrl(profileImageUrl: string): string {
     if (!profileImageUrl) return '';
     
-    // Wenn die URL bereits absolut ist (beginnt mit http oder https), verwende sie direkt
+    // if the URL is already absolute (starts with http or https), use it directly
     if (profileImageUrl.startsWith('http')) {
       return profileImageUrl;
     }
     
-    // Wenn die URL mit einem Schrägstrich beginnt, entferne ihn
+    // if the URL starts with a slash, remove it
     const cleanUrl = profileImageUrl.startsWith('/') ? profileImageUrl.substring(1) : profileImageUrl;
     
-    // Erstelle die vollständige URL
-    // Verwende die Basis-URL ohne den API-Pfad
+    // create the full URL
+    // use the base URL without the API path
     const baseUrl = environment.apiUrl.split('/api/v1')[0];
     
-    // Verwende eine direkte URL zum Backend-Server
+    // use a direct URL to the backend server
     const fullUrl = `${baseUrl}/${cleanUrl}`;
     console.log('Profilbild-URL:', fullUrl);
     
-    // Verwende eine statische URL ohne Timestamp, um Angular-Fehler zu vermeiden
+    // use a static URL without a timestamp to avoid Angular errors
     return fullUrl;
   }
 }

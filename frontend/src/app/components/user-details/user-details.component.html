@@ -22,7 +22,17 @@
         <div *ngIf="!user.profileImageUrl" class="user-avatar">
           <span class="initials">{{ getUserInitials() }}</span>
         </div>
-        <img *ngIf="user.profileImageUrl" [src]="getProfileImageUrl(user.profileImageUrl)" alt="Profilbild" class="profile-image">
+        <div *ngIf="user.profileImageUrl" class="user-avatar">
+          <img 
+            [src]="getProfileImageUrl(user.profileImageUrl)" 
+            alt="Profilbild" 
+            class="profile-image"
+            (error)="handleImageError()"
+          >
+          <div *ngIf="showInitialsOnError" class="initials-fallback">
+            <span class="initials">{{ getUserInitials() }}</span>
+          </div>
+        </div>
       </div>
       
       <div class="user-info">

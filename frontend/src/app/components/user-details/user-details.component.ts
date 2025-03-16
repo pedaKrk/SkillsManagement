@@ -26,12 +26,13 @@ export class UserDetailsComponent implements OnInit {
   user: User | null = null;
   isLoading: boolean = false;
   error: string | null = null;
+  showInitialsOnError: boolean = false;
   
   // for comments
   newComment: string = '';
   comments: Comment[] = [];
   
-  // für Antworten auf Kommentare
+  // answer to comments
   replyingToComment: Comment | null = null;
   replyText: string = '';
   
@@ -381,11 +382,27 @@ export class UserDetailsComponent implements OnInit {
   }
   
   /**
-   * returns the initials of the user (for avatar)
+   * returns the initials of the user (for the avatar)
    */
   getUserInitials(): string {
-    if (!this.user) return '';
-    return (this.user.firstName.charAt(0) + this.user.lastName.charAt(0)).toUpperCase();
+    console.log('Generating initials for user:', this.user);
+    
+    if (!this.user) {
+      console.log('No user object available');
+      return '';
+    }
+    
+    if (!this.user.firstName || !this.user.lastName) {
+      console.log('Missing firstName or lastName:', {
+        firstName: this.user.firstName,
+        lastName: this.user.lastName
+      });
+      return '';
+    }
+    
+    const initials = (this.user.firstName.charAt(0) + this.user.lastName.charAt(0)).toUpperCase();
+    console.log('Generated initials:', initials);
+    return initials;
   }
   
   /**
@@ -677,5 +694,21 @@ export class UserDetailsComponent implements OnInit {
     
     // use a static URL without timestamp to avoid Angular errors
     return fullUrl;
+  }
+  
+  /**
+   * Handles errors when loading the profile image
+   */
+  handleImageError(): void {
+    console.log('Fehler beim Laden des Profilbilds');
+    this.showInitialsOnError = true;
+    
+    // if the user is available, set the profile image URL to undefined
+    if (this.user) {
+      this.user = {
+        ...this.user,
+        profileImageUrl: undefined
+      };
+    }
   }
 }
