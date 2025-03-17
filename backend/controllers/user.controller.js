@@ -84,15 +84,33 @@ export const updateUser = async (req, res) => {
   try {
     const { id } = req.params
     const userData = req.body
+    
+    
+    const isOwnProfile = req.user.id === id || req.user._id === id
+    const isAdmin = req.user.role.toLowerCase() === 'admin'
+    
+    if (!isAdmin && !isOwnProfile) {
+      await session.abortTransaction()
+      await session.endSession()
+      return res.status(403).json({ 
+        message: 'Sie haben keine Berechtigung, dieses Benutzerprofil zu bearbeiten.' 
+      })
+    }
+
     const updatedUser = await User.findByIdAndUpdate(id, userData, { new: true })
 
     if (!updatedUser) {
+      await session.abortTransaction()
+      await session.endSession()
       return res.status(404).json({ message: 'User not found' })
     }
+
     await session.commitTransaction()
     await session.endSession()
     res.status(200).json(updatedUser)
   } catch (error) {
+    await session.abortTransaction()
+    await session.endSession()
     res.status(500).json({ message: 'Failed to update user', error })
   }
 }

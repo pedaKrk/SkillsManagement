@@ -83,13 +83,16 @@ export class UserEditComponent implements OnInit {
       const role = currentUser.role?.toLowerCase() || '';
       this.isAdmin = role === 'admin';
       
-      if (!this.isAdmin) {
-        this.error = 'Sie haben keine Berechtigung, Benutzerprofile zu bearbeiten.';
+      
+      const isOwnProfile = currentUser.id === this.userId;
+      
+      if (!this.isAdmin && !isOwnProfile) {
+        this.error = 'Sie haben keine Berechtigung, dieses Benutzerprofil zu bearbeiten.';
         this.router.navigate(['/users', this.userId]);
       }
     } else {
       this.isAdmin = false;
-      this.error = 'Sie müssen als Administrator angemeldet sein, um Benutzerprofile zu bearbeiten.';
+      this.error = 'Sie müssen angemeldet sein, um Benutzerprofile zu bearbeiten.';
     }
   }
   

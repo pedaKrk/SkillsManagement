@@ -16,6 +16,7 @@ export class NavbarComponent implements OnInit {
   userId: string | null = null;
   isAdmin = false;
   isDropdownOpen = false;
+  isUserDropdownOpen = false;
 
   constructor(
     private authService: AuthService,
@@ -40,15 +41,36 @@ export class NavbarComponent implements OnInit {
     event.preventDefault();
     event.stopPropagation();
     this.isDropdownOpen = !this.isDropdownOpen;
+    
+    // Benutzer-Dropdown schließen, wenn Future Skills Dropdown geöffnet wird
+    if (this.isDropdownOpen) {
+      this.isUserDropdownOpen = false;
+    }
+  }
+  
+  toggleUserDropdown(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isUserDropdownOpen = !this.isUserDropdownOpen;
+    
+    // Future Skills Dropdown schließen, wenn Benutzer-Dropdown geöffnet wird
+    if (this.isUserDropdownOpen) {
+      this.isDropdownOpen = false;
+    }
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
     const dropdown = document.querySelector('.dropdown');
+    const userDropdown = document.querySelector('.user-dropdown');
     
     if (this.isDropdownOpen && dropdown && !dropdown.contains(target)) {
       this.isDropdownOpen = false;
+    }
+    
+    if (this.isUserDropdownOpen && userDropdown && !userDropdown.contains(target)) {
+      this.isUserDropdownOpen = false;
     }
   }
 

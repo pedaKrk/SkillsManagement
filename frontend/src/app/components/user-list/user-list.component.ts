@@ -49,6 +49,10 @@ export class UserListComponent implements OnInit, OnDestroy {
   filteredSkillsList: string[] = [];
   allSkills: string[] = [];
   
+  // for user actions dropdown
+  isUserActionsOpen: boolean = false;
+  selectedUserId: string | null = null;
+  
   // for email dialog
   showEmailDialog: boolean = false;
   emailSubject: string = 'Nachricht vom Skills Management System';
@@ -64,6 +68,11 @@ export class UserListComponent implements OnInit, OnDestroy {
   successDialogTitle: string = '';
   successDialogMessage: string = '';
   
+  // for permission control
+  isAdmin: boolean = false;
+  isCompetenceLeader: boolean = false;
+  currentUserId: string = '';
+  
   constructor(
     private userService: UserService,
     private pdfService: PdfService,
@@ -74,6 +83,7 @@ export class UserListComponent implements OnInit, OnDestroy {
   ) {}
   
   ngOnInit(): void {
+    this.checkUserPermissions();
     this.loadUsers();
     console.log('UserListComponent initialized');
     
@@ -320,7 +330,7 @@ export class UserListComponent implements OnInit, OnDestroy {
       return;
     }
     
-    // Verwende den Dialog-Service für das E-Mail-Formular
+    // Use the Dialog-Service for the email form
     const selectedUsers = this.getSelectedUsers();
     
     this.dialogService.showFormDialog({
@@ -436,6 +446,17 @@ export class UserListComponent implements OnInit, OnDestroy {
   // edit user
   editUser(userId: string): void {
     console.log('edit user:', userId);
+    
+    // Check if the user has permission to edit
+    const isOwnProfile = userId === this.currentUserId;
+    
+    if (!this.isAdmin && !isOwnProfile) {
+      this.dialogService.showError(
+        'Keine Berechtigung', 
+        'Sie haben keine Berechtigung, dieses Benutzerprofil zu bearbeiten.'
+      );
+      return;
+    }
     
     // find user
     const user = this.filteredUsers.find(u => u.id === userId);
@@ -563,13 +584,23 @@ export class UserListComponent implements OnInit, OnDestroy {
   
   // delete user
   deleteUser(userId: string): void {
+    console.log('delete user:', userId);
+    
+    // Prüfe, ob der Benutzer Admin-Rechte hat
+    if (!this.isAdmin) {
+      this.dialogService.showError(
+        'Keine Berechtigung', 
+        'Sie haben keine Berechtigung, Benutzer zu löschen. Diese Aktion ist nur für Administratoren verfügbar.'
+      );
+      return;
+    }
+    
     // Find the user to delete
     const user = this.filteredUsers.find(u => u.id === userId);
     if (!user) {
       console.error('User not found:', userId);
       return;
     }
-    
     
     this.dialogService.showConfirmation({
       title: 'Benutzer löschen',
@@ -599,26 +630,30 @@ export class UserListComponent implements OnInit, OnDestroy {
   
   // Confirm delete user
   confirmDeleteUser(user: User): void {
+    // Check again if the user has Admin rights (additional security level)
+    if (!this.isAdmin) {
+      this.dialogService.showError(
+        'Keine Berechtigung', 
+        'Sie haben keine Berechtigung, Benutzer zu löschen. Diese Aktion ist nur für Administratoren verfügbar.'
+      );
+      return;
+    }
+    
     this.isLoading = true;
     
+    // Delete the user via the UserService
     this.userService.deleteUser(user.id).subscribe({
       next: () => {
-        console.log('User deleted successfully:', user.id);
-        // Remove user from the lists
-        this.users = this.users.filter(u => u.id !== user.id);
-        this.applyFilters(); // This will update filteredUsers
-        
-        // Remove from selected users if selected
-        if (this.selectedUsers.includes(user.id)) {
-          this.selectedUsers = this.selectedUsers.filter(id => id !== user.id);
-        }
-        
         this.isLoading = false;
         
-        // Zeige Erfolgsmeldung mit dem Dialog-Service
+        // Remove the user from the list
+        this.users = this.users.filter(u => u.id !== user.id);
+        this.filteredUsers = this.filteredUsers.filter(u => u.id !== user.id);
+        
+        // Show successful deletion
         this.dialogService.showSuccess({
-          title: 'Erfolg',
-          message: `Der Benutzer ${user.firstName} ${user.lastName} wurde erfolgreich gelöscht.`,
+          title: 'Benutzer gelöscht',
+          message: `Der Benutzer "${user.firstName} ${user.lastName}" wurde erfolgreich gelöscht.`,
           buttonText: 'OK'
         });
       },
@@ -641,16 +676,9 @@ export class UserListComponent implements OnInit, OnDestroy {
           errorMessage += 'Bitte versuchen Sie es später erneut.';
         }
         
-        // show error message with the dialog service
         this.dialogService.showError('Fehler', errorMessage);
       }
     });
-  }
-  
-  // Cancel delete user
-  cancelDeleteUser(): void {
-    this.showDeleteDialog = false;
-    this.userToDelete = null;
   }
   
   /**
@@ -793,5 +821,44 @@ export class UserListComponent implements OnInit, OnDestroy {
   // method to get all available skills
   getAllSkills(): string[] {
     return this.allSkills;
+  }
+  
+  /**
+   * Checks the permissions of the logged in user
+   */
+  checkUserPermissions(): void {
+    const currentUser = this.authService.currentUserValue;
+    if (currentUser) {
+      this.currentUserId = currentUser.id;
+      const userRole = currentUser.role?.toLowerCase() || '';
+      
+      this.isAdmin = userRole === 'admin';
+      this.isCompetenceLeader = userRole === 'competence_leader';
+      
+      console.log('User permissions:', { 
+        isAdmin: this.isAdmin, 
+        isCompetenceLeader: this.isCompetenceLeader,
+        currentUserId: this.currentUserId
+      });
+    }
+  }
+  
+  // Toggle user actions menu
+  toggleUserActions(userId: string): void {
+    if (this.selectedUserId === userId && this.isUserActionsOpen) {
+      // Close menu if the same user is clicked again
+      this.isUserActionsOpen = false;
+      this.selectedUserId = null;
+    } else {
+      // Open menu for the clicked user
+      this.isUserActionsOpen = true;
+      this.selectedUserId = userId;
+    }
+  }
+  
+  // Open delete dialog
+  openDeleteDialog(user: User): void {
+    this.userToDelete = user;
+    this.deleteUser(user.id);
   }
 }

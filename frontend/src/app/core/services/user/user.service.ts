@@ -29,7 +29,7 @@ export class UserService {
   // Get User Profile
   getUserProfile(): Observable<User> {
     return this.http.get<User>(
-      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.users.profile}`,
+      `${API_CONFIG.baseUrl}/users/me`,
       { headers: this.getAuthHeaders() }
     );
   }

@@ -249,6 +249,16 @@ export class UserDetailsComponent implements OnInit {
   }
   
   /**
+   * checks if the current user is viewing their own profile
+   */
+  isOwnProfile(): boolean {
+    const currentUser = this.authService.currentUserValue;
+    if (!currentUser) return false;
+    
+    return currentUser.id === this.userId;
+  }
+  
+  /**
    * adds a new comment
    */
   addComment(): void {

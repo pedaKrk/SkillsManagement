@@ -533,3 +533,65 @@
   background-color: rgba(0, 119, 169, 0.1) !important; 
   border: none !important; 
 }
+
+// Styles für das Benutzer-Dropdown
+.user-dropdown {
+  position: relative;
+  display: inline-block;
+  
+  .user-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    color: #ffffff;
+    cursor: pointer;
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: none;
+      color: #f0f0f0;
+    }
+    
+    .dropdown-arrow {
+      margin-left: 6px;
+      font-size: 12px;
+    }
+  }
+  
+  .user-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 200px;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    overflow: hidden;
+    
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
+      color: #333;
+      text-decoration: none;
+      transition: background-color 0.2s;
+      
+      i {
+        margin-right: 8px;
+        width: 16px;
+        text-align: center;
+      }
+      
+      &:hover {
+        background-color: #f5f5f5;
+      }
+    }
+    
+    .dropdown-divider {
+      height: 1px;
+      background-color: #e0e0e0;
+      margin: 6px 0;
+    }
+  }
+}

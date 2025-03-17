@@ -14,7 +14,14 @@ import { handleProfileImageUpload } from '../middleware/upload.middleware.js'
 const router = express.Router()
 
 
-router.get('/', authenticateToken, authorizeRole(['Admin']), getAllUsers)
+router.get('/', authenticateToken, authorizeRole(['Admin', 'competence_leader']), getAllUsers)
+
+
+router.get('/me', authenticateToken, (req, res) => {
+    
+    req.params.id = req.user.id || req.user._id;
+    getUserById(req, res);
+})
 
 router.get('/:id', authenticateToken, getUserById)
 

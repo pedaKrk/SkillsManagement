@@ -3,19 +3,31 @@
   <div class="action-bar">
     <div class="action-buttons-container">
       <div class="action-buttons">
-        <button class="btn btn-primary" (click)="generatePDF()" [disabled]="selectedUsers.length === 0">
+        <!-- PDF and Email Buttons only for Admins -->
+        <button 
+          class="btn btn-primary" 
+          (click)="generatePDF()" 
+          [disabled]="selectedUsers.length === 0"
+          *ngIf="isAdmin"
+        >
           PDF generieren und herunterladen
         </button>
-        <button class="btn btn-primary" (click)="sendEmail()" [disabled]="selectedUsers.length === 0">
+        <button 
+          class="btn btn-primary" 
+          (click)="sendEmail()" 
+          [disabled]="selectedUsers.length === 0"
+          *ngIf="isAdmin"
+        >
           E-Mail an ausgewählte Person(en) senden
         </button>
+        <!-- Sortieren for all available -->
         <button class="btn btn-secondary" (click)="sortUsers('username')">
           Aufsteigend sortieren
         </button>
       </div>
       
       <div class="filter-controls">
-        <!-- Suchfeld -->
+          <!-- Search field -->
         <div class="search-bar">
           <input 
             type="text" 
@@ -232,14 +244,33 @@
           </td>
           <td class="actions-column">
             <div class="action-buttons">
-              <button class="btn btn-icon btn-details" (click)="editUser(user.id); $event.stopPropagation()" title="Benutzer bearbeiten">
-                <i class="fa fa-cog"></i>
+              <!-- Edit Button - only for Admins or User can edit their own profile -->
+              <button 
+                class="btn btn-icon btn-edit" 
+                (click)="editUser(user.id); $event.stopPropagation()" 
+                title="Benutzer bearbeiten"
+                *ngIf="isAdmin || user.id === currentUserId"
+              >
+                <i class="fa fa-pencil"></i>
               </button>
-              <button class="btn btn-icon btn-edit" (click)="viewUserDetails(user.id); $event.stopPropagation()" title="Benutzerdetails anzeigen">
+              
+              <!-- Details Button - for all available -->
+              <button 
+                class="btn btn-icon btn-details" 
+                (click)="viewUserDetails(user.id); $event.stopPropagation()" 
+                title="Benutzerdetails anzeigen"
+              >
                 <i class="fa fa-user"></i>
               </button>
-              <button class="btn btn-icon btn-delete" (click)="deleteUser(user.id); $event.stopPropagation()" title="Benutzer löschen">
-                <i class="fa fa-trash-can"></i>
+              
+              <!-- Delete Button - only for Admins -->
+              <button 
+                class="btn btn-icon btn-delete" 
+                (click)="deleteUser(user.id); $event.stopPropagation()" 
+                title="Benutzer löschen"
+                *ngIf="isAdmin"
+              >
+                <i class="fa fa-trash"></i>
               </button>
             </div>
           </td>

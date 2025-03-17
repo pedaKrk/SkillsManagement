@@ -62,7 +62,7 @@ export class LoginComponent implements OnInit {
         
         // check if id is present
         if (!user.id) {
-          console.warn('User ID missing after login');
+          console.warn('User ID konnte nicht extrahiert werden. Dies kann zu Problemen bei der Benutzerverwaltung führen.');
         }
         
         // Navigate to user page on success

@@ -41,14 +41,26 @@
     
     <!-- User menu -->
     <div class="user-menu" *ngIf="isLoggedIn">
-      <a 
-        class="nav-link" 
-        [routerLink]="['/users', userId]" 
-        routerLinkActive="active"
-      >
-        {{ username }}
-      </a>
-      <button class="btn btn-logout" (click)="logout()">Ausloggen</button>
+      <!-- Dropdown für Benutzermenü -->
+      <div class="user-dropdown">
+        <a (click)="toggleUserDropdown($event)" class="user-dropdown-toggle">
+          {{ username }}
+          <span class="dropdown-arrow">{{ isUserDropdownOpen ? '▲' : '▼' }}</span>
+        </a>
+        
+        <div *ngIf="isUserDropdownOpen" class="user-dropdown-menu">
+          <a [routerLink]="['/users', userId]" class="dropdown-item" (click)="onDropdownItemClick($event)">
+            <i class="fa fa-user"></i> Mein Profil
+          </a>
+          <a [routerLink]="['/users', userId, 'edit']" class="dropdown-item" (click)="onDropdownItemClick($event)">
+            <i class="fa fa-pencil"></i> Profil bearbeiten
+          </a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" (click)="logout(); onDropdownItemClick($event)">
+            <i class="fa fa-sign-out"></i> Ausloggen
+          </a>
+        </div>
+      </div>
     </div>
     
     <!-- Login/Register links for guests -->
