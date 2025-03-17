@@ -41,7 +41,13 @@
     
     <!-- User menu -->
     <div class="user-menu" *ngIf="isLoggedIn">
-      <span class="username">{{ username }}</span>
+      <a 
+        class="nav-link" 
+        [routerLink]="['/users', userId]" 
+        routerLinkActive="active"
+      >
+        {{ username }}
+      </a>
       <button class="btn btn-logout" (click)="logout()">Ausloggen</button>
     </div>
     

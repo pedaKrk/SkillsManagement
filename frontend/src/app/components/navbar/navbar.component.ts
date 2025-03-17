@@ -13,6 +13,7 @@ import { AuthService } from '../../core/services/auth/auth.service';
 export class NavbarComponent implements OnInit {
   isLoggedIn = false;
   username: string | null = null;
+  userId: string | null = null;
   isAdmin = false;
   isDropdownOpen = false;
 
@@ -22,19 +23,16 @@ export class NavbarComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Subscribe to the current user observable to update the navbar when login status changes
     this.authService.currentUser.subscribe(user => {
       this.isLoggedIn = !!user;
       this.username = user?.username || null;
-   
-      if (user?.role) {
-        // direct check for 'Admin' (with capital A)
-        this.isAdmin = user.role === 'Admin';
+      this.userId = user?.id || null;
       
+      if (user?.role) {
+        this.isAdmin = user.role === 'Admin';
       } else {
         this.isAdmin = false;
       }
-      
     });
   }
 
