@@ -42,7 +42,7 @@ export class NavbarComponent implements OnInit {
     event.stopPropagation();
     this.isDropdownOpen = !this.isDropdownOpen;
     
-    // Benutzer-Dropdown schließen, wenn Future Skills Dropdown geöffnet wird
+    // Close user dropdown when Future Skills dropdown is opened
     if (this.isDropdownOpen) {
       this.isUserDropdownOpen = false;
     }
@@ -53,7 +53,7 @@ export class NavbarComponent implements OnInit {
     event.stopPropagation();
     this.isUserDropdownOpen = !this.isUserDropdownOpen;
     
-    // Future Skills Dropdown schließen, wenn Benutzer-Dropdown geöffnet wird
+    
     if (this.isUserDropdownOpen) {
       this.isDropdownOpen = false;
     }
@@ -85,5 +85,29 @@ export class NavbarComponent implements OnInit {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  /**
+   * Navigates directly to the edit page of the current user's profile
+   */
+  editOwnProfile(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    if (this.userId) {
+      console.log('Navigiere zur Profilbearbeitungsseite für Benutzer:', this.userId);
+      
+      // Explicit navigation to the edit path
+      const url = `/users/${this.userId}/edit`;
+      console.log('Navigation URL:', url);
+      
+      // Close dropdown
+      this.isUserDropdownOpen = false;
+      
+      // Navigate to the edit path
+      this.router.navigateByUrl(url);
+    } else {
+      console.error('Keine Benutzer-ID verfügbar');
+    }
   }
 } 

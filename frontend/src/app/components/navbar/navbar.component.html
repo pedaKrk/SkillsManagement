@@ -41,7 +41,7 @@
     
     <!-- User menu -->
     <div class="user-menu" *ngIf="isLoggedIn">
-      <!-- Dropdown für Benutzermenü -->
+      <!-- Dropdown -->
       <div class="user-dropdown">
         <a (click)="toggleUserDropdown($event)" class="user-dropdown-toggle">
           {{ username }}
@@ -52,7 +52,7 @@
           <a [routerLink]="['/users', userId]" class="dropdown-item" (click)="onDropdownItemClick($event)">
             <i class="fa fa-user"></i> Mein Profil
           </a>
-          <a [routerLink]="['/users', userId, 'edit']" class="dropdown-item" (click)="onDropdownItemClick($event)">
+          <a class="dropdown-item" (click)="editOwnProfile($event)">
             <i class="fa fa-pencil"></i> Profil bearbeiten
           </a>
           <div class="dropdown-divider"></div>

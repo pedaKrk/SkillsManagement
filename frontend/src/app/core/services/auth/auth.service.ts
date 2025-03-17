@@ -104,4 +104,16 @@ export class AuthService {
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
   }
+
+  /**
+   * Checks if the provided userId belongs to the current logged in user
+   * @param userId The user ID to check
+   * @returns true if it's the current user's profile
+   */
+  isOwnProfile(userId: string): boolean {
+    const currentUser = this.currentUserValue;
+    if (!currentUser) return false;
+    
+    return currentUser.id === userId;
+  }
 } 

@@ -58,14 +58,25 @@ export class UserEditComponent implements OnInit {
       return;
     }
     
-    // check permissions
-    this.checkPermissions();
+    console.log('NgOnInit: CurrentUser:', currentUser);
     
     // get user ID from URL
     this.route.params.subscribe(params => {
       this.userId = params['id'];
+      console.log('User ID from URL params:', this.userId);
+      
+      // Fallback: Use the ID of the logged in user, if no ID in the URL
+      if (!this.userId && currentUser) {
+        this.userId = currentUser.id;
+        console.log('Using current user ID as fallback:', this.userId);
+      }
+      
       if (this.userId) {
+        // check permissions only when the ID is set
+        this.checkPermissions();
         this.loadUserDetails();
+      } else {
+        this.error = 'No user ID available';
       }
     });
     
@@ -77,18 +88,27 @@ export class UserEditComponent implements OnInit {
    * checks the permissions of the current user
    */
   checkPermissions(): void {
+    console.log('Checking permissions...');
     const currentUser = this.authService.currentUserValue;
+    
     if (currentUser) {
+      console.log('Current user:', currentUser);
+      console.log('Current userId:', this.userId);
+      
       // check the role regardless of case
       const role = currentUser.role?.toLowerCase() || '';
       this.isAdmin = role === 'admin';
+      console.log('Is admin:', this.isAdmin);
       
-      
-      const isOwnProfile = currentUser.id === this.userId;
+      const isOwnProfile = this.authService.isOwnProfile(this.userId);
+      console.log('Is own profile:', isOwnProfile);
       
       if (!this.isAdmin && !isOwnProfile) {
+        console.warn('No permission to edit this profile!');
         this.error = 'Sie haben keine Berechtigung, dieses Benutzerprofil zu bearbeiten.';
         this.router.navigate(['/users', this.userId]);
+      } else {
+        console.log('Permission granted to edit profile');
       }
     } else {
       this.isAdmin = false;
@@ -119,28 +139,61 @@ export class UserEditComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
     
-    this.userService.getUserById(this.userId).subscribe({
-      next: (user) => {
-        this.user = user;
-        this.populateForm();
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Fehler beim Laden der Benutzerdetails:', error);
-        
-        if (error.status === 500) {
-          this.error = 'Ein Serverfehler ist aufgetreten. Das Backend konnte den Benutzer nicht laden. Bitte kontaktieren Sie den Administrator.';
-        } else if (error.status === 404) {
-          this.error = 'Der angeforderte Benutzer wurde nicht gefunden.';
-        } else if (error.status === 401) {
-          this.error = 'Sie sind nicht berechtigt, diese Informationen anzuzeigen. Bitte melden Sie sich an.';
-        } else {
-          this.error = 'Fehler beim Laden der Benutzerdetails. Bitte versuchen Sie es später erneut.';
+    console.log('Versuche Benutzerdetails zu laden für ID:', this.userId);
+    console.log('Aktueller Benutzer:', this.authService.currentUserValue);
+    
+    // If it is the own profile, then load the own profile directly
+    const currentUser = this.authService.currentUserValue;
+    const isOwnProfile = currentUser && currentUser.id === this.userId;
+    
+    if (isOwnProfile) {
+      console.log('Eigenes Profil wird geladen');
+      this.userService.getUserProfile().subscribe({
+        next: (user) => {
+          console.log('Eigenes Benutzerprofil erfolgreich geladen:', user);
+          this.user = user;
+          this.populateForm();
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Fehler beim Laden des eigenen Benutzerprofils:', error);
+          this.handleUserLoadError(error);
         }
-        
-        this.isLoading = false;
-      }
-    });
+      });
+    } else {
+      console.log('Fremdes Profil wird geladen');
+      this.userService.getUserById(this.userId).subscribe({
+        next: (user) => {
+          console.log('Benutzerprofil erfolgreich geladen:', user);
+          this.user = user;
+          this.populateForm();
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Fehler beim Laden der Benutzerdetails:', error);
+          this.handleUserLoadError(error);
+        }
+      });
+    }
+  }
+  
+  /**
+   * Handles errors when loading user data
+   */
+  private handleUserLoadError(error: any): void {
+    if (error.status === 500) {
+      this.error = 'Ein Serverfehler ist aufgetreten. Das Backend konnte den Benutzer nicht laden. Bitte kontaktieren Sie den Administrator.';
+    } else if (error.status === 404) {
+      this.error = 'Der angeforderte Benutzer wurde nicht gefunden.';
+    } else if (error.status === 401) {
+      this.error = 'Sie sind nicht berechtigt, diese Informationen anzuzeigen. Bitte melden Sie sich an.';
+    } else if (error.status === 403) {
+      this.error = 'Sie haben keine Berechtigung, dieses Benutzerprofil zu bearbeiten.';
+    } else {
+      this.error = 'Fehler beim Laden der Benutzerdetails. Bitte versuchen Sie es später erneut.';
+    }
+    
+    this.isLoading = false;
   }
   
   /**
