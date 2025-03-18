@@ -13,8 +13,8 @@ export class PlanComponent {
   skills = [
     { lecturer: 'Dr Sylvia Geyers', skillName: 'DevOps', skillLevel: 'Advanced', expectedDate: '2024-12-13' },
     { lecturer: 'Mag. Mage Tips', skillName: 'Cloud Security', skillLevel: 'Advanced', expectedDate: '2024-12-25' },
-    { lecturer: 'bsc Livia Zylja', skillName: 'Cloud Security', skillLevel: 'Beginner', expectedDate: '2025-01-01' },
-    { lecturer: 'doc Alon Iliagouev', skillName: 'Docker', skillLevel: 'Intermediate', expectedDate: '2025-09-01' }
+    { lecturer: 'bsc Muster1', skillName: 'Cloud Security', skillLevel: 'Beginner', expectedDate: '2025-01-01' },
+    { lecturer: 'doc Muster2', skillName: 'Docker', skillLevel: 'Intermediate', expectedDate: '2025-09-01' }
   ];
 
   filteredSkills = [...this.skills]; // Copy of skills for filtering
