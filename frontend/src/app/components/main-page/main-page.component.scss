@@ -1,10 +1,390 @@
 .main-container {
+  padding: 40px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.header-section {
+  max-width: 1200px;
+  margin: 0 auto 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
   padding: 20px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+  }
+}
+
+.fhtw-logo {
+  height: 80px;
+  object-fit: contain;
+  
+  @media (max-width: 768px) {
+    height: 60px;
+  }
+}
+
+.welcome-section {
+  flex-grow: 1;
   
   h1 {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: bold;
     color: #333;
+    margin: 0;
+    text-align: center;
+    line-height: 1.3;
+
+    @media (max-width: 768px) {
+      text-align: center;
+      font-size: 28px;
+    }
+
+    .user-name {
+      display: block;
+      color: #0077A9;
+      font-size: 36px;
+      margin: 10px 0;
+      font-weight: 600;
+
+      @media (max-width: 768px) {
+        font-size: 32px;
+      }
+    }
+  }
+}
+
+.intro-section {
+  max-width: 800px;
+  margin: 0 auto 40px;
+  padding: 25px 35px;
+  background: linear-gradient(135deg, #0077A9, #005d87);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 119, 169, 0.2);
+  transform: translateY(0);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+
+  .fhtw-logo {
+    height: 100px;
     margin-bottom: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    object-fit: contain;
+  }
+
+  &.secondary {
+    background: #f8f9fa;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+
+    .intro-text {
+      color: #445;
+      
+      .intro-highlight {
+        color: #0077A9;
+        font-weight: 600;
+        
+        &::after {
+          background: linear-gradient(90deg, transparent, #0077A9, transparent);
+        }
+      }
+    }
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 119, 169, 0.25);
+  }
+}
+
+.intro-text {
+  font-size: 16px;
+  line-height: 1.6;
+  color: white;
+  text-align: center;
+  margin: 0;
+  
+  .intro-highlight {
+    color: white;
+    font-weight: 600;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.7);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+  }
+}
+
+.intro-section:hover .intro-highlight::after {
+  transform: scaleX(1);
+}
+
+.skilltree-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+}
+
+.skilltree-header {
+  text-align: center;
+  color: #0077A9;
+  margin-bottom: 40px;
+  font-size: 24px;
+  font-weight: 600;
+  position: relative;
+  
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background-color: #0077A9;
+  }
+}
+
+.skill-hierarchy {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.skill-row {
+  margin-bottom: 5px;
+}
+
+.skill-node {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  margin: 5px 0;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  .expand-icon {
+    transition: transform 0.3s ease;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    
+    &.expanded {
+      transform: rotate(-180deg);
+    }
+  }
+
+  &:hover .expand-icon {
+    color: rgba(255, 255, 255, 1);
+  }
+}
+
+.root-node {
+  background: linear-gradient(135deg, #0077A9, #005d87);
+  color: white;
+  font-weight: 600;
+  border-left: none;
+  position: relative;
+  overflow: hidden;
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover:before {
+    opacity: 1;
+  }
+}
+
+.child-node {
+  background-color: #f8f9fa;
+  margin-left: 40px;
+  border-left: 4px solid #0077A9;
+  position: relative;
+
+  &:before {
+    content: '';
+    position: absolute;
+    left: -24px;
+    top: 50%;
+    width: 20px;
+    height: 2px;
+    background-color: #0077A9;
+  }
+
+  .expand-icon {
+    color: #0077A9;
+    
+    &.expanded {
+      transform: rotate(-180deg);
+    }
+  }
+
+  &:hover .expand-icon {
+    color: #005d87;
+  }
+}
+
+.grandchild-node {
+  background-color: white;
+  margin-left: 80px;
+  border-left: 3px solid #6c757d;
+  position: relative;
+  cursor: default;
+
+  &:before {
+    content: '';
+    position: absolute;
+    left: -24px;
+    top: 50%;
+    width: 20px;
+    height: 2px;
+    background-color: #6c757d;
+  }
+
+  &:hover {
+    transform: none;
+    background-color: #f8f9fa;
+  }
+}
+
+.child-grandchild-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.child-grandchild-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.grandchildren {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 5px;
+}
+
+// Animation für Expand/Collapse
+.skill-node .expand-icon {
+  transition: transform 0.3s ease;
+  
+  &.expanded {
+    transform: rotate(-180deg);
+  }
+}
+
+// Hover Effekte
+.skill-node:not(.grandchild-node) {
+  &:hover .expand-icon {
+    animation: bounce 0.5s ease;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .main-container {
+    padding: 20px;
+  }
+
+  .skilltree-container {
+    padding: 20px;
+  }
+
+  .child-node {
+    margin-left: 20px;
+  }
+
+  .grandchild-node {
+    margin-left: 40px;
+  }
+}
+
+.tree-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.control-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: 2px solid #0077A9;
+  border-radius: 8px;
+  background-color: white;
+  color: #0077A9;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 150px;
+  justify-content: center;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    transition: transform 0.2s ease;
+  }
+
+  &:hover {
+    background-color: #0077A9;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 } 

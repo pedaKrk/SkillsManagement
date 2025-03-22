@@ -6,7 +6,7 @@ const skillModel = new mongoose.Schema({
         required: true,
         unique: true
     },
-    parentId: {
+    parent_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Skills',
         default: null

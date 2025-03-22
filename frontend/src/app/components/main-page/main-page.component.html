@@ -1,6 +1,70 @@
 <div class="main-container">
-  <h1>Willkommen bei Skills Management</h1>
-  <div class="content">
-    <!-- Hier können später weitere Inhalte hinzugefügt werden -->
+  <div class="header-section">
+   
+    
+    <div class="welcome-section">
+      <h1>
+        Herzlich Willkommen
+        <span class="user-name" *ngIf="currentUser">
+          {{ currentUser.title ? currentUser.title + ' ' : '' }}{{ currentUser.firstName }} {{ currentUser.lastName }}
+        </span>
+        auf der Skills Management Seite!
+      </h1>
+    </div>
+  </div>
+
+  <div class="intro-section">
+    <img src="assets/logo.png" alt="FH Technikum Wien Logo" class="fhtw-logo">
+    <p class="intro-text">
+      Das Skill Management System ist eine umfassende Plattform zur Erfassung, Verwaltung und strategischen Entwicklung von Kompetenzen innerhalb unserer Organisation. Diese Lösung ermöglicht es, das vorhandene Know-how transparent darzustellen und gezielt weiterzuentwickeln.
+    </p>
+  </div>
+  
+  <div id="parentSkilltreeContainer" class="skilltree-container">
+    <h2 class="skilltree-header">Skill Übersicht</h2>
+    
+    <div class="intro-section secondary">
+      <p class="intro-text">
+        Hier können Sie alle verfügbaren Skills und Kompetenzen in einer strukturierten Übersicht einsehen.
+        <span class="intro-highlight">Nutzen Sie die Baumstruktur</span>, um zwischen verschiedenen Kompetenzbereichen zu navigieren.
+      </p>
+    </div>
+
+    <div class="tree-controls">
+      <button class="control-btn" (click)="toggleAll()">
+        <mat-icon>{{ isAllExpanded ? 'unfold_less' : 'unfold_more' }}</mat-icon>
+        {{ isAllExpanded ? 'Alle schließen' : 'Alle öffnen' }}
+      </button>
+    </div>
+
+    <div class="skill-hierarchy">
+      <ng-container *ngFor="let root of skillTree">
+        <!-- Root Node -->
+        <div class="skill-row">
+          <div class="skill-node root-node" (click)="toggleExpand(root)">
+            <span>{{ root.name }}</span>
+            <mat-icon class="expand-icon" [class.expanded]="root.isExpanded">expand_more</mat-icon>
+          </div>
+        </div>
+        <!-- Child and Grandchild Nodes -->
+        <div class="child-grandchild-row" *ngIf="root.isExpanded" [@expandCollapse]>
+          <ng-container *ngFor="let child of root.children">
+            <div class="child-grandchild-group">
+              <div class="skill-node child-node" (click)="toggleExpand(child)">
+                <span>{{ child.name }}</span>
+                <mat-icon *ngIf="child.children?.length" class="expand-icon" [class.expanded]="child.isExpanded">expand_more</mat-icon>
+              </div>
+              <div class="grandchildren" *ngIf="child.isExpanded" [@expandCollapse]>
+                <ng-container *ngFor="let grandchild of child.children">
+                  <div class="skill-node grandchild-node">
+                    <span>{{ grandchild.name }}</span>
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </ng-container>
+    </div>
   </div>
 </div> 
