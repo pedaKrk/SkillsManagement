@@ -79,7 +79,10 @@ export class NavbarComponent implements OnInit {
   }
 
   isRouteActive(route: string): boolean {
-    return this.router.url === route;
+    const currentUrl = this.router.url.split('?')[0]; // Ignore query parameters
+    return currentUrl === route || 
+           currentUrl === route + '/' || 
+           currentUrl.startsWith(route + '/');
   }
 
   logout(): void {
