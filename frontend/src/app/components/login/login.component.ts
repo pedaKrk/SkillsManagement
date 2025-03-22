@@ -66,8 +66,8 @@ export class LoginComponent implements OnInit {
           console.log('User must change password, redirecting...');
           this.router.navigate(['/change-password']);
         } else {
-          console.log('Login successful, redirecting to user page...');
-          this.router.navigate(['/user']);
+          console.log('Login successful, redirecting to home page...');
+          this.router.navigate(['/main']);
         }
       },
       error: error => {
