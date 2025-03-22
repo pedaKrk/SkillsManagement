@@ -9,6 +9,7 @@ import { UserSkillsManagementComponent } from './components/user-skills-manageme
 import { AuthGuard } from './core/guards/auth.guard';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import { PlanComponent } from './components/future-skills/plan/plan.component';
 
 export const routes: Routes = [
     {path: 'user', component: UserComponent},
@@ -21,4 +22,6 @@ export const routes: Routes = [
     { path: 'change-password', component: ChangePasswordComponent, canActivate: [AuthGuard] },
     { path: 'forgot-password', component: ForgotPasswordComponent },
     { path: '', redirectTo: '/login', pathMatch: 'full' },
+    { path: 'future-skills/plan', component: PlanComponent },
+
 ];

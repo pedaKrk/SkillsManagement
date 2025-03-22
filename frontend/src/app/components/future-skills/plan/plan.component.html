@@ -1,0 +1,97 @@
+<div class="container">
+  <h1>Plan</h1>
+
+  <div class="actions">
+    <button class="btn primary">+ ADD NEW FUTURE-SKILL</button>
+  </div>
+
+  <!-- Search & Apply Filters Row -->
+  <div class="search-container">
+    <input type="text" class="search-box" placeholder="Search Future-Skills" (input)="filterSkills($event)">
+    <button class="btn secondary" (click)="toggleFilterDropdown()">Apply Filters</button>
+  </div>
+
+  <!-- Filter Dropdown -->
+  <div class="filter-dropdown" *ngIf="isFilterOpen">
+    <div class="filter-container">
+      <label>Skill Level</label>
+      <select class="filter-input">
+        <option>All Levels</option>
+        <option *ngFor="let level of skillLevels">{{ level }}</option>
+      </select>
+
+      <label>Lecturer Title</label>
+      <input type="text" class="filter-input" placeholder="Lecturer Title">
+
+      <label>Lecturer Name</label>
+      <input type="text" class="filter-input" placeholder="Lecturer Name">
+
+      <label>Skill</label>
+      <input type="text" class="filter-input" placeholder="Skill">
+
+      <label>Date From</label>
+      <input type="date" class="filter-input">
+
+      <label>Date To</label>
+      <input type="date" class="filter-input">
+
+      <button class="btn primary" (click)="applyFilters()">Apply Filters</button>
+      <button class="btn secondary" (click)="resetFilters()">Reset Filters</button>
+    </div>
+  </div>
+
+  <!-- Center the Table -->
+  <div class="table-container">
+    <table class="skills-table">
+      <thead>
+      <tr>
+        <th>#No.</th>
+        <th>Lecturer Name</th>
+        <th>Skill Name</th>
+        <th>Skill Level</th>
+        <th>Expected Date</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let skill of skills; let i = index">
+        <td>{{ i + 1 }}</td>
+
+        <!-- Editable Row -->
+        <td *ngIf="editingIndex === i">
+          <select [(ngModel)]="skill.lecturer">
+            <option *ngFor="let lecturer of lecturers" [value]="lecturer">{{ lecturer }}</option>
+          </select>
+        </td>
+        <td *ngIf="editingIndex === i">
+          <select [(ngModel)]="skill.skillName">
+            <option *ngFor="let skillOption of skillOptions" [value]="skillOption">{{ skillOption }}</option>
+          </select>
+        </td>
+        <td *ngIf="editingIndex === i">
+          <select [(ngModel)]="skill.skillLevel">
+            <option *ngFor="let level of skillLevels" [value]="level">{{ level }}</option>
+          </select>
+        </td>
+        <td *ngIf="editingIndex === i">
+          <input type="date" [(ngModel)]="skill.expectedDate" />
+        </td>
+
+        <!-- Read-Only Row -->
+        <td *ngIf="editingIndex !== i">{{ skill.lecturer }}</td>
+        <td *ngIf="editingIndex !== i">{{ skill.skillName }}</td>
+        <td *ngIf="editingIndex !== i">{{ skill.skillLevel }}</td>
+        <td *ngIf="editingIndex !== i">{{ skill.expectedDate }}</td>
+
+        <!-- Action Buttons -->
+        <td>
+          <span *ngIf="editingIndex !== i" class="edit" (click)="editSkill(i)">Edit</span>
+          <span *ngIf="editingIndex !== i" class="delete" (click)="deleteSkill(i)">Delete</span>
+          <span *ngIf="editingIndex === i" class="save" (click)="saveEdit()">Save</span>
+          <span *ngIf="editingIndex === i" class="cancel" (click)="cancelEdit()">Cancel</span>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
