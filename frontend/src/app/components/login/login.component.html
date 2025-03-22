@@ -42,13 +42,9 @@
     </form>
     
     <!-- Registration link -->
-    <div class="register-link mt-3">
-      <p>Noch kein Konto? <a [routerLink]="['/register']">Jetzt registrieren</a></p>
-    </div>
-    
-    <!-- Password reset link (optional) -->
-    <div class="forgot-password mt-2">
-      <a [routerLink]="['/reset-password']">Passwort vergessen?</a>
+    <div class="links">
+      <p>Noch kein Konto? <a routerLink="/register">Jetzt registrieren</a></p>
+      <p><a routerLink="/forgot-password">Passwort vergessen?</a></p>
     </div>
   </div>
 </div> 

@@ -163,4 +163,15 @@ export class AuthService {
       })
     );
   }
+
+  /**
+   * Request password reset for a user
+   * @param email The email address of the user
+   */
+  requestPasswordReset(email: string): Observable<any> {
+    return this.http.post(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.auth.resetPassword}`,
+      { email }
+    );
+  }
 } 

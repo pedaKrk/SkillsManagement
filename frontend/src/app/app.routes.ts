@@ -8,6 +8,7 @@ import { UserEditComponent } from './components/user-edit/user-edit.component';
 import { UserSkillsManagementComponent } from './components/user-skills-management/user-skills-management.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 
 export const routes: Routes = [
     {path: 'user', component: UserComponent},
@@ -18,5 +19,6 @@ export const routes: Routes = [
     { path: 'users/:id/edit', component: UserEditComponent },
     { path: 'users/:id/skills', component: UserSkillsManagementComponent, data: { standalone: true } },
     { path: 'change-password', component: ChangePasswordComponent, canActivate: [AuthGuard] },
+    { path: 'forgot-password', component: ForgotPasswordComponent },
     { path: '', redirectTo: '/login', pathMatch: 'full' },
 ];

@@ -135,3 +135,40 @@ export const logout = async (req, res) => {
         res.status(500).json({ message: "Logout failed" });
     }
 };
+
+// Reset password for user
+export const resetPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
+        }
+
+        // Find user by email
+        const user = await User.findOne({ email });
+        
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Generate new password
+        const newPassword = generatePassword();
+        const hashedPassword = await hashPassword(newPassword);
+
+        // Update user's password and set mustChangePassword flag
+        user.password = hashedPassword;
+        user.mustChangePassword = true;
+        await user.save();
+
+        // Send email with new password
+        await sendEmail(email, newPassword);
+
+        res.status(200).json({ 
+            message: "Password has been reset. Check your email for the new password."
+        });
+    } catch (err) {
+        console.error("Password reset error:", err);
+        res.status(500).json({ message: "Password reset failed", error: err.message });
+    }
+};
