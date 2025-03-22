@@ -18,13 +18,18 @@
 
       <div class="form-group">
         <label for="password">Passwort</label>
-        <input
-          type="password"
-          id="password"
-          formControlName="password"
-          class="form-control"
-          [ngClass]="{'is-invalid': submitted && loginForm.get('password')?.errors}"
-        />
+        <div class="password-input-container">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            formControlName="password"
+            class="form-control"
+            [ngClass]="{'is-invalid': submitted && loginForm.get('password')?.errors}"
+          />
+          <button type="button" class="toggle-password" (click)="showPassword = !showPassword">
+            <i [class]="showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
+          </button>
+        </div>
         <div *ngIf="submitted && loginForm.get('password')?.errors" class="invalid-feedback">
           <div *ngIf="loginForm.get('password')?.errors?.['required']">Passwort ist erforderlich</div>
         </div>

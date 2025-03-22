@@ -17,6 +17,7 @@ export class LoginComponent implements OnInit {
   loading = false;
   submitted = false;
   error = '';
+  showPassword = false;
 
   constructor(
     private formBuilder: FormBuilder,
