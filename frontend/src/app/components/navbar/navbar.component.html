@@ -45,7 +45,7 @@
       <div class="user-dropdown">
         <a (click)="toggleUserDropdown($event)" class="user-dropdown-toggle">
           {{ username }}
-          <span class="dropdown-arrow">{{ isUserDropdownOpen ? '▲' : '▼' }}</span>
+          <span class="dropdown-arrow">{{ isUserDropdownOpen ? '' : '▾' }}</span>
         </a>
         
         <div *ngIf="isUserDropdownOpen" class="user-dropdown-menu">
