@@ -48,29 +48,43 @@ export class LoginComponent implements OnInit {
     const identifier = this.loginForm.get('identifier')?.value;
     const password = this.loginForm.get('password')?.value;
 
+    console.log('Attempting login with identifier:', identifier);
+
     // Attempt login with auth service
     this.authService.login(identifier, password).subscribe({
       next: (user) => {
-        console.log('Login erfolgreich:', user);
+        console.log('Login response:', user);
         
-        // check if token is present
         if (!user.token) {
           this.error = 'Fehler beim Login: Kein Token erhalten';
           this.loading = false;
           return;
         }
-        
-        // check if id is present
-        if (!user.id) {
-          console.warn('User ID konnte nicht extrahiert werden. Dies kann zu Problemen bei der Benutzerverwaltung führen.');
+
+        if (user.mustChangePassword) {
+          console.log('User must change password, redirecting...');
+          this.router.navigate(['/change-password']);
+        } else {
+          console.log('Login successful, redirecting to user page...');
+          this.router.navigate(['/user']);
         }
-        
-        // Navigate to user page on success
-        this.router.navigate(['/user']);
       },
       error: error => {
-        console.error('Login error:', error);
-        // Handle different error cases
+        console.log('Login error details:', {
+          status: error.status,
+          message: error.error?.message,
+          fullError: error
+        });
+
+        if (error.status === 403) {
+          console.log('Handling 403 error...');
+          if (error.error?.message === "User needs to change default password") {
+            console.log('Password change required, redirecting...');
+            this.router.navigate(['/change-password']);
+            return;
+          }
+        }
+
         if (error.status === 401) {
           this.error = 'Ungültige Anmeldedaten';
         } else if (error.status === 0) {

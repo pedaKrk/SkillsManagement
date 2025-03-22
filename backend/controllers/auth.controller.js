@@ -52,8 +52,14 @@ export const login = async (req, res) => {
                 { email: identifier },
                 { username: identifier }
             ]
-        });
-        console.log('User found:', !!user);
+        }).select('+email +username +role +password +mustChangePassword');
+        
+        console.log('User found:', user ? {
+            id: user._id,
+            email: user.email,
+            username: user.username,
+            mustChangePassword: user.mustChangePassword
+        } : 'No user');
         
         // Return error if user not found
         if (!user) {
@@ -61,10 +67,6 @@ export const login = async (req, res) => {
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
-        if(user.mustChangePassword === true) {
-            return res.status(403).json({ message: "User needs to change default password" });
-        }
-        
         // Check if password matches
         const isPasswordValid = await comparePassword(password, user.password);
         console.log('Password valid:', isPasswordValid);
@@ -73,19 +75,36 @@ export const login = async (req, res) => {
             console.log('Invalid password for user:', identifier);
             return res.status(401).json({ message: "Invalid credentials" });
         }
+
+        // if user need to change passwort
+        if (user.mustChangePassword === true) {
+            console.log('User must change password:', user.email);
+            return res.status(403).json({ 
+                message: "User needs to change default password",
+                user: {
+                    id: user._id,
+                    email: user.email,
+                    username: user.username,
+                    role: user.role,
+                    mustChangePassword: true
+                }
+            });
+        }
         
         // Generate JWT token for authentication
         const token = generateToken(user);
-        console.log('Login successful for:', identifier);
+        console.log('Login successful for:', user.email);
         
         // Return success with user data and token
         res.status(200).json({ 
             message: "Successfully logged in",
             token: token,
             user: {
+                id: user._id,
                 email: user.email,
                 username: user.username,
-                role: user.role
+                role: user.role,
+                mustChangePassword: false
             }
         });
     } catch (err) {

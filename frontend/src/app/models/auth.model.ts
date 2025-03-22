@@ -1,20 +1,21 @@
 export interface AuthUser {
   id: string;
   email: string;
-  username?: string;
-  role?: string;
-  token?: string;
+  username: string;
+  role: string;
+  token: string;
+  mustChangePassword?: boolean;
 }
 
 export interface LoginResponse {
-  message: string;
   token: string;
   user: {
-    id?: string;
     _id?: string;
+    id?: string;
     email: string;
     username: string;
     role: string;
+    mustChangePassword?: boolean;
   };
 }
 

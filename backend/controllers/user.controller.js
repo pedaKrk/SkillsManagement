@@ -129,35 +129,95 @@ export const deleteUser = async (req, res) => {
 }
 
 export const changePassword = async (req, res) => {
-  try{
+  try {
     const { email, currentPassword, newPassword, confirmPassword } = req.body;
+    console.log('Password change request received:', { 
+      email, 
+      currentPassword: '***', 
+      newPassword: '***', 
+      confirmPassword: '***' 
+    });
 
     if (!email || !currentPassword || !newPassword || !confirmPassword) {
-      return res.status(400).json({ error: "All fields are required" });
+      console.log('Missing required fields:', { 
+        hasEmail: !!email, 
+        hasCurrentPassword: !!currentPassword, 
+        hasNewPassword: !!newPassword, 
+        hasConfirmPassword: !!confirmPassword 
+      });
+      return res.status(400).json({ error: "Alle Felder müssen ausgefüllt werden" });
     }
 
     if (newPassword !== confirmPassword) {
-      return res.status(400).json({ error: "New passwords do not match" });
+      console.log('Passwords do not match');
+      return res.status(400).json({ error: "Die neuen Passwörter stimmen nicht überein" });
     }
 
+    console.log('Looking for user with email:', email);
     const user = await User.findOne({ email });
-    if (!user){
-      return res.status(404).json({ error: "User not found" });
+    
+    if (!user) {
+      console.log('User not found for email:', email);
+      return res.status(404).json({ error: "Benutzer nicht gefunden" });
+    }
+    
+    console.log('User found:', { 
+      id: user._id, 
+      email: user.email, 
+      mustChangePassword: user.mustChangePassword 
+    });
+
+    // passwort controll
+    if (!user.mustChangePassword) {
+      console.log('Verifying current password for user:', email);
+      const isMatch = await comparePassword(currentPassword, user.password);
+      if (!isMatch) {
+        console.log('Current password verification failed');
+        return res.status(400).json({ error: "Das aktuelle Passwort ist nicht korrekt" });
+      }
+      console.log('Current password verified successfully');
+    } else {
+      console.log('Skipping password verification due to mustChangePassword flag');
     }
 
-    const isMatch = await comparePassword(currentPassword, user.password);
-    if (!isMatch){
-      return res.status(400).json({ error: "Current password is incorrect" });
+    console.log('Hashing new password...');
+    const hashedPassword = await hashPassword(newPassword);
+    
+    // Direkte Aktualisierung mit findOneAndUpdate
+    console.log('Updating user password and mustChangePassword flag...');
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: user._id },
+      { 
+        $set: { 
+          password: hashedPassword,
+          mustChangePassword: false
+        }
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      console.log('Failed to update user');
+      throw new Error('Failed to update user');
     }
 
-    user.password = await hashPassword(newPassword);
-    user.mustChangePassword = false;
+    console.log('Password changed successfully for user:', {
+      id: updatedUser._id,
+      email: updatedUser.email,
+      mustChangePassword: updatedUser.mustChangePassword
+    });
 
-    await user.save();
-
-    res.json({ message: "Password changed successfully. You can now log in." });
-  }catch(error){
-    res.status(500).json({message: 'Failed to change password', error})
+    res.json({ 
+      message: "Passwort wurde erfolgreich geändert. Sie können sich jetzt anmelden.",
+      success: true
+    });
+  } catch (error) {
+    console.error('Error in changePassword:', error);
+    res.status(500).json({ 
+      message: 'Fehler beim Ändern des Passworts', 
+      error: error.message,
+      success: false
+    });
   }
 }
 

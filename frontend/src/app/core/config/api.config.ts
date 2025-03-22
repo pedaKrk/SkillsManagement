@@ -10,7 +10,8 @@ export const API_CONFIG = {
     },
     users: {
       profile: '/users/profile',
-      all: '/users'
+      all: '/users',
+      changePassword: '/users/change-password'
     },
     skills: {
       all: '/skills'

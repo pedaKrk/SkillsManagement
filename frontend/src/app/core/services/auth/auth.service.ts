@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { AuthUser, LoginResponse } from '../../../models/auth.model';
 import { API_CONFIG } from '../../config/api.config';
 
@@ -10,6 +10,7 @@ import { API_CONFIG } from '../../config/api.config';
 })
 export class AuthService {
   private currentUserSubject: BehaviorSubject<AuthUser | null>;
+  private _needsPasswordChange: boolean = false;
   public currentUser: Observable<AuthUser | null>;
 
   constructor(private http: HttpClient) {
@@ -21,6 +22,10 @@ export class AuthService {
 
   public get currentUserValue(): AuthUser | null {
     return this.currentUserSubject.value;
+  }
+
+  public get needsPasswordChange(): boolean {
+    return this._needsPasswordChange;
   }
 
   // Register a new user
@@ -44,47 +49,54 @@ export class AuthService {
     );
   }
 
-  login(identifier: string, password: string) {
+  login(identifier: string, password: string): Observable<any> {
     return this.http.post<LoginResponse>(
       `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.auth.login}`,
       { identifier, password }
-    ).pipe(map(response => {
-      console.log('Raw login response:', response);
-      
-      // user id is in the response.user object
-      let userId = response.user._id || response.user.id || '';
-      
-      // If no ID is found in the user object, try to extract it from the token
-      if (!userId && response.token) {
-        try {
-          // The token consists of three parts, separated by dots
-          const tokenParts = response.token.split('.');
-          if (tokenParts.length === 3) {
-            // The second part contains the payload, which we need to decode
-            const payload = JSON.parse(atob(tokenParts[1]));
-            if (payload.id) {
-              userId = payload.id;
-              console.log('Extracted user ID from token:', userId);
-            }
-          }
-        } catch (error) {
-          console.error('Failed to extract user ID from token:', error);
+    ).pipe(
+      map(response => {
+        const userId = response.user._id || response.user.id;
+        if (!userId) {
+          throw new Error('Keine Benutzer-ID in der Antwort gefunden');
         }
-      }
-      
-      const user: AuthUser = {
-        id: userId,
-        email: response.user.email,
-        username: response.user.username,
-        role: response.user.role,
-        token: response.token
-      };
-      
-      console.log('Processed user object:', user);
-      localStorage.setItem('currentUser', JSON.stringify(user));
-      this.currentUserSubject.next(user);
-      return user;
-    }));
+
+        const user: AuthUser = {
+          id: userId,
+          email: response.user.email,
+          username: response.user.username,
+          role: response.user.role,
+          token: response.token,
+          mustChangePassword: response.user.mustChangePassword
+        };
+        
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        this.currentUserSubject.next(user);
+        
+        if (user.mustChangePassword) {
+          this._needsPasswordChange = true;
+        }
+        
+        return user;
+      }),
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 403 && error.error?.message === "User needs to change default password") {
+          // create temporary user - use the data from the server response
+          const tempUser: AuthUser = {
+            id: error.error.user.id,
+            email: error.error.user.email,
+            username: error.error.user.username,
+            role: error.error.user.role,
+            token: error.error?.token || '',
+            mustChangePassword: true
+          };
+          
+          this._needsPasswordChange = true;
+          localStorage.setItem('currentUser', JSON.stringify(tempUser));
+          this.currentUserSubject.next(tempUser);
+        }
+        return throwError(() => error);
+      })
+    );
   }
 
   logout() {
@@ -103,6 +115,7 @@ export class AuthService {
     
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
+    this._needsPasswordChange = false;
   }
 
   /**
@@ -115,5 +128,39 @@ export class AuthService {
     if (!currentUser) return false;
     
     return currentUser.id === userId;
+  }
+
+  changePassword(currentPassword: string, newPassword: string, email: string, confirmPassword: string) {
+    const currentUser = this.currentUserValue;
+    let headers = new HttpHeaders();
+
+    // if user is logged in and has a token, add it
+    if (currentUser?.token) {
+      headers = headers.set('Authorization', `Bearer ${currentUser.token}`);
+    }
+
+    // if needsPasswordChange is true, add a special header
+    if (this._needsPasswordChange) {
+      headers = headers.set('x-password-change-required', 'true');
+    }
+
+    return this.http.post(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.users.changePassword}`,
+      { 
+        email,
+        currentPassword, 
+        newPassword,
+        confirmPassword
+      },
+      { headers }
+    ).pipe(
+      map(response => {
+        // after successful password change reset
+        this._needsPasswordChange = false;
+        this.currentUserSubject.next(null);
+        localStorage.removeItem('currentUser');
+        return response;
+      })
+    );
   }
 } 
