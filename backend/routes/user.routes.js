@@ -13,9 +13,7 @@ import { authenticateToken, authorizeRole } from '../middleware/auth.middleware.
 import { handleProfileImageUpload } from '../middleware/upload.middleware.js'
 const router = express.Router()
 
-
-router.get('/', authenticateToken, authorizeRole(['Admin', 'competence_leader']), getAllUsers)
-
+router.get('/', authenticateToken, getAllUsers)
 
 router.get('/me', authenticateToken, (req, res) => {
     

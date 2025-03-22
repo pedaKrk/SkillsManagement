@@ -83,7 +83,29 @@ export class UserListComponent implements OnInit, OnDestroy {
   ) {}
   
   ngOnInit(): void {
-    this.checkUserPermissions();
+    // Get current user info
+    const currentUser = this.authService.currentUserValue;
+    if (currentUser) {
+      this.currentUserId = currentUser.id;
+      
+      // Debug: Log the actual role value
+      console.log('Raw user role:', currentUser.role);
+      
+      // Convert role to uppercase and handle both formats (with and without underscore)
+      const normalizedRole = currentUser.role?.toUpperCase().replace('_', '');
+      console.log('Normalized role:', normalizedRole);
+      
+      this.isAdmin = normalizedRole === 'ADMIN';
+      this.isCompetenceLeader = normalizedRole === 'COMPETENCELEADER';
+      
+      console.log('Permissions after check:', {
+        isAdmin: this.isAdmin,
+        isCompetenceLeader: this.isCompetenceLeader,
+        currentUserId: this.currentUserId,
+        normalizedRole
+      });
+    }
+    
     this.loadUsers();
     console.log('UserListComponent initialized');
     
@@ -108,10 +130,8 @@ export class UserListComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.error = null;
     
-    
     this.userService.getAllUsers().subscribe({
       next: (users) => {
-        
         // map users to have an id
         this.users = users.map(user => {
           // if no id but _id exists, use _id as id
@@ -141,14 +161,14 @@ export class UserListComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: (error) => {
-        // Debug: output of the error when loading the users
-        console.error('Error loading the users:', error);
-        
+        console.error('Error loading users:', error);
         this.isLoading = false;
+        
+        // Only show the specific message if it's a permission error
         if (error.status === 403) {
           this.error = 'Sie haben keine Berechtigung, die Benutzerliste anzuzeigen.';
         } else if (error.status === 401) {
-          this.error = 'Sie müssen angemeldet sein, um die Benutzerliste anzuzeigen.';
+          this.error = 'Bitte melden Sie sich an, um die Benutzerliste anzuzeigen.';
         } else {
           this.error = 'Fehler beim Laden der Benutzer. Bitte versuchen Sie es später erneut.';
         }
@@ -446,97 +466,27 @@ export class UserListComponent implements OnInit, OnDestroy {
   // edit user
   editUser(userId: string): void {
     console.log('edit user:', userId);
+    console.log('Current permissions:', {
+      isAdmin: this.isAdmin,
+      isCompetenceLeader: this.isCompetenceLeader,
+      currentUserId: this.currentUserId
+    });
     
     // Check if the user has permission to edit
     const isOwnProfile = userId === this.currentUserId;
+    const hasManagementPermission = this.isAdmin || this.isCompetenceLeader;
     
-    if (!this.isAdmin && !isOwnProfile) {
+    // If neither Admin nor Competence Leader and not own profile
+    if (!hasManagementPermission && !isOwnProfile) {
       this.dialogService.showError(
         'Keine Berechtigung', 
-        'Sie haben keine Berechtigung, dieses Benutzerprofil zu bearbeiten.'
+        'Als Dozent können Sie nur Ihre eigenen Skills verwalten.'
       );
       return;
     }
     
-    // find user
-    const user = this.filteredUsers.find(u => u.id === userId);
-    if (!user) {
-      console.error('User not found:', userId);
-      return;
-    }
-    
-    // create form fields for the dialog
-    const formFields = [
-      {
-        id: 'title',
-        label: 'Titel',
-        type: 'text',
-        defaultValue: user.title || '',
-        required: false
-      },
-      {
-        id: 'firstName',
-        label: 'Vorname',
-        type: 'text',
-        defaultValue: user.firstName,
-        required: true
-      },
-      {
-        id: 'lastName',
-        label: 'Nachname',
-        type: 'text',
-        defaultValue: user.lastName,
-        required: true
-      },
-      {
-        id: 'email',
-        label: 'E-Mail',
-        type: 'email',
-        defaultValue: user.email,
-        required: true
-      },
-      {
-        id: 'phoneNumber',
-        label: 'Telefonnummer',
-        type: 'text',
-        defaultValue: user.phoneNumber || '',
-        required: false
-      },
-      {
-        id: 'employmentType',
-        label: 'Beschäftigungsart',
-        type: 'select',
-        defaultValue: user.employmentType,
-        options: [
-          { value: 'Internal', label: 'Intern' },
-          { value: 'External', label: 'Extern' }
-        ],
-        required: true
-      }
-    ];
-    
-    // show dialog with form
-    this.dialogService.showFormDialog({
-      title: 'Benutzer bearbeiten',
-      message: `Bearbeiten Sie die Informationen für ${user.firstName} ${user.lastName}:`,
-      formFields: formFields,
-      submitText: 'Speichern',
-      cancelText: 'Abbrechen'
-    }).subscribe(formData => {
-      if (formData) {
-        // update user
-        const userData: Partial<User> = {
-          title: formData.title,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          phoneNumber: formData.phoneNumber,
-          employmentType: formData.employmentType as any
-        };
-        
-        this.updateUser(userId, userData);
-      }
-    });
+    // Navigate to skills management
+    this.router.navigate(['/users', userId, 'skills']);
   }
   
   // update user
@@ -586,7 +536,7 @@ export class UserListComponent implements OnInit, OnDestroy {
   deleteUser(userId: string): void {
     console.log('delete user:', userId);
     
-    // Prüfe, ob der Benutzer Admin-Rechte hat
+    // Check if the user has Admin rights
     if (!this.isAdmin) {
       this.dialogService.showError(
         'Keine Berechtigung', 

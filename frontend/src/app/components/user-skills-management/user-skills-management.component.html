@@ -1,0 +1,134 @@
+<div class="skills-management-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <span>Benutzerdaten werden geladen...</span>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error-container">
+    <div class="error-message">{{ error }}</div>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading && !error" class="skills-management-content">
+    <div class="content-layout">
+      <!-- Skills Management Section -->
+      <div class="skills-section">
+        <div class="header">
+          <h1>Skills verwalten</h1>
+          <div class="subtitle" *ngIf="user">Verwalten Sie die Skills für {{ user.firstName }} {{ user.lastName }}</div>
+        </div>
+
+        <!-- Selected Skills Display -->
+        <div class="selected-skills">
+          <div *ngIf="selectedSkills.length === 0" class="no-skills-selected">
+            Keine Skills ausgewählt
+          </div>
+          <div *ngIf="selectedSkills.length > 0" class="selected-skills-list">
+            <div class="skill-badge" *ngFor="let skill of selectedSkills" (click)="confirmRemoveSkill(skill)">
+              {{ skill.name }}
+              <span class="remove-icon">×</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skills Dropdown -->
+        <div class="skills-dropdown-container">
+          <!-- Loading indicator -->
+          <div *ngIf="isLoadingSkills" class="skills-loading">
+            <div class="spinner"></div>
+            <span>Skills werden geladen...</span>
+          </div>
+
+          <!-- Error message -->
+          <div *ngIf="skillsError" class="alert alert-danger">
+            {{ skillsError }}
+            <button type="button" class="btn btn-outline-danger" (click)="retryLoadSkills()">
+              Erneut versuchen
+            </button>
+          </div>
+
+          <!-- Skills Selection -->
+          <div *ngIf="!isLoadingSkills && !skillsError" class="skills-selection">
+            <div class="dropdown-wrapper">
+              <div class="skills-dropdown-toggle" (click)="toggleSkillDropdown()">
+                <span>Skills auswählen</span>
+                <div class="dropdown-arrow-wrapper">
+                  <span class="dropdown-arrow">▼</span>
+                </div>
+              </div>
+
+              <div class="skills-dropdown-menu" *ngIf="isSkillDropdownOpen">
+                <div class="skills-search">
+                  <input 
+                    type="text" 
+                    [formControl]="skillSearchControl" 
+                    placeholder="Skills suchen..."
+                    (click)="$event.stopPropagation()"
+                  >
+                </div>
+
+                <div class="skills-list">
+                  <div 
+                    *ngFor="let skill of filteredSkills" 
+                    class="skill-option"
+                    (click)="toggleSkill(skill._id); $event.stopPropagation()"
+                  >
+                    <input 
+                      type="checkbox" 
+                      [checked]="isSkillSelected(skill._id)"
+                      (click)="$event.stopPropagation()"
+                    >
+                    <span class="skill-name">{{ skill.name }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="cancel()">
+            Abbrechen
+          </button>
+          <button type="button" class="btn btn-primary" (click)="saveSkills()">
+            Änderungen speichern
+          </button>
+        </div>
+      </div>
+
+      <!-- User Profile Section -->
+      <div class="user-profile-section">
+        <div class="profile-image-container">
+          <!-- Debug Info -->
+          <div style="display: none;">
+            User Object: {{ user | json }}
+            Has Profile Image: {{ user?.profileImageUrl ? 'Yes' : 'No' }}
+          </div>
+          
+          <ng-container *ngIf="user">
+            <!-- Initials Avatar -->
+            <div *ngIf="!user.profileImageUrl" class="initials-avatar">
+              {{ getInitials(user.firstName, user.lastName) }}
+            </div>
+            
+            <!-- Profile Image -->
+            <img 
+              *ngIf="user.profileImageUrl" 
+              [src]="getProfileImageUrl(user.profileImageUrl)" 
+              [alt]="user.firstName + ' ' + user.lastName" 
+              class="profile-image"
+              (error)="user.profileImageUrl = ''"
+            >
+          </ng-container>
+        </div>
+        <div class="user-info">
+          <h2>{{ user?.firstName }} {{ user?.lastName }}</h2>
+          <p class="user-role">{{ formatRole(user?.role) }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

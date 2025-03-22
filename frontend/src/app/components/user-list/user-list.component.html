@@ -244,14 +244,14 @@
           </td>
           <td class="actions-column">
             <div class="action-buttons">
-              <!-- Edit Button - only for Admins or User can edit their own profile -->
+              <!-- Skills Management Button -->
               <button 
                 class="btn btn-icon btn-edit" 
                 (click)="editUser(user.id); $event.stopPropagation()" 
-                title="Benutzer bearbeiten"
-                *ngIf="isAdmin || user.id === currentUserId"
+                *ngIf="isAdmin || isCompetenceLeader || user.id === currentUserId"
+                title="Skills verwalten"
               >
-                <i class="fa fa-pencil"></i>
+                <i class="fa fa-cog"></i>
               </button>
               
               <!-- Details Button - for all available -->

@@ -5,6 +5,7 @@ import { UserComponent} from './views/user/user.component';
 import { AddUserComponent } from './components/admin/add-user/add-user.component';
 import { UserDetailsComponent } from './components/user-details/user-details.component';
 import { UserEditComponent } from './components/user-edit/user-edit.component';
+import { UserSkillsManagementComponent } from './components/user-skills-management/user-skills-management.component';
 
 export const routes: Routes = [
     {path: 'user', component: UserComponent},
@@ -13,5 +14,6 @@ export const routes: Routes = [
     { path: 'admin/add-user', component: AddUserComponent },
     { path: 'users/:id', component: UserDetailsComponent },
     { path: 'users/:id/edit', component: UserEditComponent },
+    { path: 'users/:id/skills', component: UserSkillsManagementComponent, data: { standalone: true } },
     { path: '', redirectTo: '/login', pathMatch: 'full' },
 ];
