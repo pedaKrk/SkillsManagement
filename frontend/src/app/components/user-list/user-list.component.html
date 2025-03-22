@@ -3,12 +3,12 @@
   <div class="action-bar">
     <div class="action-buttons-container">
       <div class="action-buttons">
-        <!-- PDF and Email Buttons only for Admins -->
+        <!-- PDF and Email Buttons for Admins and Competence Leaders -->
         <button 
           class="btn btn-primary" 
           (click)="generatePDF()" 
           [disabled]="selectedUsers.length === 0"
-          *ngIf="isAdmin"
+          *ngIf="isAdmin || isCompetenceLeader"
         >
           PDF generieren und herunterladen
         </button>
@@ -16,7 +16,7 @@
           class="btn btn-primary" 
           (click)="sendEmail()" 
           [disabled]="selectedUsers.length === 0"
-          *ngIf="isAdmin"
+          *ngIf="isAdmin || isCompetenceLeader"
         >
           E-Mail an ausgewählte Person(en) senden
         </button>
