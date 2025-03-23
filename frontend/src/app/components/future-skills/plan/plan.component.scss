@@ -120,7 +120,7 @@ h1 {
   color: white;
   font-weight: bold;
   padding: 12px 15px;
-  text-align: left;
+  text-align: center;
   text-transform: uppercase;
 }
 
@@ -129,6 +129,7 @@ h1 {
   padding: 12px 15px;
   border-bottom: 1px solid #ddd;
   transition: background 0.2s;
+  text-align: center;
 }
 
 /* Alternate Row Colors */
@@ -186,24 +187,16 @@ input, select {
 
 /* Save Button */
 .save {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  font-size: 14px;
+  color: green;
   &:hover {
-    background: #218838;
+    text-decoration: underline;
   }
 }
 
 /* Cancel Button */
 .cancel {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  font-size: 14px;
+  color: red;
   &:hover {
-    background: #c82333;
+    text-decoration: underline;
   }
 }

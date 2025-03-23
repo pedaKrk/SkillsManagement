@@ -44,7 +44,7 @@ export class PlanComponent {
     );
   }
 
-  lecturers = ['Dr Sylvia Geyers', 'Mag. Mage Tips', 'bsc Livia Zylja', 'doc Alon Iliagouev'];
+  lecturers = ['Dr Sylvia Geyers', 'Mag. Mage Tips', 'bsc Muster1', 'doc Muster2'];
   skillOptions = ['DevOps', 'Cloud Security', 'Docker'];
 
   editingIndex: number | null = null;
