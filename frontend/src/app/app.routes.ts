@@ -4,6 +4,8 @@ import { RegisterComponent } from './components/register/register.component';
 import { UserComponent} from './views/user/user.component';
 import { AddUserComponent } from './components/admin/add-user/add-user.component';
 import { PlanComponent } from './components/future-skills/plan/plan.component';
+import { ManageProgressComponent } from './components/future-skills/manage-progress/manage-progress.component';
+
 
 export const routes: Routes = [
     {path: 'user', component: UserComponent},
@@ -14,5 +16,7 @@ export const routes: Routes = [
     { path: 'users/:id/edit', loadComponent: () => import('./components/user-edit/user-edit.component').then(m => m.UserEditComponent) },
     { path: '', redirectTo: '/login', pathMatch: 'full' },
     { path: 'future-skills/plan', component: PlanComponent },
+    { path: 'future-skills/manage-progress', component: ManageProgressComponent },
+
 
 ];

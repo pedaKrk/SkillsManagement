@@ -1,0 +1,221 @@
+/** plan.component.scss */
+
+/* Center the entire content */
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Page Title */
+h1 {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Action Buttons */
+.actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.2s ease-in-out;
+}
+
+.primary {
+  background-color: #0077A9;;
+  color: white;
+  &:hover {
+    background-color: #005F87;
+  }
+}
+
+.secondary {
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  color: #333;
+  &:hover {
+    background-color: #e2e6ea;
+  }
+}
+
+/* Search & Apply Filters Row */
+.search-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 50px;
+}
+
+/* Search Box */
+.search-box {
+  width: 300px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+/* Filter Dropdown Styling */
+.filter-dropdown {
+  position: absolute;
+  top: 70px;
+  right: 10%;
+  width: 250px;
+  background: white;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  padding: 15px;
+  z-index: 100;
+  border: 1px solid #ddd;
+}
+
+/* Filter Inputs */
+.filter-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  background: #f8f9fa;
+  margin-bottom: 10px;
+}
+
+
+/* Center the table below the search box */
+.table-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Table Styling */
+.skills-table {
+  width: 80%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+/* Table Header */
+.skills-table th {
+  background-color: #0077A9;
+  color: white;
+  font-weight: bold;
+  padding: 12px 15px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* Table Cells */
+.skills-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+  transition: background 0.2s;
+  text-align: center;
+
+}
+
+/* Alternate Row Colors */
+.skills-table tbody tr:nth-child(even) {
+  background-color: #f3f3f3;
+}
+
+/* Hover Effect */
+.skills-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+/* Input Fields (when in edit mode) */
+input, select {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* Actions Section */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+
+
+/* Edit, Delete, Save, Cancel, mail, add Buttons */
+.edit, .delete, .save, .cancel, .mail, .add {
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+  padding: 5px 15px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+/* Edit Button */
+.edit {
+  color: #120e0e;
+  &:hover {
+    text-decoration: underline;
+  }
+
+}
+
+/* Delete Button */
+.delete {
+  color: rgba(255, 0, 0, 0.75);
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.mail {
+  color: #0077A9;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.add {
+  color: green;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+
+/* Save Button */
+.save {
+  color: green;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+/* Cancel Button */
+.cancel {
+  color: rgba(184, 16, 16, 0.93);
+  &:hover {
+    text-decoration: underline;
+  }
+}
