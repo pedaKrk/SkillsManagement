@@ -9,8 +9,6 @@
 /dist/
 /bazel-out
 /integration/bazel/bazel-*
-*.log
-node_modules/
 modules/ssr-benchmarks/node_modules/
 
 # Include when developing application packages.
@@ -170,7 +168,6 @@ dist
 
 # vuepress v2.x temp and cache directory
 .temp
-.cache
 
 # vitepress build output
 **/.vitepress/dist
@@ -202,5 +199,3 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-
-backend/package-lock.json
