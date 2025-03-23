@@ -13,6 +13,7 @@ import { PlanComponent } from './components/future-skills/plan/plan.component';
 import { FutureSkillsDashboardComponent } from './components/future-skills/dashboard/dashboard.component';
 import { ProgressComponent } from './components/future-skills/progress/progress.component';
 import { MainPageComponent } from './components/main-page/main-page.component';
+import { ManageProgressComponent } from './components/future-skills/manage-progress/manage-progress.component';
 
 export const routes: Routes = [
     { path: 'main', component: MainPageComponent },
@@ -29,5 +30,5 @@ export const routes: Routes = [
     { path: 'future-skills/dashboard', component: FutureSkillsDashboardComponent },
     { path: 'future-skills', redirectTo: 'future-skills/dashboard', pathMatch: 'full' },
     { path: 'future-skills/plan', component: PlanComponent },
-    { path: 'future-skills/progress', component: ProgressComponent },
+    { path: 'future-skills/progress', component: ManageProgressComponent },
 ];
