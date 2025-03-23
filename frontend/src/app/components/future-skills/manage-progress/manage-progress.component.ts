@@ -1,25 +1,32 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // Needed for [(ngModel)]
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+
+
 
 @Component({
-  selector: 'app-plan',
+  selector: 'app-manage-progress',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './plan.component.html',
-  styleUrls: ['./plan.component.scss']
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  templateUrl: './manage-progress.component.html',
+  styleUrls: ['./manage-progress.component.scss']
 })
-export class PlanComponent {
-  skills = [
+export class ManageProgressComponent implements OnInit {
+  futureSkills = [
     { lecturer: 'Dr Sylvia Geyers', skillName: 'DevOps', skillLevel: 'Advanced', expectedDate: '2024-12-13' },
     { lecturer: 'Mag. Mage Tips', skillName: 'Cloud Security', skillLevel: 'Advanced', expectedDate: '2024-12-25' },
-    { lecturer: 'bsc Muster1', skillName: 'Cloud Security', skillLevel: 'Beginner', expectedDate: '2025-01-01' },
-    { lecturer: 'doc Muster2', skillName: 'Docker', skillLevel: 'Intermediate', expectedDate: '2025-09-01' }
+    { lecturer: 'bsc Livia Zylja', skillName: 'Cloud Security', skillLevel: 'Beginner', expectedDate: '2025-01-01' },
+    { lecturer: 'doc Alon Iliagouev', skillName: 'Docker', skillLevel: 'Intermediate', expectedDate: '2025-09-01' }
   ];
 
-  filteredSkills = [...this.skills]; // Copy of skills for filtering
+  filteredSkills: any[] = [];
   isFilterOpen = false;
   skillLevels = ['Beginner', 'Intermediate', 'Advanced'];
+  addingNewSkill = false;
+
+  ngOnInit(): void {
+    this.filteredSkills = [...this.futureSkills];
+  }
 
   toggleFilterDropdown() {
     this.isFilterOpen = !this.isFilterOpen;
@@ -27,17 +34,17 @@ export class PlanComponent {
 
   applyFilters() {
     alert('Filters applied!');
-    this.isFilterOpen = false; // Close dropdown after applying
+    this.isFilterOpen = false;
   }
 
   resetFilters() {
-    this.filteredSkills = [...this.skills]; // Reset skills to original list
+    this.filteredSkills = [...this.futureSkills];
     alert('Filters reset!');
   }
 
   filterSkills(event: Event) {
     const searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
-    this.filteredSkills = this.skills.filter(skill =>
+    this.filteredSkills = this.futureSkills.filter(skill =>
       skill.lecturer.toLowerCase().includes(searchTerm) ||
       skill.skillName.toLowerCase().includes(searchTerm) ||
       skill.skillLevel.toLowerCase().includes(searchTerm)
@@ -50,11 +57,14 @@ export class PlanComponent {
   editingIndex: number | null = null;
   originalSkill: any = null;
 
+  addNewSkill() {
+    this.addingNewSkill = true;
+  }
+
   editSkill(index: number) {
     this.editingIndex = index;
     this.originalSkill = { ...this.filteredSkills[index] }; // Save original values
   }
-
   saveEdit() {
     if (this.editingIndex !== null) {
       console.log('Saving changes for:', this.filteredSkills[this.editingIndex]);
@@ -72,13 +82,19 @@ export class PlanComponent {
   }
 
   deleteSkill(index: number) {
-    const confirmation = confirm(
-      `Are you sure you want to delete this Future-Skill?\n\nThis action cannot be undone.`
-    );
+    const confirmation = confirm('Are you sure you want to delete this future-skill?');
     if (confirmation) {
       const skillToDelete = this.filteredSkills[index];
-      this.skills = this.skills.filter(skill => skill !== skillToDelete);
-      this.filteredSkills = [...this.skills]; // Refresh the filtered list
+      this.futureSkills = this.futureSkills.filter(skill => skill !== skillToDelete);
+      this.filteredSkills = [...this.futureSkills];
     }
+  }
+
+  sendMail(skill: any) {
+    alert(`Sending mail about: ${skill.skillName} by ${skill.lecturer}`);
+  }
+
+  addToSkills(skill: any) {
+    alert(`Added "${skill.skillName}" to Skills!`);
   }
 }

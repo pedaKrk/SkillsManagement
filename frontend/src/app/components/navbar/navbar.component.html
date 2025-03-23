@@ -47,7 +47,7 @@
           {{ username }}
           <span class="dropdown-arrow">{{ isUserDropdownOpen ? '' : '▾' }}</span>
         </a>
-        
+
         <div *ngIf="isUserDropdownOpen" class="user-dropdown-menu">
           <a [routerLink]="['/users', userId]" class="dropdown-item" (click)="onDropdownItemClick($event)">
             <i class="fa fa-user"></i> Mein Profil
