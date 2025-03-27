@@ -2,6 +2,7 @@ import { sendEmail } from "../services/email.service.js";
 import {hashPassword, comparePassword, generatePassword} from "../services/auth.service.js";
 import { generateToken, blacklistToken } from "../services/jwt.service.js";
 import User from "../models/user.model.js";
+import {ALLOWED_DOMAIN} from "../config/env.js";
 
 // Register new user
 export const registerUser = async (req, res) => {
@@ -11,6 +12,10 @@ export const registerUser = async (req, res) => {
         
         if (!email) {
             return res.status(400).json({ message: "Email is required" });
+        }
+
+        if (!email.endsWith(ALLOWED_DOMAIN)) {
+            return res.status(400).json({ message: "Only company emails are allowed" });
         }
 
         // Generate password for all users
