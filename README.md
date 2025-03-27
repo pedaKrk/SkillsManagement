@@ -44,6 +44,7 @@ The env.development.local file should contain parameters for:
 - SMTP-Server
 - Ports
 - JWT
+- Allowed Domain (for registration)
 
 By default, the backend runs on Port **3000** and the frontend on Port **4200**.
 
