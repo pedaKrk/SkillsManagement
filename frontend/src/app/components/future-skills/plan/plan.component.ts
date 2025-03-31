@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // Needed for [(ngModel)]
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-plan',
@@ -9,17 +9,30 @@ import { FormsModule } from '@angular/forms'; // Needed for [(ngModel)]
   templateUrl: './plan.component.html',
   styleUrls: ['./plan.component.scss']
 })
-export class PlanComponent {
+export class PlanComponent implements OnInit {
   skills = [
     { lecturer: 'Dr Sylvia Geyers', skillName: 'DevOps', skillLevel: 'Advanced', expectedDate: '2024-12-13' },
     { lecturer: 'Mag. Mage Tips', skillName: 'Cloud Security', skillLevel: 'Advanced', expectedDate: '2024-12-25' },
-    { lecturer: 'bsc Muster1', skillName: 'Cloud Security', skillLevel: 'Beginner', expectedDate: '2025-01-01' },
-    { lecturer: 'doc Muster2', skillName: 'Docker', skillLevel: 'Intermediate', expectedDate: '2025-09-01' }
+    { lecturer: 'bsc Livia Zylja', skillName: 'Cloud Security', skillLevel: 'Beginner', expectedDate: '2025-01-01' },
+    { lecturer: 'doc Alon Iliagouev', skillName: 'Docker', skillLevel: 'Intermediate', expectedDate: '2025-09-01' }
   ];
 
-  filteredSkills = [...this.skills]; // Copy of skills for filtering
-  isFilterOpen = false;
+  lecturers = ['Dr Sylvia Geyers', 'Mag. Mage Tips', 'bsc Livia Zylja', 'doc Alon Iliagouev'];
+  skillOptions = ['DevOps', 'Cloud Security', 'Docker'];
   skillLevels = ['Beginner', 'Intermediate', 'Advanced'];
+
+  isFilterOpen = false;
+  editingIndex: number | null = null;
+  originalSkill: any = null;
+  addingNewSkill = false;
+  newSkill = {
+    lecturer: '',
+    skillName: '',
+    skillLevel: '',
+    expectedDate: ''
+  };
+
+  ngOnInit(): void {}
 
   toggleFilterDropdown() {
     this.isFilterOpen = !this.isFilterOpen;
@@ -27,58 +40,69 @@ export class PlanComponent {
 
   applyFilters() {
     alert('Filters applied!');
-    this.isFilterOpen = false; // Close dropdown after applying
+    this.isFilterOpen = false;
   }
 
   resetFilters() {
-    this.filteredSkills = [...this.skills]; // Reset skills to original list
     alert('Filters reset!');
   }
 
   filterSkills(event: Event) {
-    const searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
-    this.filteredSkills = this.skills.filter(skill =>
-      skill.lecturer.toLowerCase().includes(searchTerm) ||
-      skill.skillName.toLowerCase().includes(searchTerm) ||
-      skill.skillLevel.toLowerCase().includes(searchTerm)
+    const term = (event.target as HTMLInputElement).value.toLowerCase();
+    this.skills = this.skills.filter(skill =>
+      skill.lecturer.toLowerCase().includes(term) ||
+      skill.skillName.toLowerCase().includes(term) ||
+      skill.skillLevel.toLowerCase().includes(term)
     );
   }
 
-  lecturers = ['Dr Sylvia Geyers', 'Mag. Mage Tips', 'bsc Muster1', 'doc Muster2'];
-  skillOptions = ['DevOps', 'Cloud Security', 'Docker'];
+  addNewSkill() {
+    this.addingNewSkill = true;
+    this.newSkill = {
+      lecturer: '',
+      skillName: '',
+      skillLevel: '',
+      expectedDate: ''
+    };
+  }
 
-  editingIndex: number | null = null;
-  originalSkill: any = null;
+  saveNewSkill() {
+    if (this.newSkill.lecturer && this.newSkill.skillName && this.newSkill.skillLevel && this.newSkill.expectedDate) {
+      this.skills.push({ ...this.newSkill });
+      this.addingNewSkill = false;
+    } else {
+      alert('Please fill in all fields');
+    }
+  }
+
+  cancelNewSkill() {
+    this.addingNewSkill = false;
+  }
 
   editSkill(index: number) {
     this.editingIndex = index;
-    this.originalSkill = { ...this.filteredSkills[index] }; // Save original values
+    this.originalSkill = { ...this.skills[index] };
   }
 
   saveEdit() {
     if (this.editingIndex !== null) {
-      console.log('Saving changes for:', this.filteredSkills[this.editingIndex]);
+      this.editingIndex = null;
+      this.originalSkill = null;
     }
-    this.editingIndex = null;
-    this.originalSkill = null;
   }
 
   cancelEdit() {
     if (this.editingIndex !== null) {
-      this.filteredSkills[this.editingIndex] = { ...this.originalSkill }; // Restore original values
+      this.skills[this.editingIndex] = { ...this.originalSkill };
+      this.editingIndex = null;
+      this.originalSkill = null;
     }
-    this.editingIndex = null;
-    this.originalSkill = null;
   }
 
   deleteSkill(index: number) {
-    const confirmation = confirm(
-      `Are you sure you want to delete this Future-Skill?\n\nThis action cannot be undone.`
-    );
-    if (confirmation) {
-      const skillToDelete = this.filteredSkills[index];
-      this.skills = this.skills.filter(skill => skill !== skillToDelete);
-      this.filteredSkills = [...this.skills]; // Refresh the filtered list
+    const confirmDelete = confirm('Are you sure you want to delete this future-skill?');
+    if (confirmDelete) {
+      this.skills.splice(index, 1);
     }
   }
 }
