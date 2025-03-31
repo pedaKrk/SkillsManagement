@@ -10,8 +10,7 @@ import { AuthGuard } from './core/guards/auth.guard';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { PlanComponent } from './components/future-skills/plan/plan.component';
-import { FutureSkillsDashboardComponent } from './components/future-skills/dashboard/dashboard.component';
-import { ProgressComponent } from './components/future-skills/progress/progress.component';
+import { DashboardComponent } from './components/future-skills/dashboard/dashboard.component';
 import { MainPageComponent } from './components/main-page/main-page.component';
 import { ManageProgressComponent } from './components/future-skills/manage-progress/manage-progress.component';
 
@@ -27,7 +26,7 @@ export const routes: Routes = [
     { path: 'change-password', component: ChangePasswordComponent, canActivate: [AuthGuard] },
     { path: 'forgot-password', component: ForgotPasswordComponent },
     { path: '', redirectTo: '/main', pathMatch: 'full' },
-    { path: 'future-skills/dashboard', component: FutureSkillsDashboardComponent },
+    { path: 'future-skills/dashboard', component: DashboardComponent },
     { path: 'future-skills', redirectTo: 'future-skills/dashboard', pathMatch: 'full' },
     { path: 'future-skills/plan', component: PlanComponent },
     { path: 'future-skills/progress', component: ManageProgressComponent },

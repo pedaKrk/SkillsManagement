@@ -1,0 +1,58 @@
+/* Page Title */
+h1 {
+  font-size: 34px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.container {
+  max-width: 90%;
+  margin: auto;
+  padding: 30px;
+}
+
+h2 {
+  font-size: 24px;
+  margin: 30px 0 15px;
+  font-weight: bold;
+}
+
+.mt {
+  margin-top: 60px;
+}
+
+.skills-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.skills-table th {
+  background-color: #0077A9;
+  color: white;
+  text-align: left;
+  padding: 10px;
+}
+
+.skills-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.edit {
+  color: blue;
+  cursor: pointer;
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.delete {
+  color: red;
+  cursor: pointer;
+  font-weight: bold;
+}
+.mt {
+  margin-top: 60px;
+}
