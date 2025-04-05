@@ -142,11 +142,13 @@
           </ng-container>
         </div>
       </div>
-      
-      <!-- actions -->
-      <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="cancel()">Abbrechen</button>
-        <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid">Änderungen speichern</button>
+
+      <!-- Buttons -->
+      <div class="button-group mt-4">
+        <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid || isLoading">
+          {{ isLoading ? 'Speichern...' : 'Speichern' }}
+        </button>
+        <button type="button" class="btn btn-secondary ms-2" (click)="goBack()">Abbrechen</button>
       </div>
     </form>
   </div>

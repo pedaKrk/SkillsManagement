@@ -1,8 +1,9 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit, NgZone, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { UserService } from '../../core/services/user/user.service';
+import { AuthService } from '../../core/services/auth/auth.service';
 import { User } from '../../models/user.model';
 import { DialogService } from '../../core/services/dialog/dialog.service';
 import { Skill } from '../../models/skill.model';
@@ -23,7 +24,10 @@ import { environment } from '../../../environments/environment';
   styleUrl: './user-skills-management.component.scss'
 })
 export class UserSkillsManagementComponent implements OnInit {
-  userId: string = '';
+  @Input() userId!: string;
+  @Input() isAdmin!: boolean;
+  @Input() canEdit!: boolean;
+  
   user: User | null = null;
   isLoading: boolean = true;
   error: string | null = null;
@@ -41,16 +45,23 @@ export class UserSkillsManagementComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private userService: UserService,
+    private authService: AuthService,
     private dialogService: DialogService,
     private http: HttpClient,
     private ngZone: NgZone
   ) {}
   
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      this.userId = params['id'];
+    // Wenn keine userId übergeben wurde, verwende die ID des eingeloggten Benutzers
+    if (!this.userId) {
+      const currentUser = this.authService.currentUserValue;
+      if (currentUser) {
+        this.userId = currentUser.id;
+        this.loadUserData();
+      }
+    } else {
       this.loadUserData();
-    });
+    }
 
     // Subscribe to search input changes
     this.skillSearchControl.valueChanges.subscribe(searchTerm => {

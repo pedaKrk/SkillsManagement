@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { UserService } from '../../core/services/user/user.service';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -16,11 +16,10 @@ import imageCompression from 'browser-image-compression';
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    RouterModule
+    ReactiveFormsModule
   ],
   templateUrl: './user-edit.component.html',
-  styleUrl: './user-edit.component.scss'
+  styleUrls: ['./user-edit.component.scss']
 })
 export class UserEditComponent implements OnInit {
   userId: string = '';
@@ -540,5 +539,12 @@ export class UserEditComponent implements OnInit {
     
     // use a static URL without a timestamp to avoid Angular errors
     return fullUrl;
+  }
+
+  /**
+   * Navigate back to the previous page
+   */
+  goBack(): void {
+    this.router.navigate(['/users']);
   }
 }
