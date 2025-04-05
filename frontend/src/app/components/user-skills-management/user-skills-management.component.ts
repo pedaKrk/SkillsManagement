@@ -190,10 +190,22 @@ export class UserSkillsManagementComponent implements OnInit {
   saveSkills(): void {
     if (!this.user) return;
     
+    // Format skills correctly
+    const formattedSkills = this.selectedSkills.map(skill => ({
+      _id: skill._id,
+      name: skill.name,
+      description: skill.description || '',
+      level: skill.level || 1,
+      category: skill.category || '',
+      parent_id: skill.parent_id || null
+    }));
+    
     const updatedUser: Partial<User> = {
       ...this.user,
-      skills: this.selectedSkills
+      skills: formattedSkills
     };
+    
+    console.log('Saving skills:', formattedSkills);
     
     this.userService.updateUser(this.userId, updatedUser).subscribe({
       next: () => {
