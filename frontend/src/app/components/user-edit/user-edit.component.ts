@@ -128,7 +128,7 @@ export class UserEditComponent implements OnInit {
    */
   initForm(): void {
     // Basic form controls that are always required
-    const formControls = {
+    const formControls: { [key: string]: any[] } = {
       username: ['', [Validators.required]],
       firstName: ['', [Validators.required]],
       lastName: ['', [Validators.required]],
@@ -216,7 +216,16 @@ export class UserEditComponent implements OnInit {
   populateForm(): void {
     if (!this.user) return;
     
-    const formData = {
+    const formData: {
+      username: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      title: string;
+      phoneNumber: string;
+      role?: string;
+      employmentType?: string;
+    } = {
       username: this.user.username,
       firstName: this.user.firstName,
       lastName: this.user.lastName,
@@ -227,8 +236,8 @@ export class UserEditComponent implements OnInit {
 
     // Add role and employmentType only for admins
     if (this.isAdmin) {
-      formData['role'] = this.user.role;
-      formData['employmentType'] = this.user.employmentType;
+      formData.role = this.user.role;
+      formData.employmentType = this.user.employmentType;
     }
 
     this.userForm.patchValue(formData);
@@ -398,28 +407,24 @@ export class UserEditComponent implements OnInit {
     this.isLoading = true;
     
     // get the user data from the form
-    const formData = this.userForm.value;
+    const formData: { [key: string]: any } = this.userForm.value;
     
     // If not admin, keep the existing role and employmentType
-    const updatedUserData = {
-      ...this.user,
-      ...formData,
-      ...((!this.isAdmin && this.user) && {
-        role: this.user.role,
-        employmentType: this.user.employmentType
-      })
-    };
+    if (!this.isAdmin && this.user) {
+      formData['role'] = this.user.role;
+      formData['employmentType'] = this.user.employmentType;
+    }
     
     // process profile image changes
     if (this.selectedImageFile) {
       // first update the user data, then upload the profile image
-      this.updateUser(updatedUserData, true);
+      this.updateUser(formData, true);
     } else if (this.removeImageFlag) {
       // remove the profile image and update the user data
-      this.removeProfileImage(updatedUserData);
+      this.removeProfileImage(formData);
     } else {
       // update the user data only
-      this.updateUser(updatedUserData);
+      this.updateUser(formData);
     }
   }
   

@@ -231,18 +231,20 @@ export class UserDetailsComponent implements OnInit {
     console.log('checkPermissions - currentUser:', currentUser);
     
     if (currentUser) {
-      // for development: allow all users to add comments
-      this.canAddComments = true;
+      const userRole = currentUser.role.toLowerCase();
       
-      // check the role using the enum
-      this.isAdmin = currentUser.role === UserRole.ADMIN || currentUser.role === UserRole.COMPETENCE_LEADER;
+      // just admins and competence leaders can add comments
+      this.isAdmin = userRole === UserRole.ADMIN.toLowerCase() || 
+                     userRole === UserRole.COMPETENCE_LEADER.toLowerCase();
+      this.canAddComments = this.isAdmin; // only admins and competence leaders can add comments
       
       console.log('checkPermissions - role:', currentUser.role);
       console.log('checkPermissions - isAdmin:', this.isAdmin);
+      console.log('checkPermissions - canAddComments:', this.canAddComments);
     } else {
       this.canAddComments = false;
       this.isAdmin = false;
-      console.log('checkPermissions - no currentUser, isAdmin set to false');
+      console.log('checkPermissions - no currentUser, permissions set to false');
     }
   }
   
