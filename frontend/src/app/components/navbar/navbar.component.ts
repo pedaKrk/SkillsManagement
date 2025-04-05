@@ -2,6 +2,7 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { UserRole } from '../../models/enums/user-roles.enum';
 
 @Component({
   selector: 'app-navbar',
@@ -30,7 +31,7 @@ export class NavbarComponent implements OnInit {
       this.userId = user?.id || null;
       
       if (user?.role) {
-        this.isAdmin = user.role === 'Admin';
+        this.isAdmin = user.role === UserRole.ADMIN || user.role === UserRole.COMPETENCE_LEADER;
       } else {
         this.isAdmin = false;
       }

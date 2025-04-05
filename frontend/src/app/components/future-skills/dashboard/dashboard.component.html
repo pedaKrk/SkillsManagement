@@ -1,1 +1,64 @@
-<h1>Dashboard</h1>
+<div class="container">
+  <h1>Dashboard</h1>
+  <h2>Upcoming Future-Skills</h2>
+  <table class="skills-table">
+    <thead>
+    <tr>
+      <th>#No. of {{ futureSkills.length }}</th>
+      <th>Lecturer Name</th>
+      <th>Skill Name</th>
+      <th>Skill Level</th>
+      <th>Expected Date</th>
+      <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let skill of futureSkills; let i = index">
+      <td>{{ i + 1 }}</td>
+      <td>{{ skill.lecturer }}</td>
+      <td>{{ skill.skillName }}</td>
+      <td>{{ skill.skillLevel }}</td>
+      <td>{{ skill.expectedDate | date:'MMM d, y' }}</td>
+      <td>
+        <span class="edit">Edit</span>
+        <span class="delete">Delete</span>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2 class="mt">Future Skills Plan</h2>
+  <canvas id="skillsChart" width="100%" height="50"></canvas>
+</div>
+
+
+<!-- Overdue Future-Skills Table -->
+  <h2>Overdue Future-Skills</h2>
+  <div class="table-container">
+    <table class="skills-table">
+      <thead>
+      <tr>
+        <th>#No. of {{ overdueSkills.length }}</th>
+        <th>Lecturer Name</th>
+        <th>Skill Name</th>
+        <th>Skill Level</th>
+        <th>Expected Date</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let skill of overdueSkills; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ skill.lecturer }}</td>
+        <td>{{ skill.skillName }}</td>
+        <td>{{ skill.skillLevel }}</td>
+        <td>{{ skill.expectedDate }}</td>
+        <td>
+          <span class="edit">Edit</span>
+          <span class="delete">Delete</span>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+

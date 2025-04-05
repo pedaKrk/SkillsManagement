@@ -234,12 +234,10 @@ export class UserDetailsComponent implements OnInit {
       // for development: allow all users to add comments
       this.canAddComments = true;
       
-      // check the role independently of the case
-      const role = currentUser.role?.toLowerCase() || '';
-      this.isAdmin = role === 'admin';
+      // check the role using the enum
+      this.isAdmin = currentUser.role === UserRole.ADMIN || currentUser.role === UserRole.COMPETENCE_LEADER;
       
       console.log('checkPermissions - role:', currentUser.role);
-      console.log('checkPermissions - normalized role:', role);
       console.log('checkPermissions - isAdmin:', this.isAdmin);
     } else {
       this.canAddComments = false;

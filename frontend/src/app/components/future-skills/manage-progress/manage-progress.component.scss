@@ -130,6 +130,7 @@ h1 {
   border-bottom: 1px solid #ddd;
   transition: background 0.2s;
   text-align: center;
+
 }
 
 /* Alternate Row Colors */
@@ -158,12 +159,14 @@ input, select {
   gap: 10px;
 }
 
-/* Edit, Delete, Save, Cancel Buttons */
-.edit, .delete, .save, .cancel {
+
+
+/* Edit, Delete, Save, Cancel, mail, add Buttons */
+.edit, .delete, .save, .cancel, .mail, .add {
   cursor: pointer;
   font-weight: bold;
   text-decoration: none;
-  padding: 5px 10px;
+  padding: 5px 15px;
   border-radius: 4px;
   transition: all 0.2s;
   font-size: 14px;
@@ -171,19 +174,35 @@ input, select {
 
 /* Edit Button */
 .edit {
-  color: blue;
+  color: #120e0e;
+  &:hover {
+    text-decoration: underline;
+  }
+
+}
+
+/* Delete Button */
+.delete {
+  color: rgba(255, 0, 0, 0.75);
   &:hover {
     text-decoration: underline;
   }
 }
 
-/* Delete Button */
-.delete {
-  color: red;
+.mail {
+  color: #0077A9;
   &:hover {
     text-decoration: underline;
   }
 }
+
+.add {
+  color: green;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 
 /* Save Button */
 .save {
@@ -195,7 +214,7 @@ input, select {
 
 /* Cancel Button */
 .cancel {
-  color: red;
+  color: rgba(184, 16, 16, 0.93);
   &:hover {
     text-decoration: underline;
   }

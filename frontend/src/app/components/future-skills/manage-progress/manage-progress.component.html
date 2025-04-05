@@ -1,14 +1,19 @@
 <div class="container">
-  <h1>Plan</h1>
+  <h1>Manage Progress</h1>
 
-  <!-- Top Action Buttons -->
+  <!-- Top Buttons -->
   <div class="actions">
     <button class="btn primary" (click)="addNewSkill()">+ ADD NEW FUTURE-SKILL</button>
   </div>
 
-  <!-- Search & Filters Row -->
+  <!-- Search + Filter Row -->
   <div class="search-container">
-    <input type="text" class="search-box" placeholder="Search Future-Skills" (input)="filterSkills($event)">
+    <input
+      type="text"
+      class="search-box"
+      placeholder="Search Future-Skills"
+      (input)="filterSkills($event)"
+    />
     <button class="btn secondary" (click)="toggleFilterDropdown()">Apply Filters</button>
   </div>
 
@@ -22,19 +27,19 @@
       </select>
 
       <label>Lecturer Title</label>
-      <input type="text" class="filter-input" placeholder="Lecturer Title">
+      <input type="text" class="filter-input" placeholder="Lecturer Title" />
 
       <label>Lecturer Name</label>
-      <input type="text" class="filter-input" placeholder="Lecturer Name">
+      <input type="text" class="filter-input" placeholder="Lecturer Name" />
 
       <label>Skill</label>
-      <input type="text" class="filter-input" placeholder="Skill">
+      <input type="text" class="filter-input" placeholder="Skill" />
 
       <label>Date From</label>
-      <input type="date" class="filter-input">
+      <input type="date" class="filter-input" />
 
       <label>Date To</label>
-      <input type="date" class="filter-input">
+      <input type="date" class="filter-input" />
 
       <button class="btn primary" (click)="applyFilters()">Apply Filters</button>
       <button class="btn secondary" (click)="resetFilters()">Reset Filters</button>
@@ -42,12 +47,12 @@
   </div>
 </div>
 
-<!-- Table -->
+<!-- Table of Future Skills -->
 <div class="table-container">
   <table class="skills-table">
     <thead>
     <tr>
-      <th>#No.</th>
+      <th>#No. of {{ filteredSkills.length }}</th>
       <th>Lecturer Name</th>
       <th>Skill Name</th>
       <th>Skill Level</th>
@@ -56,25 +61,20 @@
     </tr>
     </thead>
     <tbody>
-
-    <!-- Add New Row -->
     <tr *ngIf="addingNewSkill">
-      <td>{{ skills.length + 1 }}</td>
+      <td>{{ filteredSkills.length + 1 }}</td>
       <td>
         <select [(ngModel)]="newSkill.lecturer">
-          <option value="">Select Lecturer</option>
           <option *ngFor="let lecturer of lecturers" [value]="lecturer">{{ lecturer }}</option>
         </select>
       </td>
       <td>
         <select [(ngModel)]="newSkill.skillName">
-          <option value="">Select Skill</option>
-          <option *ngFor="let skillOption of skillOptions" [value]="skillOption">{{ skillOption }}</option>
+          <option *ngFor="let skill of skillOptions" [value]="skill">{{ skill }}</option>
         </select>
       </td>
       <td>
         <select [(ngModel)]="newSkill.skillLevel">
-          <option value="">Select level</option>
           <option *ngFor="let level of skillLevels" [value]="level">{{ level }}</option>
         </select>
       </td>
@@ -87,11 +87,10 @@
       </td>
     </tr>
 
-    <!-- Existing Rows -->
-    <tr *ngFor="let skill of skills; let i = index">
+    <tr *ngFor="let skill of filteredSkills; let i = index">
       <td>{{ i + 1 }}</td>
 
-      <!-- Editable Row -->
+      <!-- Editable row -->
       <td *ngIf="editingIndex === i">
         <select [(ngModel)]="skill.lecturer">
           <option *ngFor="let lecturer of lecturers" [value]="lecturer">{{ lecturer }}</option>
@@ -111,16 +110,19 @@
         <input type="date" [(ngModel)]="skill.expectedDate" />
       </td>
 
-      <!-- Read-Only Row -->
+      <!-- Read-only row -->
       <td *ngIf="editingIndex !== i">{{ skill.lecturer }}</td>
       <td *ngIf="editingIndex !== i">{{ skill.skillName }}</td>
       <td *ngIf="editingIndex !== i">{{ skill.skillLevel }}</td>
       <td *ngIf="editingIndex !== i">{{ skill.expectedDate }}</td>
 
-      <!-- Action Buttons -->
+      <!-- Actions -->
       <td>
         <span *ngIf="editingIndex !== i" class="edit" (click)="editSkill(i)">Edit</span>
         <span *ngIf="editingIndex !== i" class="delete" (click)="deleteSkill(i)">Delete</span>
+        <span *ngIf="editingIndex !== i" class="mail" (click)="sendMail(skill)">Mail</span>
+        <span *ngIf="editingIndex !== i" class="add" (click)="addToSkills(skill)">Add to Skills</span>
+
         <span *ngIf="editingIndex === i" class="save" (click)="saveEdit()">Save</span>
         <span *ngIf="editingIndex === i" class="cancel" (click)="cancelEdit()">Cancel</span>
       </td>

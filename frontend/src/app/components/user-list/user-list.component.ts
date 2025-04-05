@@ -9,6 +9,7 @@ import { DialogService } from '../../core/services/dialog';
 import { User, Skill } from '../../models/user.model';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
+import { UserRole } from '../../models/enums/user-roles.enum';
 
 @Component({
   selector: 'app-user-list',
@@ -95,8 +96,8 @@ export class UserListComponent implements OnInit, OnDestroy {
       const normalizedRole = currentUser.role?.toUpperCase().replace('_', '');
       console.log('Normalized role:', normalizedRole);
       
-      this.isAdmin = normalizedRole === 'ADMIN';
-      this.isCompetenceLeader = normalizedRole === 'COMPETENCELEADER';
+      this.isAdmin = currentUser.role === UserRole.ADMIN || currentUser.role === UserRole.COMPETENCE_LEADER;
+      this.isCompetenceLeader = currentUser.role === UserRole.COMPETENCE_LEADER;
       
       console.log('Permissions after check:', {
         isAdmin: this.isAdmin,
@@ -780,10 +781,9 @@ export class UserListComponent implements OnInit, OnDestroy {
     const currentUser = this.authService.currentUserValue;
     if (currentUser) {
       this.currentUserId = currentUser.id;
-      const userRole = currentUser.role?.toLowerCase() || '';
       
-      this.isAdmin = userRole === 'admin';
-      this.isCompetenceLeader = userRole === 'competence_leader';
+      this.isAdmin = currentUser.role === UserRole.ADMIN || currentUser.role === UserRole.COMPETENCE_LEADER;
+      this.isCompetenceLeader = currentUser.role === UserRole.COMPETENCE_LEADER;
       
       console.log('User permissions:', { 
         isAdmin: this.isAdmin, 
