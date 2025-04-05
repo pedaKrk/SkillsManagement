@@ -163,39 +163,69 @@ export class UserDetailsComponent implements OnInit {
     
     this.commentService.getCommentsForUser(this.userId).subscribe({
       next: (comments) => {
-        // convert comments to the correct format
-        this.comments = comments.map(comment => {
-          const author = comment.author || { username: 'Unbekannt' };
-          
-          // Konvertiere Antworten, falls vorhanden
-          const replies = comment.replies ? comment.replies.map((reply: any) => {
-            const replyAuthor = reply.author || { username: 'Unbekannt' };
-            return {
-              id: reply.id || reply._id || '',
-              userId: this.userId,
-              authorId: replyAuthor._id || replyAuthor.id || '',
-              authorName: replyAuthor.username,
-              text: reply.content || '',
-              createdAt: new Date(reply.time_stamp || new Date()),
-              parentId: comment.id || comment._id || ''
-            };
-          }) : [];
-          
-          return {
-            id: comment.id || comment._id || '',
-            userId: this.userId,
-            authorId: author._id || author.id || '',
-            authorName: author.username,
-            text: comment.content || '',
-            createdAt: new Date(comment.time_stamp || new Date()),
-            replies: replies
-          };
+        // Sammle alle einzigartigen Benutzer-IDs
+        const authorIds = new Set<string>();
+        comments.forEach(comment => {
+          if (comment.author?._id) {
+            authorIds.add(comment.author._id);
+          }
+          if (comment.replies) {
+            comment.replies.forEach((reply: { author?: { _id?: string } }) => {
+              if (reply.author?._id) {
+                authorIds.add(reply.author._id);
+              }
+            });
+          }
         });
-        this.isLoading = false;
+
+        // Lade die Benutzerdaten für alle Autoren
+        Promise.all(
+          Array.from(authorIds).map(authorId => this.userService.getUserById(authorId).toPromise())
+        ).then(authors => {
+          // Erstelle eine Map für schnellen Zugriff auf Benutzerdaten
+          const authorMap = new Map(
+            authors
+              .filter(author => author != null)
+              .map(author => [author._id, author])
+          );
+
+          // Konvertiere die Kommentare in das richtige Format
+          this.comments = comments.map(comment => {
+            const author = comment.author?._id ? authorMap.get(comment.author._id) : null;
+            const authorData = author || comment.author || { username: 'Unbekannt' };
+            const authorName = this.createFormalName(authorData);
+
+            // Konvertiere Antworten, falls vorhanden
+            const replies = comment.replies ? comment.replies.map((reply: any) => {
+              const replyAuthor = reply.author?._id ? authorMap.get(reply.author._id) : null;
+              const replyAuthorData = replyAuthor || reply.author || { username: 'Unbekannt' };
+              const replyAuthorName = this.createFormalName(replyAuthorData);
+
+              return {
+                id: reply.id || reply._id || '',
+                userId: this.userId,
+                authorId: replyAuthorData._id || '',
+                authorName: replyAuthorName,
+                text: reply.content || '',
+                createdAt: new Date(reply.time_stamp || new Date())
+              };
+            }) : [];
+
+            return {
+              id: comment.id || comment._id || '',
+              userId: this.userId,
+              authorId: authorData._id || '',
+              authorName: authorName,
+              text: comment.content || '',
+              createdAt: new Date(comment.time_stamp || new Date()),
+              replies: replies
+            };
+          });
+          this.isLoading = false;
+        });
       },
       error: (error) => {
         console.error('Error loading comments:', error);
-        // show empty comment list
         this.comments = [];
         this.isLoading = false;
       }
@@ -228,23 +258,15 @@ export class UserDetailsComponent implements OnInit {
    */
   checkPermissions(): void {
     const currentUser = this.authService.currentUserValue;
-    console.log('checkPermissions - currentUser:', currentUser);
     
     if (currentUser) {
       const userRole = currentUser.role.toLowerCase();
-      
-      // just admins and competence leaders can add comments
       this.isAdmin = userRole === UserRole.ADMIN.toLowerCase() || 
                      userRole === UserRole.COMPETENCE_LEADER.toLowerCase();
-      this.canAddComments = this.isAdmin; // only admins and competence leaders can add comments
-      
-      console.log('checkPermissions - role:', currentUser.role);
-      console.log('checkPermissions - isAdmin:', this.isAdmin);
-      console.log('checkPermissions - canAddComments:', this.canAddComments);
+      this.canAddComments = this.isAdmin;
     } else {
       this.canAddComments = false;
       this.isAdmin = false;
-      console.log('checkPermissions - no currentUser, permissions set to false');
     }
   }
   
@@ -280,58 +302,78 @@ export class UserDetailsComponent implements OnInit {
       return;
     }
     
-    // save username for local display
-    const username = currentUser.username || 'Aktueller Benutzer';
-    
     this.commentService.addCommentToUser(this.userId, this.newComment).subscribe({
       next: (comment) => {
-        // only if we receive a valid response from the server
         if (comment && (comment.id || comment._id)) {
-          // add new comment to the list
-          const newComment: Comment = {
-            id: comment.id || comment._id || '',
-            userId: this.userId,
-            authorId: comment.author?._id || currentUser.id,
-            authorName: comment.author?.username || username,
-            text: comment.content || this.newComment,
-            createdAt: new Date(comment.time_stamp) || new Date()
-          };
-          
-          // add new comment to the list
-          this.comments.unshift(newComment);
-          
-          // clear input field
-          this.newComment = '';
-          
-          // show success message
-          this.dialogService.showSuccess({
-            title: 'Erfolg',
-            message: 'Kommentar wurde erfolgreich hinzugefügt.',
-            buttonText: 'OK'
+          // Lade die vollständigen Benutzerdaten für den Autor
+          this.userService.getUserById(currentUser.id).subscribe({
+            next: (fullUserData) => {
+              const authorName = this.createFormalName(fullUserData);
+              
+              const newComment: Comment = {
+                id: comment.id || comment._id || '',
+                userId: this.userId,
+                authorId: comment.author?._id || currentUser.id,
+                authorName: authorName,
+                text: comment.content || this.newComment,
+                createdAt: new Date(comment.time_stamp) || new Date()
+              };
+              
+              this.comments.unshift(newComment);
+              this.newComment = '';
+              
+              this.dialogService.showSuccess({
+                title: 'Erfolg',
+                message: 'Kommentar wurde erfolgreich hinzugefügt.',
+                buttonText: 'OK'
+              });
+              this.isLoading = false;
+            },
+            error: (error) => {
+              console.error('Fehler beim Laden der Benutzerdaten:', error);
+              // Fallback 
+              const newComment: Comment = {
+                id: comment.id || comment._id || '',
+                userId: this.userId,
+                authorId: comment.author?._id || currentUser.id,
+                authorName: currentUser.username || 'Unbekannter Benutzer',
+                text: comment.content || this.newComment,
+                createdAt: new Date(comment.time_stamp) || new Date()
+              };
+              
+              this.comments.unshift(newComment);
+              this.newComment = '';
+              this.isLoading = false;
+            }
           });
-        } else {
-          // if the response is invalid, show an error message
-          console.error('Invalid response from server:', comment);
-          this.dialogService.showError(
-            'Fehler',
-            'Der Kommentar konnte nicht hinzugefügt werden. Ungültige Serverantwort.'
-          );
         }
-        
-        this.isLoading = false;
       },
-      error: (error: any) => {
+      error: (error) => {
         console.error('Error adding comment:', error);
-        
-        // show an error message
         this.dialogService.showError(
           'Fehler',
           'Der Kommentar konnte nicht hinzugefügt werden. Bitte versuchen Sie es später erneut.'
         );
-        
         this.isLoading = false;
       }
     });
+  }
+  
+  /**
+   * creates a formal name from title (if available), first name and last name
+   */
+  private createFormalName(user: any): string {
+    const parts = [];
+    if (user.title) {
+      parts.push(user.title);
+    }
+    if (user.firstName) {
+      parts.push(user.firstName);
+    }
+    if (user.lastName) {
+      parts.push(user.lastName);
+    }
+    return parts.length > 0 ? parts.join(' ') : user.username || 'Unbekannter Benutzer';
   }
   
   /**
@@ -537,9 +579,6 @@ export class UserDetailsComponent implements OnInit {
       return;
     }
     
-    // save username for local display
-    const username = currentUser.username || 'Aktueller Benutzer';
-    
     // add reply to comment
     this.commentService.addReplyToComment(
       this.userId, 
@@ -548,56 +587,76 @@ export class UserDetailsComponent implements OnInit {
     ).subscribe({
       next: (reply: any) => {
         if (reply && (reply.id || reply._id)) {
-          // create new reply
-          const newReply: Comment = {
-            id: reply.id || reply._id || '',
-            userId: this.userId,
-            authorId: reply.author?._id || currentUser.id,
-            authorName: reply.author?.username || username,
-            text: reply.content || this.replyText,
-            createdAt: new Date(reply.time_stamp) || new Date(),
-            parentId: this.replyingToComment?.id || this.replyingToComment?._id || ''
-          };
-          
-          // add reply to comment
-          if (this.replyingToComment && !this.replyingToComment.replies) {
-            this.replyingToComment.replies = [];
-          }
-          
-          if (this.replyingToComment && this.replyingToComment.replies) {
-            this.replyingToComment.replies.push(newReply);
-          }
-          
-          // clear input field and end reply mode
-          this.replyText = '';
-          this.replyingToComment = null;
-          
-          // show success message
-          this.dialogService.showSuccess({
-            title: 'Erfolg',
-            message: 'Antwort wurde erfolgreich hinzugefügt.',
-            buttonText: 'OK'
+          // Lade die vollständigen Benutzerdaten für den Autor
+          this.userService.getUserById(currentUser.id).subscribe({
+            next: (fullUserData) => {
+              const authorName = this.createFormalName(fullUserData);
+              
+              // create new reply
+              const newReply: Comment = {
+                id: reply.id || reply._id || '',
+                userId: this.userId,
+                authorId: reply.author?._id || currentUser.id,
+                authorName: authorName,
+                text: reply.content || this.replyText,
+                createdAt: new Date(reply.time_stamp) || new Date(),
+                parentId: this.replyingToComment?.id || this.replyingToComment?._id || ''
+              };
+              
+              // add reply to comment
+              if (this.replyingToComment && !this.replyingToComment.replies) {
+                this.replyingToComment.replies = [];
+              }
+              
+              if (this.replyingToComment && this.replyingToComment.replies) {
+                this.replyingToComment.replies.push(newReply);
+              }
+              
+              // clear input field and end reply mode
+              this.replyText = '';
+              this.replyingToComment = null;
+              
+              this.dialogService.showSuccess({
+                title: 'Erfolg',
+                message: 'Antwort wurde erfolgreich hinzugefügt.',
+                buttonText: 'OK'
+              });
+              this.isLoading = false;
+            },
+            error: (error) => {
+              console.error('Fehler beim Laden der Benutzerdaten:', error);
+              // Fallback to the username
+              const newReply: Comment = {
+                id: reply.id || reply._id || '',
+                userId: this.userId,
+                authorId: reply.author?._id || currentUser.id,
+                authorName: currentUser.username || 'Unbekannter Benutzer',
+                text: reply.content || this.replyText,
+                createdAt: new Date(reply.time_stamp) || new Date(),
+                parentId: this.replyingToComment?.id || this.replyingToComment?._id || ''
+              };
+              
+              if (this.replyingToComment && !this.replyingToComment.replies) {
+                this.replyingToComment.replies = [];
+              }
+              
+              if (this.replyingToComment && this.replyingToComment.replies) {
+                this.replyingToComment.replies.push(newReply);
+              }
+              
+              this.replyText = '';
+              this.replyingToComment = null;
+              this.isLoading = false;
+            }
           });
-        } else {
-          // show error message for invalid reply
-          console.error('Invalid reply from server:', reply);
-          this.dialogService.showError(
-            'Fehler',
-            'Die Antwort konnte nicht hinzugefügt werden. Ungültige Serverantwort.'
-          );
         }
-        
-        this.isLoading = false;
       },
-      error: (error: any) => {
+      error: (error) => {
         console.error('Fehler beim Hinzufügen der Antwort:', error);
-        
-        // show error message
         this.dialogService.showError(
           'Fehler',
           'Die Antwort konnte nicht hinzugefügt werden. Bitte versuchen Sie es später erneut.'
         );
-        
         this.isLoading = false;
       }
     });

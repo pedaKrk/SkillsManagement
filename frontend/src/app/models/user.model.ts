@@ -10,6 +10,7 @@ export interface Skill {
 
 export interface User{
     id: string;
+    _id?: string;
     username: string;
     role: UserRole;
     title?: string;
@@ -20,6 +21,7 @@ export interface User{
     employmentType: EmploymentType;
     skills?: Skill[]; 
     profileImageUrl?: string;
+    token?: string;
 }
 
 export interface Comment {
