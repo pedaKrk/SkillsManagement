@@ -31,4 +31,10 @@ export const routes: Routes = [
     { path: 'future-skills', redirectTo: 'future-skills/dashboard', pathMatch: 'full' },
     { path: 'future-skills/plan', component: PlanComponent },
     { path: 'future-skills/progress', component: ManageProgressComponent },
+    {
+        path: 'profile/skills',
+        component: UserSkillsManagementComponent,
+        canActivate: [AuthGuard],
+        data: { title: 'Skills verwalten' }
+    },
 ];

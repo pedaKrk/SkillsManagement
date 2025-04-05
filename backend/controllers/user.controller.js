@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import {comparePassword, hashPassword} from "../services/auth.service.js";
 import fs from 'fs';
 import path from 'path';
+import roleEnum from "../models/enums/role.enum.js";
 
 // only use transactions when changing multiple documents.
 // rather use findOneAndUpdate
@@ -85,11 +86,12 @@ export const updateUser = async (req, res) => {
     const { id } = req.params
     const userData = req.body
     
-    
     const isOwnProfile = req.user.id === id || req.user._id === id
-    const isAdmin = req.user.role.toLowerCase() === 'admin'
+    const userRole = req.user.role.toLowerCase()
+    const isAdmin = userRole === roleEnum.ADMIN.toLowerCase()
+    const isCompetenceLeader = userRole === roleEnum.COMPETENCE_LEADER.toLowerCase()
     
-    if (!isAdmin && !isOwnProfile) {
+    if (!isAdmin && !isCompetenceLeader && !isOwnProfile) {
       await session.abortTransaction()
       await session.endSession()
       return res.status(403).json({ 

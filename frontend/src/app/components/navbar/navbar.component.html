@@ -55,6 +55,9 @@
           <a class="dropdown-item" (click)="editOwnProfile($event)">
             <i class="fa fa-pencil"></i> Profil bearbeiten
           </a>
+          <a [routerLink]="['/profile/skills']" class="dropdown-item" (click)="onDropdownItemClick($event)">
+            <i class="fas fa-cogs"></i> Skills verwalten
+          </a>
           <a [routerLink]="['/change-password']" class="dropdown-item" (click)="onDropdownItemClick($event)">
             <i class="fa fa-key"></i> Passwort ändern
           </a>

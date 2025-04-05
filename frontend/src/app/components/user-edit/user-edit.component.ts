@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { UserService } from '../../core/services/user/user.service';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -16,11 +16,10 @@ import imageCompression from 'browser-image-compression';
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    RouterModule
+    ReactiveFormsModule
   ],
   templateUrl: './user-edit.component.html',
-  styleUrl: './user-edit.component.scss'
+  styleUrls: ['./user-edit.component.scss']
 })
 export class UserEditComponent implements OnInit {
   userId: string = '';
@@ -47,7 +46,9 @@ export class UserEditComponent implements OnInit {
     private userService: UserService,
     private authService: AuthService,
     private dialogService: DialogService
-  ) {}
+  ) {
+    this.initForm();
+  }
   
   ngOnInit(): void {
     // check if user is logged in
@@ -79,9 +80,6 @@ export class UserEditComponent implements OnInit {
         this.error = 'No user ID available';
       }
     });
-    
-    // initialize form
-    this.initForm();
   }
   
   /**
@@ -95,9 +93,12 @@ export class UserEditComponent implements OnInit {
       console.log('Current user:', currentUser);
       console.log('Current userId:', this.userId);
       
-      // check the role using the enum
-      this.isAdmin = currentUser.role === UserRole.ADMIN || currentUser.role === UserRole.COMPETENCE_LEADER;
-      console.log('Is admin:', this.isAdmin);
+      // check if user is admin or competence leader
+      const userRole = currentUser.role.toLowerCase();
+      this.isAdmin = userRole === UserRole.ADMIN.toLowerCase() || 
+                     userRole === UserRole.COMPETENCE_LEADER.toLowerCase();
+      
+      console.log('Is admin or competence leader:', this.isAdmin);
       
       const isOwnProfile = this.authService.isOwnProfile(this.userId);
       console.log('Is own profile:', isOwnProfile);
@@ -108,6 +109,12 @@ export class UserEditComponent implements OnInit {
         this.router.navigate(['/users', this.userId]);
       } else {
         console.log('Permission granted to edit profile');
+        
+        // If not admin, disable role and employmentType fields
+        if (!this.isAdmin) {
+          this.userForm.get('role')?.disable();
+          this.userForm.get('employmentType')?.disable();
+        }
       }
     } else {
       this.isAdmin = false;
@@ -119,16 +126,23 @@ export class UserEditComponent implements OnInit {
    * initializes the form
    */
   initForm(): void {
-    this.userForm = this.formBuilder.group({
+    // Basic form controls that are always required
+    const formControls: { [key: string]: any[] } = {
       username: ['', [Validators.required]],
       firstName: ['', [Validators.required]],
       lastName: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       title: [''],
-      phoneNumber: [''],
-      role: ['', [Validators.required]],
-      employmentType: ['', [Validators.required]]
-    });
+      phoneNumber: ['']
+    };
+
+    // Add role and employmentType only for admins
+    if (this.isAdmin) {
+      formControls['role'] = ['', [Validators.required]];
+      formControls['employmentType'] = ['', [Validators.required]];
+    }
+
+    this.userForm = this.formBuilder.group(formControls);
   }
   
   /**
@@ -201,16 +215,31 @@ export class UserEditComponent implements OnInit {
   populateForm(): void {
     if (!this.user) return;
     
-    this.userForm.patchValue({
+    const formData: {
+      username: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      title: string;
+      phoneNumber: string;
+      role?: string;
+      employmentType?: string;
+    } = {
       username: this.user.username,
       firstName: this.user.firstName,
       lastName: this.user.lastName,
       email: this.user.email,
       title: this.user.title || '',
-      phoneNumber: this.user.phoneNumber || '',
-      role: this.user.role,
-      employmentType: this.user.employmentType
-    });
+      phoneNumber: this.user.phoneNumber || ''
+    };
+
+    // Add role and employmentType only for admins
+    if (this.isAdmin) {
+      formData.role = this.user.role;
+      formData.employmentType = this.user.employmentType;
+    }
+
+    this.userForm.patchValue(formData);
   }
   
   /**
@@ -377,21 +406,24 @@ export class UserEditComponent implements OnInit {
     this.isLoading = true;
     
     // get the user data from the form
-    const updatedUserData = {
-      ...this.user,
-      ...this.userForm.value
-    };
+    const formData: { [key: string]: any } = this.userForm.value;
+    
+    // If not admin, keep the existing role and employmentType
+    if (!this.isAdmin && this.user) {
+      formData['role'] = this.user.role;
+      formData['employmentType'] = this.user.employmentType;
+    }
     
     // process profile image changes
     if (this.selectedImageFile) {
       // first update the user data, then upload the profile image
-      this.updateUser(updatedUserData, true);
+      this.updateUser(formData, true);
     } else if (this.removeImageFlag) {
       // remove the profile image and update the user data
-      this.removeProfileImage(updatedUserData);
+      this.removeProfileImage(formData);
     } else {
       // update the user data only
-      this.updateUser(updatedUserData);
+      this.updateUser(formData);
     }
   }
   
@@ -507,5 +539,12 @@ export class UserEditComponent implements OnInit {
     
     // use a static URL without a timestamp to avoid Angular errors
     return fullUrl;
+  }
+
+  /**
+   * Navigate back to the previous page
+   */
+  goBack(): void {
+    this.router.navigate(['/users']);
   }
 }
