@@ -95,9 +95,8 @@ export class UserEditComponent implements OnInit {
       console.log('Current user:', currentUser);
       console.log('Current userId:', this.userId);
       
-      // check the role regardless of case
-      const role = currentUser.role?.toLowerCase() || '';
-      this.isAdmin = role === 'admin';
+      // check the role using the enum
+      this.isAdmin = currentUser.role === UserRole.ADMIN || currentUser.role === UserRole.COMPETENCE_LEADER;
       console.log('Is admin:', this.isAdmin);
       
       const isOwnProfile = this.authService.isOwnProfile(this.userId);

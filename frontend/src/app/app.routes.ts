@@ -7,6 +7,7 @@ import { UserDetailsComponent } from './components/user-details/user-details.com
 import { UserEditComponent } from './components/user-edit/user-edit.component';
 import { UserSkillsManagementComponent } from './components/user-skills-management/user-skills-management.component';
 import { AuthGuard } from './core/guards/auth.guard';
+import { AdminGuard } from './core/guards/admin.guard';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { PlanComponent } from './components/future-skills/plan/plan.component';
@@ -16,13 +17,13 @@ import { ManageProgressComponent } from './components/future-skills/manage-progr
 
 export const routes: Routes = [
     { path: 'main', component: MainPageComponent },
-    {path: 'user', component: UserComponent},
+    { path: 'user', component: UserComponent, canActivate: [AuthGuard, AdminGuard] },
     { path: 'login', component: LoginComponent },
     { path: 'register', component: RegisterComponent },
-    { path: 'admin/add-user', component: AddUserComponent },
-    { path: 'users/:id', component: UserDetailsComponent },
-    { path: 'users/:id/edit', component: UserEditComponent },
-    { path: 'users/:id/skills', component: UserSkillsManagementComponent, data: { standalone: true } },
+    { path: 'admin/add-user', component: AddUserComponent, canActivate: [AuthGuard, AdminGuard] },
+    { path: 'users/:id', component: UserDetailsComponent, canActivate: [AuthGuard] },
+    { path: 'users/:id/edit', component: UserEditComponent, canActivate: [AuthGuard] },
+    { path: 'users/:id/skills', component: UserSkillsManagementComponent, data: { standalone: true }, canActivate: [AuthGuard] },
     { path: 'change-password', component: ChangePasswordComponent, canActivate: [AuthGuard] },
     { path: 'forgot-password', component: ForgotPasswordComponent },
     { path: '', redirectTo: '/main', pathMatch: 'full' },

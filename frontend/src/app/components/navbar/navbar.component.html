@@ -34,7 +34,7 @@
           </a>
         </div>
       </li>
-      <li class="nav-item">
+      <li class="nav-item" *ngIf="isAdmin">
         <a class="nav-link" [routerLink]="['/user']" routerLinkActive="active">Benutzer Übersicht</a>
       </li>
     </ul>
