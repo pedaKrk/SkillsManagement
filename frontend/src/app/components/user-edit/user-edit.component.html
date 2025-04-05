@@ -116,27 +116,30 @@
             </div>
           </div>
           
-          <div class="form-group">
-            <label for="role">Rolle *</label>
-            <select id="role" formControlName="role" class="form-control" [class.is-invalid]="isFieldInvalid('role')">
-              <option value="">Rolle auswählen</option>
-              <option *ngFor="let role of userRoles" [value]="role">{{ role }}</option>
-            </select>
-            <div *ngIf="isFieldInvalid('role')" class="invalid-feedback">
-              Rolle ist erforderlich
+          <!-- Role and Employment Type only visible for admins -->
+          <ng-container *ngIf="isAdmin">
+            <div class="form-group">
+              <label for="role">Rolle *</label>
+              <select id="role" formControlName="role" class="form-control" [class.is-invalid]="isFieldInvalid('role')">
+                <option value="">Rolle auswählen</option>
+                <option *ngFor="let role of userRoles" [value]="role">{{ role }}</option>
+              </select>
+              <div *ngIf="isFieldInvalid('role')" class="invalid-feedback">
+                Rolle ist erforderlich
+              </div>
             </div>
-          </div>
-          
-          <div class="form-group">
-            <label for="employmentType">Beschäftigungsart *</label>
-            <select id="employmentType" formControlName="employmentType" class="form-control" [class.is-invalid]="isFieldInvalid('employmentType')">
-              <option value="">Beschäftigungsart auswählen</option>
-              <option *ngFor="let type of employmentTypes" [value]="type">{{ type }}</option>
-            </select>
-            <div *ngIf="isFieldInvalid('employmentType')" class="invalid-feedback">
-              Beschäftigungsart ist erforderlich
+            
+            <div class="form-group">
+              <label for="employmentType">Beschäftigungsart *</label>
+              <select id="employmentType" formControlName="employmentType" class="form-control" [class.is-invalid]="isFieldInvalid('employmentType')">
+                <option value="">Beschäftigungsart auswählen</option>
+                <option *ngFor="let type of employmentTypes" [value]="type">{{ type }}</option>
+              </select>
+              <div *ngIf="isFieldInvalid('employmentType')" class="invalid-feedback">
+                Beschäftigungsart ist erforderlich
+              </div>
             </div>
-          </div>
+          </ng-container>
         </div>
       </div>
       
