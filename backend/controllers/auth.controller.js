@@ -21,7 +21,6 @@ export const registerUser = async (req, res) => {
         const newUser = new User({
             ...req.body,
             password: hashedPassword,
-            mustChangePassword: true, // All users must change their password on first login
             // For admin creation, use the provided role; for self-registration, always use 'lecturer'
             role: isAdminCreation ? (role || 'lecturer') : 'lecturer'
         });
