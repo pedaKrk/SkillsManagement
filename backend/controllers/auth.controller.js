@@ -1,6 +1,6 @@
-import { sendEmail } from "../services/email.service.js";
-import {hashPassword, comparePassword, generatePassword} from "../services/auth.service.js";
-import { generateToken, blacklistToken } from "../services/jwt.service.js";
+import {sendEmail} from "../services/email.service.js";
+import {comparePassword, generatePassword, hashPassword} from "../services/auth.service.js";
+import {blacklistToken, generateToken} from "../services/jwt.service.js";
 import User from "../models/user.model.js";
 
 // Register new user
@@ -153,10 +153,8 @@ export const resetPassword = async (req, res) => {
 
         // Generate new password
         const newPassword = generatePassword();
-        const hashedPassword = await hashPassword(newPassword);
-
         // Update user's password and set mustChangePassword flag
-        user.password = hashedPassword;
+        user.password = await hashPassword(newPassword);
         user.mustChangePassword = true;
         await user.save();
 
