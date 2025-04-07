@@ -16,7 +16,7 @@
             <th>Benutzername</th>
             <th>Name</th>
             <th>Email</th>
-            <th class="text-end">Benutzer aktivieren</th>
+            <th class="text-end">Benutzer aktivieren/ablehnen</th>
           </tr>
         </thead>
         <tbody>
@@ -34,6 +34,9 @@
             <td class="text-end">
               <button class="btn btn-link btn-sm text-success" (click)="activateUser(user._id || '')" title="Benutzer aktivieren">
                 <i class="fas fa-user-check"></i>
+              </button>
+              <button class="btn btn-link btn-sm text-danger" (click)="rejectUser(user._id || '')" title="Benutzer ablehnen">
+                <i class="fas fa-user-times"></i>
               </button>
             </td>
           </tr>

@@ -74,4 +74,45 @@ export class InactiveUsersComponent implements OnInit {
         }
       });
   }
+
+  rejectUser(userId: string): void {
+    if (!userId) {
+      this.dialogService.showError(
+        'Fehler',
+        'Benutzer-ID fehlt.'
+      );
+      return;
+    }
+    
+    this.dialogService.showConfirmation({
+      title: 'Benutzer ablehnen',
+      message: 'Möchten Sie diese Registrierung wirklich ablehnen? Der Benutzer wird dauerhaft aus der Datenbank gelöscht.',
+      confirmText: 'Ablehnen',
+      cancelText: 'Abbrechen'
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this.userService.deleteUser(userId)
+          .pipe(
+            catchError(error => {
+              this.dialogService.showError(
+                'Fehler',
+                'Beim Ablehnen des Benutzers ist ein Fehler aufgetreten.'
+              );
+              return of(null);
+            })
+          )
+          .subscribe(response => {
+            if (response !== null) {
+              const successConfig: SuccessDialogConfig = {
+                title: 'Erfolg',
+                message: 'Die Registrierung wurde erfolgreich abgelehnt.'
+              };
+              this.dialogService.showSuccess(successConfig);
+              this.loadInactiveUsers(); // Liste neu laden
+              this.notificationService.notifyInactiveUsersCountChanged(); // Benachrichtigung senden
+            }
+          });
+      }
+    });
+  }
 } 
