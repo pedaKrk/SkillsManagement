@@ -83,6 +83,10 @@ export class LoginComponent implements OnInit {
             console.log('Password change required, redirecting...');
             this.router.navigate(['/change-password']);
             return;
+          } else if (error.error?.message === "Account is not activated yet") {
+            this.error = 'Ihr Account wurde noch nicht aktiviert. Bitte warten Sie auf die Aktivierung und versuchen Sie später erneut.';
+            this.loading = false;
+            return;
           }
         }
 

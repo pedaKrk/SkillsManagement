@@ -65,19 +65,26 @@ export const login = async (req, res) => {
                 { email: identifier },
                 { username: identifier }
             ]
-        }).select('+email +username +role +password +mustChangePassword');
+        }).select('+email +username +role +password +mustChangePassword +isActive');
         
         console.log('User found:', user ? {
             id: user._id,
             email: user.email,
             username: user.username,
-            mustChangePassword: user.mustChangePassword
+            mustChangePassword: user.mustChangePassword,
+            isActive: user.isActive
         } : 'No user');
         
         // Return error if user not found
         if (!user) {
             console.log('User not found for identifier:', identifier);
             return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        // Check if user is active
+        if (!user.isActive) {
+            console.log('Inactive user attempted to login:', identifier);
+            return res.status(403).json({ message: "Account is not activated yet" });
         }
 
         // Check if password matches
