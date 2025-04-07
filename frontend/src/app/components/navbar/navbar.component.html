@@ -11,6 +11,9 @@
       <li class="nav-item">
         <a class="nav-link" [routerLink]="['/']" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Hauptseite</a>
       </li>
+      <li class="nav-item" *ngIf="isLecturer">
+        <a class="nav-link" [routerLink]="['/profile/skills']" routerLinkActive="active">Skills verwalten</a>
+      </li>
       <li class="nav-item" *ngIf="isAdmin">
         <a class="nav-link" [routerLink]="['/admin/add-user']" routerLinkActive="active">Neue/n BenutzerIn hinzufügen</a>
       </li>
@@ -55,7 +58,7 @@
           <a class="dropdown-item" (click)="editOwnProfile($event)">
             <i class="fa fa-pencil"></i> Profil bearbeiten
           </a>
-          <a [routerLink]="['/profile/skills']" class="dropdown-item" (click)="onDropdownItemClick($event)">
+          <a [routerLink]="['/profile/skills']" class="dropdown-item" (click)="onDropdownItemClick($event)" *ngIf="!isLecturer">
             <i class="fas fa-cogs"></i> Skills verwalten
           </a>
           <a [routerLink]="['/change-password']" class="dropdown-item" (click)="onDropdownItemClick($event)">
