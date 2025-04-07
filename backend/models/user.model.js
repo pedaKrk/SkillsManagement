@@ -32,7 +32,14 @@ const userModel = new mongoose.Schema({
         unique: true
     },
     phoneNumber: String,
-    mustChangePassword: Boolean,
+    mustChangePassword: {
+        type: Boolean,
+        default: true
+    },
+    isActive:{
+        type: Boolean,
+        default: false
+    },
     employmentType: {
         type: String,
         enum: employmentTypeEnum,
