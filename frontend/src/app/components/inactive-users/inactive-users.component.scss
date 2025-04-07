@@ -1,3 +1,5 @@
+@use "sass:color";
+
 .content-container {
   padding: 2rem;
   background-color: #fff;
@@ -69,7 +71,7 @@
     
     &.text-success {
       &:hover {
-        color: darken(#198754, 10%) !important;
+        color: color.adjust(#198754, $lightness: -10%) !important;
       }
     }
     
