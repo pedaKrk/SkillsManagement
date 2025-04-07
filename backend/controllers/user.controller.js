@@ -10,7 +10,7 @@ import roleEnum from "../models/enums/role.enum.js";
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find()
+    const users = await User.find({ isActive: true })
       .select('-password')
       .populate('skills')
       .lean();
