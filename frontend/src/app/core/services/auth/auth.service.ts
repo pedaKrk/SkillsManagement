@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { BehaviorSubject, Observable, throwError, timer } from 'rxjs';
+import { map, catchError, switchMap } from 'rxjs/operators';
 import { AuthUser, LoginResponse } from '../../../models/auth.model';
 import { API_CONFIG } from '../../config/api.config';
 
@@ -12,12 +12,54 @@ export class AuthService {
   private currentUserSubject: BehaviorSubject<AuthUser | null>;
   private _needsPasswordChange: boolean = false;
   public currentUser: Observable<AuthUser | null>;
+  private checkStatusInterval: any;
 
   constructor(private http: HttpClient) {
     this.currentUserSubject = new BehaviorSubject<AuthUser | null>(
       JSON.parse(localStorage.getItem('currentUser') || 'null')
     );
     this.currentUser = this.currentUserSubject.asObservable();
+    
+    // Start periodic status check if user is logged in
+    if (this.currentUserValue) {
+      this.startStatusCheck();
+    }
+  }
+
+  private startStatusCheck() {
+    // Check every 5 minutes
+    this.checkStatusInterval = timer(0, 300000).pipe(
+      switchMap(() => this.checkUserStatus())
+    ).subscribe();
+  }
+
+  private stopStatusCheck() {
+    if (this.checkStatusInterval) {
+      this.checkStatusInterval.unsubscribe();
+    }
+  }
+
+  private checkUserStatus(): Observable<any> {
+    const currentUser = this.currentUserValue;
+    if (!currentUser) return new Observable();
+
+    return this.http.get(
+      `${API_CONFIG.baseUrl}/users/${currentUser.id}/status`,
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      map((response: any) => {
+        if (!response.isActive) {
+          console.log('User has been deactivated');
+          this.logout();
+        }
+      }),
+      catchError(error => {
+        if (error.status === 401 || error.status === 403) {
+          this.logout();
+        }
+        return throwError(() => error);
+      })
+    );
   }
 
   public get currentUserValue(): AuthUser | null {
@@ -75,6 +117,9 @@ export class AuthService {
         if (user.mustChangePassword) {
           this._needsPasswordChange = true;
         }
+
+        // Start status check after successful login
+        this.startStatusCheck();
         
         return user;
       }),
@@ -116,6 +161,9 @@ export class AuthService {
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
     this._needsPasswordChange = false;
+    
+    // Stop status check on logout
+    this.stopStatusCheck();
   }
 
   /**
@@ -173,5 +221,12 @@ export class AuthService {
       `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.auth.resetPassword}`,
       { email }
     );
+  }
+
+  private getAuthHeaders(): HttpHeaders {
+    const currentUser = this.currentUserValue;
+    return new HttpHeaders({
+      'Authorization': `Bearer ${currentUser?.token}`
+    });
   }
 } 

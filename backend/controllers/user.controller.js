@@ -396,3 +396,25 @@ export const deactivateUser = async (req, res) => {
     });
   }
 }
+
+/**
+ * Get user status
+ */
+export const getUserStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const user = await User.findById(id).select('isActive');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.status(200).json({ isActive: user.isActive });
+  } catch (error) {
+    console.error('Error getting user status:', error);
+    res.status(500).json({ 
+      message: 'Failed to get user status', 
+      error: error.message 
+    });
+  }
+}
