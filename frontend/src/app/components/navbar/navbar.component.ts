@@ -16,6 +16,7 @@ export class NavbarComponent implements OnInit {
   username: string | null = null;
   userId: string | null = null;
   isAdmin = false;
+  isCompetenceLeader = false;
   isDropdownOpen = false;
   isUserDropdownOpen = false;
 
@@ -31,9 +32,11 @@ export class NavbarComponent implements OnInit {
       this.userId = user?.id || null;
       
       if (user?.role) {
-        this.isAdmin = user.role === UserRole.ADMIN || user.role === UserRole.COMPETENCE_LEADER;
+        this.isAdmin = user.role === UserRole.ADMIN;
+        this.isCompetenceLeader = user.role === UserRole.COMPETENCE_LEADER;
       } else {
         this.isAdmin = false;
+        this.isCompetenceLeader = false;
       }
     });
   }
