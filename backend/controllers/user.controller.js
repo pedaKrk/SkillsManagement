@@ -311,3 +311,63 @@ export const removeProfileImage = async (req, res) => {
     });
   }
 };
+
+/**
+ * Get all inactive users
+ */
+export const getInactiveUsers = async (req, res) => {
+  try {
+    const inactiveUsers = await User.find({ isActive: false })
+      .select('-password')
+      .lean();
+    
+    res.status(200).json(inactiveUsers);
+  } catch (error) {
+    console.error('Error getting inactive users:', error);
+    res.status(500).json({ 
+      message: 'Failed to get inactive users', 
+      error: error.message 
+    });
+  }
+}
+
+/**
+ * Get count of inactive users
+ */
+export const getInactiveUsersCount = async (req, res) => {
+  try {
+    const count = await User.countDocuments({ isActive: false });
+    res.status(200).json(count);
+  } catch (error) {
+    console.error('Error getting inactive users count:', error);
+    res.status(500).json({ 
+      message: 'Failed to get inactive users count', 
+      error: error.message 
+    });
+  }
+}
+
+/**
+ * Activate a user
+ */
+export const activateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    user.isActive = true;
+    await user.save();
+    
+    res.status(200).json({ message: 'User activated successfully' });
+  } catch (error) {
+    console.error('Error activating user:', error);
+    res.status(500).json({ 
+      message: 'Failed to activate user', 
+      error: error.message 
+    });
+  }
+}

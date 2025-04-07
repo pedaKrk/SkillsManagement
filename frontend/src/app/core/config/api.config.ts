@@ -12,7 +12,10 @@ export const API_CONFIG = {
     users: {
       profile: '/users/profile',
       all: '/users',
-      changePassword: '/users/change-password'
+      changePassword: '/users/change-password',
+      inactive: '/users/inactive',
+      inactiveCount: '/users/inactive/count',
+      activate: '/users/:id/activate'
     },
     skills: {
       all: '/skills'

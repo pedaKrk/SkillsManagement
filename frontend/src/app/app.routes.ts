@@ -8,12 +8,14 @@ import { UserEditComponent } from './components/user-edit/user-edit.component';
 import { UserSkillsManagementComponent } from './components/user-skills-management/user-skills-management.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { AdminGuard } from './core/guards/admin.guard';
+import { FutureSkillsGuard } from './core/guards/future-skills.guard';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { PlanComponent } from './components/future-skills/plan/plan.component';
 import { DashboardComponent } from './components/future-skills/dashboard/dashboard.component';
 import { MainPageComponent } from './components/main-page/main-page.component';
 import { ManageProgressComponent } from './components/future-skills/manage-progress/manage-progress.component';
+import { InactiveUsersComponent } from './components/inactive-users/inactive-users.component';
 
 export const routes: Routes = [
     { path: 'main', component: MainPageComponent },
@@ -27,10 +29,11 @@ export const routes: Routes = [
     { path: 'change-password', component: ChangePasswordComponent, canActivate: [AuthGuard] },
     { path: 'forgot-password', component: ForgotPasswordComponent },
     { path: '', redirectTo: '/main', pathMatch: 'full' },
-    { path: 'future-skills/dashboard', component: DashboardComponent },
+    { path: 'future-skills/dashboard', component: DashboardComponent, canActivate: [AuthGuard, FutureSkillsGuard] },
     { path: 'future-skills', redirectTo: 'future-skills/dashboard', pathMatch: 'full' },
-    { path: 'future-skills/plan', component: PlanComponent },
-    { path: 'future-skills/progress', component: ManageProgressComponent },
+    { path: 'future-skills/plan', component: PlanComponent, canActivate: [AuthGuard, FutureSkillsGuard] },
+    { path: 'future-skills/progress', component: ManageProgressComponent, canActivate: [AuthGuard, FutureSkillsGuard] },
+    { path: 'inactive-users', component: InactiveUsersComponent, canActivate: [AuthGuard, FutureSkillsGuard] },
     {
         path: 'profile/skills',
         component: UserSkillsManagementComponent,

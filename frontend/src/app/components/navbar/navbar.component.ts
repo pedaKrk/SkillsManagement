@@ -1,8 +1,12 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { UserService } from '../../core/services/user/user.service';
 import { UserRole } from '../../models/enums/user-roles.enum';
+import { interval, Subscription } from 'rxjs';
+import { startWith, switchMap } from 'rxjs/operators';
+import { NotificationService } from '../../core/services/notification/notification.service';
 
 @Component({
   selector: 'app-navbar',
@@ -11,7 +15,7 @@ import { UserRole } from '../../models/enums/user-roles.enum';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, OnDestroy {
   isLoggedIn = false;
   username: string | null = null;
   userId: string | null = null;
@@ -20,11 +24,21 @@ export class NavbarComponent implements OnInit {
   isLecturer = false;
   isDropdownOpen = false;
   isUserDropdownOpen = false;
+  inactiveUsersCount = 0;
+  private subscription: Subscription = new Subscription();
 
   constructor(
     private authService: AuthService,
-    private router: Router
-  ) { }
+    private userService: UserService,
+    private router: Router,
+    private notificationService: NotificationService
+  ) {
+    this.subscription.add(
+      this.notificationService.inactiveUsersCountChanged$.subscribe(() => {
+        this.loadInactiveUsersCount();
+      })
+    );
+  }
 
   ngOnInit(): void {
     this.authService.currentUser.subscribe(user => {
@@ -36,12 +50,30 @@ export class NavbarComponent implements OnInit {
         this.isAdmin = user.role === UserRole.ADMIN;
         this.isCompetenceLeader = user.role === UserRole.COMPETENCE_LEADER;
         this.isLecturer = user.role === UserRole.LECTURER;
+
+        // Start checking for inactive users if admin or competence leader
+        if (this.isAdmin || this.isCompetenceLeader) {
+          this.loadInactiveUsersCount();
+        }
       } else {
         this.isAdmin = false;
         this.isCompetenceLeader = false;
         this.isLecturer = false;
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  loadInactiveUsersCount() {
+    if (this.isAdmin || this.isCompetenceLeader) {
+      this.userService.getInactiveUsersCount().subscribe(
+        count => this.inactiveUsersCount = count,
+        error => console.error('Fehler beim Laden der inaktiven Benutzer:', error)
+      );
+    }
   }
 
   toggleDropdown(event: Event): void {

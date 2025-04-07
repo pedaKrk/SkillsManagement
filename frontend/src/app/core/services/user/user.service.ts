@@ -124,4 +124,50 @@ export class UserService {
       })
     );
   }
+
+  /**
+   * Retrieves all inactive users
+   */
+  getInactiveUsers(): Observable<User[]> {
+    return this.http.get<User[]>(
+      `${API_CONFIG.baseUrl}/users/inactive`,
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      catchError(error => {
+        console.error('Fehler beim Laden der inaktiven Benutzer:', error);
+        return throwError(() => new Error('Inaktive Benutzer konnten nicht geladen werden'));
+      })
+    );
+  }
+
+  /**
+   * Get count of inactive users
+   */
+  getInactiveUsersCount(): Observable<number> {
+    return this.http.get<number>(
+      `${API_CONFIG.baseUrl}/users/inactive/count`,
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      catchError(error => {
+        console.error('Fehler beim Laden der Anzahl inaktiver Benutzer:', error);
+        return throwError(() => new Error('Anzahl der inaktiven Benutzer konnte nicht geladen werden'));
+      })
+    );
+  }
+
+  /**
+   * Activates a user
+   */
+  activateUser(userId: string): Observable<any> {
+    return this.http.patch(
+      `${API_CONFIG.baseUrl}/users/${userId}/activate`,
+      {},
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      catchError(error => {
+        console.error('Fehler beim Aktivieren des Benutzers:', error);
+        return throwError(() => new Error('Benutzer konnte nicht aktiviert werden'));
+      })
+    );
+  }
 } 
