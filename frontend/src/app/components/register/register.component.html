@@ -3,6 +3,7 @@
     <h2>Registrierung</h2>
     
     <div class="alert alert-info">
+      <i class="fas fa-info-circle"></i>
       <strong>Hinweis:</strong> Nach der Registrierung wird ein temporäres Passwort generiert und per E-Mail an die angegebene Adresse gesendet.
     </div>
     
@@ -71,15 +72,21 @@
           id="email"
           formControlName="email"
           class="form-control"
-          [ngClass]="{'is-invalid': submitted && registerForm.get('email')?.errors}"
+          [ngClass]="{
+            'is-invalid': (registerForm.get('email')?.dirty || registerForm.get('email')?.touched) && 
+                         registerForm.get('email')?.errors
+          }"
         />
-        <div *ngIf="submitted && registerForm.get('email')?.errors" class="invalid-feedback">
+        <div *ngIf="(registerForm.get('email')?.dirty || registerForm.get('email')?.touched) && registerForm.get('email')?.errors" 
+             class="invalid-feedback">
           <div *ngIf="registerForm.get('email')?.errors?.['required']">E-Mail ist erforderlich</div>
           <div *ngIf="registerForm.get('email')?.errors?.['email']">Bitte geben Sie eine gültige E-Mail-Adresse ein</div>
+          <div *ngIf="registerForm.get('email')?.errors?.['technikumEmail']">Nur E-Mail-Adressen mit &#64;technikum-wien.at sind erlaubt</div>
         </div>
-        <small class="form-text text-muted">
-          Ein temporäres Passwort wird automatisch generiert und an diese E-Mail-Adresse gesendet.
-        </small>
+        <div class="alert alert-info mt-2">
+          <i class="fas fa-info-circle"></i>
+          Bitte verwenden Sie Ihre &#64;technikum-wien.at E-Mail-Adresse für die Registrierung.
+        </div>
       </div>
 
       <div class="form-group">
