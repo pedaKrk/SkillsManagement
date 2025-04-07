@@ -262,16 +262,27 @@
               >
                 <i class="fa fa-user"></i>
               </button>
+              <!-- Deactivate Button - for Admins and Competence Leaders -->
+              <button 
+                class="btn btn-icon btn-deactivate" 
+                (click)="deactivateUser(user)" 
+                *ngIf="isAdmin || isCompetenceLeader"
+                title="Benutzer deaktivieren"
+              >
+                <i class="fa fa-user-slash"></i>
+              </button>
               
               <!-- Delete Button - only for Admins -->
               <button 
                 class="btn btn-icon btn-delete" 
-                (click)="deleteUser(user.id); $event.stopPropagation()" 
-                title="Benutzer löschen"
+                (click)="confirmDeleteUser(user)" 
                 *ngIf="isAdmin"
+                title="Benutzer löschen"
               >
                 <i class="fa fa-trash"></i>
               </button>
+              
+              
             </div>
           </td>
         </tr>

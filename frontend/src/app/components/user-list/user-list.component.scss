@@ -291,44 +291,38 @@
   }
   
   &.btn-icon {
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    margin: 0 3px;
-    transition: transform 0.2s ease;
+    padding: 0.25rem 0.5rem;
     border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
     
-    i {
-      font-size: 16px;
-      color: white;
-    }
-    
-    &:hover {
-      transform: scale(1.05);
-    }
-    
-    &.btn-details {
-      background-color: #5e35b1;
+    &.btn-edit {
+      background-color: #95c11f;  // FH Logo Grün
       
       &:hover {
-        background-color: #4527a0;
+        background-color: #86ad1b;
       }
     }
     
-    &.btn-edit {
-      background-color: #4db6ac;
+    &.btn-details {
+      background-color: #004477;  // FH Logo Blau
       
       &:hover {
-        background-color: #26a69a;
+        background-color: #003366;
+      }
+    }
+    
+    &.btn-deactivate {
+      background-color: #666666;  // FH Logo Grau
+      
+      &:hover {
+        background-color: #555555;
       }
     }
     
     &.btn-delete {
-      background-color: #e53935;
+      background-color: #e53935;  // Rot 
       
       &:hover {
         background-color: #c62828;
@@ -489,24 +483,32 @@
           transform: scale(1.05);
         }
         
-        &.btn-details {
-          background-color: #5e35b1;
+        &.btn-edit {
+          background-color: #95c11f;  // FH Logo Grün
           
           &:hover {
-            background-color: #4527a0;
+            background-color: #86ad1b;
           }
         }
         
-        &.btn-edit {
-          background-color: #4db6ac;
+        &.btn-details {
+          background-color: #004477;  // FH Logo Blau
           
           &:hover {
-            background-color: #26a69a;
+            background-color: #003366;
+          }
+        }
+        
+        &.btn-deactivate {
+          background-color: #666666;  // FH Logo Grau
+          
+          &:hover {
+            background-color: #555555;
           }
         }
         
         &.btn-delete {
-          background-color: #e53935;
+          background-color: #e53935;  // Rot bleibt gleich
           
           &:hover {
             background-color: #c62828;

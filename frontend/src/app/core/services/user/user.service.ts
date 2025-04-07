@@ -170,4 +170,20 @@ export class UserService {
       })
     );
   }
+
+  /**
+   * Deactivates a user
+   */
+  deactivateUser(userId: string): Observable<any> {
+    return this.http.patch(
+      `${API_CONFIG.baseUrl}/users/${userId}/deactivate`,
+      {},
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      catchError(error => {
+        console.error('Fehler beim Deaktivieren des Benutzers:', error);
+        return throwError(() => new Error('Benutzer konnte nicht deaktiviert werden'));
+      })
+    );
+  }
 } 

@@ -10,7 +10,8 @@ import {
     removeProfileImage,
     getInactiveUsers,
     getInactiveUsersCount,
-    activateUser
+    activateUser,
+    deactivateUser
 } from '../controllers/user.controller.js'
 import { authenticateToken, authorizeRole } from '../middleware/auth.middleware.js'
 import { handleProfileImageUpload } from '../middleware/upload.middleware.js'
@@ -36,5 +37,6 @@ router.post('/change-password', changePassword)
 router.post('/:id/profile-image', authenticateToken, handleProfileImageUpload, uploadProfileImage)
 router.delete('/:id/profile-image', authenticateToken, removeProfileImage)
 router.patch('/:id/activate', authenticateToken, authorizeRole(['Admin', 'competence_leader']), activateUser)
+router.patch('/:id/deactivate', authenticateToken, authorizeRole(['Admin', 'competence_leader']), deactivateUser)
 
 export default router

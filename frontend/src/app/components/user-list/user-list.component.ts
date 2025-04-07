@@ -10,6 +10,7 @@ import { User, Skill } from '../../models/user.model';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
 import { UserRole } from '../../models/enums/user-roles.enum';
+import { NotificationService } from '../../core/services/notification/notification.service';
 
 @Component({
   selector: 'app-user-list',
@@ -80,7 +81,8 @@ export class UserListComponent implements OnInit, OnDestroy {
     private emailService: EmailService,
     private authService: AuthService,
     private dialogService: DialogService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {}
   
   ngOnInit(): void {
@@ -810,5 +812,65 @@ export class UserListComponent implements OnInit, OnDestroy {
   openDeleteDialog(user: User): void {
     this.userToDelete = user;
     this.deleteUser(user.id);
+  }
+  
+  // Deactivate user
+  deactivateUser(user: User): void {
+    if (!this.isAdmin && !this.isCompetenceLeader) {
+      this.dialogService.showError(
+        'Keine Berechtigung',
+        'Sie haben keine Berechtigung, Benutzer zu deaktivieren. Diese Aktion ist nur für Administratoren und Competence Leader verfügbar.'
+      );
+      return;
+    }
+
+    this.dialogService.showConfirmation({
+      title: 'Benutzer deaktivieren',
+      message: `Möchten Sie den Benutzer "${user.firstName} ${user.lastName}" wirklich deaktivieren?`,
+      confirmText: 'Deaktivieren',
+      cancelText: 'Abbrechen'
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this.isLoading = true;
+        this.userService.deactivateUser(user.id).subscribe({
+          next: () => {
+            this.isLoading = false;
+            // Remove the user from the list
+            this.users = this.users.filter(u => u.id !== user.id);
+            this.filteredUsers = this.filteredUsers.filter(u => u.id !== user.id);
+            
+            // Show success message
+            this.dialogService.showSuccess({
+              title: 'Benutzer deaktiviert',
+              message: `Der Benutzer "${user.firstName} ${user.lastName}" wurde erfolgreich deaktiviert.`,
+              buttonText: 'OK'
+            });
+            
+            // Notify about inactive users count change
+            this.notificationService.notifyInactiveUsersCountChanged();
+          },
+          error: (error) => {
+            console.error('Error deactivating user:', error);
+            this.isLoading = false;
+            
+            let errorMessage = 'Fehler beim Deaktivieren des Benutzers. ';
+            
+            if (error.status === 401) {
+              errorMessage += 'Sie sind nicht autorisiert. Bitte melden Sie sich erneut an.';
+              this.authService.logout();
+              setTimeout(() => {
+                this.router.navigate(['/login']);
+              }, 1500);
+            } else if (error.status === 403) {
+              errorMessage += 'Sie haben keine Berechtigung, Benutzer zu deaktivieren.';
+            } else {
+              errorMessage += 'Bitte versuchen Sie es später erneut.';
+            }
+            
+            this.dialogService.showError('Fehler', errorMessage);
+          }
+        });
+      }
+    });
   }
 }
