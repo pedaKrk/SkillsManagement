@@ -16,18 +16,19 @@ import { DashboardComponent } from './components/future-skills/dashboard/dashboa
 import { MainPageComponent } from './components/main-page/main-page.component';
 import { ManageProgressComponent } from './components/future-skills/manage-progress/manage-progress.component';
 import { InactiveUsersComponent } from './components/inactive-users/inactive-users.component';
+import { NoAuthGuard } from './core/guards/no-auth.guard';
 
 export const routes: Routes = [
     { path: 'main', component: MainPageComponent },
     { path: 'user', component: UserComponent, canActivate: [AuthGuard, AdminGuard] },
-    { path: 'login', component: LoginComponent },
-    { path: 'register', component: RegisterComponent },
+    { path: 'login', component: LoginComponent, canActivate: [NoAuthGuard] },
+    { path: 'register', component: RegisterComponent, canActivate: [NoAuthGuard] },
     { path: 'admin/add-user', component: AddUserComponent, canActivate: [AuthGuard, AdminGuard] },
     { path: 'users/:id', component: UserDetailsComponent, canActivate: [AuthGuard] },
     { path: 'users/:id/edit', component: UserEditComponent, canActivate: [AuthGuard] },
     { path: 'users/:id/skills', component: UserSkillsManagementComponent, data: { standalone: true }, canActivate: [AuthGuard] },
     { path: 'change-password', component: ChangePasswordComponent, canActivate: [AuthGuard] },
-    { path: 'forgot-password', component: ForgotPasswordComponent },
+    { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [NoAuthGuard] },
     { path: '', redirectTo: '/main', pathMatch: 'full' },
     { path: 'future-skills/dashboard', component: DashboardComponent, canActivate: [AuthGuard, FutureSkillsGuard] },
     { path: 'future-skills', redirectTo: 'future-skills/dashboard', pathMatch: 'full' },
