@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New User Registration Notification</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; margin: 0; padding: 0; }
+        .container { background-color: #ffffff; margin: 20px; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+        h1 { color: #007bff; }
+        p { font-size: 16px; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>New User Registered!</h1>
+    <p>Dear Team,</p>
+    <p>We are excited to inform you that a new user has successfully registered in the Skills Management System.</p>
+
+    <p><strong>User Details:</strong></p>
+    <ul>
+        <li><strong>Name:</strong> {{userName}}</li>
+        <li><strong>Email:</strong> {{userEmail}}</li>
+        <li><strong>Role:</strong> {{userRole}}</li>
+    </ul>
+
+    <p>Please make sure to activate the user. <a>link</a></p>
+
+</div>
+
+</body>
+</html>
