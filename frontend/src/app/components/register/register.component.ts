@@ -1,16 +1,32 @@
 // Import required Angular modules and services
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth/auth.service';
+
+// Custom validator function for technikum-wien.at email
+function technikumEmailValidator(control: AbstractControl): ValidationErrors | null {
+  if (!control.value) {
+    return null;
+  }
+  
+  const email = control.value.toLowerCase();
+  // Überprüfen Sie, ob nach dem @ etwas anderes als technikum-wien.at kommt
+  if (email.includes('@') && !email.endsWith('@technikum-wien.at')) {
+    return { technikumEmail: true };
+  }
+  
+  return null;
+}
 
 @Component({
   selector: 'app-register',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss']
+  styleUrls: ['./register.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class RegisterComponent implements OnInit {
   // Form properties
@@ -27,7 +43,10 @@ export class RegisterComponent implements OnInit {
     // Initialize registration form with required fields
     this.registerForm = this.formBuilder.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', {
+        validators: [Validators.required, Validators.email, technikumEmailValidator],
+        updateOn: 'change'
+      }],
       title: [''], // Optional title field
       phoneNumber: [''], // Optional phone number field
       firstName: ['', Validators.required],

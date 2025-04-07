@@ -4,6 +4,9 @@
   align-items: center;
   min-height: 80vh;
   background-color: #f5f5f5;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 .register-box {
@@ -24,7 +27,7 @@
 h2 {
   color: #0077a9;
   text-align: center;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
   font-weight: 600;
   position: relative;
   
@@ -245,4 +248,50 @@ select.form-control {
 
 .mt-3 {
   margin-top: 15px;
+}
+
+.custom-info-box {
+  display: flex;
+  align-items: flex-start;
+  background: #0077a9;
+  border: none;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 30px 0;
+  transition: all 0.3s ease;
+  position: relative;
+  box-shadow: 0 2px 10px rgba(0, 119, 169, 0.2);
+  color: white;
+  
+  &:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px rgba(0, 119, 169, 0.4);
+  }
+  
+  .info-icon {
+    flex-shrink: 0;
+    margin-right: 15px;
+    font-size: 24px;
+    line-height: 1;
+    padding-top: 3px;
+  }
+  
+  .info-content {
+    color: white;
+    line-height: 1.6;
+    
+    strong {
+      display: block;
+      color: white;
+      font-size: 1.1em;
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+}
+
+form {
+  margin-top: 30px;
 } 
