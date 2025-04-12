@@ -10,7 +10,7 @@ import authRoutes from "./routes/auth.routes.js";
 import emailRoutes from "./routes/email.routes.js";
 
 import connectToDB from "./database/mongodb.js";
-import {connectToSMTP} from "./services/email.service.js";
+import {mailService} from "./services/mail/mail.service.js";
 
 import { PORT } from "./config/env.js";
 
@@ -40,7 +40,7 @@ app.use('/api/v1/email', emailRoutes)
 app.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   await connectToDB()
-  await connectToSMTP()
+  await mailService.connect()
 })
 
 export default app
