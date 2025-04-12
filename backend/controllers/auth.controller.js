@@ -1,9 +1,8 @@
-import {sendEmail, sendEmailToMultipleRecipients} from "../services/email.service.js";
 import {comparePassword, generatePassword, hashPassword} from "../services/auth.service.js";
 import {blacklistToken, generateToken} from "../services/jwt.service.js";
+import {mailService} from "../services/mail/mail.service.js";
 import User from "../models/user.model.js";
 import roles from "../models/enums/role.enum.js";
-import {loadRegistrationNotificationTemplate} from "../services/template.service.js";
 
 // Register new user
 export const registerUser = async (req, res) => {
@@ -29,9 +28,10 @@ export const registerUser = async (req, res) => {
         
         await newUser.save();
 
-        // Send email with generated password to all users
-        await sendEmail(email, userPassword);
+        // Send email with generated password to user
+        await mailService.sendDefaultPasswordEmail(newUser.email, newUser.password);
 
+        /*
         // Notify all lecturers about new user
         const emails = await User.find({role: { $in: [roles.LECTURER, roles.ADMIN] }}).select('email');
         const recipients = emails.map(user => user.email);
@@ -43,6 +43,8 @@ export const registerUser = async (req, res) => {
             "A new user registered to the SkillsManagement System!",
             message
             )
+
+         */
 
         res.status(201).json({ 
             message: "User successfully created"
