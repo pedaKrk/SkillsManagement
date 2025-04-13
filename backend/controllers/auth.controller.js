@@ -25,11 +25,13 @@ export const registerUser = async (req, res) => {
             // For admin creation, use the provided role; for self-registration, always use 'lecturer'
             role: isAdminCreation ? (role || 'lecturer') : 'lecturer'
         });
-        
-        await newUser.save();
 
         // Send email with generated password to user
-        await mailService.sendDefaultPasswordEmail(newUser.email, newUser.password);
+        await mailService.sendDefaultPasswordEmail(newUser.email, {password: userPassword});
+
+        await newUser.save();
+
+
 
         /*
         // Notify all lecturers about new user
