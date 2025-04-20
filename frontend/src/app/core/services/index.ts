@@ -13,3 +13,7 @@ export * from './email/email.service';
 // Dialog Services
 export * from './dialog';
 
+//Future-skills Services
+export * from './future-skills/plan.service';
+
+

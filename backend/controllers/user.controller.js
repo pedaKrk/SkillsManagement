@@ -57,6 +57,16 @@ export const getUserById = async (req, res) => {
   }
 }
 
+export const getAllLecturers = async (req, res) => {
+  try {
+    const lecturers = await User.find({ role: { $regex: /^lecturer$/i } })
+        .select('title firstName lastName');
+    res.status(200).json(lecturers);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching lecturers', error: err });
+  }
+};
+
 export const createUser = async (req, res) => {
   const session = await mongoose.startSession()
   session.startTransaction()

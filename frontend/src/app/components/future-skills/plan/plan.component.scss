@@ -166,12 +166,12 @@ input, select {
   padding: 5px 10px;
   border-radius: 4px;
   transition: all 0.2s;
-  font-size: 14px;
+  font-size: medium;
 }
 
 /* Edit Button */
 .edit {
-  color: blue;
+  color: #1956b1;
   &:hover {
     text-decoration: underline;
   }
@@ -179,7 +179,7 @@ input, select {
 
 /* Delete Button */
 .delete {
-  color: red;
+  color: rgba(184, 16, 16, 0.93);
   &:hover {
     text-decoration: underline;
   }
@@ -187,7 +187,7 @@ input, select {
 
 /* Save Button */
 .save {
-  color: green;
+  color: #338c33;
   &:hover {
     text-decoration: underline;
   }
@@ -195,7 +195,7 @@ input, select {
 
 /* Cancel Button */
 .cancel {
-  color: red;
+  color: rgba(184, 16, 16, 0.93);
   &:hover {
     text-decoration: underline;
   }
