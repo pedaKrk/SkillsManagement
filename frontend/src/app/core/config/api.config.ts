@@ -15,12 +15,23 @@ export const API_CONFIG = {
       changePassword: '/users/change-password',
       inactive: '/users/inactive',
       inactiveCount: '/users/inactive/count',
-      activate: '/users/:id/activate'
+      activate: '/users/:id/activate',
+      lecturers: '/users'
     },
     skills: {
-      all: '/skills'
+      all: '/skills',
+      names: '/skills/names',
+      levels: '/skills/levels'
+    },
+
+    futureSkills: {
+      all: '/future-skills',
+      create: '/future-skills',
+      update: (id: string) => `/future-skills/${id}`,
+      delete: (id: string) => `/future-skills/${id}`,
+      skillLevels: '/future-skills/skill-levels'
     },
     comments: '/comments'
     //  API-Endpoints
   }
-}; 
+};

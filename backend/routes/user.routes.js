@@ -16,6 +16,7 @@ import {
 } from '../controllers/user.controller.js'
 import { authenticateToken, authorizeRole } from '../middleware/auth.middleware.js'
 import { handleProfileImageUpload } from '../middleware/upload.middleware.js'
+import {getAllLecturers} from "../controllers/user.controller.js";
 const router = express.Router()
 
 
@@ -24,6 +25,9 @@ router.get('/inactive/count', authenticateToken, authorizeRole(['Admin', 'compet
 
 
 router.get('/', authenticateToken, getAllUsers)
+
+router.get('/', authenticateToken, getAllLecturers);
+
 router.get('/me', authenticateToken, (req, res) => {
     req.params.id = req.user.id || req.user._id;
     getUserById(req, res);
