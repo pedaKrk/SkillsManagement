@@ -32,21 +32,10 @@ export const registerUser = async (req, res) => {
         await newUser.save();
 
 
+        const users = await User.find({role: { $in: [roles.COMPETENCE_LEADER, roles.ADMIN] }}).select('email');
+        const emails = users.map(user => user.email);
 
-        /*
-        // Notify all lecturers about new user
-        const emails = await User.find({role: { $in: [roles.LECTURER, roles.ADMIN] }}).select('email');
-        const recipients = emails.map(user => user.email);
-
-        const message = loadRegistrationNotificationTemplate(newUser.username, newUser.email, newUser.role);
-
-        await sendEmailToMultipleRecipients(
-            recipients,
-            "A new user registered to the SkillsManagement System!",
-            message
-            )
-
-         */
+        await mailService.sendNewRegistrationNotificationEmail(emails, {userName: newUser.username, userEmail: newUser.email, userRole: newUser.role});
 
         res.status(201).json({ 
             message: "User successfully created"
