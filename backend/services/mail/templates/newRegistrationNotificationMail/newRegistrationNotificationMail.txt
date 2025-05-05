@@ -1,0 +1,12 @@
+New User Registered!
+
+Dear Team,
+
+We are excited to inform you that a new user has successfully registered in the Skills Management System.
+
+User Details:
+Name: {{userName}}
+Email: {{userEmail}}
+Role: {{userRole}}
+
+Please make sure to activate the user. link
