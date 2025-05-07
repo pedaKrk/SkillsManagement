@@ -9,21 +9,45 @@ class MailTemplateService {
     }
 
     /**
-     * Generates both HTML and plain-text versions of an email from a template and data.
+     * Generates HTML and/or plain-text versions of an email from a template and data.
      *
      * @param {string} templateName - The name of the template (template folder and file prefix).
      * @param {Object} data - The data to populate the template.
-     * @returns {{ html: string, text: string }} The compiled HTML and plain-text email content.
+     * @param {boolean} loadText - Whether to load the plain-text version of the template. Defaults to true.
+     * @param {boolean} loadHtml - Whether to load the HTML version of the template. Defaults to true.
+     * @returns {Object} The compiled email content. The object may contain the following properties:
+     * - 'html' (string, optional): The compiled HTML version of the email, only present if `loadHtml` is true.
+     * - 'text' (string, optional): The compiled plain-text version of the email, only present if `loadText` is true.
+     *
+     * The returned object will include only the fields that were requested (i.e., based on `loadText` and `loadHtml` flags).
+     *
      * @throws Error Will throw an error if any of the template files cannot be loaded or compiled.
+
+     * @example
+     * // Generates both HTML and plain-text email content
+     * const { html, text } = mailTemplateService.generateEmailContent('welcomeTemplate', { username: 'JohnDoe' });
+     *
+     * @example
+     * // Only generates the plain-text email content
+     * const { text } = mailTemplateService.generateEmailContent('welcomeTemplate', { username: 'JohnDoe' }, true, false);
+     *
+     * @example
+     * // Only generates the HTML email content
+     * const { html } = mailTemplateService.generateEmailContent('welcomeTemplate', { username: 'JohnDoe' }, false, true);
      */
-    generateEmailContent(templateName, data){
-        const htmlTemplate = this.loadTemplate(templateName, "html");
-        const txtTemplate = this.loadTemplate(templateName, "txt");
+    generateEmailContent(templateName, data, loadText = true, loadHtml = true){
+        const result = {}
 
-        const html = this.compileTemplate(htmlTemplate, data);
-        const text = this.compileTemplate(txtTemplate, data);
+        if(loadText){
+            const textTemplate = this.loadTemplate(templateName, "txt")
+            result.text = this.compileTemplate(textTemplate, data);
+        }
+        if(loadHtml){
+            const htmlTemplate = this.loadTemplate(templateName, "html")
+            result.html = this.compileTemplate(htmlTemplate, data);
+        }
 
-        return {html, text};
+        return result;
     }
 
     /**
