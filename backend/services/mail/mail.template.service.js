@@ -36,18 +36,28 @@ class MailTemplateService {
      * const { html } = mailTemplateService.generateEmailContent('welcomeTemplate', { username: 'JohnDoe' }, false, true);
      */
     generateEmailContent(templateName, data, loadText = true, loadHtml = true){
-        const result = {}
-
-        if(loadText){
-            const textTemplate = this.loadTemplate(templateName, "txt")
-            result.text = this.compileTemplate(textTemplate, data);
-        }
-        if(loadHtml){
-            const htmlTemplate = this.loadTemplate(templateName, "html")
-            result.html = this.compileTemplate(htmlTemplate, data);
+        if(!loadText && !loadHtml){
+            console.error("Both `loadText` and `loadHtml` are false, so no templates will be loaded.")
+            throw new Error("Both `loadText` and `loadHtml` are false, so no templates will be loaded.")
         }
 
-        return result;
+        try {
+            const result = {}
+
+            if (loadText) {
+                const textTemplate = this.loadTemplate(templateName, "txt")
+                result.text = this.compileTemplate(textTemplate, data);
+            }
+            if (loadHtml) {
+                const htmlTemplate = this.loadTemplate(templateName, "html")
+                result.html = this.compileTemplate(htmlTemplate, data);
+            }
+
+            return result;
+        }catch(error){
+            console.error("Error while generating email content", error.message);
+            throw new Error(error.message);
+        }
     }
 
     /**
@@ -73,13 +83,19 @@ class MailTemplateService {
      * Compiles a Handlebars template with the provided data.
      *
      * @private
-     * @param {string} templateContent - The raw template content.
-     * @param {Object} data - The data to inject into the template.
-     * @returns {string} The compiled output.
+     * @param {string} templateContent - The raw template content (Handlebars template).
+     * @param {Object} data - The data to inject into the template (key-value pairs).
+     * @returns {string} The compiled output (final string after template compilation).
+     * @throws {Error} Will throw an error if the template compilation fails.
      */
     compileTemplate(templateContent, data){
-        const template = Handlebars.compile(templateContent);
-        return template(data);
+        try {
+            const template = Handlebars.compile(templateContent);
+            return template(data);
+        }catch(error){
+            console.error(`Error while compiling Template: ${error.message}`);
+            throw new Error(`Failed to compile template: ${error.message}`);
+        }
     }
 }
 
