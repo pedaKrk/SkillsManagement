@@ -7,7 +7,6 @@ const router = express.Router();
 // Route to send an email to multiple recipients
 // POST /api/email/send
 router.post('/send', authenticateToken, sendEmail);
-// later use auth middleware
-router.get('/future-skill-status-email', getFutureSkillStatusEmail);
+router.get('/future-skill-status-email', authenticateToken, getFutureSkillStatusEmail);
 
 export default router; 
