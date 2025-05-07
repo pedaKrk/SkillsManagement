@@ -1,5 +1,5 @@
 import express from 'express';
-import { sendEmail } from '../controllers/email.controller.js';
+import { sendEmail, getFutureSkillStatusEmail } from '../controllers/email.controller.js';
 import { authenticateToken } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
@@ -7,5 +7,7 @@ const router = express.Router();
 // Route to send an email to multiple recipients
 // POST /api/email/send
 router.post('/send', authenticateToken, sendEmail);
+// later use auth middleware
+router.get('/future-skill-status-email', getFutureSkillStatusEmail);
 
 export default router; 
