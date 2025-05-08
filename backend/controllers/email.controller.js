@@ -1,4 +1,5 @@
 import {mailService} from "../services/mail/mail.service.js";
+import {sendEmailSchema, getFutureSkillStatusEmailSchema} from "../validators/email.validator.js";
 
 /**
  * Sends an email
@@ -8,15 +9,16 @@ import {mailService} from "../services/mail/mail.service.js";
  */
 export const sendEmail = async (req, res) => {
     try {
-        const { recipients, subject, message } = req.body;
+        const { error } = sendEmailSchema.validate(req.body);
 
-        // Check if all required fields are present
-        if (!recipients || !subject || !message) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Recipients, subject, and message are required' 
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                message: error.details[0].message,
             });
         }
+
+        const { recipients, subject, message } = req.body;
 
         const result = await mailService.sendEmail(recipients, subject, null, message);
 
@@ -37,14 +39,17 @@ export const sendEmail = async (req, res) => {
 
 export const getFutureSkillStatusEmail = async (req, res) => {
     try{
-        const { userName, skillName } = req.body;
+        const { error } = getFutureSkillStatusEmailSchema.validate(req.body);
 
-        if (!userName || !skillName) {
+        if (error) {
             return res.status(400).json({
                 success: false,
-                message: 'userName and skillName are required'
-            })
+                message: error.details[0].message,
+            });
         }
+
+        const { userName, skillName } = req.body;
+
         const template = mailService.loadFutureSkillStatusEmail( { userName: userName, skillName: skillName });
         return res.status(200).json({
             success: true,
