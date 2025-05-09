@@ -57,6 +57,12 @@ export class UserSkillsManagementComponent implements OnInit {
     this.route.params.subscribe(params => {
       if (params['id']) {
         this.userId = params['id'];
+      } else {
+        // Fallback
+        const currentUser = this.authService.currentUserValue;
+        if (currentUser && currentUser.id) {
+          this.userId = currentUser.id;
+        }
       }
       this.loadUserData();
     });
