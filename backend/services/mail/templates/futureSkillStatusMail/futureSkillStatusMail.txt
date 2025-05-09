@@ -1,0 +1,10 @@
+Hallo {{userName}},
+
+wir hoffen, es geht dir gut! Wir möchten dich gerne nach dem aktuellen Status deines Skills "{{skillName}}" fragen.
+
+Könntest du uns bitte mitteilen, wie weit du mit diesem Skill fortgeschritten bist? Falls du Unterstützung benötigst oder Fragen hast, lass es uns wissen.
+
+Wir freuen uns auf deine Rückmeldung und stehen für weitere Informationen jederzeit zur Verfügung.
+
+Beste Grüße,
+Das Team
