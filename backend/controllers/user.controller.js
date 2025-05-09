@@ -12,7 +12,14 @@ export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find({ isActive: true })
       .select('-password')
-      .populate('skills')
+      .populate({
+        path: 'skills.skill',
+        select: 'name description level category parent_id',
+      })
+      .populate({
+        path: 'skills.addedBy',
+        select: 'firstName lastName email',
+      })
       .lean();
     res.status(200).json(users);
   } catch (error) {
@@ -35,7 +42,14 @@ export const getUserById = async (req, res) => {
     
     try {
       const user = await User.findById(id)
-        .populate('skills')
+        .populate({
+          path: 'skills.skill',
+          select: 'name description level category parent_id',
+        })
+        .populate({
+          path: 'skills.addedBy',
+          select: 'firstName lastName email',
+        })
         .populate('futureSkills')
         .populate('comments')
       
@@ -44,7 +58,10 @@ export const getUserById = async (req, res) => {
       console.error('Error populating user references:', populateError)
       
       try {
-        const userWithSkills = await User.findById(id).populate('skills')
+        const userWithSkills = await User.findById(id).populate({
+          path: 'skills.skill',
+          select: 'name description level category parent_id',
+        })
         res.status(200).json(userWithSkills)
       } catch (skillsError) {
         console.error('Error populating skills:', skillsError)
@@ -95,7 +112,17 @@ export const updateUser = async (req, res) => {
   try {
     const { id } = req.params
     const userData = req.body
-    
+
+    // Skills mapping
+    if (userData.skills && Array.isArray(userData.skills)) {
+      userData.skills = userData.skills.map(skillEntry => ({
+        skill: skillEntry.skill,
+        level: skillEntry.level, 
+        addedAt: skillEntry.addedAt,
+        addedBy: skillEntry.addedBy
+      }));
+    }
+
     const isOwnProfile = req.user.id === id || req.user._id === id
     const userRole = req.user.role.toLowerCase()
     const isAdmin = userRole === roleEnum.ADMIN.toLowerCase()
@@ -195,7 +222,6 @@ export const changePassword = async (req, res) => {
     console.log('Hashing new password...');
     const hashedPassword = await hashPassword(newPassword);
     
-    // Direkte Aktualisierung mit findOneAndUpdate
     console.log('Updating user password and mustChangePassword flag...');
     const updatedUser = await User.findOneAndUpdate(
       { _id: user._id },

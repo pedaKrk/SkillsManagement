@@ -396,3 +396,64 @@
     }
   }
 }
+
+.level-toggle-group {
+  margin-left: 10px;
+  .level-toggle-btn {
+    margin-right: 4px;
+    padding: 4px 12px;
+    border: none;
+    border-radius: 16px;
+    background: #e0e0e0;
+    color: #333;
+    cursor: pointer;
+    transition: background 0.2s;
+    &.selected {
+      background: #1976d2;
+      color: #fff;
+      font-weight: bold;
+    }
+  }
+}
+
+.level-badge {
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: 12px;
+  margin-left: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  &.beginner { background: #2196f3; color: #fff; }
+  &.intermediate { background: #1976d2; color: #fff; }
+  &.advanced { background: #0077a9; color: #fff; }
+  &.no-level { background: #bdbdbd; color: #fff; }
+}
+
+.level-dropdown {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #1976d2;
+  border-radius: 8px;
+  margin-top: 8px;
+  z-index: 20;
+  min-width: 140px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  padding: 0.5rem 0;
+}
+
+.level-option {
+  padding: 12px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  color: #1976d2;
+  &:hover {
+    background: #e3f2fd;
+    color: #1976d2;
+  }
+  &.selected {
+    background: #1976d2;
+    color: #fff;
+    font-weight: bold;
+  }
+}

@@ -59,6 +59,10 @@ const userModel = new mongoose.Schema({
             ref: "Skills",
             required: true
         },
+        level: {
+            type: String,
+            required: false
+        },
         addedAt: {
             type: Date,
             default: Date.now

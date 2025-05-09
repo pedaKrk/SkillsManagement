@@ -76,13 +76,14 @@
       <!-- Skills -->
       <div class="details-section">
         <h2 class="section-title">Skills</h2>
-        
         <div class="skills-container" *ngIf="user.skills && user.skills.length > 0">
-          <span class="skill-badge" *ngFor="let skill of user.skills">
-            {{ skill.name }}
-          </span>
+          <div class="skill-detail" *ngFor="let entry of user.skills">
+            <span class="skill-badge">{{ entry.skill.name }}</span>
+            <span *ngIf="entry.skill.level">Level: {{ entry.skill.level }}</span>
+            <span *ngIf="entry.addedBy">Hinzugefügt von: {{ entry.addedBy.firstName }} {{ entry.addedBy.lastName }}</span>
+            <span *ngIf="entry.addedAt">am {{ entry.addedAt | date:'short' }}</span>
+          </div>
         </div>
-        
         <div class="no-skills" *ngIf="!user.skills || user.skills.length === 0">
           Keine Fähigkeiten angegeben
         </div>

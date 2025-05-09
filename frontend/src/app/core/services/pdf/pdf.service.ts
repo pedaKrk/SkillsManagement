@@ -74,7 +74,7 @@ export class PdfService {
       let skillsText = '-';
       if (user.skills && user.skills.length > 0) {
         skillsText = user.skills
-          .map(skill => skill.name || this.getSkillName(skill))
+          .map(skill => skill.skill.name || this.getSkillName(skill))
           .filter(name => name !== '-')
           .join(', ');
       }
