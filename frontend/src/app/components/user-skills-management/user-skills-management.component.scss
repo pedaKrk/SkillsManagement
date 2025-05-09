@@ -148,7 +148,49 @@
 .selected-skills-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 1.2rem;
+}
+
+.skill-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  padding: 1.1rem 1.5rem 0.9rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+}
+
+.skill-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.3rem;
+}
+
+.skill-name {
+  font-size: 1.13rem;
+  font-weight: 600;
+  color: #1976d2;
+  letter-spacing: 0.01em;
+}
+
+.level-badge {
+  padding: 2px 14px;
+  border-radius: 12px;
+  font-size: 0.98rem;
+  font-weight: 500;
+  margin-left: 0.2em;
+  &.beginner { background: #2196f3; color: #fff; }
+  &.intermediate { background: #1976d2; color: #fff; }
+  &.advanced { background: #0077a9; color: #fff; }
+}
+
+.skill-meta-modern {
+  color: #6c757d;
+  font-size: 0.97rem;
+  margin-left: 2px;
+  margin-top: 2px;
 }
 
 .skill-badge {
@@ -414,19 +456,6 @@
       font-weight: bold;
     }
   }
-}
-
-.level-badge {
-  display: inline-block;
-  padding: 2px 12px;
-  border-radius: 12px;
-  margin-left: 10px;
-  cursor: pointer;
-  font-weight: 500;
-  &.beginner { background: #2196f3; color: #fff; }
-  &.intermediate { background: #1976d2; color: #fff; }
-  &.advanced { background: #0077a9; color: #fff; }
-  &.no-level { background: #bdbdbd; color: #fff; }
 }
 
 .level-dropdown {

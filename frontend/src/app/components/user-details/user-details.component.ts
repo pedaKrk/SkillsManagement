@@ -95,6 +95,10 @@ export class UserDetailsComponent implements OnInit {
     this.userService.getUserById(this.userId).subscribe({
       next: (user) => {
         this.user = user;
+        this.user.skills = (this.user.skills || []).map(entry => ({
+          ...entry,
+          skill: { ...entry.skill, level: (entry as any).level }
+        }));
         this.loadComments();
         this.isLoading = false;
       },
@@ -399,7 +403,6 @@ export class UserDetailsComponent implements OnInit {
    * returns the initials of the user (for the avatar)
    */
   getUserInitials(): string {
-    console.log('Generating initials for user:', this.user);
     
     if (!this.user) {
       console.log('No user object available');
@@ -415,7 +418,6 @@ export class UserDetailsComponent implements OnInit {
     }
     
     const initials = (this.user.firstName.charAt(0) + this.user.lastName.charAt(0)).toUpperCase();
-    console.log('Generated initials:', initials);
     return initials;
   }
   

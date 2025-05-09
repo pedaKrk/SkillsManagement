@@ -325,9 +325,7 @@ export class UserSkillsManagementComponent implements OnInit {
    * Generates the initials from first and last name
    */
   getInitials(firstName: string, lastName: string): string {
-    console.log('Generating initials for:', { firstName, lastName });
     const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-    console.log('Generated initials:', initials);
     return initials;
   }
 
@@ -345,5 +343,9 @@ export class UserSkillsManagementComponent implements OnInit {
     };
 
     return roleMap[role] || role;
+  }
+
+  setSkillLevel(skillEntry: UserSkillEntry, level: SkillLevel) {
+    skillEntry.skill.level = level;
   }
 }
