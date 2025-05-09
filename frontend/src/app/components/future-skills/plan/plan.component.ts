@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {HttpClientModule, HttpHeaders} from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
 import {PlanService} from '../../../core';
+import {forkJoin} from 'rxjs';
 
 @Component({
   selector: 'app-plan',
@@ -13,7 +14,6 @@ import {PlanService} from '../../../core';
   styleUrls: ['./plan.component.scss']
 })
 export class PlanComponent implements OnInit {
-  searchTerm: string = '';
   allSkills: any[] = [];
   skills: any[] = [];
   editingIndex: number | null = null;
@@ -28,7 +28,6 @@ export class PlanComponent implements OnInit {
   selectedLecturerId: string = '';
   selectedSkillId: string = '';
   expectedDate: string = '';
-  selectedSkill: string = '';
 
   newSkill = {
     lecturer_id: '',
@@ -37,20 +36,40 @@ export class PlanComponent implements OnInit {
     target_date: ''
   };
 
-  constructor(private planService: PlanService, private http: HttpClient) {}
+  constructor(private planService: PlanService, private http: HttpClient, private cdr: ChangeDetectorRef) {}
   ngOnInit(): void {
-    this.getAllSkillNames();
-    this.getAllSkillLevels();
-    this.loadLecturers()
-    this.getAllFutureSkills();
+    forkJoin({
+      lecturers: this.planService.getAllLecturers(),
+      skillOptions: this.planService.fetchAllSkillNames(),
+      skillLevels: this.planService.fetchAllSkillLevels(),
+      futureSkills: this.planService.getAllFutureSkills()
+    }).subscribe(({ lecturers, skillOptions, skillLevels, futureSkills }) => {
+      this.lecturers = lecturers;
+      this.skillOptions = skillOptions;
+      this.skillLevels = skillLevels;
+
+      this.skills = futureSkills.map(skill => ({
+        ...skill,
+        lecturer_id: lecturers.find(l => l._id === (skill.lecturer_id?._id || skill.lecturer_id)),
+        skill_id: skillOptions.find(s => s._id === (skill.skill_id?._id || skill.skill_id)),
+        target_date: skill.target_date ? new Date(skill.target_date).toISOString().split('T')[0] : ''
+      }));
+      this.allSkills = [...this.skills];
+      this.cdr.detectChanges();
+    });
   }
 
   getAllFutureSkills() {
     this.planService.getAllFutureSkills().subscribe({
       next: (data) => {
-        this.skills = data;
-        this.allSkills = [...data];
-      },
+        this.skills = data.map(skill => ({
+          ...skill,
+          lecturer_id: this.lecturers.find(l => l._id === (skill.lecturer_id?._id || skill.lecturer_id)),
+          skill_id: this.skillOptions.find(s => s._id === skill.skill_id || s._id === skill.skill_id?._id),
+          target_date: skill.target_date ? new Date(skill.target_date).toISOString().split('T')[0] : ''
+        }));
+        this.allSkills = [...this.skills];
+        },
       error: (err) => console.error('Error fetching skills:', err)
     });
   }
@@ -138,8 +157,19 @@ export class PlanComponent implements OnInit {
   }
 
   addNewSkill() {
-    this.addingNewSkill = true;
+    if (this.lecturers.length > 0 && this.skillOptions.length > 0) {
+      this.addingNewSkill = true;
+    } else {
+      // Wait until both are loaded, then allow the row to appear
+      const checkDataInterval = setInterval(() => {
+        if (this.lecturers.length > 0 && this.skillOptions.length > 0) {
+          this.addingNewSkill = true;
+          clearInterval(checkDataInterval);
+        }
+      }, 100); // Check every 100ms
+    }
   }
+
 
   cancelNewSkill() {
     this.addingNewSkill = false;
