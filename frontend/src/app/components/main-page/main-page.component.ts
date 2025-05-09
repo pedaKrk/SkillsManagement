@@ -6,6 +6,7 @@ import { SkillService } from '../../core/services/skill/skill.service';
 import { UserService } from '../../core/services/user/user.service';
 import { Skill } from '../../models/skill.model';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { PdfService } from '../../core/services/pdf/pdf.service';
 
 interface SkillWithChildren extends Skill {
   children?: SkillWithChildren[];
@@ -45,7 +46,8 @@ export class MainPageComponent implements OnInit {
   constructor(
     private skillService: SkillService,
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private pdfService: PdfService
   ) {}
 
   ngOnInit() {
@@ -117,5 +119,9 @@ export class MainPageComponent implements OnInit {
         });
       }
     });
+  }
+
+  exportSkillTreeAsPDF() {
+    this.pdfService.generateSkillTreePDF();
   }
 } 
