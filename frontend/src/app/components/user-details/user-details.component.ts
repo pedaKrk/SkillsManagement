@@ -6,7 +6,7 @@ import { UserService } from '../../core/services/user/user.service';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { DialogService } from '../../core/services/dialog/dialog.service';
 import { CommentService } from '../../core/services/comment/comment.service';
-import { User, Comment } from '../../models/user.model';
+import { User, Comment, UserSkillEntry } from '../../models/user.model';
 import { UserRole } from '../../models/enums/user-roles.enum';
 import { environment } from '../../../environments/environment';
 
@@ -95,7 +95,10 @@ export class UserDetailsComponent implements OnInit {
     this.userService.getUserById(this.userId).subscribe({
       next: (user) => {
         this.user = user;
-        this.normalizeSkills();
+        this.user.skills = (this.user.skills || []).map(entry => ({
+          ...entry,
+          skill: { ...entry.skill, level: (entry as any).level }
+        }));
         this.loadComments();
         this.isLoading = false;
       },
@@ -119,43 +122,6 @@ export class UserDetailsComponent implements OnInit {
   }
   
   /**
-   * normalizes skills data to ensure they are in the correct format
-   */
-  private normalizeSkills(): void {
-    if (!this.user || !this.user.skills) {
-      return;
-    }
-    
-    // ensure skills is an array
-    if (!Array.isArray(this.user.skills)) {
-      this.user.skills = [];
-      return;
-    }
-    
-    // filter out invalid skills and keep only valid skills with name property
-    this.user.skills = this.user.skills.filter(skill => 
-      skill !== null && 
-      skill !== undefined && 
-      typeof skill === 'object' && 
-      (skill.name || typeof skill._id === 'string')
-    );
-    
-    // remove all references to skills that no longer exist
-    // or that have no valid names
-    this.user.skills = this.user.skills.map(skill => {
-      if (skill.name) {
-        return skill;
-      } else if (typeof skill === 'object' && skill._id) {
-        return {
-          _id: skill._id,
-          name: 'Unbekannte Skill'
-        };
-      }
-      return null;
-    }).filter(skill => skill !== null);
-  }
-  
-  /**
    * loads comments for the user
    */
   loadComments(): void {
@@ -163,7 +129,7 @@ export class UserDetailsComponent implements OnInit {
     
     this.commentService.getCommentsForUser(this.userId).subscribe({
       next: (comments) => {
-        // Sammle alle einzigartigen Benutzer-IDs
+        // collect all unique user IDs
         const authorIds = new Set<string>();
         comments.forEach(comment => {
           if (comment.author?._id) {
@@ -178,24 +144,24 @@ export class UserDetailsComponent implements OnInit {
           }
         });
 
-        // Lade die Benutzerdaten für alle Autoren
+        // load user data for all authors
         Promise.all(
           Array.from(authorIds).map(authorId => this.userService.getUserById(authorId).toPromise())
         ).then(authors => {
-          // Erstelle eine Map für schnellen Zugriff auf Benutzerdaten
+          // create a map for quick access to user data
           const authorMap = new Map(
             authors
               .filter(author => author != null)
               .map(author => [author._id, author])
           );
 
-          // Konvertiere die Kommentare in das richtige Format
+          // convert comments to the correct format
           this.comments = comments.map(comment => {
             const author = comment.author?._id ? authorMap.get(comment.author._id) : null;
             const authorData = author || comment.author || { username: 'Unbekannt' };
             const authorName = this.createFormalName(authorData);
 
-            // Konvertiere Antworten, falls vorhanden
+            // convert replies, if available
             const replies = comment.replies ? comment.replies.map((reply: any) => {
               const replyAuthor = reply.author?._id ? authorMap.get(reply.author._id) : null;
               const replyAuthorData = replyAuthor || reply.author || { username: 'Unbekannt' };
@@ -305,7 +271,7 @@ export class UserDetailsComponent implements OnInit {
     this.commentService.addCommentToUser(this.userId, this.newComment).subscribe({
       next: (comment) => {
         if (comment && (comment.id || comment._id)) {
-          // Lade die vollständigen Benutzerdaten für den Autor
+          // load the full user data for the author
           this.userService.getUserById(currentUser.id).subscribe({
             next: (fullUserData) => {
               const authorName = this.createFormalName(fullUserData);
@@ -331,7 +297,7 @@ export class UserDetailsComponent implements OnInit {
             },
             error: (error) => {
               console.error('Fehler beim Laden der Benutzerdaten:', error);
-              // Fallback 
+              // fallback to the username
               const newComment: Comment = {
                 id: comment.id || comment._id || '',
                 userId: this.userId,
@@ -437,7 +403,6 @@ export class UserDetailsComponent implements OnInit {
    * returns the initials of the user (for the avatar)
    */
   getUserInitials(): string {
-    console.log('Generating initials for user:', this.user);
     
     if (!this.user) {
       console.log('No user object available');
@@ -453,7 +418,6 @@ export class UserDetailsComponent implements OnInit {
     }
     
     const initials = (this.user.firstName.charAt(0) + this.user.lastName.charAt(0)).toUpperCase();
-    console.log('Generated initials:', initials);
     return initials;
   }
   

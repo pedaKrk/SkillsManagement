@@ -54,8 +54,24 @@ const userModel = new mongoose.Schema({
         ref: "Comment"
     }],
     skills: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Skills"
+        skill: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Skills",
+            required: true
+        },
+        level: {
+            type: String,
+            required: false
+        },
+        addedAt: {
+            type: Date,
+            default: Date.now
+        },
+        addedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true
+        }
     }],
     futureSkills: [{
         type: mongoose.Schema.Types.ObjectId,

@@ -35,6 +35,10 @@
         <mat-icon>{{ isAllExpanded ? 'unfold_less' : 'unfold_more' }}</mat-icon>
         {{ isAllExpanded ? 'Alle schließen' : 'Alle öffnen' }}
       </button>
+      <button class="control-btn" (click)="exportSkillTreeAsPDF()">
+        <mat-icon>download</mat-icon>
+        Skill-Baum als PDF
+      </button>
     </div>
 
     <div class="skill-hierarchy">

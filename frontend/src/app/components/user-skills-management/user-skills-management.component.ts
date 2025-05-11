@@ -4,12 +4,13 @@ import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { UserService } from '../../core/services/user/user.service';
 import { AuthService } from '../../core/services/auth/auth.service';
-import { User } from '../../models/user.model';
+import { User, UserSkillEntry } from '../../models/user.model';
 import { DialogService } from '../../core/services/dialog/dialog.service';
 import { Skill } from '../../models/skill.model';
 import { HttpClient } from '@angular/common/http';
 import { API_CONFIG } from '../../core/config/api.config';
 import { environment } from '../../../environments/environment';
+import { SkillLevel } from '../../models/enums/skill-level.enum';
 
 @Component({
   selector: 'app-user-skills-management',
@@ -34,12 +35,13 @@ export class UserSkillsManagementComponent implements OnInit {
   
   // Skills Management
   availableSkills: Skill[] = [];
-  selectedSkills: Skill[] = [];
+  selectedSkills: UserSkillEntry[] = [];
   filteredSkills: Skill[] = [];
   isLoadingSkills = false;
   skillsError: string | null = null;
   skillSearchControl = new FormControl('');
   isSkillDropdownOpen = false;
+  skillLevels = Object.values(SkillLevel);
   
   constructor(
     private route: ActivatedRoute,
@@ -52,17 +54,18 @@ export class UserSkillsManagementComponent implements OnInit {
   ) {}
   
   ngOnInit(): void {
-    // Wenn keine userId übergeben wurde, verwende die ID des eingeloggten Benutzers
-    if (!this.userId) {
-      const currentUser = this.authService.currentUserValue;
-      if (currentUser) {
-        this.userId = currentUser.id;
-        this.loadUserData();
+    this.route.params.subscribe(params => {
+      if (params['id']) {
+        this.userId = params['id'];
+      } else {
+        // Fallback
+        const currentUser = this.authService.currentUserValue;
+        if (currentUser && currentUser.id) {
+          this.userId = currentUser.id;
+        }
       }
-    } else {
       this.loadUserData();
-    }
-
+    });
     // Subscribe to search input changes
     this.skillSearchControl.valueChanges.subscribe(searchTerm => {
       if (searchTerm !== null) {
@@ -79,15 +82,15 @@ export class UserSkillsManagementComponent implements OnInit {
       next: (user) => {
         console.log('User data loaded:', user);
         this.user = user;
-        this.selectedSkills = user.skills || [];
+        this.selectedSkills = (user.skills || [])
+          .filter(entry => entry && entry.skill && entry.skill._id && entry.skill.name)
+          .map(entry => ({
+            ...entry,
+            skill: { ...entry.skill, level: entry.skill.level ?? (entry as any).level },
+            showLevelDropdown: false
+          }));
         this.isLoading = false;
         
-        // Debug: Check user data for initials
-        console.log('User data for initials:', {
-          firstName: user.firstName,
-          lastName: user.lastName,
-          profileImageUrl: user.profileImageUrl
-        });
         
         // Load available skills after user data is loaded
         if (!this.availableSkills.length) {
@@ -127,8 +130,8 @@ export class UserSkillsManagementComponent implements OnInit {
    * Filter out already assigned skills from the list of available skills
    */
   private filterOutAssignedSkills(allSkills: Skill[]): Skill[] {
-    return allSkills.filter(skill => 
-      !this.selectedSkills.some(selectedSkill => selectedSkill._id === skill._id)
+    return allSkills.filter(skill =>
+      !this.selectedSkills.some(selectedSkill => selectedSkill.skill._id === skill._id)
     );
   }
 
@@ -143,9 +146,8 @@ export class UserSkillsManagementComponent implements OnInit {
       this.filteredSkills = [...this.availableSkills];
       return;
     }
-    
     const term = searchTerm.toLowerCase().trim();
-    this.filteredSkills = this.availableSkills.filter(skill => 
+    this.filteredSkills = this.availableSkills.filter(skill =>
       skill.name.toLowerCase().includes(term)
     );
   }
@@ -186,8 +188,19 @@ export class UserSkillsManagementComponent implements OnInit {
   toggleSkill(skillId: string): void {
     const skill = this.availableSkills.find(s => s._id === skillId);
     if (!skill) return;
-    
-    this.selectedSkills.push(skill);
+    // UserSkillEntry erzeugen
+    const currentUser = this.authService.currentUserValue;
+    this.selectedSkills.push({
+      skill: skill,
+      addedAt: new Date(),
+      addedBy: currentUser ? {
+        _id: currentUser.id,
+        firstName: undefined,
+        lastName: undefined,
+        email: currentUser.email
+      } : undefined,
+      showLevelDropdown: false
+    });
     // remove the selected skill from the available skills
     this.availableSkills = this.availableSkills.filter(s => s._id !== skillId);
     this.filteredSkills = this.filteredSkills.filter(s => s._id !== skillId);
@@ -195,29 +208,23 @@ export class UserSkillsManagementComponent implements OnInit {
 
   // Check if a skill is selected
   isSkillSelected(skillId: string): boolean {
-    return this.selectedSkills.some(skill => skill._id === skillId);
+    return this.selectedSkills.some(entry => entry.skill._id === skillId);
   }
   
   saveSkills(): void {
     if (!this.user) return;
-    
-    // Format skills correctly
-    const formattedSkills = this.selectedSkills.map(skill => ({
-      _id: skill._id,
-      name: skill.name,
-      description: skill.description || '',
-      level: skill.level || 1,
-      category: skill.category || '',
-      parent_id: skill.parent_id || null
+    // Format for the backend: Array of objects with skill, level, addedAt, addedBy
+    const formattedSkills = this.selectedSkills.map(entry => ({
+      skill: entry.skill._id,
+      level: entry.skill.level,
+      addedAt: entry.addedAt,
+      addedBy: entry.addedBy?._id
     }));
-    
     const updatedUser: Partial<User> = {
       ...this.user,
-      skills: formattedSkills
+      skills: formattedSkills as any // backend expects this format
     };
-    
     console.log('Saving skills:', formattedSkills);
-    
     this.userService.updateUser(this.userId, updatedUser).subscribe({
       next: () => {
         this.dialogService.showSuccess({
@@ -251,19 +258,23 @@ export class UserSkillsManagementComponent implements OnInit {
     }).subscribe((confirmed: boolean) => {
       if (confirmed && this.user) {
         // remove the skill locally
-        this.selectedSkills = this.selectedSkills.filter(s => s._id !== skill._id);
+        this.selectedSkills = this.selectedSkills.filter(entry => entry.skill._id !== skill._id);
         // add the removed skill back to the available skills
         this.availableSkills.push(skill);
         // sort the available skills by name
         this.availableSkills.sort((a, b) => a.name.localeCompare(b.name));
         this.filteredSkills = [...this.availableSkills];
-        
         // update the user in the database
+        const formattedSkills = this.selectedSkills.map(entry => ({
+          skill: entry.skill._id,
+          level: entry.skill.level,
+          addedAt: entry.addedAt,
+          addedBy: entry.addedBy?._id
+        }));
         const updatedUser: Partial<User> = {
           ...this.user,
-          skills: this.selectedSkills
+          skills: formattedSkills as any
         };
-        
         this.userService.updateUser(this.userId, updatedUser).subscribe({
           next: () => {
             this.dialogService.showSuccess({
@@ -275,7 +286,7 @@ export class UserSkillsManagementComponent implements OnInit {
           error: (error) => {
             console.error('Fehler beim Entfernen des Skills:', error);
             // restore the original state
-            this.selectedSkills.push(skill);
+            this.selectedSkills.push({ skill });
             this.availableSkills = this.filterOutAssignedSkills(this.availableSkills);
             this.filteredSkills = [...this.availableSkills];
             this.dialogService.showError(
@@ -320,9 +331,7 @@ export class UserSkillsManagementComponent implements OnInit {
    * Generates the initials from first and last name
    */
   getInitials(firstName: string, lastName: string): string {
-    console.log('Generating initials for:', { firstName, lastName });
     const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-    console.log('Generated initials:', initials);
     return initials;
   }
 
@@ -340,5 +349,9 @@ export class UserSkillsManagementComponent implements OnInit {
     };
 
     return roleMap[role] || role;
+  }
+
+  setSkillLevel(skillEntry: UserSkillEntry, level: SkillLevel) {
+    skillEntry.skill.level = level;
   }
 }

@@ -245,23 +245,50 @@
   
   .skills-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    
-    .skill-badge {
-      background-color: #e9ecef;
-      color: #495057;
-      padding: 0.35rem 0.75rem;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      transition: all 0.2s ease;
-      
-      &:hover {
-        background-color: #0077a9;
-        color: white;
-        cursor: default;
-      }
-    }
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  
+  .skill-card {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    padding: 1.1rem 1.5rem 0.9rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    min-width: 220px;
+  }
+  
+  .skill-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.3rem;
+  }
+  
+  .skill-name {
+    font-size: 1.13rem;
+    font-weight: 600;
+    color: #1976d2;
+    letter-spacing: 0.01em;
+  }
+  
+  .level-badge {
+    padding: 2px 14px;
+    border-radius: 12px;
+    font-size: 0.98rem;
+    font-weight: 500;
+    margin-left: 0.2em;
+    &.beginner { background: #2196f3; color: #fff; }
+    &.intermediate { background: #1976d2; color: #fff; }
+    &.advanced { background: #0077a9; color: #fff; }
+  }
+  
+  .skill-meta-modern {
+    color: #6c757d;
+    font-size: 0.97rem;
+    margin-left: 2px;
+    margin-top: 2px;
   }
   
   .no-skills {
@@ -813,4 +840,55 @@
 
 .date-input::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
+}
+
+.skill-detail {
+  margin-bottom: 1.1rem;
+}
+
+.skill-badge-combined {
+  display: inline-flex;
+  align-items: center;
+  background: #e9ecef;
+  color: #495057;
+  padding: 0.45rem 1.2rem 0.45rem 1rem;
+  border-radius: 22px;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 2px;
+  margin-right: 10px;
+  .level-badge {
+    margin-left: 0.7em;
+    padding: 2px 12px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    &.beginner { background: #2196f3; color: #fff; }
+    &.intermediate { background: #1976d2; color: #fff; }
+    &.advanced { background: #0077a9; color: #fff; }
+  }
+  .skill-meta-inline {
+    color: #666;
+    font-size: 0.95rem;
+    margin-left: 1.2em;
+    white-space: nowrap;
+  }
+}
+
+.level-badge {
+  margin-left: 0.7em;
+  padding: 2px 12px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  &.beginner { background: #2196f3; color: #fff; }
+  &.intermediate { background: #1976d2; color: #fff; }
+  &.advanced { background: #0077a9; color: #fff; }
+}
+
+.skill-meta {
+  color: #666;
+  font-size: 0.95rem;
+  margin-left: 2px;
+  margin-top: 2px;
 }

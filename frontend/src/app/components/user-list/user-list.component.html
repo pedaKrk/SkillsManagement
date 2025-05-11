@@ -219,27 +219,9 @@
           <td>{{ user.employmentType === 'Internal' ? 'Intern' : 'Extern' }}</td>
           <td>
             <div class="skills-list">
-              <span *ngIf="!user.skills || user.skills.length === 0">-</span>
-              <ng-container *ngFor="let skill of user.skills">
-                <span 
-                  class="skill-badge" 
-                  *ngIf="skill.name"
-                  (click)="filterBySkill(skill.name); $event.stopPropagation()"
-                  [class.active]="isSkillSelected(skill.name)"
-                  title="Nach diesem Skill filtern"
-                >
-                  {{ skill.name }}
-                </span>
-                <span 
-                  class="skill-badge" 
-                  *ngIf="!skill.name && getSkillName(skill)"
-                  (click)="filterBySkill(getSkillName(skill)); $event.stopPropagation()"
-                  [class.active]="isSkillSelected(getSkillName(skill))"
-                  title="Nach diesem Skill filtern"
-                >
-                  {{ getSkillName(skill) }}
-                </span>
-              </ng-container>
+              <span class="skill-badge" *ngFor="let entry of user.skills">
+                {{ entry?.skill?.name || 'Unbekannte Fähigkeit' }}
+              </span>
             </div>
           </td>
           <td class="actions-column">

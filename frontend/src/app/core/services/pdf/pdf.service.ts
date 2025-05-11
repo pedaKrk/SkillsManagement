@@ -5,6 +5,8 @@ import autoTable from 'jspdf-autotable';
 import { UserService } from '../user/user.service';
 import { AuthService } from '../auth/auth.service';
 import { firstValueFrom } from 'rxjs';
+import { SkillService } from '../skill/skill.service';
+import { Skill } from '../../../models/skill.model';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +15,8 @@ export class PdfService {
 
   constructor(
     private userService: UserService,
-    private authService: AuthService
+    private authService: AuthService,
+    private skillService: SkillService
   ) { }
 
   /**
@@ -74,7 +77,7 @@ export class PdfService {
       let skillsText = '-';
       if (user.skills && user.skills.length > 0) {
         skillsText = user.skills
-          .map(skill => skill.name || this.getSkillName(skill))
+          .map(skill => skill.skill.name || this.getSkillName(skill))
           .filter(name => name !== '-')
           .join(', ');
       }
@@ -279,5 +282,101 @@ export class PdfService {
     
     // fallback
     return '-';
+  }
+
+  /**
+   * Pdf generation for the skill tree
+   */
+  async generateSkillTreePDF(): Promise<void> {
+    const doc = new jsPDF({ orientation: 'portrait' });
+    const primaryColor: [number, number, number] = [33, 150, 243];
+    this.embedLogoDirectly(doc);
+    doc.setFontSize(22);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text('Skill Tree Übersicht', 60, 22);
+    const date = new Date().toLocaleDateString('de-DE');
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+    doc.text(`Erstellt am: ${date}`, 60, 30);
+    doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.setLineWidth(0.5);
+    doc.line(14, 38, doc.internal.pageSize.width - 14, 38);
+    // Skills
+    const skills: Skill[] = await firstValueFrom(this.skillService.getAllSkills());
+    // Build hierarchy
+    const skillTree = this.buildHierarchy(skills);
+    let y = 50;
+    doc.setFontSize(12);
+    this.renderSkillTree(doc, skillTree, 0, 20, y);
+    doc.save('skilltree.pdf');
+  }
+
+  // Helper method: Build hierarchy (like in MainPage)
+  private buildHierarchy(skills: Skill[]): any[] {
+    const skillMap: { [id: string]: any } = {};
+    skills.forEach(skill => {
+      skillMap[skill._id] = { ...skill, children: [] };
+    });
+    const rootSkills: any[] = [];
+    skills.forEach(skill => {
+      if (skill.parent_id) {
+        skillMap[skill.parent_id]?.children?.push(skillMap[skill._id]);
+      } else {
+        rootSkills.push(skillMap[skill._id]);
+      }
+    });
+    return rootSkills;
+  }
+
+  // Skill-Tree PDF generation
+  private renderSkillTree(doc: jsPDF, nodes: any[], level: number, x: number, y: number): number {
+    const pageWidth = doc.internal.pageSize.width;
+    const margin = 18;
+    const boxBgColor = [227, 242, 253]; // #e3f2fd
+    const textColor = [33, 33, 33]; // #212121
+    const lineColor = [210, 210, 210]; // #d2d2d2
+    const indent = 12;
+    for (const node of nodes) {
+      if (y > doc.internal.pageSize.height - 30) {
+        doc.addPage();
+        y = 20;
+      }
+      if (level === 0) {
+        // Dynamische Box for the main category
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        const text = `- ${node.name}`;
+        const textWidth = doc.getTextWidth(text);
+        const boxPaddingX = 16;
+        const boxPaddingY = 4;
+        const boxX = margin;
+        const boxY = y;
+        const boxWidth = textWidth + 2 * boxPaddingX;
+        const boxHeight = 16 + 2 * boxPaddingY;
+        doc.setFillColor(boxBgColor[0], boxBgColor[1], boxBgColor[2]);
+        doc.setDrawColor(boxBgColor[0], boxBgColor[1], boxBgColor[2]);
+        doc.roundedRect(boxX, boxY, boxWidth, boxHeight, 6, 6, 'F');
+        // Text centered in the box
+        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+        const textY = boxY + boxHeight / 2 + 5;
+        doc.text(text, boxX + boxPaddingX, textY, { baseline: 'middle' });
+        y += boxHeight + 6;
+      } else {
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+        const textX = x + level * indent;
+        doc.text(`${'  '.repeat(level)}- ${node.name}`, textX, y);
+        y += 8;
+        // Line after each sub-point
+        doc.setDrawColor(lineColor[0], lineColor[1], lineColor[2]);
+        doc.setLineWidth(0.3);
+        doc.line(textX, y - 4, textX + 140, y - 4);
+      }
+      if (node.children && node.children.length > 0) {
+        y = this.renderSkillTree(doc, node.children, level + 1, x, y);
+      }
+    }
+    return y;
   }
 } 

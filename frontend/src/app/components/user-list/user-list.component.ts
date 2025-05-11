@@ -234,7 +234,7 @@ export class UserListComponent implements OnInit, OnDestroy {
         // check if the user has at least one of the selected skills
         return this.selectedSkills.some(selectedSkill => {
           return user.skills!.some(skill => {
-            const skillName = skill.name || this.getSkillName(skill);
+            const skillName = this.getSkillName(skill);
             return skillName.toLowerCase() === selectedSkill.toLowerCase();
           });
         });
@@ -653,22 +653,18 @@ export class UserListComponent implements OnInit, OnDestroy {
   // helper method to get the skill name
   getSkillName(skill: any): string {
     if (!skill) return 'Unbekannte Fähigkeit';
-    
     // if skill is a string (ID), return a generic name
     if (typeof skill === 'string') {
       return 'Unbekannte Fähigkeit';
     }
-    
-    // if skill is an object with name
-    if (typeof skill === 'object' && skill.name) {
-      return skill.name;
+    // if skill is an object with skill and name
+    if (typeof skill === 'object' && skill.skill && skill.skill.name) {
+      return skill.skill.name;
     }
-    
     // if skill is an object, but no name attribute
     if (typeof skill === 'object' && skill._id) {
       return 'Unbekannte Fähigkeit';
     }
-    
     // fallback
     return 'Unbekannte Fähigkeit';
   }
@@ -735,8 +731,8 @@ export class UserListComponent implements OnInit, OnDestroy {
     this.users.forEach(user => {
       if (user.skills && user.skills.length > 0) {
         user.skills.forEach(skill => {
-          const skillName = skill.name || this.getSkillName(skill);
-          if (skillName !== '-') {
+          const skillName = this.getSkillName(skill);
+          if (skillName && skillName !== '-') {
             skillsSet.add(skillName);
           }
         });
