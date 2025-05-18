@@ -7,8 +7,10 @@ import {
     getAllFutureSkills,
     createFutureSkill,
     updateFutureSkill,
-    deleteFutureSkill
+    deleteFutureSkill,
+    sendFutureSkillMail
 } from '../controllers/future-skills.controller.js';
+import {getFutureSkillStatusEmail} from "../controllers/email.controller.js";
 import {authenticateToken} from "../middleware/auth.middleware.js";
 
 // GET all future skills
@@ -28,5 +30,9 @@ router.get('/skill-names', getAllSkillNames);
 
 // ✅ NEW: GET skill levels
 router.get('/skill-levels', getSkillLevels);
+
+router.post('/send-email', sendFutureSkillMail);
+
+
 
 export default router;

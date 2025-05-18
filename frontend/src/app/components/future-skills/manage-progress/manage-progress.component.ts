@@ -1,6 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {ManageProgressService} from '../../../core/services/future-skills/manage-progress.service';
+import {AuthService, EmailService} from '../../../core';
+import {UserRole} from '../../../models/enums/user-roles.enum';
+import {EmploymentType} from '../../../models/enums/employment-type.enum';
+
+// adjust path as needed
+
 
 @Component({
   selector: 'app-manage-progress',
@@ -34,6 +41,15 @@ export class ManageProgressComponent implements OnInit {
     skillLevel: '',
     expectedDate: ''
   };
+
+  emailModalOpen = false;
+  emailData = {
+    recipient: '',
+    subject: '',
+    message: ''
+  };
+
+  constructor( private mailService: EmailService, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.filteredSkills = [...this.futureSkills];
@@ -125,7 +141,75 @@ export class ManageProgressComponent implements OnInit {
   }
 
   sendMail(skill: any) {
-    alert(`Sending mail about: ${skill.skillName} by ${skill.lecturer}`);
+    const userName = skill.lecturer;
+    const skillName = skill.skillName;
+
+    const token = this.authService.currentUserValue?.token;
+    if (!token) {
+      alert('❌ Missing auth token.');
+      return;
+    }
+
+    // ✅ Use proxy-relative URL
+    const url = new URL('http://localhost:3000/api/v1/email/future-skill-status-email');
+    url.searchParams.append('userName', userName);
+    url.searchParams.append('skillName', skillName);
+
+    fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      }
+    })
+
+      .then(res => res.json())
+      .then(res => {
+        if (res.success) {
+          this.openEmailModal(userName, skillName, res.template);
+        } else {
+          alert('❌ Failed to load email template.');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert('❌ Could not load email template.');
+      });
+  }
+
+
+  openEmailModal(userName: string, skillName: string, template: string) {
+    this.emailData = {
+      recipient: `${userName}@example.com`, // or resolve actual email from your user model
+      subject: `Status request for ${skillName}`,
+      message: template
+    };
+    this.emailModalOpen = true;
+  }
+
+  sendEmail() {
+    const fakeUser = {
+      id: '',
+      username: '',
+      email: this.emailData.recipient,
+      role: UserRole.LECTURER,
+      firstName: '',
+      lastName: '',
+      employmentType: EmploymentType.EXTERNAL
+    };
+
+    this.mailService.sendEmailToUsers(
+      [fakeUser],
+      this.emailData.subject,
+      this.emailData.message
+    ).subscribe({
+      next: () => {
+        alert('✅ Email sent successfully!');
+        this.emailModalOpen = false;
+      },
+      error: () => {
+        alert('❌ Failed to send email.');
+      }
+    });
   }
 
   addToSkills(skill: any) {

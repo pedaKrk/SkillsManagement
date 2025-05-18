@@ -37,7 +37,7 @@ export const sendEmail = async (req, res) => {
 
 export const getFutureSkillStatusEmail = async (req, res) => {
     try{
-        const { userName, skillName } = req.body;
+        const { userName, skillName } = req.query;
 
         if (!userName || !skillName) {
             return res.status(400).json({

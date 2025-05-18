@@ -5,6 +5,7 @@ import {TEMPLATES_PATH} from "../../config/env.js";
 
 class MailTemplateService {
     constructor(){
+        console.log('📂 TEMPLATES_PATH from .env =', TEMPLATES_PATH);
         this.path = TEMPLATES_PATH;
     }
 
@@ -69,15 +70,19 @@ class MailTemplateService {
      * @returns {string} The content of the template file.
      * @throws Error Will throw an error if the template file cannot be read.
      */
-    loadTemplate(templateName, type){
-        try {
-            const filePath = path.resolve(this.path, templateName, `${templateName}.${type}`);
-            return fs.readFileSync(filePath, 'utf8');
-        } catch (error) {
-            console.error(`Error while loading template from: ${this.path}\\${templateName}\\${templateName}.${type}`, error);
-            throw new Error(`Failed to load template: ${error.message}`);
+    loadTemplate(templateName, type) {
+        const filePath = path.resolve(this.path, templateName, `${templateName}.${type}`);
+        console.log('🟡 [MailTemplateService] Looking for template at:', filePath);
+
+        if (!fs.existsSync(filePath)) {
+            console.error('❌ Template file not found:', filePath);
+            throw new Error(`Template file not found at: ${filePath}`);
         }
+
+        return fs.readFileSync(filePath, 'utf8');
     }
+
+
 
     /**
      * Compiles a Handlebars template with the provided data.
