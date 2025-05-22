@@ -32,3 +32,13 @@ export const findUserStatusById = (id) => User.findById(id).select('isActive');
 
 export const updateUserProfileImage = (id, profileImageUrl) =>
     User.findByIdAndUpdate(id, { $set: { profileImageUrl } }, { new: true });
+
+export const loadCommentsFromUser = (id) => User.findById(id).select('comments');
+
+export const userExists = (id) => User.exists({ _id: id });
+
+export const removeCommentFromUser = (userId, commentId) => User.findByIdAndUpdate(userId, { $pull: { comments: commentId } })
+
+export const addCommentToUser = (userId, commentId) => User.findByIdAndUpdate(userId, { $push: { comments: commentId } })
+
+export const userHasComment = (userId, commentId) => User.exists({ _id: userId, comments: commentId });
