@@ -3,13 +3,14 @@ import * as commentService from '../services/comment.service.js'
 
 export const getCommentsForUser = async (req, res) => {
   try {
+    console.info("Get comments for user");
     const { userId } = req.params
     console.log('Kommentare abrufen für Benutzer:', userId);
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       throw new Error("Invalid userId");
     }
 
-    const comments = commentService.getCommentsForUser(userId)
+    const comments = await commentService.getCommentsForUser(userId)
 
     console.log(`${comments.length} Kommentare gefunden`);
     res.status(200).json(comments)
@@ -21,6 +22,7 @@ export const getCommentsForUser = async (req, res) => {
 
 export const addCommentToUser = async (req, res) => {
   try {
+    console.info("Add comment to user");
     const { userId } = req.params
     const { content, authorId } = req.body
     let commentAuthorId = req.user.id;
@@ -57,6 +59,7 @@ export const addCommentToUser = async (req, res) => {
 
 export const updateComment = async (req, res) => {
   try {
+    console.info("Update comment");
     const { userId, commentId } = req.params
     const { content } = req.body
 
@@ -73,6 +76,7 @@ export const updateComment = async (req, res) => {
 
 export const deleteComment = async (req, res) => {
   try {
+    console.info("Delete comment");
     const { userId, commentId } = req.params
     const result = await commentService.deleteCommentFromUser(userId, commentId)
     if (!result) {
@@ -86,6 +90,7 @@ export const deleteComment = async (req, res) => {
 
 export const addReplyToComment = async (req, res) => {
   try {
+    console.info("Add reply to comment");
     const { userId, commentId } = req.params
     const { content } = req.body
     let replyAuthorId = req.user.id;

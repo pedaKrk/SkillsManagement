@@ -4,6 +4,7 @@ import * as userService from "../services/user.service.js";
 
 export const getAllUsers = async (req, res) => {
   try {
+    console.info("Get all users");
     const users = await userService.getAllUsers();
 
     res.status(200).json(users);
@@ -18,6 +19,7 @@ export const getAllUsers = async (req, res) => {
 
 export const getUserById = async (req, res) => {
   try {
+    console.info("Get user by id");
     const { id } = req.params
     
     const basicUser = await userService.getUserById(id)
@@ -49,6 +51,7 @@ export const getUserById = async (req, res) => {
 
 export const getAllLecturers = async (req, res) => {
   try {
+    console.info("Get all lecturers");
     const lecturers = await userService.getAllLecturers()
 
     res.status(200).json(lecturers);
@@ -72,8 +75,10 @@ export const createUser = async (req, res) => {
 export const updateUser = async (req, res) => {
 
   try {
+    console.info("Update user");
     const { id } = req.params
     const userData = req.body
+    const currentUser = req.user.id
 
     // Skills mapping
     if (userData.skills && Array.isArray(userData.skills)) {
@@ -85,18 +90,7 @@ export const updateUser = async (req, res) => {
       }));
     }
 
-    const isOwnProfile = req.user.id === id || req.user._id === id
-    const userRole = req.user.role.toLowerCase()
-    const isAdmin = userRole === roleEnum.ADMIN.toLowerCase()
-    const isCompetenceLeader = userRole === roleEnum.COMPETENCE_LEADER.toLowerCase()
-    
-    if (!isAdmin && !isCompetenceLeader && !isOwnProfile) {
-      return res.status(403).json({ 
-        message: 'Sie haben keine Berechtigung, dieses Benutzerprofil zu bearbeiten.' 
-      })
-    }
-
-    const updatedUser = await userService.updateUser(id, userData)
+    const updatedUser = await userService.updateUser(id, userData, currentUser)
 
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' })
@@ -110,6 +104,7 @@ export const updateUser = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
   try {
+    console.info("Delete user");
     const { id } = req.params
     const result = await userService.deleteUser(id)
     if (!result) {
@@ -123,6 +118,7 @@ export const deleteUser = async (req, res) => {
 
 export const changePassword = async (req, res) => {
   try {
+    console.info("Change password");
     const { email, currentPassword, newPassword, confirmPassword } = req.body;
     console.log('Password change request received:', { 
       email, 
@@ -157,8 +153,10 @@ export const changePassword = async (req, res) => {
   }
 }
 
+// ToDo: Error regarding ProfileImage, add and del
 export const uploadProfileImage = async (req, res) => {
   try {
+    console.info("Upload profile image");
     const { id } = req.params;
     const file = req.file;
     
@@ -187,6 +185,7 @@ export const uploadProfileImage = async (req, res) => {
 
 export const removeProfileImage = async (req, res) => {
   try {
+    console.info("remove profile image");
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -213,6 +212,7 @@ export const removeProfileImage = async (req, res) => {
  */
 export const getInactiveUsers = async (req, res) => {
   try {
+    console.log("Get Inactive Users");
     const inactiveUsers = await userService.getInactiveUsers();
     
     res.status(200).json(inactiveUsers);
@@ -230,6 +230,7 @@ export const getInactiveUsers = async (req, res) => {
  */
 export const getInactiveUsersCount = async (req, res) => {
   try {
+    console.info('Get inactive UsersCount');
     const count = await userService.getInactiveUserCount();
     res.status(200).json(count);
   } catch (error) {
@@ -246,6 +247,7 @@ export const getInactiveUsersCount = async (req, res) => {
  */
 export const activateUser = async (req, res) => {
   try {
+    console.info("Activate User");
     const { id } = req.params;
     
     await userService.activateUser(id);
@@ -265,6 +267,7 @@ export const activateUser = async (req, res) => {
  */
 export const deactivateUser = async (req, res) => {
   try {
+    console.info('Deactivate user');
     const { id } = req.params;
     
     await userService.deactivateUser(id);
@@ -284,6 +287,7 @@ export const deactivateUser = async (req, res) => {
  */
 export const getUserStatus = async (req, res) => {
   try {
+    console.info("get user status")
     const { id } = req.params;
     
     const isActive = userService.getUserStatus(id);

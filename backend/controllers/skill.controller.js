@@ -2,6 +2,7 @@ import * as skillService from '../services/skill.service.js'
 
 export const getAllSkills = async (req, res) => {
   try {
+    console.info("Get all skills");
     const skills = await skillService.getAllSkills()
     res.status(200).json(skills)
   } catch (error) {
@@ -25,7 +26,7 @@ export const createSkill = async (req, res) => {
   try {
     const skillData = req.body
 
-    const newSKill= await skillService.createSkill(skillData)
+    const newSkill= await skillService.createSkill(skillData)
     res.status(201).json(newSkill)
   } catch (error) {
     res.status(500).json({ message: 'Failed to create skill', error })

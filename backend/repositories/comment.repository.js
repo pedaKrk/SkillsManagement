@@ -19,7 +19,7 @@ export const updateCommentById = (commentId, content) =>
     Comment.findByIdAndUpdate(commentId, { content }, { new: true })
 
 export const deleteCommentById = (commentId) =>
-    Comment.findByIdAndDelete(commentId).exec()
+    Comment.findByIdAndDelete(commentId)
 
 export const addReplyToComment = (commentId, replyId) =>
     Comment.findByIdAndUpdate(commentId, { $push: { replies: replyId } })

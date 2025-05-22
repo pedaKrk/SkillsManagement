@@ -15,7 +15,7 @@ export const getAllUsers = async () => {
 }
 
 export const getUserById = async (id) => {
-    const user = userRepository.findUserById(id);
+    const user = await userRepository.findUserById(id);
     if (!user) {
         return null;
     }
@@ -40,11 +40,11 @@ export const getUserById = async (id) => {
 }
 
 export const getAllLecturers = async () => {
-    return userRepository.findLecturers()
+    return await userRepository.findLecturers()
 }
 
 export const createUser = async (user) => {
-    await userRepository.createUser(user)
+    return await userRepository.createUser(user)
 }
 
 export const updateUser = async (userId, updateData, currentUser) => {

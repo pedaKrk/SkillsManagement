@@ -1,8 +1,6 @@
 import * as commentRepository from '../repositories/comment.repository.js'
 import * as userRepository from "../repositories/user.repository.js";
 import {NotFoundError} from "../errors/not.found.error.js";
-import mongoose from "mongoose";
-import * as commenRepository from "../controllers/comment.controller.js";
 
 export const getCommentsForUser = async (userId) => {
     try {
@@ -12,6 +10,7 @@ export const getCommentsForUser = async (userId) => {
         }
 
         if (!user.comments || user.comments.length === 0) {
+            console.info('No comments found for', userId);
             return []
         }
 
@@ -40,7 +39,7 @@ export const createCommentForUser = async (userId, authorId, content) => {
 
     await userRepository.addCommentToUser(userId, newComment.id)
 
-    return await commentRepository.findPopulatedComment(newComment.id)
+    return await commentRepository.findPopulatedComment(newComment.id);
 }
 
 export const updateCommentForUser = async (userId, commentId, content) => {
