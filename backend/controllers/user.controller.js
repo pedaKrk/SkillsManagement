@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 import roleEnum from "../models/enums/role.enum.js";
-import * as UserService from "../services/user.service.js";
+import * as userService from "../services/user.service.js";
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await UserService.getAllUsers();
+    const users = await userService.getAllUsers();
 
     res.status(200).json(users);
   } catch (error) {
@@ -20,20 +20,20 @@ export const getUserById = async (req, res) => {
   try {
     const { id } = req.params
     
-    const basicUser = await UserService.getUserById(id)
+    const basicUser = await userService.getUserById(id)
     if (!basicUser) {
       return res.status(404).json({ message: 'User not found' })
     }
     
     try {
-      const user = await UserService.getUserById(id)
+      const user = await userService.getUserById(id)
 
       res.status(200).json(user)
     } catch (populateError) {
       console.error('Error populating user references:', populateError)
       
       try {
-        const userWithSkills = await UserService.getUserById(id)
+        const userWithSkills = await userService.getUserById(id)
         res.status(200).json(userWithSkills)
       } catch (skillsError) {
         console.error('Error populating skills:', skillsError)
@@ -49,7 +49,7 @@ export const getUserById = async (req, res) => {
 
 export const getAllLecturers = async (req, res) => {
   try {
-    const lecturers = await UserService.getAllLecturers()
+    const lecturers = await userService.getAllLecturers()
 
     res.status(200).json(lecturers);
   } catch (err) {
@@ -61,7 +61,7 @@ export const createUser = async (req, res) => {
   try {
     const userData = req.body
 
-    const newUser = UserService.createUser(userData)
+    const newUser = userService.createUser(userData)
 
     res.status(201).json(newUser)
   } catch (error) {
@@ -96,7 +96,7 @@ export const updateUser = async (req, res) => {
       })
     }
 
-    const updatedUser = await UserService.updateUser(id, userData)
+    const updatedUser = await userService.updateUser(id, userData)
 
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' })
@@ -111,7 +111,7 @@ export const updateUser = async (req, res) => {
 export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params
-    const result = await UserService.deleteUser(id)
+    const result = await userService.deleteUser(id)
     if (!result) {
       return res.status(404).json({ message: 'User not found' })
     }
@@ -141,7 +141,7 @@ export const changePassword = async (req, res) => {
       return res.status(400).json({ error: "Alle Felder müssen ausgefüllt werden" });
     }
 
-    await UserService.changePassword(email, currentPassword, newPassword, confirmPassword)
+    await userService.changePassword(email, currentPassword, newPassword, confirmPassword)
 
     res.json({ 
       message: "Passwort wurde erfolgreich geändert. Sie können sich jetzt anmelden.",
@@ -170,7 +170,7 @@ export const uploadProfileImage = async (req, res) => {
       return res.status(400).json({ message: 'Keine Datei hochgeladen' });
     }
     
-    const updatedUser = await UserService.uploadProfileImage(id, file)
+    const updatedUser = await userService.uploadProfileImage(id, file)
     
     res.status(200).json({
       message: 'Profilbild erfolgreich hochgeladen',
@@ -193,7 +193,7 @@ export const removeProfileImage = async (req, res) => {
       return res.status(400).json({ message: 'Ungültige Benutzer-ID' });
     }
 
-    const updatedUser = UserService.removeProfileImage(id)
+    const updatedUser = userService.removeProfileImage(id)
     
     res.status(200).json({
       message: 'Profilbild erfolgreich entfernt',
@@ -213,7 +213,7 @@ export const removeProfileImage = async (req, res) => {
  */
 export const getInactiveUsers = async (req, res) => {
   try {
-    const inactiveUsers = await UserService.getInactiveUsers();
+    const inactiveUsers = await userService.getInactiveUsers();
     
     res.status(200).json(inactiveUsers);
   } catch (error) {
@@ -230,7 +230,7 @@ export const getInactiveUsers = async (req, res) => {
  */
 export const getInactiveUsersCount = async (req, res) => {
   try {
-    const count = await UserService.getInactiveUserCount();
+    const count = await userService.getInactiveUserCount();
     res.status(200).json(count);
   } catch (error) {
     console.error('Error getting inactive users count:', error);
@@ -248,7 +248,7 @@ export const activateUser = async (req, res) => {
   try {
     const { id } = req.params;
     
-    await UserService.activateUser(id);
+    await userService.activateUser(id);
     
     res.status(200).json({ message: 'User activated successfully' });
   } catch (error) {
@@ -267,7 +267,7 @@ export const deactivateUser = async (req, res) => {
   try {
     const { id } = req.params;
     
-    await UserService.deactivateUser(id);
+    await userService.deactivateUser(id);
     
     res.status(200).json({ message: 'User deactivated successfully' });
   } catch (error) {
@@ -286,7 +286,7 @@ export const getUserStatus = async (req, res) => {
   try {
     const { id } = req.params;
     
-    const isActive = UserService.getUserStatus(id);
+    const isActive = userService.getUserStatus(id);
     
     res.status(200).json({ isActive });
   } catch (error) {
