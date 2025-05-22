@@ -1,7 +1,7 @@
 import Skill from '../models/skill.model.js'
 import mongoose from 'mongoose';
 import skillLevelEnum from '../models/enums/skill.level.enum.js';
-import * as futureSkillService from '../services/future.skill.service';
+import * as futureSkillService from '../services/future.skill.service.js';
 
 // ToDo: move to skill endpoint
 export const getAllSkillNames = async (req, res) => {

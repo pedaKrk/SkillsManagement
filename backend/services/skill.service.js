@@ -1,4 +1,4 @@
-import * as skillRepository from '../repositories/skill.repository'
+import * as skillRepository from '../repositories/skill.repository.js'
 import {NotFoundError} from "../errors/not.found.error.js";
 
 export const getAllSkills = async () => {

@@ -8,7 +8,7 @@ import {
     createFutureSkill,
     updateFutureSkill,
     deleteFutureSkill
-} from '../controllers/future-skills.controller.js';
+} from '../controllers/future.skills.controller.js';
 import {authenticateToken} from "../middleware/auth.middleware.js";
 
 // GET all future skills

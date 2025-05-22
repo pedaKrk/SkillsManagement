@@ -1,4 +1,4 @@
-import * as futureSkillRepository from '../repositories/future.skill.repository'
+import * as futureSkillRepository from '../repositories/future.skill.repository.js'
 import {NotFoundError} from "../errors/not.found.error.js";
 
 export const getAllFutureSkills = async () => {
