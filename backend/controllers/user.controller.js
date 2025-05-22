@@ -120,7 +120,7 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ message: 'Failed to delete user', error })
   }
 }
-// -continue here
+
 export const changePassword = async (req, res) => {
   try {
     const { email, currentPassword, newPassword, confirmPassword } = req.body;
@@ -141,7 +141,7 @@ export const changePassword = async (req, res) => {
       return res.status(400).json({ error: "Alle Felder müssen ausgefüllt werden" });
     }
 
-    await UserService.changePassword(email, currentPassword, confirmPassword)
+    await UserService.changePassword(email, currentPassword, newPassword, confirmPassword)
 
     res.json({ 
       message: "Passwort wurde erfolgreich geändert. Sie können sich jetzt anmelden.",
@@ -157,7 +157,6 @@ export const changePassword = async (req, res) => {
   }
 }
 
-//upload 
 export const uploadProfileImage = async (req, res) => {
   try {
     const { id } = req.params;
@@ -175,10 +174,7 @@ export const uploadProfileImage = async (req, res) => {
     
     res.status(200).json({
       message: 'Profilbild erfolgreich hochgeladen',
-      user: {
-        ...updatedUser.toObject(),
-        password: undefined
-      }
+      user: updatedUser
     });
   } catch (error) {
     console.error('Fehler beim Hochladen des Profilbilds:', error);
@@ -201,10 +197,7 @@ export const removeProfileImage = async (req, res) => {
     
     res.status(200).json({
       message: 'Profilbild erfolgreich entfernt',
-      user: {
-        ...updatedUser.toObject(),
-        password: undefined
-      }
+      user: updatedUser
     });
   } catch (error) {
     console.error('Fehler beim Entfernen des Profilbilds:', error);

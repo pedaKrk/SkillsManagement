@@ -36,7 +36,7 @@ router.get('/me', authenticateToken, (req, res) => {
 
 router.get('/:id', authenticateToken, getUserById)
 router.post('/', authenticateToken, authorizeRole(['Admin']), createUser)
-router.put('/:id', authenticateToken, updateUser)
+router.put('/:id', authenticateToken, authorizeRole(['Admin', 'competence_leader']), updateUser)
 router.delete('/:id', authenticateToken, authorizeRole(['Admin']), deleteUser)
 router.post('/change-password', changePassword)
 router.post('/:id/profile-image', authenticateToken, handleProfileImageUpload, uploadProfileImage)

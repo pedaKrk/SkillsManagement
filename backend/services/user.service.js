@@ -49,6 +49,7 @@ export const createUser = async (user) => {
 
 export const updateUser = async (userId, updateData, currentUser) => {
     try {
+        console.info("updateUser", userId, updateData, currentUser)
         // Skills mapping
         if (updateData.skills && Array.isArray(updateData.skills)) {
             updateData.skills = updateData.skills.map(skillEntry => ({
@@ -67,13 +68,13 @@ export const updateUser = async (userId, updateData, currentUser) => {
         if (!isAdmin && !isCompetenceLeader && !isOwnProfile) {
             throw new ForbiddenError()
         }
-
+        console.info("updating..")
         const updatedUser = await userRepository.updateUserById(userId, updateData)
 
         if (!updatedUser) {
             throw new NotFoundError()
         }
-
+        console.info("update successfull")
         return updatedUser
     } catch (error) {
         throw error
