@@ -1,30 +1,11 @@
 import Skill from "../models/skill.model.js";
 
-const getAllSkills = async () => {
-    return Skill.find();
-};
+export const findAllSkills = () => Skill.find()
 
-const getSkillById = async (id) => {
-    return Skill.findById(id);
-};
+export const findSkillById = (id) => Skill.findById(id)
 
-const createSkill = async (skillData) => {
-    const skill = new Skill(skillData);
-    return await skill.save();
-};
+export const createSkill = (data) => new Skill(data).save()
 
-const updateSkill = async (id, skillData) => {
-    return Skill.findByIdAndUpdate(id, skillData, { new: true });
-};
+export const updateSkill = (id, data) => Skill.findByIdAndUpdate(id, data, { new: true })
 
-const deleteSkill = async (id) => {
-    return Skill.findByIdAndDelete(id);
-};
-
-export const skillRepository = {
-    getAllSkills,
-    getSkillById,
-    createSkill,
-    updateSkill,
-    deleteSkill,
-};
+export const deleteSkill = (id) => Skill.findByIdAndDelete(id)
