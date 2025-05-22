@@ -1,77 +1,34 @@
 import User from '../models/user.model.js';
+import Role from '../models/enums/role.enum.js';
 
-export const findAllActiveUsers = () => {
-    return User.find({ isActive: true })
-        .select('-password')
-        .populate('skills')
-        .lean();
-};
+export const findAllUsers = () => User.find();
 
-export const findAllInactiveUsers = () => {
-    return User.find({ isActive: false }).select('-password').lean();
-};
+export const findAllActiveUsers = () => User.find({ isActive: true });
 
-export const findUserById = (id) => {
-    return User.findById(id);
-};
+export const findAllInactiveUsers = () => User.find({ isActive: false });
 
-export const populateUserDetails = (id) => {
-    return User.findById(id)
-        .populate('skills')
-        .populate('futureSkills')
-        .populate('comments');
-};
+export const countAllInactiveUsers = () => User.countDocuments({ isActive: false });
 
-export const populateUserSkillsOnly = (id) => {
-    return User.findById(id).populate('skills');
-};
+export const findUserById = (id) => User.findById(id);
 
-export const createUser = (userData) => {
-    const user = new User(userData);
-    return user.save();
-};
+export const findLecturers = () => User.find({ role: Role.LECTURER });
 
-export const updateUserById = (id, data) => {
-    return User.findByIdAndUpdate(id, data, { new: true });
-};
+export const createUser = (userData) => new User(userData).save();
 
-export const deleteUserById = (id) => {
-    return User.findByIdAndDelete(id);
-};
+export const updateUserById = (id, userData) => User.findByIdAndUpdate(id, userData, { new: true });
 
-export const findUserByEmail = (email) => {
-    return User.findOne({ email });
-};
+export const deleteUserById = (id) => User.findByIdAndDelete(id);
 
-export const updatePasswordById = (id, hashedPassword) => {
-    return User.findByIdAndUpdate(
-        id,
-        { password: hashedPassword, mustChangePassword: false },
-        { new: true }
-    );
-};
+export const findUserByEmail = (email) => User.findOne({ email });
 
-export const updateProfileImage = async (user, profileImageUrl) => {
-    user.profileImageUrl = profileImageUrl;
-    return user.save();
-};
+export const updateUserPassword = (id, hashedPassword) =>
+    User.findByIdAndUpdate(id, { $set: { password: hashedPassword, mustChangePassword: false } }, { new: true });
 
-export const removeProfileImage = async (user) => {
-    user.profileImageUrl = undefined;
-    return user.save();
-};
+export const activateUserById = (id) => User.findByIdAndUpdate(id, {isActive: true}, { new: true});
 
-export const userRepository = {
-    findUserById,
-    findUserByEmail,
-    populateUserDetails,
-    populateUserSkillsOnly,
-    createUser,
-    updateUserById,
-    deleteUserById,
-    findAllInactiveUsers,
-    findAllActiveUsers,
-    updatePasswordById,
-    updateProfileImage,
-    removeProfileImage,
-}
+export const deactivateUserById = (id) => User.findByIdAndUpdate(id, {isActive: false}, { new: true});
+
+export const findUserStatusById = (id) => User.findById(id).select('isActive');
+
+export const updateUserProfileImage = (id, profileImageUrl) =>
+    User.findByIdAndUpdate(id, { $set: { profileImageUrl } }, { new: true });
