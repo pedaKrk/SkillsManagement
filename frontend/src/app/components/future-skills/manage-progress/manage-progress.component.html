@@ -1,19 +1,14 @@
 <div class="container">
   <h1>Manage Progress</h1>
 
-  <!-- Top Buttons -->
+  <!-- Add New Button -->
   <div class="actions">
     <button class="btn primary" (click)="addNewSkill()">+ ADD NEW FUTURE-SKILL</button>
   </div>
 
-  <!-- Search + Filter Row -->
+  <!-- Search & Filters -->
   <div class="search-container">
-    <input
-      type="text"
-      class="search-box"
-      placeholder="Search Future-Skills"
-      (input)="filterSkills($event)"
-    />
+    <input type="text" class="search-box" placeholder="Search Future-Skills" (input)="filterSkills($event)">
     <button class="btn secondary" (click)="toggleFilterDropdown()">Apply Filters</button>
   </div>
 
@@ -21,111 +16,134 @@
   <div class="filter-dropdown" *ngIf="isFilterOpen">
     <div class="filter-container">
       <label>Skill Level</label>
-      <select class="filter-input">
-        <option>All Levels</option>
-        <option *ngFor="let level of skillLevels">{{ level }}</option>
+      <select [(ngModel)]="selectedLevel">
+        <option value="">All Levels</option>
+        <option *ngFor="let level of skillLevels" [value]="level">{{ level }}</option>
       </select>
-
-      <label>Lecturer Title</label>
-      <input type="text" class="filter-input" placeholder="Lecturer Title" />
-
+      <!-- Lecturer Dropdown -->
       <label>Lecturer Name</label>
-      <input type="text" class="filter-input" placeholder="Lecturer Name" />
-
+      <select class="filter-input" [(ngModel)]="selectedLecturerId">
+        <option value="">All Lecturers</option>
+        <option *ngFor="let lecturer of lecturers" [value]="lecturer._id">
+          {{ lecturer.title }} {{ lecturer.firstName }} {{ lecturer.lastName }}
+        </option>
+      </select>
+      <!-- Skill Dropdown -->
       <label>Skill</label>
-      <input type="text" class="filter-input" placeholder="Skill" />
-
-      <label>Date From</label>
-      <input type="date" class="filter-input" />
-
-      <label>Date To</label>
-      <input type="date" class="filter-input" />
+      <select class="filter-input" [(ngModel)]="selectedSkillId">
+        <option value="">All Skills</option>
+        <option *ngFor="let skill of skillOptions" [value]="skill._id">
+          {{ skill.name }}
+        </option>
+      </select>
+      <label>Expected Date</label>
+      <input type="date" class="filter-input" [(ngModel)]="expectedDate" />
 
       <button class="btn primary" (click)="applyFilters()">Apply Filters</button>
       <button class="btn secondary" (click)="resetFilters()">Reset Filters</button>
     </div>
   </div>
-</div>
 
-<!-- Table of Future Skills -->
-<div class="table-container">
-  <table class="skills-table">
-    <thead>
-    <tr>
-      <th>#No. of {{ filteredSkills.length }}</th>
-      <th>Lecturer Name</th>
-      <th>Skill Name</th>
-      <th>Skill Level</th>
-      <th>Expected Date</th>
-      <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngIf="addingNewSkill">
-      <td>{{ filteredSkills.length + 1 }}</td>
-      <td>
-        <select [(ngModel)]="newSkill.lecturer">
-          <option *ngFor="let lecturer of lecturers" [value]="lecturer">{{ lecturer }}</option>
-        </select>
-      </td>
-      <td>
-        <select [(ngModel)]="newSkill.skillName">
-          <option *ngFor="let skill of skillOptions" [value]="skill">{{ skill }}</option>
-        </select>
-      </td>
-      <td>
-        <select [(ngModel)]="newSkill.skillLevel">
-          <option *ngFor="let level of skillLevels" [value]="level">{{ level }}</option>
-        </select>
-      </td>
-      <td>
-        <input type="date" [(ngModel)]="newSkill.expectedDate" />
-      </td>
-      <td>
-        <span class="save" (click)="saveNewSkill()">Save</span>
-        <span class="cancel" (click)="cancelNewSkill()">Cancel</span>
-      </td>
-    </tr>
+  <!-- Skills Table -->
+  <div class="table-container">
+    <table class="skills-table">
+      <thead>
+      <tr>
+        <th>#No.</th>
+        <th>Lecturer Name</th>
+        <th>Skill Name</th>
+        <th>Skill Level</th>
+        <th>Expected Date</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
 
-    <tr *ngFor="let skill of filteredSkills; let i = index">
-      <td>{{ i + 1 }}</td>
+      <!-- Row for Adding New Skill -->
+      <tr *ngIf="addingNewSkill && lecturers.length > 0 && skillOptions.length > 0">
+        <td>{{ skills.length + 1 }}</td>
+        <td>
+          <select [(ngModel)]="newSkill.lecturer_id">
+            <option value="">Select Lecturer</option>
+            <option *ngFor="let lecturer of lecturers" [value]="lecturer._id">
+              {{ lecturer.title }} {{ lecturer.firstName }} {{ lecturer.lastName }}
+            </option>
+          </select>
+        </td>
+        <td>
+          <select [(ngModel)]="newSkill.skill_id">
+            <option value="">Select Skill</option>
+            <option *ngFor="let skill of skillOptions" [value]="skill._id">{{ skill.name }}</option>
+          </select>
+        </td>
+        <td>
+          <select [(ngModel)]="newSkill.future_achievable_level">
+            <option value="">Select Level</option>
+            <option *ngFor="let level of skillLevels" [value]="level">{{ level }}</option>
+          </select>
+        </td>
+        <td>
+          <input type="date" [(ngModel)]="newSkill.target_date" />
+        </td>
+        <td>
+          <span class="save" (click)="saveNewSkill()">Save</span>
+          <span class="cancel" (click)="cancelNewSkill()">Cancel</span>
+        </td>
+      </tr>
 
-      <!-- Editable row -->
-      <td *ngIf="editingIndex === i">
-        <select [(ngModel)]="skill.lecturer">
-          <option *ngFor="let lecturer of lecturers" [value]="lecturer">{{ lecturer }}</option>
-        </select>
-      </td>
-      <td *ngIf="editingIndex === i">
-        <select [(ngModel)]="skill.skillName">
-          <option *ngFor="let skillOption of skillOptions" [value]="skillOption">{{ skillOption }}</option>
-        </select>
-      </td>
-      <td *ngIf="editingIndex === i">
-        <select [(ngModel)]="skill.skillLevel">
-          <option *ngFor="let level of skillLevels" [value]="level">{{ level }}</option>
-        </select>
-      </td>
-      <td *ngIf="editingIndex === i">
-        <input type="date" [(ngModel)]="skill.expectedDate" />
-      </td>
+      <!-- Future Skills Rows -->
+      <tr *ngFor="let skill of skills; let i = index">
+        <td>{{ i + 1 }}</td>
 
-      <!-- Read-only row -->
-      <td *ngIf="editingIndex !== i">{{ skill.lecturer }}</td>
-      <td *ngIf="editingIndex !== i">{{ skill.skillName }}</td>
-      <td *ngIf="editingIndex !== i">{{ skill.skillLevel }}</td>
-      <td *ngIf="editingIndex !== i">{{ skill.expectedDate }}</td>
+        <!-- Editable Row -->
+        <ng-container *ngIf="editingIndex === i; else readOnlyRow">
+          <td>
+            <select [(ngModel)]="skill.lecturer_id">
+              <option value="">Select Lecturer</option>
+              <option *ngFor="let lecturer of lecturers" [ngValue]="lecturer">
+                {{ lecturer.title }} {{ lecturer.firstName }} {{ lecturer.lastName }}
+              </option>
+            </select>
+          </td>
+          <td>
+            <select [(ngModel)]="skill.skill_id">
+              <option value="">Select Skill</option>
+              <option *ngFor="let skillOption of skillOptions" [ngValue]="skillOption">
+                {{ skillOption.name }}
+              </option>
+            </select>
+          </td>
+          <td>
+            <select [(ngModel)]="skill.future_achievable_level">
+              <option value="">Select Level</option>
+              <option *ngFor="let level of skillLevels" [value]="level">{{ level }}</option>
+            </select>
 
-      <!-- Actions -->
-      <td>
-        <span *ngIf="editingIndex !== i" class="edit" (click)="editSkill(i)">Edit</span>
-        <span *ngIf="editingIndex !== i" class="delete" (click)="deleteSkill(i)">Delete</span>
-        <span *ngIf="editingIndex !== i" class="mail" (click)="sendMail(skill)">Mail</span>
-        <span *ngIf="editingIndex !== i" class="add" (click)="addToSkills(skill)">Add to Skills</span>
+          </td>
+          <td>
+            <input type="date" [(ngModel)]="skill.target_date" />
+          </td>
 
-        <span *ngIf="editingIndex === i" class="save" (click)="saveEdit()">Save</span>
-        <span *ngIf="editingIndex === i" class="cancel" (click)="cancelEdit()">Cancel</span>
-      </td>
+          <td>
+            <span class="save" (click)="saveEdit()">Save</span>
+            <span class="cancel" (click)="cancelEdit()">Cancel</span>
+          </td>
+        </ng-container>
+
+
+        <!-- Read-Only Row -->
+        <ng-template #readOnlyRow>
+          <td>{{ skill.lecturer_id?.title }} {{ skill.lecturer_id?.firstName }} {{ skill.lecturer_id?.lastName }}</td>
+          <td>{{ skill.skill_id?.name }}</td>
+          <td>{{ skill.future_achievable_level }}</td>
+          <td>{{ skill.target_date | date: 'yyyy-MM-dd' }}</td>
+          <td>
+            <span class="edit" (click)="editSkill(i)">Edit</span>
+            <span class="delete" (click)="deleteSkill(i)">Delete</span>
+            <span *ngIf="editingIndex !== i" class="mail" (click)="sendMail(skill)">Mail</span>
+            <span *ngIf="editingIndex !== i" class="add" (click)="addToSkills(skill)">Add to Skills</span>
+          </td>
+        </ng-template>
     </tr>
     </tbody>
   </table>
@@ -152,5 +170,6 @@
       <button class="btn secondary" (click)="emailModalOpen = false">Cancel</button>
     </div>
   </div>
+</div>
 </div>
 </div>

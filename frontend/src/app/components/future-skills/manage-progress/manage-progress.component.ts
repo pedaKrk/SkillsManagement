@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {ManageProgressService} from '../../../core/services/future-skills/manage-progress.service';
 import {AuthService, EmailService} from '../../../core';
 import {UserRole} from '../../../models/enums/user-roles.enum';
 import {EmploymentType} from '../../../models/enums/employment-type.enum';
+import {forkJoin} from 'rxjs';
+
 
 // adjust path as needed
 
@@ -17,29 +19,26 @@ import {EmploymentType} from '../../../models/enums/employment-type.enum';
   styleUrls: ['./manage-progress.component.scss']
 })
 export class ManageProgressComponent implements OnInit {
-  // Sample data
-  futureSkills = [
-    { lecturer: 'Dr Sylvia Geyers', skillName: 'DevOps', skillLevel: 'Advanced', expectedDate: '2024-12-13' },
-    { lecturer: 'Mag. Mage Tips', skillName: 'Cloud Security', skillLevel: 'Advanced', expectedDate: '2024-12-25' },
-    { lecturer: 'bsc Muster1', skillName: 'Cloud Security', skillLevel: 'Beginner', expectedDate: '2025-01-01' },
-    { lecturer: 'doc Muster2', skillName: 'Docker', skillLevel: 'Intermediate', expectedDate: '2025-09-01' }
-  ];
-
-  filteredSkills: any[] = [];
-  skillLevels = ['Beginner', 'Intermediate', 'Advanced'];
-  lecturers = ['Dr Sylvia Geyers', 'Mag. Mage Tips', 'bsc Muster1', 'doc Muster2'];
-  skillOptions = ['DevOps', 'Cloud Security', 'Docker'];
-
-  // State variables
-  isFilterOpen = false;
+  allSkills: any[] = [];
+  skills: any[] = [];
   editingIndex: number | null = null;
   originalSkill: any = null;
+
+  isFilterOpen = false;
   addingNewSkill = false;
+  skillLevels: string[] = [];
+  lecturers: any[] = [];
+  skillOptions: { _id: string, name: string }[] = [];
+  selectedLevel: string = '';
+  selectedLecturerId: string = '';
+  selectedSkillId: string = '';
+  expectedDate: string = '';
+
   newSkill = {
-    lecturer: '',
-    skillName: '',
-    skillLevel: '',
-    expectedDate: ''
+    lecturer_id: '',
+    skill_id: '',
+    future_achievable_level: '',
+    target_date: ''
   };
 
   emailModalOpen = false;
@@ -49,100 +48,224 @@ export class ManageProgressComponent implements OnInit {
     message: ''
   };
 
-  constructor( private mailService: EmailService, private authService: AuthService) {}
+  constructor(private manageProgressService: ManageProgressService, private cdr: ChangeDetectorRef, private mailService: EmailService, private authService: AuthService) {}
 
-  ngOnInit(): void {
-    this.filteredSkills = [...this.futureSkills];
+    ngOnInit(): void {
+      forkJoin({
+        lecturers: this.manageProgressService.getAllLecturers(),
+        skillOptions: this.manageProgressService.fetchAllSkillNames(),
+        skillLevels: this.manageProgressService.fetchAllSkillLevels(),
+        futureSkills: this.manageProgressService.getAllFutureSkills()
+  }).subscribe(({ lecturers, skillOptions, skillLevels, futureSkills }) => {
+      this.lecturers = lecturers;
+      this.skillOptions = skillOptions;
+      this.skillLevels = skillLevels;
+
+      this.skills = futureSkills.map(skill => ({
+        ...skill,
+        lecturer_id: lecturers.find(l => l._id === (skill.lecturer_id?._id || skill.lecturer_id)),
+        skill_id: skillOptions.find(s => s._id === (skill.skill_id?._id || skill.skill_id)),
+        target_date: skill.target_date ? new Date(skill.target_date).toISOString().split('T')[0] : ''
+      }));
+      this.allSkills = [...this.skills];
+      this.cdr.detectChanges();
+    });
   }
 
-  // Search
-  filterSkills(event: Event) {
-    const searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
-    this.filteredSkills = this.futureSkills.filter(skill =>
-      skill.lecturer.toLowerCase().includes(searchTerm) ||
-      skill.skillName.toLowerCase().includes(searchTerm) ||
-      skill.skillLevel.toLowerCase().includes(searchTerm)
-    );
+  getAllFutureSkills() {
+    this.manageProgressService.getAllFutureSkills().subscribe({
+      next: (data) => {
+        this.skills = data.map(skill => ({
+          ...skill,
+          lecturer_id: this.lecturers.find(l => l._id === (skill.lecturer_id?._id || skill.lecturer_id)),
+          skill_id: this.skillOptions.find(s => s._id === skill.skill_id || s._id === skill.skill_id?._id),
+          target_date: skill.target_date ? new Date(skill.target_date).toISOString().split('T')[0] : ''
+        }));
+        this.allSkills = [...this.skills];
+      },
+      error: (err) => console.error('Error fetching skills:', err)
+    });
   }
 
-  // Filters
-  toggleFilterDropdown() {
-    this.isFilterOpen = !this.isFilterOpen;
+
+  // Edit
+  editSkill(index: number) {
+    this.editingIndex = index;
+    this.originalSkill = { ...this.skills[index] };
   }
 
-  applyFilters() {
-    alert('Filters applied!');
-    this.isFilterOpen = false;
+  saveEdit() {
+    if (this.editingIndex !== null) {
+      const updatedSkill = { ...this.skills[this.editingIndex] };
+
+      if (typeof updatedSkill.skill_id === 'object') {
+        updatedSkill.skill_id = updatedSkill.skill_id._id;
+      }
+
+      if (typeof updatedSkill.lecturer_id === 'object') {
+        updatedSkill.lecturer_id = updatedSkill.lecturer_id._id;
+      }
+
+      this.manageProgressService.updateSkill(updatedSkill._id, updatedSkill).subscribe({
+        next: () => {
+          this.editingIndex = null;
+          this.originalSkill = null;
+          this.getAllFutureSkills(); // ✅ Reload fresh data from DB
+        },
+        error: err => {
+          console.error('Update failed:', err);
+          alert('Update failed.');
+        }
+      });
+    }
   }
 
-  resetFilters() {
-    this.filteredSkills = [...this.futureSkills];
-    alert('Filters reset!');
+  cancelEdit() {
+    if (this.editingIndex !== null) {
+      this.skills[this.editingIndex] = { ...this.originalSkill };
+      this.editingIndex = null;
+      this.originalSkill = null;
+    }
   }
 
-  // Add new skill
+//delete
+  deleteSkill(index: number) {
+    const skill = this.skills[index];
+    if (confirm('Are you sure you want to delete this skill?')) {
+      this.manageProgressService.deleteSkill(skill._id).subscribe({
+        next: () => this.skills.splice(index, 1),
+        error: err => {
+          console.error('Delete failed:', err);
+          alert('Delete failed.');
+        }
+      });
+    }
+  }
+  //create
   addNewSkill() {
-    this.addingNewSkill = true;
-    this.newSkill = {
-      lecturer: '',
-      skillName: '',
-      skillLevel: '',
-      expectedDate: ''
-    };
-  }
-
-  saveNewSkill() {
-    if (
-      this.newSkill.lecturer &&
-      this.newSkill.skillName &&
-      this.newSkill.skillLevel &&
-      this.newSkill.expectedDate
-    ) {
-      this.futureSkills.push({ ...this.newSkill });
-      this.filteredSkills = [...this.futureSkills];
-      this.addingNewSkill = false;
+    if (this.lecturers.length > 0 && this.skillOptions.length > 0) {
+      this.addingNewSkill = true;
     } else {
-      alert('Please fill in all fields');
+      // Wait until both are loaded, then allow the row to appear
+      const checkDataInterval = setInterval(() => {
+        if (this.lecturers.length > 0 && this.skillOptions.length > 0) {
+          this.addingNewSkill = true;
+          clearInterval(checkDataInterval);
+        }
+      }, 100); // Check every 100ms
     }
   }
 
   cancelNewSkill() {
     this.addingNewSkill = false;
-    this.newSkill = { lecturer: '', skillName: '', skillLevel: '', expectedDate: '' };
+    this.newSkill = {
+      lecturer_id: '',
+      skill_id: '',
+      future_achievable_level: '',
+      target_date: ''
+    };
   }
+  saveNewSkill() {
+    if (
+      this.newSkill.lecturer_id &&
+      this.newSkill.skill_id &&
+      this.newSkill.future_achievable_level &&
+      this.newSkill.target_date
+    ) {
+      const payload = {
+        name: this.skillOptions.find(s => s._id === this.newSkill.skill_id)?.name || 'Unnamed Skill',
+        lecturer_id: this.newSkill.lecturer_id,
+        skill_id: this.newSkill.skill_id,
+        future_achievable_level: this.newSkill.future_achievable_level,
+        target_date: new Date(this.newSkill.target_date)
+      };
 
-  // Edit
-  editSkill(index: number) {
-    this.editingIndex = index;
-    this.originalSkill = { ...this.filteredSkills[index] };
-  }
 
-  saveEdit() {
-    this.editingIndex = null;
-    this.originalSkill = null;
-    // Changes already bound with ngModel
-  }
+      console.log('✅ Payload being sent:', payload);
 
-  cancelEdit() {
-    if (this.editingIndex !== null) {
-      this.filteredSkills[this.editingIndex] = { ...this.originalSkill };
+      this.manageProgressService.createSkill(payload).subscribe({
+        next: (created) => {
+          this.skills.push(created);
+          this.addingNewSkill = false;
+          this.newSkill = {
+            lecturer_id: '',
+            skill_id: '',
+            future_achievable_level: '',
+            target_date: ''
+          };
+          this.getAllFutureSkills();
+        },
+        error: err => {
+          console.error('Create failed:', err);
+          alert('Failed to create new skill.');
+        }
+      });
+    } else {
+      alert('Please fill all fields.');
     }
-    this.editingIndex = null;
-    this.originalSkill = null;
+  }
+  //filter
+  filterSkills(event: Event) {
+    const value = (event.target as HTMLInputElement).value.toLowerCase();
+
+    this.skills = this.allSkills.filter(skill =>
+      skill.skill_id?.name?.toLowerCase().includes(value)
+    );
   }
 
-  deleteSkill(index: number) {
-    const confirmation = confirm('Are you sure you want to delete this future-skill?');
-    if (confirmation) {
-      const skillToDelete = this.filteredSkills[index];
-      this.futureSkills = this.futureSkills.filter(skill => skill !== skillToDelete);
-      this.filteredSkills = [...this.futureSkills];
-    }
+  toggleFilterDropdown() {
+    this.isFilterOpen = !this.isFilterOpen;
   }
 
+  applyFilters() {
+    const formattedDate = this.expectedDate
+      ? new Date(this.expectedDate).toISOString().split('T')[0]
+      : '';
+
+    this.skills = this.allSkills.filter(skill => {
+      const level = skill.future_achievable_level;
+      const lecturerId = skill.lecturer_id?._id || skill.lecturer_id;
+      const skillId = skill.skill_id?._id || skill.skill_id;
+      const skillDate = skill.target_date ? new Date(skill.target_date).toISOString().split('T')[0] : '';
+
+      const matchLevel = !this.selectedLevel || level === this.selectedLevel;
+      const matchLecturer = !this.selectedLecturerId || lecturerId === this.selectedLecturerId;
+      const matchSkill = !this.selectedSkillId || skillId === this.selectedSkillId;
+      const matchDate = !formattedDate || formattedDate === skillDate;
+
+      return matchLevel && matchLecturer && matchSkill && matchDate;
+    });
+
+    console.log('Filtered Skills:', this.skills);
+  }
+
+  resetFilters(): void {
+    this.selectedLevel = '';
+    this.selectedLecturerId = '';
+    this.selectedSkillId = '';
+    this.expectedDate = '';
+
+    this.getAllFutureSkills();
+    this.isFilterOpen = true;
+  }
+
+  protected readonly name = name;
+
+//mail
   sendMail(skill: any) {
-    const userName = skill.lecturer;
-    const skillName = skill.skillName;
+    console.log('Skill passed to sendMail:', skill);
+
+    const lecturer = skill.lecturer_id;
+    const skillInfo = skill.skill_id;
+
+    if (!lecturer || !skillInfo) {
+      alert('❌ Missing skill or lecturer data.');
+      return;
+    }
+
+    const userName = `${lecturer.firstName} ${lecturer.lastName}`;
+    const skillName = skillInfo.name;
+    const recipientEmail = lecturer.email;  // ✅ actual email from user model
 
     const token = this.authService.currentUserValue?.token;
     if (!token) {
@@ -150,7 +273,6 @@ export class ManageProgressComponent implements OnInit {
       return;
     }
 
-    // ✅ Use proxy-relative URL
     const url = new URL('http://localhost:3000/api/v1/email/future-skill-status-email');
     url.searchParams.append('userName', userName);
     url.searchParams.append('skillName', skillName);
@@ -158,14 +280,18 @@ export class ManageProgressComponent implements OnInit {
     fetch(url.toString(), {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       }
     })
-
       .then(res => res.json())
       .then(res => {
         if (res.success) {
-          this.openEmailModal(userName, skillName, res.template);
+          this.emailData = {
+            recipient: recipientEmail || `${userName.replace(/\s+/g, '.')}@example.com`, // fallback
+            subject: `Status request for ${skillName}`,
+            message: res.template
+          };
+          this.emailModalOpen = true;
         } else {
           alert('❌ Failed to load email template.');
         }
@@ -174,16 +300,6 @@ export class ManageProgressComponent implements OnInit {
         console.error(err);
         alert('❌ Could not load email template.');
       });
-  }
-
-
-  openEmailModal(userName: string, skillName: string, template: string) {
-    this.emailData = {
-      recipient: `${userName}@example.com`, // or resolve actual email from your user model
-      subject: `Status request for ${skillName}`,
-      message: template
-    };
-    this.emailModalOpen = true;
   }
 
   sendEmail() {
