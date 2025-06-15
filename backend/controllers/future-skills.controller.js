@@ -2,6 +2,7 @@ import Skill from '../models/skill.model.js'
 import FutureSkills from '../models/future-skill.model.js';
 import mongoose from 'mongoose';
 import skillLevelEnum from '../models/enums/skill.level.enum.js';
+import {mailService} from "../services/mail/mail.service.js";
 
 export const getAllSkillNames = async (req, res) => {
     try {
@@ -86,3 +87,33 @@ export const deleteFutureSkill = async (req, res) => {
         res.status(500).json({ message: 'Error deleting skill', error: err });
     }
 };
+
+//manage-progress page mail button
+export const sendFutureSkillMail = async (req, res) => {
+    try {
+        const { recipients, subject, message } = req.body;
+
+        if (!recipients || !subject || !message) {
+            return res.status(400).json({
+                success: false,
+                message: 'Recipients, subject, and message are required'
+            });
+        }
+
+        const result = await mailService.sendEmail(recipients, subject, null, message);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Email sent successfully',
+            data: result
+        });
+    } catch (error) {
+        console.error('Error in sendFutureSkillMail:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to send email',
+            error: error.message
+        });
+    }
+};
+

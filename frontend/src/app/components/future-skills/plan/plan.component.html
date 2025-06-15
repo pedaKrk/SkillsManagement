@@ -60,12 +60,12 @@
       <tbody>
 
       <!-- Row for Adding New Skill -->
-      <tr *ngIf="addingNewSkill">
+      <tr *ngIf="addingNewSkill && lecturers.length > 0 && skillOptions.length > 0">
         <td>{{ skills.length + 1 }}</td>
         <td>
           <select [(ngModel)]="newSkill.lecturer_id">
             <option value="">Select Lecturer</option>
-            <option *ngFor="let lecturer of lecturers" [ngValue]="lecturer">
+            <option *ngFor="let lecturer of lecturers" [value]="lecturer._id">
               {{ lecturer.title }} {{ lecturer.firstName }} {{ lecturer.lastName }}
             </option>
           </select>
@@ -108,7 +108,9 @@
           <td>
             <select [(ngModel)]="skill.skill_id">
               <option value="">Select Skill</option>
-              <option *ngFor="let skill of skillOptions" [value]="skill._id">{{ skill.name }}</option>
+              <option *ngFor="let skillOption of skillOptions" [ngValue]="skillOption">
+                {{ skillOption.name }}
+              </option>
             </select>
           </td>
           <td>
