@@ -1,26 +1,34 @@
 import mongoose from 'mongoose'
-import skillLevelEnum from './enums/skill.level.enum.js'
 
 const futureSkillModel = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        ref: 'User'
-    },
-    skillId: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        ref: 'Skills'
-    },
-    achievementDate: {
-        type: Date,
-        required: true
-    },
-    skillLevel: {
+    name: {
         type: String,
         required: true,
-        enum: skillLevelEnum
+        unique: true
+    },
+    description: {
+        type: String
+    },
+    category: {
+        type: String
+    },
+    future_achievable_level: {
+        type: String,
+        enum: ["Beginner", "Intermediate", "Advanced", "Expert"],
+        default: "Beginner"
+    },
+    lecturer_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    skill_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Skills'
+    },
+    target_date: {
+        type: Date,
+        default: () => new Date(new Date().setFullYear(new Date().getFullYear() + 1))
     }
-}, { timestamps: true })
+}, { collection: 'futureSkills' })
 
 export default mongoose.model("FutureSkill", futureSkillModel)
