@@ -31,7 +31,13 @@ export const API_CONFIG = {
       delete: (id: string) => `/future-skills/${id}`,
       skillLevels: '/future-skills/skill-levels',
       sendEmail: '/future-skills/send-email',
-      getTemplate: '/email/future-skill-status-email'
+      getTemplate: '/email/future-skill-status-email',
+    },
+    dashboard: {
+      skillsLevelMatrix: '/dashboard/skills-level-matrix',
+      skillsByLevel: '/dashboard/skills-by-level',
+      skillsPopularity: '/dashboard/skills-popularity',
+      fieldsPopularity: '/dashboard/fields-popularity'
     },
     comments: '/comments'
     //  API-Endpoints

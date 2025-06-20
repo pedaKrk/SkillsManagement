@@ -1,82 +1,48 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Chart, registerables } from 'chart.js';
-
-Chart.register(...registerables);
+import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { DashboardService } from '../../../core';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NgxChartsModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
-  futureSkills = [
-    { lecturer: 'doc Alon Iliagouev', skillName: 'Docker', skillLevel: 'Intermediate', expectedDate: '2025-09-01' },
-    { lecturer: 'Mag. Mage Tips', skillName: 'Cloud Security', skillLevel: 'Advanced', expectedDate: '2024-12-25' },
-    { lecturer: 'bsc Livia Zylja', skillName: 'Cloud Security', skillLevel: 'Beginner', expectedDate: '2025-01-01' }
-  ];
+
+  skillsLevelMatrixData: any[] = [];
+  skillsData: any[] = [];
+  skillsByLevelData: any[] = [];
+  skillsPerFieldData: any[] = [];
+
+  yAxisTickFormatting = (value: number) => {
+    return Number.isInteger(value) ? value.toString() : '';
+  };
+
+  get yMax(): number {
+    return 10;  // adjust if you want to compute dynamically
+  }
+
+  constructor(private dashboardService: DashboardService) {}
 
   ngOnInit(): void {
-    this.createChart();
-  }
-
-  createChart(): void {
-    const grouped = this.groupByMonth(this.futureSkills);
-
-    const labels = Object.keys(grouped);
-    const data = Object.values(grouped);
-
-    new Chart('skillsChart', {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Expected Future Skills',
-          data,
-          borderColor: '#2196f3',
-          borderWidth: 2,
-          fill: false,
-          pointRadius: 5,
-          pointBackgroundColor: '#2196f3',
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true,
-            title: { display: true, text: 'Anzahl der Skills' }
-          },
-          x: {
-            title: { display: true, text: 'Monat/Jahr' }
-          }
-        }
-      }
-    });
-  }
-
-  groupByMonth(data: any[]): Record<string, number> {
-    const grouped: Record<string, number> = {};
-
-    data.forEach(skill => {
-      const date = new Date(skill.expectedDate);
-      const label = date.toLocaleString('en', { month: 'short', year: 'numeric' });
-
-      if (grouped[label]) {
-        grouped[label]++;
-      } else {
-        grouped[label] = 1;
-      }
+    this.dashboardService.getSkillsLevelMatrix().subscribe(data => {
+      this.skillsLevelMatrixData = data;
     });
 
-    return grouped;
-  }
+    this.dashboardService.getSkillsByLevel().subscribe(data => {
+      this.skillsByLevelData = data;
+    });
 
-  get overdueSkills() {
-    const today = new Date();
-    return this.futureSkills.filter(skill => new Date(skill.expectedDate) < today);
+    this.dashboardService.getSkillsPopularity().subscribe(data => {
+      this.skillsData = data;
+    });
+
+    this.dashboardService.getFieldsPopularity().subscribe(data => {
+      this.skillsPerFieldData = data;
+    });
   }
 
 }
