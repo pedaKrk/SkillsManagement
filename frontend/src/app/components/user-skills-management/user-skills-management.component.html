@@ -45,6 +45,12 @@
                     {{ skill.levelHistory[skill.levelHistory.length - 1].level }}
                   </span>
                   <i class="fa fa-caret-down level-arrow" [class.rotated]="skillLevelDropdownState[skill.skill._id]"></i>
+
+                  <!-- Tooltip for new skills -->
+                  <div class="new-skill-tooltip" *ngIf="newlyAddedSkillId === skill.skill._id">
+                    <i class="fa fa-lightbulb"></i>
+                    <span>Klicke hier, um den Level zu ändern!</span>
+                  </div>
                 </div>
                 
                 <div class="level-dropdown" *ngIf="skillLevelDropdownState[skill.skill._id]">

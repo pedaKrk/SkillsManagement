@@ -43,6 +43,7 @@ export class UserSkillsManagementComponent implements OnInit {
   isSkillDropdownOpen = false;
   skillLevels = Object.values(SkillLevel);
   skillLevelDropdownState: { [skillId: string]: boolean } = {};
+  newlyAddedSkillId: string | null = null;
   
   constructor(
     private route: ActivatedRoute,
@@ -183,7 +184,7 @@ export class UserSkillsManagementComponent implements OnInit {
     const currentUser = this.authService.currentUserValue;
     if (!currentUser) return;
 
-    this.selectedSkills.push({
+    const newSkillEntry: UserSkillEntry = {
       skill: skill,
       levelHistory: [{
         level: SkillLevel.BEGINNER,
@@ -194,10 +195,18 @@ export class UserSkillsManagementComponent implements OnInit {
           lastName: this.user?.lastName || ''
         }
       }]
-    });
+    };
+
+    this.selectedSkills.push(newSkillEntry);
+    this.newlyAddedSkillId = skill._id; // ID des neuen Skills merken
     
     this.availableSkills = this.availableSkills.filter(s => s._id !== skillId);
     this.filterSkills(this.skillSearchControl.value || '');
+
+    // Tooltip nach ein paar Sekunden ausblenden
+    setTimeout(() => {
+      this.newlyAddedSkillId = null;
+    }, 5000); // 5 Sekunden
   }
 
   // Check if a skill is selected
