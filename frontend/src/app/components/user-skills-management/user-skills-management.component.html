@@ -29,33 +29,38 @@
             <div class="skill-card" *ngFor="let skill of selectedSkills">
               <div class="skill-header">
                 <span class="skill-name">{{ skill.skill.name }}</span>
-                <span 
-                  class="level-badge clickable" 
-                  [ngClass]="{
-                    'beginner': skill.skill.level === 'Beginner',
-                    'intermediate': skill.skill.level === 'Intermediate',
-                    'advanced': skill.skill.level === 'Advanced'
-                  }"
-                  (click)="skill.showLevelDropdown = !skill.showLevelDropdown"
-                >
-                  {{ skill.skill.level }}
-                  <i class="fa fa-caret-down" style="margin-left: 4px;"></i>
-                </span>
-                <span class="remove-icon" (click)="confirmRemoveSkill(skill.skill)">×</span>
-              </div>
-              <div class="level-dropdown" *ngIf="skill.showLevelDropdown">
-                <div 
-                  class="level-option" 
-                  *ngFor="let level of skillLevels"
-                  [class.selected]="skill.skill.level === level"
-                  (click)="setSkillLevel(skill, level); skill.showLevelDropdown = false"
-                >
-                  {{ level }}
+                <div class="skill-actions">
+                  <button
+                    class="btn-remove-skill"
+                    (click)="removeSkillWithConfirmation(skill.skill._id)"
+                    title="Skill entfernen"
+                  >
+                    <i class="fa fa-trash"></i>
+                  </button>
                 </div>
               </div>
-              <div class="skill-meta-modern" *ngIf="skill.addedBy">
-                Hinzugefügt von: {{ skill.addedBy.firstName }} {{ skill.addedBy.lastName }}
-                <span *ngIf="skill.addedAt">am {{ skill.addedAt | date:'short' }}</span>
+
+              <!-- Level Dropdown -->
+              <div class="level-selector-container" *ngIf="skill.levelHistory && skill.levelHistory.length > 0">
+                <div class="current-level-display" (click)="skillLevelDropdownState[skill.skill._id] = !skillLevelDropdownState[skill.skill._id]">
+                  <span class="level-badge" [ngClass]="skill.levelHistory[skill.levelHistory.length - 1].level.toLowerCase()">
+                    {{ skill.levelHistory[skill.levelHistory.length - 1].level }}
+                  </span>
+                  <span class="dropdown-arrow">{{ skillLevelDropdownState[skill.skill._id] ? '▲' : '▼' }}</span>
+                </div>
+                
+                <div class="level-dropdown" *ngIf="skillLevelDropdownState[skill.skill._id]">
+                  <div *ngFor="let level of skillLevels" class="level-option" (click)="setSkillLevel(skill, level); skillLevelDropdownState[skill.skill._id] = false">
+                    {{ level }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="skill-history-details">
+                <div *ngIf="skill.levelHistory.length > 0" class="skill-meta-modern">
+                  Hinzugefügt von: {{ skill.levelHistory[0].changedBy.firstName }} {{ skill.levelHistory[0].changedBy.lastName }}
+                  am {{ skill.levelHistory[0].changedAt | date:'short' }}
+                </div>
               </div>
             </div>
           </div>

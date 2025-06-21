@@ -73,32 +73,27 @@ export const createUser = async (req, res) => {
 }
 
 export const updateUser = async (req, res) => {
-
   try {
     console.info("Update user");
-    const { id } = req.params
-    const userData = req.body
-    const currentUser = req.user
+    const { id } = req.params;
+    const userData = req.body;
+    
+    console.log('[updateUser controller] Inspecting req.user:', req.user);
 
-    // Skills mapping
-    if (userData.skills && Array.isArray(userData.skills)) {
-      userData.skills = userData.skills.map(skillEntry => ({
-        skill: skillEntry.skill,
-        level: skillEntry.level, 
-        addedAt: skillEntry.addedAt,
-        addedBy: skillEntry.addedBy
-      }));
-    }
-
-    const updatedUser = await userService.updateUser(id, userData, currentUser)
+    const updatedUser = await userService.updateUser(id, userData, req.user);
 
     if (!updatedUser) {
-      return res.status(404).json({ message: 'User not found' })
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    res.status(200).json(updatedUser)
+    res.status(200).json(updatedUser);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to update user', error })
+    console.error('Error in updateUser controller:', error);
+    res.status(500).json({ 
+        message: 'Failed to update user', 
+        error: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 }
 

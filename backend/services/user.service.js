@@ -10,7 +10,7 @@ export const getAllUsers = async () => {
     return userRepository.findAllActiveUsers()
         .select('-password')
         .populate({ path: 'skills.skill', select: 'name description level category parent_id' })
-        .populate({ path: 'skills.addedBy', select: 'firstName lastName email' })
+        .populate({ path: 'skills.levelHistory.changedBy', select: 'firstName lastName email' })
         .lean();
 }
 
@@ -20,44 +20,30 @@ export const getUserById = async (id) => {
         return null;
     }
 
-    try {
-        await user.populate([
-            {
-                path: 'skills.skill',
-                select: 'name description level category parent_id'
-            },
-            {
-                path: 'skills.addedBy',
-                select: 'firstName lastName email'
-            }
-        ]);
-    } catch (error) {
-        console.error('Error populating skills for user:', user._id, error);
-    }
-
-    try {
-        await user.populate({
+    await user.populate([
+        {
+            path: 'skills.skill',
+            select: 'name description level category parent_id'
+        },
+        {
+            path: 'skills.levelHistory.changedBy',
+            select: 'firstName lastName email'
+        },
+        {
             path: 'futureSkills',
             populate: {
                 path: 'lecturer_id',
                 select: 'firstName lastName'
             }
-        });
-    } catch (error) {
-        console.error('Error populating futureSkills for user:', user._id, error);
-    }
-
-    try {
-        await user.populate({
+        },
+        {
             path: 'comments',
             populate: {
                 path: 'author',
                 select: 'firstName lastName'
             }
-        });
-    } catch (error) {
-        console.error('Error populating comments for user:', user._id, error);
-    }
+        }
+    ]);
 
     return user;
 }
@@ -72,35 +58,69 @@ export const createUser = async (user) => {
 
 export const updateUser = async (userId, updateData, currentUser) => {
     try {
-        console.info("updateUser", userId, updateData, currentUser)
-        // Skills mapping
-        if (updateData.skills && Array.isArray(updateData.skills)) {
-            updateData.skills = updateData.skills.map(skillEntry => ({
-                skill: skillEntry.skill,
-                level: skillEntry.level,
-                addedAt: skillEntry.addedAt,
-                addedBy: skillEntry.addedBy
-            }))
+        const currentUserId = currentUser?.id || currentUser?._id;
+        if (!currentUserId) {
+            throw new Error("Current user ID is missing, authentication issue.");
         }
 
-        const isOwnProfile = currentUser.id === userId || currentUser._id === userId
-        const userRole = currentUser.role.toLowerCase()
-        const isAdmin = userRole === roleEnum.ADMIN.toLowerCase()
-        const isCompetenceLeader = userRole === roleEnum.COMPETENCE_LEADER.toLowerCase()
+        const isOwnProfile = currentUserId.toString() === userId;
+        const userRole = currentUser.role.toLowerCase();
+        const isAdmin = userRole === roleEnum.ADMIN.toLowerCase();
+        const isCompetenceLeader = userRole === roleEnum.COMPETENCE_LEADER.toLowerCase();
 
         if (!isAdmin && !isCompetenceLeader && !isOwnProfile) {
-            throw new ForbiddenError()
+            throw new ForbiddenError();
         }
-        console.info("updating..")
-        const updatedUser = await userRepository.updateUserById(userId, updateData)
+
+        if (updateData.skills && Array.isArray(updateData.skills)) {
+            const user = await userRepository.findUserById(userId);
+            if (!user) {
+                throw new NotFoundError();
+            }
+
+            const existingSkillsMap = new Map(user.skills.map(s => [s.skill.toString(), s]));
+            const newSkillsArray = [];
+
+            for (const skillEntry of updateData.skills) {
+                const skillId = skillEntry.skill;
+                const newLevel = skillEntry.level;
+                const existingSkill = existingSkillsMap.get(skillId);
+
+                if (existingSkill) {
+                    const latestHistoryEntry = existingSkill.levelHistory[existingSkill.levelHistory.length - 1];
+                    if (!latestHistoryEntry || latestHistoryEntry.level !== newLevel) {
+                        existingSkill.levelHistory.push({
+                            level: newLevel,
+                            changedBy: currentUserId
+                        });
+                    }
+                    newSkillsArray.push(existingSkill);
+                } else {
+                    newSkillsArray.push({
+                        skill: skillId,
+                        levelHistory: [{
+                            level: newLevel,
+                            changedBy: currentUserId
+                        }]
+                    });
+                }
+            }
+
+            user.skills = newSkillsArray;
+
+            await user.save();
+            delete updateData.skills; 
+        }
+
+        const updatedUser = await userRepository.updateUserById(userId, updateData);
 
         if (!updatedUser) {
-            throw new NotFoundError()
+            throw new NotFoundError();
         }
-        console.info("update successfull")
-        return updatedUser
+        return updatedUser;
     } catch (error) {
-        throw error
+        console.error('[updateUser] Error caught in service:', error);
+        throw error;
     }
 }
 

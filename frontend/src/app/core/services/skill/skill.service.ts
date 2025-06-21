@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of, catchError, map } from 'rxjs';
-import { Skill } from '../../../models/user.model';
+import { Skill } from '../../../models/skill.model';
 import { API_CONFIG } from '../../config/api.config';
 import { AuthService } from '../auth/auth.service';
 

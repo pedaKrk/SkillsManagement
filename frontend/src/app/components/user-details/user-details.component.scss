@@ -274,21 +274,28 @@
   }
   
   .level-badge {
-    padding: 2px 14px;
+    padding: 3px 8px;
     border-radius: 12px;
-    font-size: 0.98rem;
-    font-weight: 500;
-    margin-left: 0.2em;
-    &.beginner { background: #2196f3; color: #fff; }
-    &.intermediate { background: #1976d2; color: #fff; }
-    &.advanced { background: #0077a9; color: #fff; }
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+    text-transform: capitalize;
+  
+    &.beginner { background-color: #007bff; }
+    &.intermediate { background-color: #ffc107; color: #212529;}
+    &.advanced { background-color: #28a745; }
+    &.expert { background-color: #dc3545; }
   }
   
   .skill-meta-modern {
+    font-size: 0.8rem;
     color: #6c757d;
-    font-size: 0.97rem;
-    margin-left: 2px;
-    margin-top: 2px;
+    margin-top: 4px;
+
+    .current-level {
+      font-weight: bold;
+      color: #333;
+    }
   }
   
   .no-skills {

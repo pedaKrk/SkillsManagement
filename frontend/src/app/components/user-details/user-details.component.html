@@ -77,18 +77,29 @@
       <div class="details-section">
         <h2 class="section-title">Skills</h2>
         <div class="skills-container" *ngIf="user.skills && user.skills.length > 0">
-          <div class="skill-card" *ngFor="let entry of user.skills">
+          <div class="skill-card" *ngFor="let userSkill of user.skills">
             <div class="skill-header">
-              <span class="skill-name">{{ entry.skill.name }}</span>
-              <span *ngIf="entry.skill.level" class="level-badge" [ngClass]="{
-                'beginner': entry.skill.level === 'Beginner',
-                'intermediate': entry.skill.level === 'Intermediate',
-                'advanced': entry.skill.level === 'Advanced'
-              }">{{ entry.skill.level }}</span>
+              <span class="skill-name">{{ userSkill.skill.name }}</span>
+              <!-- The last level -->
+              <span *ngIf="userSkill.levelHistory && userSkill.levelHistory.length > 0" 
+                    class="level-badge" 
+                    [ngClass]="getSkillLevelClass(userSkill.levelHistory[userSkill.levelHistory.length - 1].level)">
+                {{ userSkill.levelHistory[userSkill.levelHistory.length - 1].level }}
+              </span>
             </div>
-            <div class="skill-meta-modern">
-              Hinzugefügt von: {{ entry.addedBy?.firstName }} {{ entry.addedBy?.lastName }}
-              <span *ngIf="entry.addedAt">am {{ entry.addedAt | date:'short' }}</span>
+            <!-- Skill History -->
+            <div class="skill-history">
+              <div *ngFor="let history of userSkill.levelHistory; let i = index" class="skill-meta-modern">
+                <span [class.current-level]="i === userSkill.levelHistory.length - 1">
+                  Level '{{ history.level }}'
+                  <span *ngIf="history.changedBy">
+                    von {{ history.changedBy.firstName }} {{ history.changedBy.lastName }}
+                  </span>
+                  <span *ngIf="history.changedAt">
+                    am {{ history.changedAt | date:'short' }}
+                  </span>
+                </span>
+              </div>
             </div>
           </div>
         </div>
