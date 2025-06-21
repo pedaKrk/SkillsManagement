@@ -21,22 +21,45 @@ export const getUserById = async (id) => {
     }
 
     try {
-        return await user.populate([
-            { path: 'skills.skill', select: 'name description level category parent_id' },
-            { path: 'skills.addedBy', select: 'firstName lastName email' },
-            { path: 'futureSkills' },
-            { path: 'comments' }
-        ]);
-    } catch {
-        try {
-            return await user.populate({
+        await user.populate([
+            {
                 path: 'skills.skill',
                 select: 'name description level category parent_id'
-            });
-        } catch {
-            return user;
-        }
+            },
+            {
+                path: 'skills.addedBy',
+                select: 'firstName lastName email'
+            }
+        ]);
+    } catch (error) {
+        console.error('Error populating skills for user:', user._id, error);
     }
+
+    try {
+        await user.populate({
+            path: 'futureSkills',
+            populate: {
+                path: 'lecturer_id',
+                select: 'firstName lastName'
+            }
+        });
+    } catch (error) {
+        console.error('Error populating futureSkills for user:', user._id, error);
+    }
+
+    try {
+        await user.populate({
+            path: 'comments',
+            populate: {
+                path: 'author',
+                select: 'firstName lastName'
+            }
+        });
+    } catch (error) {
+        console.error('Error populating comments for user:', user._id, error);
+    }
+
+    return user;
 }
 
 export const getAllLecturers = async () => {

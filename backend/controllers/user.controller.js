@@ -78,7 +78,7 @@ export const updateUser = async (req, res) => {
     console.info("Update user");
     const { id } = req.params
     const userData = req.body
-    const currentUser = req.user.id
+    const currentUser = req.user
 
     // Skills mapping
     if (userData.skills && Array.isArray(userData.skills)) {
