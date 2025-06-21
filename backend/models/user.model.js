@@ -75,7 +75,7 @@ const userModel = new mongoose.Schema({
     }],
     futureSkills: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "FutureSkills"
+        ref: "FutureSkill"
     }]
 }, { collection: 'users' })
 
