@@ -29,24 +29,22 @@
             <div class="skill-card" *ngFor="let skill of selectedSkills">
               <div class="skill-header">
                 <span class="skill-name">{{ skill.skill.name }}</span>
-                <div class="skill-actions">
-                  <button
-                    class="btn-remove-skill"
-                    (click)="removeSkillWithConfirmation(skill.skill._id)"
-                    title="Skill entfernen"
-                  >
-                    <i class="fa fa-trash"></i>
-                  </button>
-                </div>
+                <button
+                  class="btn-remove-skill"
+                  (click)="removeSkillWithConfirmation(skill.skill._id)"
+                  title="Skill entfernen"
+                >
+                  <i class="fa fa-trash"></i>
+                </button>
               </div>
 
               <!-- Level Dropdown -->
               <div class="level-selector-container" *ngIf="skill.levelHistory && skill.levelHistory.length > 0">
-                <div class="current-level-display" (click)="skillLevelDropdownState[skill.skill._id] = !skillLevelDropdownState[skill.skill._id]">
+                <div class="current-level-display clickable" (click)="skillLevelDropdownState[skill.skill._id] = !skillLevelDropdownState[skill.skill._id]">
                   <span class="level-badge" [ngClass]="skill.levelHistory[skill.levelHistory.length - 1].level.toLowerCase()">
                     {{ skill.levelHistory[skill.levelHistory.length - 1].level }}
                   </span>
-                  <span class="dropdown-arrow">{{ skillLevelDropdownState[skill.skill._id] ? '▲' : '▼' }}</span>
+                  <i class="fa fa-caret-down level-arrow" [class.rotated]="skillLevelDropdownState[skill.skill._id]"></i>
                 </div>
                 
                 <div class="level-dropdown" *ngIf="skillLevelDropdownState[skill.skill._id]">
