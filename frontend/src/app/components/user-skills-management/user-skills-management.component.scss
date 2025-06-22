@@ -6,10 +6,10 @@
 
 // Content Layout
 .content-layout {
-  display: grid;
-  grid-template-columns: 1fr 300px;
+  display: flex;
+  flex-direction: column;
   gap: 2rem;
-  align-items: start;
+  align-items: stretch;
 }
 
 // User Profile Section
@@ -19,6 +19,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 2rem;
   text-align: center;
+  order: -1;
 
   .profile-image-container {
     width: 180px;
@@ -508,12 +509,24 @@
 }
 
 // Responsive Design
-@media (max-width: 1024px) {
+@media (min-width: 1024px) {
   .content-layout {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+    flex-direction: row;
+    align-items: flex-start;
   }
 
+  .user-profile-section {
+    flex: 0 0 300px;
+    order: 2;
+  }
+
+  .skills-section {
+    flex: 1;
+    order: 1;
+  }
+}
+
+@media (max-width: 1024px) {
   .user-profile-section {
     .profile-image-container {
       width: 150px;
