@@ -19,7 +19,6 @@
     margin: 0 auto;
   }
 
-  // Notification Badge
   .notification-badge {
     position: absolute;
     top: -10px;
@@ -63,7 +62,7 @@
 }
 
 .hamburger-menu {
-  display: none; // Hidden by default
+  display: none;
   flex-direction: column;
   justify-content: space-around;
   width: 2rem;
@@ -185,8 +184,8 @@
       }
 
       &:hover {
-        transform: none; /* No transformation on hover for active links */
-        color: white; /* Keeps full white color */
+        transform: none;
+        color: white;
       }
     }
   }
@@ -288,8 +287,82 @@
       }
 
       &:hover {
-        transform: none; /* No transformation on hover for active links */
-        color: white; /* Keeps full white color */
+        transform: none;
+        color: white;
+      }
+    }
+  }
+}
+
+// Future Skills Dropdown (EXAKT wie User Menu) - Desktop
+.future-skills-dropdown {
+  position: relative;
+  display: inline-block;
+
+  .future-skills-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    color: #ffffff;
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: none;
+      color: #f0f0f0;
+    }
+
+    .dropdown-arrow {
+      margin-left: 6px;
+      font-size: 12px;
+    }
+  }
+
+  .future-skills-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 200px;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    overflow: hidden;
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
+      color: #333; // EXAKT wie User-Menu
+      text-decoration: none;
+      transition: background-color 0.2s;
+      font-size: inherit; // Gleiche Schriftgröße
+      font-weight: normal; // Gleiche Schrift-Weight
+
+      i {
+        margin-right: 8px; // EXAKT wie User-Menu
+        width: 16px; // EXAKT wie User-Menu
+        text-align: center; // EXAKT wie User-Menu
+      }
+
+      &:hover {
+        background-color: #f5f5f5;
+        color: #333; // Text bleibt dunkel beim Hover
+      }
+
+      &.active, &[routerLinkActive="active"] {
+        background-color: #f5f5f5;
+        color: #333; // Text bleibt dunkel
+        font-weight: normal; // Kein bold
+      }
+
+      // Entferne alle zusätzlichen Effekte
+      &:after, &:before {
+        display: none;
+      }
+
+      .left-line, .bottom-line {
+        display: none;
       }
     }
   }
@@ -322,7 +395,7 @@
   .user-dropdown-menu {
     position: absolute;
     top: 100%;
-    left: 0;
+    right: 0;
     min-width: 200px;
     background-color: white;
     border-radius: 4px;
@@ -337,7 +410,6 @@
       color: #333;
       text-decoration: none;
       transition: background-color 0.2s;
-      position: relative;
 
       i {
         margin-right: 8px;
@@ -347,18 +419,6 @@
 
       &:hover {
         background-color: #f5f5f5;
-        color: #0077a9;
-
-        &:after {
-          content: '';
-          position: absolute;
-          width: 100%;
-          height: 2px;
-          bottom: 0;
-          left: 0;
-          background-color: #0077a9;
-          animation: slideInFromLeft 0.3s ease-in-out forwards;
-        }
       }
     }
 
@@ -370,13 +430,6 @@
   }
 }
 
-// Spezifische Regel nur für das Dropdown im user-menu (rechts)
-.user-menu .user-dropdown .user-dropdown-menu {
-  left: auto;
-  right: 0;
-}
-
-// Responsive Styles
 @media (max-width: 1024px) {
   .navbar-collapse {
     position: fixed;
@@ -392,7 +445,7 @@
     transition: left 0.3s ease-in-out;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
     z-index: 1010;
-    overflow-y: auto; // Scrollbar falls nötig
+    overflow-y: auto;
 
     &.open {
       left: 0;
@@ -424,29 +477,25 @@
 }
 
 @media (max-width: 768px) {
-  // Logo links, Hamburger rechts - in einer Reihe
   .navbar .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
 
-  // Stellen Sie sicher, dass das Logo nicht zu groß wird
   .navbar-brand {
-    order: 1; // Logo bleibt links
+    order: 1;
 
     .fh-logo {
-      height: 30px; // Etwas kleiner auf mobilen Geräten
+      height: 30px;
     }
   }
 
-  // Hamburger Menu Styling
   .hamburger-menu {
     display: flex;
-    order: 2; // Hamburger erscheint rechts
+    order: 2;
   }
 
-  // Mobile dropdown styles für das Menü
   .navbar-nav {
     flex-direction: column;
     width: 100%;
@@ -456,7 +505,6 @@
       margin: 0.75rem 0;
       width: 100%;
 
-      // Standard nav-links bleiben unverändert
       .nav-link {
         color: white;
         padding: 0.75rem 0;
@@ -475,88 +523,88 @@
           font-weight: 600;
         }
       }
+
+      .user-dropdown {
+        width: 100%;
+
+        .user-dropdown-toggle {
+          width: 100%;
+          padding: 0.75rem 0;
+          color: white;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          font-size: 1rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          &:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding-left: 0.5rem;
+            color: white;
+          }
+
+          .dropdown-arrow {
+            margin-left: auto;
+            font-size: 0.8em;
+            transition: transform 0.3s ease;
+          }
+        }
+
+        .user-dropdown-menu {
+          position: static;
+          width: 100%;
+          background-color: rgba(0, 119, 169, 0.3);
+          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+          border-radius: 8px;
+          margin: 0.5rem 0;
+          padding: 0.5rem 0;
+          backdrop-filter: blur(10px);
+
+          .dropdown-item {
+            color: white;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            margin: 0.25rem 0.5rem;
+            font-size: 0.95rem;
+
+            i {
+              margin-right: 0.75rem;
+              width: 16px;
+              text-align: center;
+              color: rgba(255, 255, 255, 0.8);
+            }
+
+            &:hover {
+              background-color: rgba(255, 255, 255, 0.2);
+              color: white;
+              transform: translateX(0.5rem);
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            &.active, &[routerLinkActive="active"] {
+              background-color: rgba(255, 255, 255, 0.25);
+              color: white;
+              font-weight: 600;
+              transform: translateX(0.5rem);
+            }
+
+            &:after {
+              display: none !important;
+            }
+          }
+        }
+      }
     }
   }
 
-  // Future Skills Dropdown - Mobile
-  .future-skills-dropdown {
-    width: 100%;
 
-    .future-skills-dropdown-toggle {
-      width: 100%;
-      padding: 0.75rem 0;
-      color: white;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      font-size: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: all 0.3s ease;
 
-      &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        padding-left: 0.5rem;
-        color: white;
-        transform: none;
-      }
-
-      .dropdown-arrow {
-        margin-left: auto;
-        font-size: 0.8em;
-        transition: transform 0.3s ease;
-      }
-    }
-
-    .future-skills-dropdown-menu {
-      position: static;
-      width: 100%;
-      background-color: rgba(0, 119, 169, 0.3);
-      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-      margin: 0.5rem 0;
-      padding: 0.5rem 0;
-      backdrop-filter: blur(10px);
-
-      &:after {
-        display: none; // Kein Pfeil auf Mobile
-      }
-
-      .dropdown-item {
-        color: white;
-        padding: 0.75rem 1rem;
-        text-decoration: none;
-        display: block;
-        transition: all 0.3s ease;
-        border-radius: 6px;
-        margin: 0.25rem 0.5rem;
-        font-size: 0.95rem;
-        border-bottom: none;
-
-        &:hover {
-          background-color: rgba(255, 255, 255, 0.2);
-          color: white;
-          transform: translateX(0.5rem);
-        }
-
-        &.active, &[routerLinkActive="active"] {
-          background-color: rgba(255, 255, 255, 0.25);
-          color: white;
-          font-weight: 600;
-          transform: translateX(0.5rem);
-        }
-
-        &:after {
-          display: none; // Keine Desktop-Effekte
-        }
-
-        .left-line, .bottom-line {
-          display: none;
-        }
-      }
-    }
-  }
-
-  // User Menu mobile Styling
   .user-menu {
     width: 100%;
     flex-direction: column;
@@ -638,7 +686,6 @@
   }
 }
 
-// Zusätzliche Regel für sehr kleine Bildschirme
 @media (max-width: 480px) {
   .navbar {
     padding: 0.5rem 1rem;
@@ -659,16 +706,7 @@
   }
 
   .navbar-collapse {
-    width: 85%; // Etwas breiter auf kleinen Bildschirmen
+    width: 85%;
     max-width: 280px;
-  }
-}
-
-@keyframes slideInFromLeft {
-  from {
-    width: 0;
-  }
-  to {
-    width: 100%;
   }
 }
