@@ -7,7 +7,7 @@
     </div>
 
     <!-- Hamburger Menu Button -->
-    <div class="hamburger-menu" (click)="toggleMenu()" *ngIf="isLoggedIn" [class.open]="isMenuOpen">
+    <div class="hamburger-menu" (click)="toggleMenu()" [class.open]="isMenuOpen">
       <span></span>
       <span></span>
       <span></span>
@@ -34,24 +34,20 @@
             </span>
           </a>
         </li>
-        <li class="nav-item dropdown" [class.open]="isDropdownOpen" *ngIf="isAdmin || isCompetenceLeader" (click)="toggleDropdown($event)">
-          <a class="nav-link dropdown-toggle">Future Skills <span class="dropdown-arrow">▾</span></a>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" [routerLink]="['/future-skills/dashboard']" routerLinkActive="active" (click)="onDropdownItemClick($event); closeMenu()">
-              <span>Dashboard</span>
-              <div class="left-line" *ngIf="isRouteActive('/future-skills/dashboard')"></div>
-              <div class="bottom-line" *ngIf="isRouteActive('/future-skills/dashboard')"></div>
-            </a>
-            <a class="dropdown-item" [routerLink]="['/future-skills/plan']" routerLinkActive="active" (click)="onDropdownItemClick($event); closeMenu()">
-              <span>Plan</span>
-              <div class="left-line" *ngIf="isRouteActive('/future-skills/plan')"></div>
-              <div class="bottom-line" *ngIf="isRouteActive('/future-skills/plan')"></div>
-            </a>
-            <a class="dropdown-item" [routerLink]="['/future-skills/progress']" routerLinkActive="active" (click)="onDropdownItemClick($event); closeMenu()">
-              <span>Manage Progress</span>
-              <div class="left-line" *ngIf="isRouteActive('/future-skills/progress')"></div>
-              <div class="bottom-line" *ngIf="isRouteActive('/future-skills/progress')"></div>
-            </a>
+        <li class="nav-item" *ngIf="isAdmin || isCompetenceLeader">
+          <div class="user-dropdown">
+            <a class="nav-link user-dropdown-toggle" (click)="toggleDropdown($event)">Future Skills <span class="dropdown-arrow">▾</span></a>
+            <div class="user-dropdown-menu" *ngIf="isDropdownOpen">
+              <a class="dropdown-item" [routerLink]="['/future-skills/dashboard']" routerLinkActive="active" (click)="onDropdownItemClick($event); closeMenu()">
+                <i class="fa fa-tachometer"></i> Dashboard
+              </a>
+              <a class="dropdown-item" [routerLink]="['/future-skills/plan']" routerLinkActive="active" (click)="onDropdownItemClick($event); closeMenu()">
+                <i class="fa fa-calendar"></i> Plan
+              </a>
+              <a class="dropdown-item" [routerLink]="['/future-skills/progress']" routerLinkActive="active" (click)="onDropdownItemClick($event); closeMenu()">
+                <i class="fa fa-tasks"></i> Manage Progress
+              </a>
+            </div>
           </div>
         </li>
         <li class="nav-item" *ngIf="isAdmin">

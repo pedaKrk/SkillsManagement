@@ -46,7 +46,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.isLoggedIn = !!user;
       this.username = user?.username || null;
       this.userId = user?.id || null;
-      
+
       if (user?.role) {
         this.isAdmin = user.role === UserRole.ADMIN;
         this.isCompetenceLeader = user.role === UserRole.COMPETENCE_LEADER;
@@ -81,19 +81,19 @@ export class NavbarComponent implements OnInit, OnDestroy {
     event.preventDefault();
     event.stopPropagation();
     this.isDropdownOpen = !this.isDropdownOpen;
-    
+
     // Close user dropdown when Future Skills dropdown is opened
     if (this.isDropdownOpen) {
       this.isUserDropdownOpen = false;
     }
   }
-  
+
   toggleUserDropdown(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
     this.isUserDropdownOpen = !this.isUserDropdownOpen;
-    
-    
+
+
     if (this.isUserDropdownOpen) {
       this.isDropdownOpen = false;
     }
@@ -104,11 +104,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
     const target = event.target as HTMLElement;
     const dropdown = document.querySelector('.dropdown');
     const userDropdown = document.querySelector('.user-dropdown');
-    
+
     if (this.isDropdownOpen && dropdown && !dropdown.contains(target)) {
       this.isDropdownOpen = false;
     }
-    
+
     if (this.isUserDropdownOpen && userDropdown && !userDropdown.contains(target)) {
       this.isUserDropdownOpen = false;
     }
@@ -120,8 +120,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   isRouteActive(route: string): boolean {
     const currentUrl = this.router.url.split('?')[0]; // Ignore query parameters
-    return currentUrl === route || 
-           currentUrl === route + '/' || 
+    return currentUrl === route ||
+           currentUrl === route + '/' ||
            currentUrl.startsWith(route + '/');
   }
 
@@ -136,17 +136,17 @@ export class NavbarComponent implements OnInit, OnDestroy {
   editOwnProfile(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    
+
     if (this.userId) {
       console.log('Navigiere zur Profilbearbeitungsseite für Benutzer:', this.userId);
-      
+
       // Explicit navigation to the edit path
       const url = `/users/${this.userId}/edit`;
       console.log('Navigation URL:', url);
-      
+
       // Close dropdown
       this.isUserDropdownOpen = false;
-      
+
       // Navigate to the edit path
       this.router.navigateByUrl(url);
     } else {
@@ -161,4 +161,4 @@ export class NavbarComponent implements OnInit, OnDestroy {
   closeMenu(): void {
     this.isMenuOpen = false;
   }
-} 
+}
