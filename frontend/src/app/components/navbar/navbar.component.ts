@@ -25,6 +25,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isDropdownOpen = false;
   isUserDropdownOpen = false;
   inactiveUsersCount = 0;
+  isMenuOpen = false;
   private subscription: Subscription = new Subscription();
 
   constructor(
@@ -151,5 +152,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
     } else {
       console.error('Keine Benutzer-ID verfügbar');
     }
+  }
+
+  toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  closeMenu(): void {
+    this.isMenuOpen = false;
   }
 } 

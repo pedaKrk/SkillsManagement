@@ -5,11 +5,11 @@
   transition: all 0.3s ease;
   width: 100%;
   z-index: 1000;
-  
+
   &:hover {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   }
-  
+
   .container {
     display: flex;
     justify-content: space-between;
@@ -62,6 +62,42 @@
   align-items: center;
 }
 
+.hamburger-menu {
+  display: none; // Hidden by default
+  flex-direction: column;
+  justify-content: space-around;
+  width: 2rem;
+  height: 2rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 10;
+
+  span {
+    width: 2rem;
+    height: 0.25rem;
+    background: white;
+    border-radius: 10px;
+    transition: all 0.3s linear;
+    position: relative;
+    transform-origin: 1px;
+  }
+
+  &.open span:nth-child(1) {
+    transform: rotate(45deg);
+  }
+
+  &.open span:nth-child(2) {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  &.open span:nth-child(3) {
+    transform: rotate(-45deg);
+  }
+}
+
 .navbar-brand {
   display: flex;
   align-items: center;
@@ -70,16 +106,21 @@
   font-weight: 600;
   text-decoration: none;
   transition: all 0.3s ease;
-  
+
   &:hover {
     transform: scale(1.05);
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
   }
-  
+
   .logo {
     height: 30px;
     margin-right: 10px;
   }
+}
+
+.navbar-collapse {
+  display: flex;
+  align-items: center;
 }
 
 .navbar-nav {
@@ -89,14 +130,14 @@
   padding: 0;
   align-items: center;
   height: 100%;
-  
+
   .nav-item {
     margin: 0 0.75rem;
     position: relative;
     display: flex;
     align-items: center;
     height: 100%;
-    
+
     &:after {
       content: '';
       position: absolute;
@@ -107,19 +148,19 @@
       background-color: white;
       transition: width 0.3s ease;
     }
-    
+
     &:hover:not(:has(.active)):after {
       width: 100%;
     }
   }
-  
+
   // Dropdown Styles
   .dropdown {
     position: relative;
     display: flex;
     align-items: center;
     height: 100%;
-    
+
     // improve the hover area
     &:hover {
       .dropdown-menu {
@@ -129,7 +170,7 @@
         pointer-events: auto;
       }
     }
-    
+
     // show the dropdown menu when the class "open" is present
     &.open .dropdown-menu {
       display: block;
@@ -137,24 +178,24 @@
       transform: translateY(0);
       pointer-events: auto; //important, so that interactions with the dropdown menu are possible
     }
-    
+
     // Override the default :after for dropdown items
     &:after {
       display: none;
     }
-    
+
     .dropdown-toggle {
       display: flex;
       align-items: center;
       cursor: pointer;
       height: 100%;
-      
+
       &:after {
         content: '';
         margin-left: 0;
         display: none;
       }
-      
+
       .dropdown-arrow {
         margin-left: 5px;
         font-size: 0.8em;
@@ -162,7 +203,7 @@
         line-height: 1;
       }
     }
-    
+
     .dropdown-menu {
       display: none;
       position: absolute;
@@ -181,7 +222,7 @@
       padding-bottom: 0;
       overflow: hidden;
       pointer-events: none; //standard: no interactions with the dropdown menu
-      
+
       &:before {
         content: '';
         position: absolute;
@@ -191,7 +232,7 @@
         height: 10px;
         background-color: transparent;
       }
-      
+
       &:after {
         content: '';
         position: absolute;
@@ -203,7 +244,7 @@
         border-right: 8px solid transparent;
         border-bottom: 8px solid white;
       }
-      
+
       .dropdown-item {
         color: #333;
         padding: 12px 16px;
@@ -212,31 +253,31 @@
         transition: all 0.2s ease;
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         position: relative;
-        
+
         &:last-child {
           border-bottom: none;
           padding-bottom: 14px; //more space for the last element
         }
-        
+
         //base style for the text
         > span {
           display: inline-block;
           transition: transform 0.2s ease;
         }
-        
+
         // Normal state for all dropdown items
         &:not(.active) {
           background-color: transparent;
           color: #333;
-          
+
           &:hover {
             background-color: #f5f5f5;
             color: #0077a9;
-            
+
             > span {
               transform: translateX(5px);
             }
-            
+
             &:after {
               content: '';
               position: absolute;
@@ -249,16 +290,16 @@
             }
           }
         }
-        
+
         // Active state styling
         &.active {
           background-color: #f5f5f5 !important;
           color: #0077a9 !important;
-          
+
           > span {
             transform: translateX(5px);
           }
-          
+
           &:after {
             content: '';
             position: absolute;
@@ -269,12 +310,12 @@
             background-color: #0077a9;
             animation: slideInFromLeft 0.3s ease-in-out forwards;
           }
-          
+
           .left-line, .bottom-line {
             display: none;
           }
         }
-        
+
         &[routerLink="/future-skills/manage-progress"] {
           &:hover {
             &:after {
@@ -288,10 +329,10 @@
               animation: slideInFromLeft 0.3s ease-in-out forwards;
             }
           }
-          
+
           &.active {
             background-color: rgba(0, 119, 169, 0.1) !important; /* Erzwinge die Hintergrundfarbe */
-            
+
             .bottom-line {
               height: 3px;
             }
@@ -300,7 +341,7 @@
       }
     }
   }
-  
+
   .nav-link {
     color: white;
     text-decoration: none;
@@ -311,16 +352,16 @@
     display: flex;
     align-items: center;
     height: 100%;
-    
+
     &:hover {
       color: rgba(255, 255, 255, 0.8);
       transform: translateY(-2px);
     }
-    
+
     &.active {
       font-weight: 600;
       position: relative;
-      
+
       &:after {
         content: '';
         position: absolute;
@@ -330,7 +371,7 @@
         left: 0;
         background-color: white;
       }
-      
+
       &:hover {
         transform: none; /* No transformation on hover for active links */
         color: white; /* Keeps full white color */
@@ -347,11 +388,11 @@
   text-decoration: none;
   padding: 0;
   background-color: transparent;
-  
+
   &:hover {
     transform: scale(1.05);
   }
-  
+
   .fh-logo {
     height: 35px;
     width: auto;
@@ -363,13 +404,13 @@
   display: flex;
   align-items: center;
   margin-left: 1.5rem;
-  
+
   .username {
     color: white;
     margin-right: 1rem;
     font-weight: 500;
   }
-  
+
   .btn-logout {
     background-color: transparent;
     border: 1px solid white;
@@ -378,20 +419,20 @@
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.3s ease;
-    
+
     &:hover {
       background-color: white;
       color: #0077a9;
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-    
+
     &:active {
       transform: translateY(1px);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
   }
-  
+
   .nav-link {
     color: white;
     text-decoration: none;
@@ -403,11 +444,11 @@
     align-items: center;
     height: 100%;
     position: relative;
-    
+
     &:hover {
       color: rgba(255, 255, 255, 0.8);
       transform: translateY(-2px);
-      
+
       &:after {
         content: '';
         position: absolute;
@@ -419,11 +460,11 @@
         transition: width 0.3s ease;
       }
     }
-    
+
     &.active {
       font-weight: 600;
       position: relative;
-      
+
       &:after {
         content: '';
         position: absolute;
@@ -433,7 +474,7 @@
         left: 0;
         background-color: white;
       }
-      
+
       &:hover {
         transform: none; /* No transformation on hover for active links */
         color: white; /* Keeps full white color */
@@ -442,40 +483,100 @@
   }
 }
 
-@media (max-width: 768px) {
-  .navbar .container {
+// Responsive Styles
+@media (max-width: 1024px) {
+  .navbar-collapse {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 80%;
+    max-width: 300px;
+    height: 100vh;
+    background-color: #0077a9;
     flex-direction: column;
     align-items: flex-start;
+    padding: 4rem 2rem 2rem;
+    transition: left 0.3s ease-in-out;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 1010;
+
+    &.open {
+      left: 0;
+    }
   }
-  
-  .navbar-left {
-    margin-bottom: 1rem;
+
+  .navbar-nav {
+    flex-direction: column;
+    width: 100%;
+    align-items: flex-start;
+
+    .nav-item {
+      margin: 1rem 0;
+      width: 100%;
+    }
   }
-  
+
+  .user-menu {
+    margin-top: auto;
+    width: 100%;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .hamburger-menu {
+    display: flex;
+    z-index: 1020;
+  }
+}
+
+@media (max-width: 768px) {
+  // Logo links, Hamburger rechts - in einer Reihe
+  .navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  // Stellen Sie sicher, dass das Logo nicht zu groß wird
+  .navbar-brand {
+    order: 1; // Logo bleibt links
+
+    .fh-logo {
+      height: 30px; // Etwas kleiner auf mobilen Geräten
+    }
+  }
+
+  // Hamburger Menu Styling
+  .hamburger-menu {
+    display: flex;
+    order: 2; // Hamburger erscheint rechts
+  }
+
+  // Mobile dropdown styles für das Menü
   .navbar-nav {
     flex-direction: column;
     width: 100%;
     margin-bottom: 1rem;
-    
+
     .nav-item {
       margin: 0.5rem 0;
     }
-    
+
     // Mobile dropdown styles
     .dropdown {
-      
+
       &:hover .dropdown-menu {
         display: none;
         opacity: 0;
         transform: translateY(-10px);
       }
-      
+
       &.open .dropdown-menu {
         display: block;
         opacity: 1;
         transform: translateY(0);
       }
-      
+
       .dropdown-menu {
         position: static;
         width: 100%;
@@ -484,16 +585,16 @@
         margin-left: 1rem;
         border-left: 2px solid rgba(255, 255, 255, 0.3);
         background-color: rgba(255, 255, 255, 0.1);
-        
+
         .dropdown-item {
           color: white;
           padding: 8px 16px;
-          
+
           &:hover {
             background-color: rgba(255, 255, 255, 0.2);
             color: white;
           }
-          
+
           &.active {
             color: white;
             background-color: rgba(255, 255, 255, 0.15);
@@ -502,7 +603,7 @@
       }
     }
   }
-  
+
   .user-menu {
     width: 100%;
     justify-content: space-between;
@@ -510,11 +611,32 @@
   }
 }
 
+// Zusätzliche Regel für sehr kleine Bildschirme
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.5rem 1rem; // Weniger Padding auf sehr kleinen Bildschirmen
+  }
+
+  .navbar-brand .fh-logo {
+    height: 25px; // Noch kleiner auf sehr kleinen Bildschirmen
+  }
+
+  .hamburger-menu {
+    width: 1.5rem;
+    height: 1.5rem;
+
+    span {
+      width: 1.5rem;
+      height: 0.2rem;
+    }
+  }
+}
+
 //  "Manage Progress"
 .dropdown-menu .dropdown-item[routerLink="/future-skills/manage-progress"] {
   &.active {
-    background-color: rgba(0, 119, 169, 0.1) !important; 
-    
+    background-color: rgba(0, 119, 169, 0.1) !important;
+
     .bottom-line {
       height: 2px;
     }
@@ -524,15 +646,15 @@
 //  Stil for all aktive Dropdown-Items
 .dropdown-menu .dropdown-item.active {
   position: relative;
-  background-color: rgba(0, 119, 169, 0.1) !important; 
-  border: none !important; 
+  background-color: rgba(0, 119, 169, 0.1) !important;
+  border: none !important;
 }
 
 // Styles für das Benutzer-Dropdown
 .user-dropdown {
   position: relative;
   display: inline-block;
-  
+
   .user-dropdown-toggle {
     display: flex;
     align-items: center;
@@ -540,18 +662,18 @@
     color: #ffffff;
     cursor: pointer;
     text-decoration: none;
-    
+
     &:hover {
       text-decoration: none;
       color: #f0f0f0;
     }
-    
+
     .dropdown-arrow {
       margin-left: 6px;
       font-size: 12px;
     }
   }
-  
+
   .user-dropdown-menu {
     position: absolute;
     top: 100%;
@@ -562,7 +684,7 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     overflow: hidden;
-    
+
     .dropdown-item {
       display: flex;
       align-items: center;
@@ -570,18 +692,18 @@
       color: #333;
       text-decoration: none;
       transition: background-color 0.2s;
-      
+
       i {
         margin-right: 8px;
         width: 16px;
         text-align: center;
       }
-      
+
       &:hover {
         background-color: #f5f5f5;
       }
     }
-    
+
     .dropdown-divider {
       height: 1px;
       background-color: #e0e0e0;
@@ -596,11 +718,11 @@
       &[routerLinkActive="active"] {
         background-color: #f5f5f5 !important;
         color: #0077a9 !important;
-        
+
         > span {
           transform: translateX(5px);
         }
-        
+
         &:after {
           content: '';
           position: absolute;
@@ -611,7 +733,7 @@
           background-color: #0077a9;
           animation: slideInFromLeft 0.3s ease-in-out forwards;
         }
-        
+
         .left-line, .bottom-line {
           display: none;
         }
