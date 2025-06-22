@@ -460,19 +460,225 @@
     .nav-item {
       margin: 0.5rem 0;
       width: 100%;
+
+      .nav-link {
+        padding: 0.75rem 0;
+        width: 100%;
+        transform: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 1rem;
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+          padding-left: 0.5rem;
+          transform: none;
+        }
+
+        &.active {
+          background-color: rgba(255, 255, 255, 0.15);
+        }
+      }
+
+      .future-skills-dropdown,
+      .user-dropdown {
+        width: 100%;
+
+        .future-skills-dropdown-toggle,
+        .user-dropdown-toggle {
+          width: 100%;
+          padding: 0.75rem 0;
+          font-size: 1rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+
+          .dropdown-arrow {
+            margin-left: auto;
+            font-size: 0.8em;
+            transition: transform 0.3s ease;
+          }
+        }
+
+        .future-skills-dropdown-menu,
+        .user-dropdown-menu {
+          position: static;
+          width: 100%;
+          background-color: rgba(0, 119, 169, 0.3);
+          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+          border-radius: 8px;
+          margin: 0.5rem 0;
+          padding: 0.5rem 0;
+          backdrop-filter: blur(10px);
+          min-width: unset;
+          border: none;
+          overflow: hidden;
+
+          .dropdown-item {
+            color: white;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            margin: 0.25rem 0.5rem;
+            font-size: 0.95rem;
+            background-color: transparent !important;
+
+            i {
+              margin-right: 0.75rem;
+              width: 16px;
+              text-align: center;
+              color: rgba(255, 255, 255, 0.8);
+            }
+
+            &:hover {
+              background-color: rgba(255, 255, 255, 0.2);
+              transform: translateX(0.5rem);
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            &.active, &[routerLinkActive="active"] {
+              background-color: rgba(255, 255, 255, 0.25);
+              font-weight: 600;
+              transform: translateX(0.5rem);
+            }
+          }
+        }
+      }
+
+      .user-dropdown .user-dropdown-menu .dropdown-divider {
+        height: 1px;
+        background-color: rgba(255, 255, 255, 0.2);
+        margin: 0.5rem 1rem;
+        border: none;
+      }
     }
   }
 
   .user-menu {
-    margin-top: auto;
     width: 100%;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    .user-dropdown {
+      width: 100%;
+    }
   }
 
   .hamburger-menu {
     display: flex;
     z-index: 1020;
+  }
+
+  // Apply mobile link and dropdown styles starting at 1024px
+  .navbar-nav .nav-item .nav-link {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 1rem;
+    transform: none; // Override desktop hover
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding-left: 0.5rem;
+      transform: none;
+    }
+    
+    &.active {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+  }
+
+  .navbar-nav .nav-item .user-dropdown, // Targets Future Skills Dropdown
+  .user-menu .user-dropdown {           // Targets User Dropdown
+    width: 100%;
+
+    .user-dropdown-toggle {
+      width: 100%;
+      padding: 0.75rem 0;
+      color: white;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        padding-left: 0.5rem;
+        color: white;
+      }
+
+      .dropdown-arrow {
+        margin-left: auto;
+        font-size: 0.8em;
+        transition: transform 0.3s ease;
+      }
+    }
+
+    .user-dropdown-menu {
+      position: static;
+      width: 100%;
+      background-color: rgba(0, 119, 169, 0.3);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      margin: 0.5rem 0;
+      padding: 0.5rem 0;
+      backdrop-filter: blur(10px);
+
+      .dropdown-item {
+        color: white;
+        padding: 0.75rem 1rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        border-radius: 6px;
+        margin: 0.25rem 0.5rem;
+        font-size: 0.95rem;
+        background-color: transparent !important; // Override desktop styles
+
+        i {
+          margin-right: 0.75rem;
+          width: 16px;
+          text-align: center;
+          color: rgba(255, 255, 255, 0.8);
+        }
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.2);
+          color: white;
+          transform: translateX(0.5rem);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        &.active, &[routerLinkActive="active"] {
+          background-color: rgba(255, 255, 255, 0.25);
+          color: white;
+          font-weight: 600;
+          transform: translateX(0.5rem);
+        }
+        
+        &:after, &:before {
+          display: none !important;
+        }
+      }
+      
+      .dropdown-divider {
+        height: 1px;
+        background-color: rgba(255, 255, 255, 0.2);
+        margin: 0.5rem 1rem;
+        border: none;
+      }
+    }
+  }
+
+  .user-menu {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
   }
 }
 
@@ -506,104 +712,14 @@
       width: 100%;
 
       .nav-link {
-        color: white;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        font-size: 1rem;
-
-        &:hover {
-          background-color: rgba(255, 255, 255, 0.1);
-          transform: none;
-          padding-left: 0.5rem;
-          transition: all 0.3s ease;
-        }
-
-        &.active {
-          background-color: rgba(255, 255, 255, 0.15);
-          font-weight: 600;
-        }
+        // All rules are now at 1024px
       }
 
       .user-dropdown {
-        width: 100%;
-
-        .user-dropdown-toggle {
-          width: 100%;
-          padding: 0.75rem 0;
-          color: white;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-          font-size: 1rem;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          cursor: pointer;
-          transition: all 0.3s ease;
-
-          &:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding-left: 0.5rem;
-            color: white;
-          }
-
-          .dropdown-arrow {
-            margin-left: auto;
-            font-size: 0.8em;
-            transition: transform 0.3s ease;
-          }
-        }
-
-        .user-dropdown-menu {
-          position: static;
-          width: 100%;
-          background-color: rgba(0, 119, 169, 0.3);
-          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-          border-radius: 8px;
-          margin: 0.5rem 0;
-          padding: 0.5rem 0;
-          backdrop-filter: blur(10px);
-
-          .dropdown-item {
-            color: white;
-            padding: 0.75rem 1rem;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            transition: all 0.3s ease;
-            border-radius: 6px;
-            margin: 0.25rem 0.5rem;
-            font-size: 0.95rem;
-
-            i {
-              margin-right: 0.75rem;
-              width: 16px;
-              text-align: center;
-              color: rgba(255, 255, 255, 0.8);
-            }
-
-            &:hover {
-              background-color: rgba(255, 255, 255, 0.2);
-              color: white;
-              transform: translateX(0.5rem);
-              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            }
-
-            &.active, &[routerLinkActive="active"] {
-              background-color: rgba(255, 255, 255, 0.25);
-              color: white;
-              font-weight: 600;
-              transform: translateX(0.5rem);
-            }
-
-            &:after {
-              display: none !important;
-            }
-          }
-        }
+        // All rules are now at 1024px
       }
     }
   }
-
-
 
   .user-menu {
     width: 100%;
@@ -612,76 +728,7 @@
     margin-left: 0;
 
     .user-dropdown {
-      width: 100%;
-
-      .user-dropdown-toggle {
-        width: 100%;
-        padding: 0.75rem 0;
-        color: white;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        font-size: 1rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-
-        &:hover {
-          background-color: rgba(255, 255, 255, 0.1);
-          padding-left: 0.5rem;
-          color: white;
-        }
-
-        .dropdown-arrow {
-          margin-left: auto;
-          font-size: 0.8em;
-          transition: transform 0.3s ease;
-        }
-      }
-
-      .user-dropdown-menu {
-        position: static;
-        width: 100%;
-        background-color: rgba(0, 119, 169, 0.3);
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-        margin: 0.5rem 0;
-        padding: 0.5rem 0;
-        backdrop-filter: blur(10px);
-
-        .dropdown-item {
-          color: white;
-          padding: 0.75rem 1rem;
-          text-decoration: none;
-          display: flex;
-          align-items: center;
-          transition: all 0.3s ease;
-          border-radius: 6px;
-          margin: 0.25rem 0.5rem;
-          font-size: 0.95rem;
-
-          i {
-            margin-right: 0.75rem;
-            width: 16px;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.8);
-          }
-
-          &:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-            transform: translateX(0.5rem);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-          }
-        }
-
-        .dropdown-divider {
-          height: 1px;
-          background-color: rgba(255, 255, 255, 0.2);
-          margin: 0.5rem 1rem;
-          border: none;
-        }
-      }
+      // All rules are now at 1024px
     }
   }
 }
