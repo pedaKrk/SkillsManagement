@@ -1,16 +1,16 @@
 <div class="register-container">
   <div class="register-box">
-    <h2>Registrierung</h2>
+    <h2>{{ 'AUTH.REGISTER' | translate }}</h2>
     
     <div class="alert alert-info">
       <i class="fas fa-info-circle"></i>
-      <strong>Hinweis:</strong> Nach der Registrierung wird ein temporäres Passwort generiert und per E-Mail an die angegebene Adresse gesendet.
+      <strong>{{ 'AUTH.INFO' | translate }}:</strong> {{ 'AUTH.REGISTER_HINT' | translate }}
     </div>
     
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
       <div class="form-row">
         <div class="form-group">
-          <label for="title">Titel (optional)</label>
+          <label for="title">{{ 'USER.TITLE' | translate }} ({{ 'COMMON.OPTIONAL' | translate }})</label>
           <input
             type="text"
             id="title"
@@ -22,7 +22,7 @@
       
       <div class="form-row">
         <div class="form-group">
-          <label for="firstName">Vorname</label>
+          <label for="firstName">{{ 'USER.FIRST_NAME' | translate }}</label>
           <input
             type="text"
             id="firstName"
@@ -31,12 +31,12 @@
             [ngClass]="{'is-invalid': submitted && registerForm.get('firstName')?.errors}"
           />
           <div *ngIf="submitted && registerForm.get('firstName')?.errors" class="invalid-feedback">
-            <div *ngIf="registerForm.get('firstName')?.errors?.['required']">Vorname ist erforderlich</div>
+            <div *ngIf="registerForm.get('firstName')?.errors?.['required']">{{ 'ERRORS.REQUIRED_FIELD' | translate }}</div>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="lastName">Nachname</label>
+          <label for="lastName">{{ 'USER.LAST_NAME' | translate }}</label>
           <input
             type="text"
             id="lastName"
@@ -45,13 +45,13 @@
             [ngClass]="{'is-invalid': submitted && registerForm.get('lastName')?.errors}"
           />
           <div *ngIf="submitted && registerForm.get('lastName')?.errors" class="invalid-feedback">
-            <div *ngIf="registerForm.get('lastName')?.errors?.['required']">Nachname ist erforderlich</div>
+            <div *ngIf="registerForm.get('lastName')?.errors?.['required']">{{ 'ERRORS.REQUIRED_FIELD' | translate }}</div>
           </div>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="username">Benutzername</label>
+        <label for="username">{{ 'AUTH.USERNAME' | translate }}</label>
         <input
           type="text"
           id="username"
@@ -60,13 +60,13 @@
           [ngClass]="{'is-invalid': submitted && registerForm.get('username')?.errors}"
         />
         <div *ngIf="submitted && registerForm.get('username')?.errors" class="invalid-feedback">
-          <div *ngIf="registerForm.get('username')?.errors?.['required']">Benutzername ist erforderlich</div>
-          <div *ngIf="registerForm.get('username')?.errors?.['minlength']">Benutzername muss mindestens 3 Zeichen lang sein</div>
+          <div *ngIf="registerForm.get('username')?.errors?.['required']">{{ 'ERRORS.REQUIRED_FIELD' | translate }}</div>
+          <div *ngIf="registerForm.get('username')?.errors?.['minlength']">{{ 'ERRORS.MIN_LENGTH' | translate:{min: 3} }}</div>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="email">E-Mail</label>
+        <label for="email">{{ 'AUTH.EMAIL' | translate }}</label>
         <input
           type="email"
           id="email"
@@ -79,18 +79,18 @@
         />
         <div *ngIf="(registerForm.get('email')?.dirty || registerForm.get('email')?.touched) && registerForm.get('email')?.errors" 
              class="invalid-feedback">
-          <div *ngIf="registerForm.get('email')?.errors?.['required']">E-Mail ist erforderlich</div>
-          <div *ngIf="registerForm.get('email')?.errors?.['email']">Bitte geben Sie eine gültige E-Mail-Adresse ein</div>
-          <div *ngIf="registerForm.get('email')?.errors?.['technikumEmail']">Nur E-Mail-Adressen mit &#64;technikum-wien.at sind erlaubt</div>
+          <div *ngIf="registerForm.get('email')?.errors?.['required']">{{ 'ERRORS.REQUIRED_FIELD' | translate }}</div>
+          <div *ngIf="registerForm.get('email')?.errors?.['email']">{{ 'ERRORS.INVALID_EMAIL' | translate }}</div>
+          <div *ngIf="registerForm.get('email')?.errors?.['technikumEmail']">{{ 'ERRORS.TECHNIKUM_EMAIL' | translate }}</div>
         </div>
         <div class="alert alert-info mt-2">
           <i class="fas fa-info-circle"></i>
-          Bitte verwenden Sie Ihre &#64;technikum-wien.at E-Mail-Adresse für die Registrierung.
+          {{ 'ERRORS.TECHNIKUM_EMAIL_HINT' | translate }}
         </div>
       </div>
 
       <div class="form-group">
-        <label for="phoneNumber">Telefonnummer (optional)</label>
+        <label for="phoneNumber">{{ 'USER.PHONE_NUMBER' | translate }}</label>
         <input
           type="tel"
           id="phoneNumber"
@@ -100,21 +100,21 @@
       </div>
 
       <div class="form-group">
-        <label for="employmentType">Beschäftigungsart</label>
+        <label for="employmentType">{{ 'USER.EMPLOYMENT_TYPE' | translate }}</label>
         <select
           id="employmentType"
           formControlName="employmentType"
           class="form-control"
           [ngClass]="{'is-invalid': submitted && registerForm.get('employmentType')?.errors}"
         >
-          <option value="Internal">Intern</option>
-          <option value="External">Extern</option>
+          <option value="Internal">{{ 'USER.INTERNAL' | translate }}</option>
+          <option value="External">{{ 'USER.EXTERNAL' | translate }}</option>
         </select>
       </div>
 
       <div class="form-group">
         <button type="submit" class="btn btn-primary" [disabled]="loading">
-          {{ loading ? 'Wird geladen...' : 'Registrieren' }}
+          {{ loading ? ('COMMON.LOADING' | translate) : ('AUTH.REGISTER' | translate) }}
         </button>
       </div>
 
@@ -125,7 +125,7 @@
     
     <!-- Login link -->
     <div class="login-link mt-3">
-      <p>Bereits registriert? <a [routerLink]="['/login']">Jetzt anmelden</a></p>
+      <p>{{ 'AUTH.ALREADY_REGISTERED' | translate }} <a [routerLink]="['/login']">{{ 'AUTH.LOGIN_NOW' | translate }}</a></p>
     </div>
   </div>
 </div> 

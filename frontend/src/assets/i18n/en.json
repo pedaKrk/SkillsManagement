@@ -16,7 +16,8 @@
     "SUCCESS": "Success",
     "WARNING": "Warning",
     "INFO": "Information",
-    "OR": "or"
+    "OR": "or",
+    "OPTIONAL": "optional"
   },
   "AUTH": {
     "LOGIN": "Login",
@@ -36,7 +37,9 @@
     "ALREADY_REGISTERED": "Already registered?",
     "LOGIN_NOW": "Login now",
     "REGISTER_NOW": "Register now",
-    "OR": "or"
+    "OR": "or",
+    "INFO": "Note",
+    "REGISTER_HINT": "After registration, a temporary password will be generated and sent to the specified email address."
   },
   "USER": {
     "FIRST_NAME": "First Name",
@@ -125,6 +128,7 @@
     "REQUIRED_FIELD": "This field is required",
     "INVALID_EMAIL": "Invalid email address",
     "PASSWORD_MISMATCH": "Passwords do not match",
-    "MIN_LENGTH": "Minimum length not reached"
+    "MIN_LENGTH": "Minimum length not reached",
+    "TECHNIKUM_EMAIL_HINT": "Please use your @technikum-wien.at email address for registration."
   }
 } 

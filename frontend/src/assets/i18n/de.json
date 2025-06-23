@@ -15,7 +15,8 @@
     "ERROR": "Fehler",
     "SUCCESS": "Erfolg",
     "WARNING": "Warnung",
-    "INFO": "Information"
+    "INFO": "Information",
+    "OPTIONAL": "optional"
   },
   "AUTH": {
     "LOGIN": "Anmelden",
@@ -35,7 +36,9 @@
     "ALREADY_REGISTERED": "Bereits registriert?",
     "LOGIN_NOW": "Jetzt anmelden",
     "REGISTER_NOW": "Jetzt registrieren",
-    "OR": "oder"
+    "OR": "oder",
+    "INFO": "Hinweis",
+    "REGISTER_HINT": "Nach der Registrierung wird ein temporäres Passwort generiert und per E-Mail an die angegebene Adresse gesendet."
   },
   "USER": {
     "FIRST_NAME": "Vorname",
@@ -124,6 +127,7 @@
     "REQUIRED_FIELD": "Dieses Feld ist erforderlich",
     "INVALID_EMAIL": "Ungültige E-Mail-Adresse",
     "PASSWORD_MISMATCH": "Passwörter stimmen nicht überein",
-    "MIN_LENGTH": "Mindestlänge nicht erreicht"
+    "MIN_LENGTH": "Mindestlänge nicht erreicht",
+    "TECHNIKUM_EMAIL_HINT": "Bitte verwenden Sie Ihre @technikum-wien.at E-Mail-Adresse für die Registrierung."
   }
 } 
