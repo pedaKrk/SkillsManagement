@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Custom validator function for technikum-wien.at email
 function technikumEmailValidator(control: AbstractControl): ValidationErrors | null {
@@ -23,7 +24,7 @@ function technikumEmailValidator(control: AbstractControl): ValidationErrors | n
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslateModule],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
   encapsulation: ViewEncapsulation.None

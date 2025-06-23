@@ -17,18 +17,18 @@
     <div class="navbar-collapse" [class.open]="isMenuOpen">
       <ul class="navbar-nav" *ngIf="isLoggedIn">
         <li class="nav-item">
-          <a class="nav-link" [routerLink]="['/']" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMenu()">Hauptseite</a>
+          <a class="nav-link" [routerLink]="['/']" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMenu()">{{ 'NAVIGATION.MAIN_PAGE' | translate }}</a>
         </li>
         <li class="nav-item" *ngIf="isLecturer">
-          <a class="nav-link" [routerLink]="['/profile/skills']" routerLinkActive="active" (click)="closeMenu()">Skills verwalten</a>
+          <a class="nav-link" [routerLink]="['/profile/skills']" routerLinkActive="active" (click)="closeMenu()">{{ 'NAVIGATION.MANAGE_SKILLS' | translate }}</a>
         </li>
         <li class="nav-item" *ngIf="isAdmin">
-          <a class="nav-link" [routerLink]="['/admin/add-user']" routerLinkActive="active" (click)="closeMenu()">Neue/n BenutzerIn hinzufügen</a>
+          <a class="nav-link" [routerLink]="['/admin/add-user']" routerLinkActive="active" (click)="closeMenu()">{{ 'NAVIGATION.ADD_USER' | translate }}</a>
         </li>
         <!-- Inactive Users Notification -->
         <li class="nav-item" *ngIf="isAdmin || isCompetenceLeader">
           <a class="nav-link position-relative" [routerLink]="['/inactive-users']" routerLinkActive="active" (click)="closeMenu()">
-            Neuanmeldungen
+            {{ 'NAVIGATION.NEW_REGISTRATIONS' | translate }}
             <span class="notification-badge" *ngIf="inactiveUsersCount > 0">
               {{inactiveUsersCount}}
             </span>
@@ -36,62 +36,70 @@
         </li>
         <li class="nav-item" *ngIf="isAdmin || isCompetenceLeader">
           <div class="user-dropdown" (clickOutside)="closeFutureSkillsDropdown()">
-            <a class="nav-link user-dropdown-toggle" (click)="toggleDropdown($event)">Future Skills <span class="dropdown-arrow">{{ isDropdownOpen ? '' : '▾' }}</span></a>
+            <a class="nav-link user-dropdown-toggle" (click)="toggleDropdown($event)">{{ 'NAVIGATION.FUTURE_SKILLS' | translate }} <span class="dropdown-arrow">{{ isDropdownOpen ? '' : '▾' }}</span></a>
             <div class="user-dropdown-menu" *ngIf="isDropdownOpen">
               <a class="dropdown-item" [routerLink]="['/future-skills/dashboard']"  (click)="closeMenu()">
-                <i class="fa fa-tachometer"></i> Dashboard
+                <i class="fa fa-tachometer"></i> {{ 'NAVIGATION.FUTURE_SKILLS_DASHBOARD' | translate }}
               </a>
               <a class="dropdown-item" [routerLink]="['/future-skills/plan']"  (click)="closeMenu()">
-                <i class="fa fa-calendar"></i> Plan
+                <i class="fa fa-calendar"></i> {{ 'NAVIGATION.FUTURE_SKILLS_PLAN' | translate }}
               </a>
               <a class="dropdown-item" [routerLink]="['/future-skills/progress']" (click)="closeMenu()">
-                <i class="fa fa-tasks"></i> Manage Progress
+                <i class="fa fa-tasks"></i> {{ 'NAVIGATION.FUTURE_SKILLS_MANAGE_PROGRESS' | translate }}
               </a>
             </div>
           </div>
         </li>
         <li class="nav-item" *ngIf="isAdmin">
-          <a class="nav-link" [routerLink]="['/user']" routerLinkActive="active" (click)="closeMenu()">Benutzer Übersicht</a>
+          <a class="nav-link" [routerLink]="['/user']" routerLinkActive="active" (click)="closeMenu()">{{ 'NAVIGATION.USER_OVERVIEW' | translate }}</a>
+        </li>
+        
+        <!-- Language Selector -->
+        <li class="nav-item">
+          <app-language-selector></app-language-selector>
+        </li>
+        
+        <!-- User Dropdown -->
+        <li class="nav-item">
+          <div class="user-dropdown" (clickOutside)="closeUserDropdown()">
+            <a (click)="toggleUserDropdown($event)" class="user-dropdown-toggle">
+              {{ username }}
+              <span class="dropdown-arrow">{{ isUserDropdownOpen ? '' : '▾' }}</span>
+            </a>
+
+            <div *ngIf="isUserDropdownOpen" class="user-dropdown-menu">
+              <a [routerLink]="['/users', userId]" class="dropdown-item" (click)="closeMenu()">
+                <i class="fa fa-user"></i> {{ 'NAVIGATION.MY_PROFILE' | translate }}
+              </a>
+              <a class="dropdown-item" (click)="editOwnProfile($event); closeMenu()">
+                <i class="fa fa-pencil"></i> {{ 'NAVIGATION.EDIT_PROFILE' | translate }}
+              </a>
+              <a [routerLink]="['/profile/skills']" class="dropdown-item" (click)="closeMenu()" *ngIf="!isLecturer">
+                <i class="fas fa-cogs"></i> {{ 'NAVIGATION.MANAGE_SKILLS' | translate }}
+              </a>
+              <a [routerLink]="['/change-password']" class="dropdown-item" (click)="closeMenu()">
+                <i class="fa fa-key"></i> {{ 'NAVIGATION.CHANGE_PASSWORD' | translate }}
+              </a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" (click)="logout(); closeMenu()">
+                <i class="fa fa-sign-out"></i> {{ 'NAVIGATION.LOGOUT' | translate }}
+              </a>
+            </div>
+          </div>
         </li>
       </ul>
-
-      <!-- User menu -->
-      <div class="user-menu" *ngIf="isLoggedIn">
-        <!-- Dropdown -->
-        <div class="user-dropdown" (clickOutside)="closeUserDropdown()">
-          <a (click)="toggleUserDropdown($event)" class="user-dropdown-toggle">
-            {{ username }}
-            <span class="dropdown-arrow">{{ isUserDropdownOpen ? '' : '▾' }}</span>
-          </a>
-
-          <div *ngIf="isUserDropdownOpen" class="user-dropdown-menu">
-            <a [routerLink]="['/users', userId]" class="dropdown-item" (click)="closeMenu()">
-              <i class="fa fa-user"></i> Mein Profil
-            </a>
-            <a class="dropdown-item" (click)="editOwnProfile($event); closeMenu()">
-              <i class="fa fa-pencil"></i> Profil bearbeiten
-            </a>
-            <a [routerLink]="['/profile/skills']" class="dropdown-item" (click)="closeMenu()" *ngIf="!isLecturer">
-              <i class="fas fa-cogs"></i> Skills verwalten
-            </a>
-            <a [routerLink]="['/change-password']" class="dropdown-item" (click)="closeMenu()">
-              <i class="fa fa-key"></i> Passwort ändern
-            </a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" (click)="logout(); closeMenu()">
-              <i class="fa fa-sign-out"></i> Ausloggen
-            </a>
-          </div>
-        </div>
-      </div>
 
       <!-- Login/Register links for guests -->
       <ul class="navbar-nav" *ngIf="!isLoggedIn">
         <li class="nav-item">
-          <a class="nav-link" [routerLink]="['/login']" routerLinkActive="active" (click)="closeMenu()">Login</a>
+          <a class="nav-link" [routerLink]="['/login']" routerLinkActive="active" (click)="closeMenu()">{{ 'NAVIGATION.LOGIN' | translate }}</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" [routerLink]="['/register']" routerLinkActive="active" (click)="closeMenu()">Registrieren</a>
+          <a class="nav-link" [routerLink]="['/register']" routerLinkActive="active" (click)="closeMenu()">{{ 'NAVIGATION.REGISTER' | translate }}</a>
+        </li>
+        <!-- Language Selector for guests -->
+        <li class="nav-item">
+          <app-language-selector></app-language-selector>
         </li>
       </ul>
     </div>

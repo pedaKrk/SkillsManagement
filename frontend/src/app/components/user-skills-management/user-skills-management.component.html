@@ -2,12 +2,12 @@
   <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-container">
     <div class="spinner"></div>
-    <span>Benutzerdaten werden geladen...</span>
+    <span>{{ 'SKILLS.USER_DATA_LOADING' | translate }}</span>
   </div>
 
   <!-- Error State -->
   <div *ngIf="error" class="error-container">
-    <div class="error-message">{{ error }}</div>
+    <div class="error-message">{{ error | translate }}</div>
   </div>
 
   <!-- Main Content -->
@@ -16,14 +16,14 @@
       <!-- Skills Management Section -->
       <div class="skills-section">
         <div class="header">
-          <h1>Skills verwalten</h1>
-          <div class="subtitle" *ngIf="user">Verwalten Sie die Skills für {{ user.firstName }} {{ user.lastName }}</div>
+          <h1>{{ 'SKILLS.MANAGE_USER_SKILLS' | translate }}</h1>
+          <div class="subtitle" *ngIf="user">{{ 'SKILLS.MANAGE_SKILLS_FOR_USER' | translate }} {{ user.firstName }} {{ user.lastName }}</div>
         </div>
 
         <!-- Selected Skills Display -->
         <div class="selected-skills">
           <div *ngIf="selectedSkills.length === 0" class="no-skills-selected">
-            Keine Skills ausgewählt
+            {{ 'SKILLS.NO_SKILLS_SELECTED' | translate }}
           </div>
           <div class="selected-skills-list">
             <div class="skill-card" *ngFor="let skill of selectedSkills">
@@ -32,7 +32,7 @@
                 <button
                   class="btn-remove-skill"
                   (click)="removeSkillWithConfirmation(skill.skill._id)"
-                  title="Skill entfernen"
+                  [title]="'SKILLS.REMOVE_SKILL' | translate"
                 >
                   <i class="fa fa-trash"></i>
                 </button>
@@ -42,28 +42,28 @@
               <div class="level-selector-container" *ngIf="skill.levelHistory && skill.levelHistory.length > 0">
                 <div class="current-level-display clickable" (click)="skillLevelDropdownState[skill.skill._id] = !skillLevelDropdownState[skill.skill._id]">
                   <span class="level-badge" [ngClass]="skill.levelHistory[skill.levelHistory.length - 1].level.toLowerCase()">
-                    {{ skill.levelHistory[skill.levelHistory.length - 1].level }}
+                    {{ 'SKILL_LEVELS.' + skill.levelHistory[skill.levelHistory.length - 1].level | translate }}
                   </span>
                   <i class="fa fa-caret-down level-arrow" [class.rotated]="skillLevelDropdownState[skill.skill._id]"></i>
 
                   <!-- Tooltip for new skills -->
                   <div class="new-skill-tooltip" *ngIf="newlyAddedSkillId === skill.skill._id">
                     <i class="fa fa-lightbulb"></i>
-                    <span>Klicke hier, um den Level zu ändern!</span>
+                    <span>{{ 'SKILLS.SKILL_LEVEL_CHANGE_HINT' | translate }}</span>
                   </div>
                 </div>
                 
                 <div class="level-dropdown" *ngIf="skillLevelDropdownState[skill.skill._id]">
                   <div *ngFor="let level of skillLevels" class="level-option" (click)="setSkillLevel(skill, level); skillLevelDropdownState[skill.skill._id] = false">
-                    {{ level }}
+                    {{ 'SKILL_LEVELS.' + level | translate }}
                   </div>
                 </div>
               </div>
 
               <div class="skill-history-details">
                 <div *ngIf="skill.levelHistory.length > 0" class="skill-meta-modern">
-                  Hinzugefügt von: {{ skill.levelHistory[0].changedBy.firstName }} {{ skill.levelHistory[0].changedBy.lastName }}
-                  am {{ skill.levelHistory[0].changedAt | date:'short' }}
+                  {{ 'SKILLS.SKILL_ADDED_BY' | translate }} {{ skill.levelHistory[0].changedBy.firstName }} {{ skill.levelHistory[0].changedBy.lastName }}
+                  {{ 'SKILLS.SKILL_ADDED_ON' | translate }} {{ skill.levelHistory[0].changedAt | date:'short' }}
                 </div>
               </div>
             </div>
@@ -75,14 +75,14 @@
           <!-- Loading indicator -->
           <div *ngIf="isLoadingSkills" class="skills-loading">
             <div class="spinner"></div>
-            <span>Skills werden geladen...</span>
+            <span>{{ 'SKILLS.SKILLS_LOADING' | translate }}</span>
           </div>
 
           <!-- Error message -->
           <div *ngIf="skillsError" class="alert alert-danger">
-            {{ skillsError }}
+            {{ skillsError | translate }}
             <button type="button" class="btn btn-outline-danger" (click)="retryLoadSkills()">
-              Erneut versuchen
+              {{ 'SKILLS.SKILLS_RETRY' | translate }}
             </button>
           </div>
 
@@ -90,7 +90,7 @@
           <div *ngIf="!isLoadingSkills && !skillsError" class="skills-selection">
             <div class="dropdown-wrapper">
               <div class="skills-dropdown-toggle" (click)="toggleSkillDropdown()">
-                <span>Skills auswählen</span>
+                <span>{{ 'SKILLS.SKILLS_SELECT' | translate }}</span>
                 <div class="dropdown-arrow-wrapper">
                   <span class="dropdown-arrow">▼</span>
                 </div>
@@ -101,7 +101,7 @@
                   <input 
                     type="text" 
                     [formControl]="skillSearchControl" 
-                    placeholder="Skills suchen..."
+                    [placeholder]="'SKILLS.SKILLS_SEARCH' | translate"
                     (click)="$event.stopPropagation()"
                   >
                 </div>
@@ -128,10 +128,10 @@
         <!-- Action Buttons -->
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" (click)="cancel()">
-            Abbrechen
+            {{ 'COMMON.CANCEL' | translate }}
           </button>
           <button type="button" class="btn btn-primary" (click)="saveSkills()">
-            Änderungen speichern
+            {{ 'SKILLS.SAVE_CHANGES' | translate }}
           </button>
         </div>
       </div>

@@ -7,6 +7,7 @@ import { UserService } from '../../core/services/user/user.service';
 import { Skill } from '../../models/skill.model';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { PdfService } from '../../core/services/pdf/pdf.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface SkillWithChildren extends Skill {
   children?: SkillWithChildren[];
@@ -18,7 +19,8 @@ interface SkillWithChildren extends Skill {
   standalone: true,
   imports: [
     CommonModule,
-    MatIconModule
+    MatIconModule,
+    TranslateModule
   ],
   templateUrl: './main-page.component.html',
   styleUrls: ['./main-page.component.scss'],

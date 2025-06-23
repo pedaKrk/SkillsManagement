@@ -10,13 +10,15 @@ import { UserRole } from '../../models/enums/user-roles.enum';
 import { EmploymentType } from '../../models/enums/employment-type.enum';
 import { environment } from '../../../environments/environment';
 import imageCompression from 'browser-image-compression';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-user-edit',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    TranslateModule
   ],
   templateUrl: './user-edit.component.html',
   styleUrls: ['./user-edit.component.scss']
@@ -545,6 +547,12 @@ export class UserEditComponent implements OnInit {
    * Navigate back to the previous page
    */
   goBack(): void {
-    this.router.navigate(['/users']);
+    // Check if there's a previous page in the browser history
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      // Fallback: navigate to the user detail page
+      this.router.navigate(['/users', this.userId]);
+    }
   }
 }

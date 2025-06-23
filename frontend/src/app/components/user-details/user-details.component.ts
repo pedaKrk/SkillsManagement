@@ -9,6 +9,7 @@ import { CommentService } from '../../core/services/comment/comment.service';
 import { User, Comment, UserSkillEntry } from '../../models/user.model';
 import { UserRole } from '../../models/enums/user-roles.enum';
 import { environment } from '../../../environments/environment';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-user-details',
@@ -16,7 +17,8 @@ import { environment } from '../../../environments/environment';
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule
+    RouterModule,
+    TranslateModule
   ],
   templateUrl: './user-details.component.html',
   styleUrl: './user-details.component.scss'
@@ -59,7 +61,8 @@ export class UserDetailsComponent implements OnInit {
     private userService: UserService,
     private authService: AuthService,
     private dialogService: DialogService,
-    private commentService: CommentService
+    private commentService: CommentService,
+    private translateService: TranslateService
   ) {}
   
   ngOnInit(): void {
@@ -104,18 +107,15 @@ export class UserDetailsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading user details:', error);
-        
-        // show detailed error information
         if (error.status === 500) {
-          this.error = 'Ein Serverfehler ist aufgetreten. Das Backend konnte den Benutzer nicht laden. Bitte kontaktieren Sie den Administrator.';
+          this.error = this.translateService.instant('PROFILE.SERVER_ERROR');
         } else if (error.status === 404) {
-          this.error = 'Der angeforderte Benutzer wurde nicht gefunden.';
+          this.error = this.translateService.instant('PROFILE.NOT_FOUND');
         } else if (error.status === 401) {
-          this.error = 'Sie sind nicht berechtigt, diese Informationen anzuzeigen. Bitte melden Sie sich an.';
+          this.error = this.translateService.instant('PROFILE.UNAUTHORIZED');
         } else {
-          this.error = 'Fehler beim Laden der Benutzerdetails. Bitte versuchen Sie es später erneut.';
+          this.error = this.translateService.instant('PROFILE.ERROR_LOADING');
         }
-        
         this.isLoading = false;
       }
     });

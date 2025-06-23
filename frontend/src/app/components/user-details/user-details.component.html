@@ -2,15 +2,15 @@
   <!-- Loading-Indikator -->
   <div *ngIf="isLoading" class="loading-container">
     <div class="spinner"></div>
-    <span>Benutzerdetails werden geladen...</span>
+    <span>{{ 'PROFILE.LOADING' | translate }}</span>
   </div>
   
   <!-- Error message -->
   <div *ngIf="error" class="error-container">
     <div class="error-message">{{ error }}</div>
     <div class="error-actions">
-      <button class="btn btn-primary" (click)="loadUserDetails()">Erneut versuchen</button>
-      <button class="btn btn-secondary" (click)="goBack()">Zurück zur Benutzerliste</button>
+      <button class="btn btn-primary" (click)="loadUserDetails()">{{ 'PROFILE.RETRY' | translate }}</button>
+      <button class="btn btn-secondary" (click)="goBack()">{{ 'PROFILE.BACK_TO_LIST' | translate }}</button>
     </div>
   </div>
   
@@ -40,19 +40,19 @@
         <div class="user-username">{{'@'}}{{ user.username }}</div>
         
         <div class="user-role" *ngIf="user.role">
-          <span class="label">Rolle:</span>
+          <span class="label">{{ 'PROFILE.ROLE' | translate }}</span>
           <span class="value">{{ getFormattedRole() }}</span>
         </div>
         
         <div class="user-employment">
-          <span class="label">Beschäftigungsart:</span>
+          <span class="label">{{ 'PROFILE.EMPLOYMENT_TYPE' | translate }}</span>
           <span class="value">{{ getEmploymentType() }}</span>
         </div>
         
         <!-- Edit-Button for Admins and own profile -->
         <div *ngIf="isAdmin || isOwnProfile()" class="admin-actions mt-3">
           <button class="btn btn-primary" (click)="editUser()">
-            <i class="fa fa-pencil"></i> Profil bearbeiten
+            <i class="fa fa-pencil"></i> {{ 'PROFILE.EDIT_PROFILE' | translate }}
           </button>
         </div>
       </div>
@@ -62,20 +62,20 @@
     <div class="user-details-sections">
       <!-- Contact information -->
       <div class="details-section">
-        <h2 class="section-title">Kontaktinformationen</h2>
+        <h2 class="section-title">{{ 'PROFILE.CONTACT_INFO' | translate }}</h2>
         <div class="info-row">
-          <span class="info-label">E-Mail:</span>
+          <span class="info-label">{{ 'PROFILE.EMAIL' | translate }}</span>
           <span class="info-value">{{ user.email }}</span>
         </div>
         <div class="info-row" *ngIf="user.phoneNumber">
-          <span class="info-label">Telefonnummer:</span>
+          <span class="info-label">{{ 'PROFILE.PHONE_NUMBER' | translate }}</span>
           <span class="info-value">{{ user.phoneNumber }}</span>
         </div>
       </div>
       
       <!-- Skills -->
       <div class="details-section">
-        <h2 class="section-title">Skills</h2>
+        <h2 class="section-title">{{ 'PROFILE.SKILLS' | translate }}</h2>
         <div class="skills-container" *ngIf="user.skills && user.skills.length > 0">
           <div class="skill-card" *ngFor="let userSkill of user.skills">
             <div class="skill-header">
@@ -84,19 +84,19 @@
               <span *ngIf="userSkill.levelHistory && userSkill.levelHistory.length > 0" 
                     class="level-badge" 
                     [ngClass]="getSkillLevelClass(userSkill.levelHistory[userSkill.levelHistory.length - 1].level)">
-                {{ userSkill.levelHistory[userSkill.levelHistory.length - 1].level }}
+                {{ userSkill.levelHistory[userSkill.levelHistory.length - 1].level | translate }}
               </span>
             </div>
             <!-- Skill History -->
             <div class="skill-history">
               <div *ngFor="let history of userSkill.levelHistory; let i = index" class="skill-meta-modern">
                 <span [class.current-level]="i === userSkill.levelHistory.length - 1">
-                  Level '{{ history.level }}'
+                  Level '{{ history.level | translate }}'
                   <span *ngIf="history.changedBy">
-                    von {{ history.changedBy.firstName }} {{ history.changedBy.lastName }}
+                    {{ 'USER.BY' | translate }} {{ history.changedBy.firstName }} {{ history.changedBy.lastName }}
                   </span>
                   <span *ngIf="history.changedAt">
-                    am {{ history.changedAt | date:'short' }}
+                    {{ 'USER.ON' | translate }} {{ history.changedAt | date:'short' }}
                   </span>
                 </span>
               </div>
@@ -104,20 +104,20 @@
           </div>
         </div>
         <div class="no-skills" *ngIf="!user.skills || user.skills.length === 0">
-          Keine Fähigkeiten angegeben
+          {{ 'PROFILE.NO_SKILLS' | translate }}
         </div>
       </div>
     </div>
     
     <!-- Comments -->
     <div class="comments-section">
-      <h2 class="section-title">Kommentare</h2>
+      <h2 class="section-title">{{ 'PROFILE.COMMENTS' | translate }}</h2>
       
       <!-- Add comment (only for authorized users) -->
       <div class="add-comment-container" *ngIf="canAddComments">
         <textarea 
           [(ngModel)]="newComment" 
-          placeholder="Schreiben Sie einen Kommentar..." 
+          [placeholder]="'PROFILE.COMMENT_PLACEHOLDER' | translate" 
           class="comment-input"
           rows="3"
         ></textarea>
@@ -126,7 +126,7 @@
           [disabled]="!newComment.trim()" 
           (click)="addComment()"
         >
-          Kommentar hinzufügen
+          {{ 'PROFILE.ADD_COMMENT' | translate }}
         </button>
       </div>
       
@@ -136,7 +136,7 @@
           <input 
             type="text" 
             [(ngModel)]="commentSearchTerm" 
-            placeholder="Kommentare durchsuchen..." 
+            [placeholder]="'PROFILE.SEARCH_COMMENTS' | translate" 
             class="search-input"
           >
           
@@ -145,7 +145,7 @@
             <div class="dropdown-wrapper">
               <!-- Dropdown toggle button -->
               <div class="author-dropdown-toggle" (click)="toggleAuthorDropdown()">
-                <span>{{ selectedAuthor ? getAuthorNameById(selectedAuthor) : 'Alle Autoren' }}</span>
+                <span>{{ selectedAuthor ? getAuthorNameById(selectedAuthor) : ('PROFILE.ALL_AUTHORS' | translate) }}</span>
                 <span class="dropdown-arrow">{{ isAuthorDropdownOpen ? '▲' : '▼' }}</span>
               </div>
               
@@ -161,7 +161,7 @@
                     <span class="author-checkbox">
                       <span *ngIf="selectedAuthor === ''" class="check-mark">✓</span>
                     </span>
-                    <span class="author-name">Alle Autoren</span>
+                    <span class="author-name">{{ 'PROFILE.ALL_AUTHORS' | translate }}</span>
                   </div>
                   
                   <div 
@@ -183,14 +183,14 @@
         
         <div class="filter-row date-filters">
           <div class="date-filter">
-            <label>Von:</label>
+            <label>{{ 'PROFILE.FROM' | translate }}</label>
             <div class="date-input-container">
               <input type="date" [(ngModel)]="dateFrom" class="date-input">
             </div>
           </div>
           
           <div class="date-filter">
-            <label>Bis:</label>
+            <label>{{ 'PROFILE.TO' | translate }}</label>
             <div class="date-input-container">
               <input type="date" [(ngModel)]="dateTo" class="date-input">
             </div>
@@ -201,7 +201,7 @@
       <!-- Comment list -->
       <div class="comments-list">
         <div *ngIf="filterComments().length === 0" class="no-comments">
-          Keine Kommentare gefunden
+          {{ 'USER.NO_COMMENTS' | translate }}
         </div>
         
         <div *ngFor="let comment of filterComments()" class="comment-card">
@@ -216,14 +216,14 @@
               class="text-expand-btn"
               (click)="toggleCommentExpansion(comment.id)"
             >
-              {{ isCommentExpanded(comment.id) ? 'Weniger anzeigen' : 'Mehr anzeigen' }}
+              {{ isCommentExpanded(comment.id) ? ('PROFILE.SHOW_LESS' | translate) : ('PROFILE.SHOW_MORE' | translate) }}
             </button>
           </div>
           
           <!-- reply button -->
           <div class="comment-actions">
             <button class="btn-reply" (click)="replyToComment(comment)">
-              <i class="fa fa-reply"></i> Antworten
+              <i class="fa fa-reply"></i> {{ 'USER.REPLY' | translate }}
             </button>
           </div>
           
@@ -231,7 +231,7 @@
           <div *ngIf="replyingToComment && replyingToComment.id === comment.id" class="reply-form">
             <textarea 
               [(ngModel)]="replyText" 
-              placeholder="Schreiben Sie eine Antwort..." 
+              [placeholder]="'USER.REPLY_PLACEHOLDER' | translate" 
               class="reply-input"
               rows="2"
             ></textarea>
@@ -241,13 +241,13 @@
                 [disabled]="!replyText.trim()" 
                 (click)="addReply()"
               >
-                Antworten
+                {{ 'USER.REPLY' | translate }}
               </button>
               <button 
                 class="btn btn-secondary btn-sm" 
                 (click)="cancelReply()"
               >
-                Abbrechen
+                {{ 'USER.CANCEL' | translate }}
               </button>
             </div>
           </div>
@@ -266,7 +266,7 @@
                   class="text-expand-btn"
                   (click)="toggleReplyExpansion(reply.id)"
                 >
-                  {{ isReplyExpanded(reply.id) ? 'Weniger anzeigen' : 'Mehr anzeigen' }}
+                  {{ isReplyExpanded(reply.id) ? ('USER.SHOW_LESS' | translate) : ('USER.SHOW_MORE' | translate) }}
                 </button>
               </div>
             </div>

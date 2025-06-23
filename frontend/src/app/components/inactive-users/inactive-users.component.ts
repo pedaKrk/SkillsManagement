@@ -6,11 +6,12 @@ import { NotificationService } from '../../core/services/notification/notificati
 import { User } from '../../models/user.model';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-inactive-users',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './inactive-users.component.html',
   styleUrls: ['./inactive-users.component.scss']
 })
@@ -20,7 +21,8 @@ export class InactiveUsersComponent implements OnInit {
   constructor(
     private userService: UserService,
     private dialogService: DialogService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private translateService: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -32,8 +34,8 @@ export class InactiveUsersComponent implements OnInit {
       .pipe(
         catchError(error => {
           this.dialogService.showError(
-            'Fehler',
-            'Beim Laden der inaktiven Benutzer ist ein Fehler aufgetreten.'
+            this.translateService.instant('COMMON.ERROR'),
+            this.translateService.instant('USER.LOAD_INACTIVE_USERS_ERROR')
           );
           return of([]);
         })
@@ -46,8 +48,8 @@ export class InactiveUsersComponent implements OnInit {
   activateUser(userId: string): void {
     if (!userId) {
       this.dialogService.showError(
-        'Fehler',
-        'Benutzer-ID fehlt.'
+        this.translateService.instant('COMMON.ERROR'),
+        this.translateService.instant('USER.MISSING_USER_ID')
       );
       return;
     }
@@ -56,8 +58,8 @@ export class InactiveUsersComponent implements OnInit {
       .pipe(
         catchError(error => {
           this.dialogService.showError(
-            'Fehler',
-            'Beim Aktivieren des Benutzers ist ein Fehler aufgetreten.'
+            this.translateService.instant('COMMON.ERROR'),
+            this.translateService.instant('USER.ACTIVATE_USER_ERROR')
           );
           return of(null);
         })
@@ -65,8 +67,8 @@ export class InactiveUsersComponent implements OnInit {
       .subscribe(response => {
         if (response !== null) {
           const successConfig: SuccessDialogConfig = {
-            title: 'Erfolg',
-            message: 'Der Benutzer wurde erfolgreich aktiviert.'
+            title: this.translateService.instant('COMMON.SUCCESS'),
+            message: this.translateService.instant('USER.USER_ACTIVATED')
           };
           this.dialogService.showSuccess(successConfig);
           this.loadInactiveUsers(); // Liste neu laden
@@ -78,25 +80,25 @@ export class InactiveUsersComponent implements OnInit {
   rejectUser(userId: string): void {
     if (!userId) {
       this.dialogService.showError(
-        'Fehler',
-        'Benutzer-ID fehlt.'
+        this.translateService.instant('COMMON.ERROR'),
+        this.translateService.instant('USER.MISSING_USER_ID')
       );
       return;
     }
     
     this.dialogService.showConfirmation({
-      title: 'Benutzer ablehnen',
-      message: 'Möchten Sie diese Registrierung wirklich ablehnen? Der Benutzer wird dauerhaft aus der Datenbank gelöscht.',
-      confirmText: 'Ablehnen',
-      cancelText: 'Abbrechen'
+      title: this.translateService.instant('USER.REJECT_USER_CONFIRMATION'),
+      message: this.translateService.instant('USER.REJECT_USER_MESSAGE'),
+      confirmText: this.translateService.instant('USER.REJECT'),
+      cancelText: this.translateService.instant('COMMON.CANCEL')
     }).subscribe(confirmed => {
       if (confirmed) {
         this.userService.deleteUser(userId)
           .pipe(
             catchError(error => {
               this.dialogService.showError(
-                'Fehler',
-                'Beim Ablehnen des Benutzers ist ein Fehler aufgetreten.'
+                this.translateService.instant('COMMON.ERROR'),
+                this.translateService.instant('USER.REJECT_USER_ERROR')
               );
               return of(null);
             })
@@ -104,8 +106,8 @@ export class InactiveUsersComponent implements OnInit {
           .subscribe(response => {
             if (response !== null) {
               const successConfig: SuccessDialogConfig = {
-                title: 'Erfolg',
-                message: 'Die Registrierung wurde erfolgreich abgelehnt.'
+                title: this.translateService.instant('COMMON.SUCCESS'),
+                message: this.translateService.instant('USER.USER_REJECTED')
               };
               this.dialogService.showSuccess(successConfig);
               this.loadInactiveUsers(); // Liste neu laden
