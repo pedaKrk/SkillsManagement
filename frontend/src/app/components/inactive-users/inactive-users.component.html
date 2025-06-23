@@ -1,22 +1,22 @@
 <div class="content-container">
   <div class="content-header">
-    <h1>Neuanmeldungen</h1>
+    <h1>{{ 'USER.NEW_REGISTRATIONS' | translate }}</h1>
   </div>
 
   <div class="content-body">
     <div class="alert alert-info" *ngIf="inactiveUsers.length === 0">
       <i class="fas fa-info-circle me-2"></i>
-      Keine neuen Anmeldungen vorhanden.
+      {{ 'USER.NO_NEW_REGISTRATIONS' | translate }}
     </div>
 
     <div class="table-responsive" *ngIf="inactiveUsers.length > 0">
       <table class="table table-hover">
         <thead>
           <tr>
-            <th>Benutzername</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th class="text-end">Benutzer aktivieren/ablehnen</th>
+            <th>{{ 'USER.USERNAME' | translate }}</th>
+            <th>{{ 'USER.NAME' | translate }}</th>
+            <th>{{ 'USER.EMAIL' | translate }}</th>
+            <th class="text-end">{{ 'USER.ACTIVATE_REJECT_USER' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -32,10 +32,10 @@
               <a href="mailto:{{user.email}}" class="text-primary">{{user.email}}</a>
             </td>
             <td class="text-end">
-              <button class="btn btn-link btn-sm text-success" (click)="activateUser(user._id || '')" title="Benutzer aktivieren">
+              <button class="btn btn-link btn-sm text-success" (click)="activateUser(user._id || '')" [title]="'USER.ACTIVATE_USER_BUTTON' | translate">
                 <i class="fas fa-user-check"></i>
               </button>
-              <button class="btn btn-link btn-sm text-danger" (click)="rejectUser(user._id || '')" title="Benutzer ablehnen">
+              <button class="btn btn-link btn-sm text-danger" (click)="rejectUser(user._id || '')" [title]="'USER.REJECT_USER_BUTTON' | translate">
                 <i class="fas fa-user-times"></i>
               </button>
             </td>
