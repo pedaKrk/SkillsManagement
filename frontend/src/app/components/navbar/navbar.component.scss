@@ -212,114 +212,93 @@
 }
 
 .user-menu {
+  width: 100%;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
   display: flex;
-  align-items: center;
-  margin-left: 1rem;
-  position: relative;
-
+  flex-direction: column;
+  align-items: stretch;
+  
+  .user-dropdown {
+    width: 100%;
+  }
+  
   .language-selector-container {
-    margin-right: 1rem;
+    width: 100%;
+    margin: 0.5rem 0;
     
-    ::ng-deep .language-selector {
-      .language-select {
-        background-color: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+    ::ng-deep .user-dropdown {
+      width: 100%;
+
+      .user-dropdown-toggle {
+        width: 100%;
+        padding: 0.75rem 0;
         color: white;
-        font-size: 0.9rem;
-        padding: 6px 10px;
-        
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
         &:hover {
-          background-color: rgba(255, 255, 255, 0.2);
-          border-color: rgba(255, 255, 255, 0.5);
-        }
-        
-        &:focus {
-          background-color: rgba(255, 255, 255, 0.2);
-          border-color: white;
-          box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
-        }
-        
-        option {
-          background-color: #0077a9;
+          background-color: rgba(255, 255, 255, 0.1);
+          padding-left: 0.5rem;
           color: white;
         }
+
+        .dropdown-arrow {
+          margin-left: auto;
+          font-size: 0.8em;
+          transition: transform 0.3s ease;
+        }
       }
-    }
-  }
 
-  .username {
-    color: white;
-    margin-right: 1rem;
-    font-weight: 500;
-  }
-
-  .btn-logout {
-    background-color: transparent;
-    border: 1px solid white;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background-color: white;
-      color: #0077a9;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    &:active {
-      transform: translateY(1px);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-  }
-
-  .nav-link {
-    color: white;
-    text-decoration: none;
-    padding: 0.5rem 0.75rem;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    height: 100%;
-    position: relative;
-
-    &:hover {
-      color: rgba(255, 255, 255, 0.8);
-      transform: translateY(-2px);
-
-      &:after {
-        content: '';
-        position: absolute;
+      .user-dropdown-menu {
+        position: static;
         width: 100%;
-        height: 2px;
-        bottom: -5px;
-        left: 0;
-        background-color: white;
-        transition: width 0.3s ease;
-      }
-    }
+        background-color: rgba(0, 119, 169, 0.3);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        margin: 0.5rem 0;
+        padding: 0.5rem 0;
+        backdrop-filter: blur(10px);
+        min-width: unset;
+        border: none;
+        overflow: hidden;
 
-    &.active {
-      font-weight: 600;
-      position: relative;
+        .dropdown-item {
+          color: white;
+          padding: 0.75rem 1rem;
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+          transition: all 0.3s ease;
+          border-radius: 6px;
+          margin: 0.25rem 0.5rem;
+          font-size: 0.95rem;
+          background-color: transparent !important;
 
-      &:after {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 2px;
-        bottom: -5px;
-        left: 0;
-        background-color: white;
-      }
+          &:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: translateX(0.5rem);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          }
 
-      &:hover {
-        transform: none;
-        color: white;
+          &.active, &[routerLinkActive="active"] {
+            background-color: rgba(255, 255, 255, 0.25);
+            color: white;
+            font-weight: 600;
+            transform: translateX(0.5rem);
+          }
+
+          &:after, &:before {
+            display: none !important;
+          }
+        }
       }
     }
   }
@@ -513,16 +492,6 @@
     }
   }
 
-  .user-menu {
-    width: 100%;
-    margin-top: 0;
-    padding-top: 0;
-    border-top: none;
-    .user-dropdown {
-      width: 100%;
-    }
-  }
-
   .hamburger-menu {
     display: flex;
     z-index: 1020;
@@ -546,88 +515,82 @@
     }
   }
 
-  .navbar-nav .nav-item .user-dropdown, // Targets Future Skills Dropdown
-  .user-menu .user-dropdown {           // Targets User Dropdown
+  // Language-Selector
+  .navbar-nav .nav-item app-language-selector {
     width: 100%;
-
-    .user-dropdown-toggle {
+    margin: 0.5rem 0;
+    
+    ::ng-deep .user-dropdown {
       width: 100%;
-      padding: 0.75rem 0;
-      color: white;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      font-size: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
 
-      &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        padding-left: 0.5rem;
+      .user-dropdown-toggle {
+        width: 100%;
+        padding: 0.75rem 0;
         color: white;
-      }
-
-      .dropdown-arrow {
-        margin-left: auto;
-        font-size: 0.8em;
-        transition: transform 0.3s ease;
-      }
-    }
-
-    .user-dropdown-menu {
-      position: static;
-      width: 100%;
-      background-color: rgba(0, 119, 169, 0.3);
-      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-      margin: 0.5rem 0;
-      padding: 0.5rem 0;
-      backdrop-filter: blur(10px);
-
-      .dropdown-item {
-        color: white;
-        padding: 0.75rem 1rem;
-        text-decoration: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 1rem;
         display: flex;
+        justify-content: space-between;
         align-items: center;
+        cursor: pointer;
         transition: all 0.3s ease;
-        border-radius: 6px;
-        margin: 0.25rem 0.5rem;
-        font-size: 0.95rem;
-        background-color: transparent !important; // Override desktop styles
-
-        i {
-          margin-right: 0.75rem;
-          width: 16px;
-          text-align: center;
-          color: rgba(255, 255, 255, 0.8);
-        }
 
         &:hover {
-          background-color: rgba(255, 255, 255, 0.2);
+          background-color: rgba(255, 255, 255, 0.1);
+          padding-left: 0.5rem;
           color: white;
-          transform: translateX(0.5rem);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        &.active, &[routerLinkActive="active"] {
-          background-color: rgba(255, 255, 255, 0.25);
-          color: white;
-          font-weight: 600;
-          transform: translateX(0.5rem);
-        }
-
-        &:after, &:before {
-          display: none !important;
+        .dropdown-arrow {
+          margin-left: auto;
+          font-size: 0.8em;
+          transition: transform 0.3s ease;
         }
       }
 
-      .dropdown-divider {
-        height: 1px;
-        background-color: rgba(255, 255, 255, 0.2);
-        margin: 0.5rem 1rem;
+      .user-dropdown-menu {
+        position: static;
+        width: 100%;
+        background-color: rgba(0, 119, 169, 0.3);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        margin: 0.5rem 0;
+        padding: 0.5rem 0;
+        backdrop-filter: blur(10px);
+        min-width: unset;
         border: none;
+        overflow: hidden;
+
+        .dropdown-item {
+          color: white;
+          padding: 0.75rem 1rem;
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+          transition: all 0.3s ease;
+          border-radius: 6px;
+          margin: 0.25rem 0.5rem;
+          font-size: 0.95rem;
+          background-color: transparent !important;
+
+          &:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: translateX(0.5rem);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          }
+
+          &.active, &[routerLinkActive="active"] {
+            background-color: rgba(255, 255, 255, 0.25);
+            color: white;
+            font-weight: 600;
+            transform: translateX(0.5rem);
+          }
+
+          &:after, &:before {
+            display: none !important;
+          }
+        }
       }
     }
   }
@@ -675,7 +638,6 @@
     flex-direction: column;
     align-items: stretch;
     margin-left: 0;
-
   }
 }
 
