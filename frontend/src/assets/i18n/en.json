@@ -130,7 +130,17 @@
     "REPLY_PLACEHOLDER": "Write a reply...",
     "NO_COMMENTS": "No comments found",
     "BY": "by",
-    "ON": "on"
+    "ON": "on",
+    "EMAIL_DIALOG_TITLE": "Send Email to Selected Users",
+    "EMAIL_DIALOG_INFO": "You are sending an email to {{count}} users.",
+    "EMAIL_RECIPIENTS_LABEL": "Recipients",
+    "EMAIL_SUBJECT_LABEL": "Subject",
+    "EMAIL_SUBJECT_PLACEHOLDER": "Enter subject...",
+    "EMAIL_MESSAGE_LABEL": "Message",
+    "EMAIL_MESSAGE_PLACEHOLDER": "Enter message...",
+    "EMAIL_SEND_BUTTON": "Send Email",
+    "USER_EDIT_TITLE": "Edit profile of {{name}}",
+    "USER_EDIT_SUBTITLE": "Edit information for {{name}}"
   },
   "SKILLS": {
     "SKILLS": "Skills",
@@ -280,7 +290,7 @@
   },
   "EDIT_PROFILE": {
     "HEADER": "Edit User Profile",
-    "SUBTITLE": "Edit information for",
+    "SUBTITLE": "Edit information for {{firstName}} {{lastName}}",
     "LOADING": "Loading user data...",
     "ERROR_LOADING": "Error loading user data.",
     "BACK_TO_DETAILS": "Back to user details",

@@ -129,7 +129,17 @@
     "REPLY_PLACEHOLDER": "Schreiben Sie eine Antwort...",
     "NO_COMMENTS": "Keine Kommentare gefunden",
     "BY": "von",
-    "ON": "am"
+    "ON": "am",
+    "EMAIL_DIALOG_TITLE": "E-Mail an ausgewählte Benutzer senden",
+    "EMAIL_DIALOG_INFO": "Sie senden eine E-Mail an {{count}} Benutzer.",
+    "EMAIL_RECIPIENTS_LABEL": "Empfänger",
+    "EMAIL_SUBJECT_LABEL": "Betreff",
+    "EMAIL_SUBJECT_PLACEHOLDER": "Betreff eingeben...",
+    "EMAIL_MESSAGE_LABEL": "Nachricht",
+    "EMAIL_MESSAGE_PLACEHOLDER": "Nachricht eingeben...",
+    "EMAIL_SEND_BUTTON": "E-Mail senden",
+    "USER_EDIT_TITLE": "Profil von {{name}} bearbeiten",
+    "USER_EDIT_SUBTITLE": "Informationen für {{name}} bearbeiten"
   },
   "SKILLS": {
     "SKILLS": "Skills",
@@ -275,7 +285,7 @@
   },
   "EDIT_PROFILE": {
     "HEADER": "Benutzerprofil bearbeiten",
-    "SUBTITLE": "Bearbeiten Sie die Informationen für",
+    "SUBTITLE": "Bearbeiten Sie die Informationen für {{firstName}} {{lastName}}",
     "LOADING": "Benutzerdaten werden geladen...",
     "ERROR_LOADING": "Fehler beim Laden der Benutzerdaten.",
     "BACK_TO_DETAILS": "Zurück zur Benutzerdetailseite",

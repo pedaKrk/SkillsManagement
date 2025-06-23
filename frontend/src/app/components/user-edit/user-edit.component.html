@@ -17,7 +17,7 @@
   <div *ngIf="user && !isLoading && !error" class="user-edit-container">
     <div class="edit-header">
       <h1>{{ 'EDIT_PROFILE.HEADER' | translate }}</h1>
-      <p class="subtitle">{{ 'EDIT_PROFILE.SUBTITLE' | translate:{ name: (user.firstName ? user.firstName : '') + ' ' + (user.lastName ? user.lastName : '') } }}</p>
+      <p class="subtitle">{{ 'EDIT_PROFILE.SUBTITLE' | translate:{ firstName: user.firstName, lastName: user.lastName } }}</p>
     </div>
     
     <!-- profile image section -->

@@ -60,8 +60,8 @@ export class UserListComponent implements OnInit, OnDestroy {
   
   // for email dialog
   showEmailDialog: boolean = false;
-  emailSubject: string = '';
-  emailMessage: string = '';
+  emailSubject: string = 'Nachricht vom Skills Management System';
+  emailMessage: string = 'Hallo,\n\nDies ist eine Nachricht vom Skills Management System.\n\nMit freundlichen Grüßen,\nIhr Skills Management Team';
   isSendingEmail: boolean = false;
   
   // for delete dialog
@@ -88,9 +88,9 @@ export class UserListComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService,
     private translateService: TranslateService
   ) {
-    // Initialize email template with translations
-    this.emailSubject = this.translateService.instant('USER.EMAIL_SUBJECT');
-    this.emailMessage = this.translateService.instant('USER.EMAIL_MESSAGE');
+    // Default-Text für E-Mail immer auf Deutsch
+    this.emailSubject = 'Nachricht vom Skills Management System';
+    this.emailMessage = 'Hallo,\n\nDies ist eine Nachricht vom Skills Management System.\n\nMit freundlichen Grüßen,\nIhr Skills Management Team';
   }
   
   ngOnInit(): void {
@@ -361,51 +361,50 @@ export class UserListComponent implements OnInit, OnDestroy {
       return;
     }
     
-    // Use the Dialog-Service for the email form
     const selectedUsers = this.getSelectedUsers();
     
-    this.dialogService.showFormDialog({
-      title: 'E-Mail an ausgewählte Benutzer senden',
-      message: `Sie senden eine E-Mail an ${selectedUsers.length} Benutzer.`,
-      formFields: [
-        {
-          id: 'recipients',
-          label: 'Empfänger',
-          type: 'textarea',
-          defaultValue: selectedUsers.map((user: User) => `${user.firstName} ${user.lastName} (${user.email})`).join('\n'),
-          required: true,
-          disabled: true,
-          rows: Math.min(selectedUsers.length, 4)
-        },
-        {
-          id: 'subject',
-          label: 'Betreff',
-          type: 'text',
-          defaultValue: this.emailSubject,
-          required: true,
-          placeholder: 'Betreff eingeben...'
-        },
-        {
-          id: 'message',
-          label: 'Nachricht',
-          type: 'textarea',
-          defaultValue: this.emailMessage,
-          required: true,
-          placeholder: 'Nachricht eingeben...',
-          rows: 6
+    this.translateService.get('USER.EMAIL_DIALOG_INFO', { count: selectedUsers.length }).subscribe(infoText => {
+      this.dialogService.showFormDialog({
+        title: this.translateService.instant('USER.EMAIL_DIALOG_TITLE'),
+        message: infoText,
+        formFields: [
+          {
+            id: 'recipients',
+            label: this.translateService.instant('USER.EMAIL_RECIPIENTS_LABEL'),
+            type: 'textarea',
+            defaultValue: selectedUsers.map((user: User) => `${user.firstName} ${user.lastName} (${user.email})`).join('\n'),
+            required: true,
+            disabled: true,
+            rows: Math.min(selectedUsers.length, 4)
+          },
+          {
+            id: 'subject',
+            label: this.translateService.instant('USER.EMAIL_SUBJECT_LABEL'),
+            type: 'text',
+            defaultValue: this.emailSubject,
+            required: true,
+            placeholder: this.translateService.instant('USER.EMAIL_SUBJECT_PLACEHOLDER')
+          },
+          {
+            id: 'message',
+            label: this.translateService.instant('USER.EMAIL_MESSAGE_LABEL'),
+            type: 'textarea',
+            defaultValue: this.emailMessage,
+            required: true,
+            placeholder: this.translateService.instant('USER.EMAIL_MESSAGE_PLACEHOLDER'),
+            rows: 6
+          }
+        ],
+        submitText: this.translateService.instant('USER.EMAIL_SEND_BUTTON'),
+        cancelText: this.translateService.instant('COMMON.CANCEL')
+      }).subscribe(formData => {
+        if (formData) {
+          this.emailSubject = formData.subject;
+          this.emailMessage = formData.message;
+          // send email to users
+          this.sendEmailToUsers(selectedUsers, formData.subject, formData.message);
         }
-      ],
-      submitText: 'E-Mail senden',
-      cancelText: 'Abbrechen'
-    }).subscribe(formData => {
-      if (formData) {
-        
-        this.emailSubject = formData.subject;
-        this.emailMessage = formData.message;
-        
-        // send email to users
-        this.sendEmailToUsers(selectedUsers, formData.subject, formData.message);
-      }
+      });
     });
   }
   
