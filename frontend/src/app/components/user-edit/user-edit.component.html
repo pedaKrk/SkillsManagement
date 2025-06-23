@@ -2,50 +2,50 @@
   <!-- loading indicator -->
   <div *ngIf="isLoading" class="loading-container">
     <div class="spinner"></div>
-    <span>Benutzerdaten werden geladen...</span>
+    <span>{{ 'EDIT_PROFILE.LOADING' | translate }}</span>
   </div>
   
   <!-- error message -->
   <div *ngIf="error" class="error-container">
     <div class="error-message">{{ error }}</div>
     <div class="error-actions">
-      <button class="btn btn-secondary" (click)="cancel()">Zurück zur Benutzerdetailseite</button>
+      <button class="btn btn-secondary" (click)="cancel()">{{ 'EDIT_PROFILE.BACK_TO_DETAILS' | translate }}</button>
     </div>
   </div>
   
   <!-- edit form -->
   <div *ngIf="user && !isLoading && !error" class="user-edit-container">
     <div class="edit-header">
-      <h1>Benutzerprofil bearbeiten</h1>
-      <p class="subtitle">Bearbeiten Sie die Informationen für {{ user.firstName }} {{ user.lastName }}</p>
+      <h1>{{ 'EDIT_PROFILE.HEADER' | translate }}</h1>
+      <p class="subtitle">{{ 'EDIT_PROFILE.SUBTITLE' | translate:{ name: (user.firstName ? user.firstName : '') + ' ' + (user.lastName ? user.lastName : '') } }}</p>
     </div>
     
     <!-- profile image section -->
     <div class="profile-image-section">
-      <h2 class="section-title">Profilbild</h2>
+      <h2 class="section-title">{{ 'EDIT_PROFILE.PROFILE_IMAGE' | translate }}</h2>
       
       <div class="profile-image-container">
         <div class="current-image">
           <div *ngIf="!user.profileImageUrl && !previewImageUrl" class="user-avatar">
             <span class="initials">{{ getUserInitials() }}</span>
           </div>
-          <img *ngIf="user.profileImageUrl && !previewImageUrl" [src]="getProfileImageUrl(user.profileImageUrl)" alt="Aktuelles Profilbild" class="profile-image">
-          <img *ngIf="previewImageUrl" [src]="previewImageUrl" alt="Neues Profilbild" class="profile-image">
+          <img *ngIf="user.profileImageUrl && !previewImageUrl" [src]="getProfileImageUrl(user.profileImageUrl)" alt="{{ 'EDIT_PROFILE.PROFILE_IMAGE' | translate }}" class="profile-image">
+          <img *ngIf="previewImageUrl" [src]="previewImageUrl" alt="{{ 'EDIT_PROFILE.PROFILE_IMAGE' | translate }}" class="profile-image">
         </div>
         
         <div class="image-actions">
           <label for="profile-image-upload" class="btn btn-primary">
-            <i class="fa fa-upload"></i> Bild hochladen
+            <i class="fa fa-upload"></i> {{ 'EDIT_PROFILE.UPLOAD_IMAGE' | translate }}
           </label>
           <input type="file" id="profile-image-upload" (change)="onImageSelected($event)" accept="image/*" style="display: none;">
           
           <button *ngIf="user.profileImageUrl || previewImageUrl" type="button" class="btn btn-danger" (click)="markProfileImageForRemoval()">
-            <i class="fa fa-trash"></i> Bild entfernen
+            <i class="fa fa-trash"></i> {{ 'EDIT_PROFILE.REMOVE_IMAGE' | translate }}
           </button>
         </div>
         
         <div class="image-info">
-          <p class="image-hint">Hinweis: Bilder werden automatisch komprimiert. Maximale Dateigröße vor Komprimierung: 20 MB.</p>
+          <p class="image-hint">{{ 'EDIT_PROFILE.IMAGE_HINT' | translate }}</p>
         </div>
         
         <div *ngIf="imageError" class="image-error">
@@ -57,27 +57,27 @@
     <form [formGroup]="userForm" (ngSubmit)="saveChanges()" class="edit-form">
       <!-- personal information -->
       <div class="form-section">
-        <h2 class="section-title">Persönliche Informationen</h2>
+        <h2 class="section-title">{{ 'EDIT_PROFILE.PERSONAL_INFO' | translate }}</h2>
         
         <div class="form-row">
           <div class="form-group">
-            <label for="title">Titel</label>
+            <label for="title">{{ 'EDIT_PROFILE.TITLE' | translate }}</label>
             <input type="text" id="title" formControlName="title" class="form-control">
           </div>
           
           <div class="form-group">
-            <label for="firstName">Vorname *</label>
+            <label for="firstName">{{ 'EDIT_PROFILE.FIRST_NAME' | translate }}</label>
             <input type="text" id="firstName" formControlName="firstName" class="form-control" [class.is-invalid]="isFieldInvalid('firstName')">
             <div *ngIf="isFieldInvalid('firstName')" class="invalid-feedback">
-              Vorname ist erforderlich
+              {{ 'EDIT_PROFILE.FIRST_NAME_REQUIRED' | translate }}
             </div>
           </div>
           
           <div class="form-group">
-            <label for="lastName">Nachname *</label>
+            <label for="lastName">{{ 'EDIT_PROFILE.LAST_NAME' | translate }}</label>
             <input type="text" id="lastName" formControlName="lastName" class="form-control" [class.is-invalid]="isFieldInvalid('lastName')">
             <div *ngIf="isFieldInvalid('lastName')" class="invalid-feedback">
-              Nachname ist erforderlich
+              {{ 'EDIT_PROFILE.LAST_NAME_REQUIRED' | translate }}
             </div>
           </div>
         </div>
@@ -85,19 +85,19 @@
       
       <!-- contact information -->
       <div class="form-section">
-        <h2 class="section-title">Kontaktinformationen</h2>
+        <h2 class="section-title">{{ 'EDIT_PROFILE.CONTACT_INFO' | translate }}</h2>
         
         <div class="form-row">
           <div class="form-group">
-            <label for="email">E-Mail *</label>
+            <label for="email">{{ 'EDIT_PROFILE.EMAIL' | translate }}</label>
             <input type="email" id="email" formControlName="email" class="form-control" [class.is-invalid]="isFieldInvalid('email')">
             <div *ngIf="isFieldInvalid('email')" class="invalid-feedback">
-              Bitte geben Sie eine gültige E-Mail-Adresse ein
+              {{ 'EDIT_PROFILE.EMAIL_REQUIRED' | translate }}
             </div>
           </div>
           
           <div class="form-group">
-            <label for="phoneNumber">Telefonnummer</label>
+            <label for="phoneNumber">{{ 'EDIT_PROFILE.PHONE_NUMBER' | translate }}</label>
             <input type="tel" id="phoneNumber" formControlName="phoneNumber" class="form-control">
           </div>
         </div>
@@ -105,38 +105,38 @@
       
       <!-- account information -->
       <div class="form-section">
-        <h2 class="section-title">Kontoinformationen</h2>
+        <h2 class="section-title">{{ 'EDIT_PROFILE.ACCOUNT_INFO' | translate }}</h2>
         
         <div class="form-row">
           <div class="form-group">
-            <label for="username">Benutzername *</label>
+            <label for="username">{{ 'EDIT_PROFILE.USERNAME' | translate }}</label>
             <input type="text" id="username" formControlName="username" class="form-control" [class.is-invalid]="isFieldInvalid('username')">
             <div *ngIf="isFieldInvalid('username')" class="invalid-feedback">
-              Benutzername ist erforderlich
+              {{ 'EDIT_PROFILE.USERNAME_REQUIRED' | translate }}
             </div>
           </div>
           
           <!-- Role and Employment Type only visible for admins -->
           <ng-container *ngIf="isAdmin">
             <div class="form-group">
-              <label for="role">Rolle *</label>
+              <label for="role">{{ 'EDIT_PROFILE.ROLE' | translate }}</label>
               <select id="role" formControlName="role" class="form-control" [class.is-invalid]="isFieldInvalid('role')">
-                <option value="">Rolle auswählen</option>
+                <option value="">{{ 'EDIT_PROFILE.ROLE_SELECT' | translate }}</option>
                 <option *ngFor="let role of userRoles" [value]="role">{{ role }}</option>
               </select>
               <div *ngIf="isFieldInvalid('role')" class="invalid-feedback">
-                Rolle ist erforderlich
+                {{ 'EDIT_PROFILE.ROLE_REQUIRED' | translate }}
               </div>
             </div>
             
             <div class="form-group">
-              <label for="employmentType">Beschäftigungsart *</label>
+              <label for="employmentType">{{ 'EDIT_PROFILE.EMPLOYMENT_TYPE' | translate }}</label>
               <select id="employmentType" formControlName="employmentType" class="form-control" [class.is-invalid]="isFieldInvalid('employmentType')">
-                <option value="">Beschäftigungsart auswählen</option>
+                <option value="">{{ 'EDIT_PROFILE.EMPLOYMENT_TYPE_SELECT' | translate }}</option>
                 <option *ngFor="let type of employmentTypes" [value]="type">{{ type }}</option>
               </select>
               <div *ngIf="isFieldInvalid('employmentType')" class="invalid-feedback">
-                Beschäftigungsart ist erforderlich
+                {{ 'EDIT_PROFILE.EMPLOYMENT_TYPE_REQUIRED' | translate }}
               </div>
             </div>
           </ng-container>
@@ -146,9 +146,9 @@
       <!-- Buttons -->
       <div class="button-group mt-4">
         <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid || isLoading">
-          {{ isLoading ? 'Speichern...' : 'Speichern' }}
+          {{ isLoading ? ('EDIT_PROFILE.SAVING' | translate) : ('EDIT_PROFILE.SAVE' | translate) }}
         </button>
-        <button type="button" class="btn btn-secondary ms-2" (click)="goBack()">Abbrechen</button>
+        <button type="button" class="btn btn-secondary ms-2" (click)="goBack()">{{ 'EDIT_PROFILE.CANCEL' | translate }}</button>
       </div>
     </form>
   </div>
