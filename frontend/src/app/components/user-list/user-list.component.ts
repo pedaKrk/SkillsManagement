@@ -12,6 +12,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
 import { UserRole } from '../../models/enums/user-roles.enum';
 import { NotificationService } from '../../core/services/notification/notification.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-user-list',
@@ -21,7 +22,8 @@ import { NotificationService } from '../../core/services/notification/notificati
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    RouterModule
+    RouterModule,
+    TranslateModule
   ],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss'
@@ -58,8 +60,8 @@ export class UserListComponent implements OnInit, OnDestroy {
   
   // for email dialog
   showEmailDialog: boolean = false;
-  emailSubject: string = 'Nachricht vom Skills Management System';
-  emailMessage: string = 'Hallo,\n\nDies ist eine Nachricht vom Skills Management System.\n\nMit freundlichen Grüßen,\nIhr Skills Management Team';
+  emailSubject: string = '';
+  emailMessage: string = '';
   isSendingEmail: boolean = false;
   
   // for delete dialog
@@ -83,8 +85,13 @@ export class UserListComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private dialogService: DialogService,
     private router: Router,
-    private notificationService: NotificationService
-  ) {}
+    private notificationService: NotificationService,
+    private translateService: TranslateService
+  ) {
+    // Initialize email template with translations
+    this.emailSubject = this.translateService.instant('USER.EMAIL_SUBJECT');
+    this.emailMessage = this.translateService.instant('USER.EMAIL_MESSAGE');
+  }
   
   ngOnInit(): void {
     // Get current user info
@@ -170,11 +177,11 @@ export class UserListComponent implements OnInit, OnDestroy {
         
         // Only show the specific message if it's a permission error
         if (error.status === 403) {
-          this.error = 'Sie haben keine Berechtigung, die Benutzerliste anzuzeigen.';
+          this.error = this.translateService.instant('USER.NO_PERMISSION');
         } else if (error.status === 401) {
-          this.error = 'Bitte melden Sie sich an, um die Benutzerliste anzuzeigen.';
+          this.error = this.translateService.instant('USER.PLEASE_LOGIN');
         } else {
-          this.error = 'Fehler beim Laden der Benutzer. Bitte versuchen Sie es später erneut.';
+          this.error = this.translateService.instant('USER.LOAD_USERS_ERROR');
         }
       }
     });
@@ -587,8 +594,8 @@ export class UserListComponent implements OnInit, OnDestroy {
     // Check again if the user has Admin rights (additional security level)
     if (!this.isAdmin) {
       this.dialogService.showError(
-        'Keine Berechtigung', 
-        'Sie haben keine Berechtigung, Benutzer zu löschen. Diese Aktion ist nur für Administratoren verfügbar.'
+        this.translateService.instant('USER.NO_PERMISSION'), 
+        this.translateService.instant('USER.NO_PERMISSION')
       );
       return;
     }
@@ -606,8 +613,8 @@ export class UserListComponent implements OnInit, OnDestroy {
         
         // Show successful deletion
         this.dialogService.showSuccess({
-          title: 'Benutzer gelöscht',
-          message: `Der Benutzer "${user.firstName} ${user.lastName}" wurde erfolgreich gelöscht.`,
+          title: this.translateService.instant('USER.DELETE_USER_CONFIRMATION'),
+          message: this.translateService.instant('USER.USER_DELETED'),
           buttonText: 'OK'
         });
       },
@@ -615,22 +622,22 @@ export class UserListComponent implements OnInit, OnDestroy {
         console.error('Error deleting user:', error);
         this.isLoading = false;
         
-        let errorMessage = 'Fehler beim Löschen des Benutzers. ';
+        let errorMessage = this.translateService.instant('USER.LOAD_USERS_ERROR');
         
         if (error.status === 401) {
-          errorMessage += 'Sie sind nicht autorisiert. Bitte melden Sie sich erneut an.';
+          errorMessage += ' ' + this.translateService.instant('USER.PLEASE_LOGIN');
           // Log out user and redirect to login page
           this.authService.logout();
           setTimeout(() => {
             this.router.navigate(['/login']);
           }, 1500);
         } else if (error.status === 403) {
-          errorMessage += 'Sie haben keine Berechtigung, Benutzer zu löschen.';
+          errorMessage += ' ' + this.translateService.instant('USER.NO_PERMISSION');
         } else {
-          errorMessage += 'Bitte versuchen Sie es später erneut.';
+          errorMessage += ' ' + this.translateService.instant('USER.RETRY');
         }
         
-        this.dialogService.showError('Fehler', errorMessage);
+        this.dialogService.showError(this.translateService.instant('USER.LOAD_USERS_ERROR'), errorMessage);
       }
     });
   }
@@ -653,10 +660,10 @@ export class UserListComponent implements OnInit, OnDestroy {
   
   // helper method to get the skill name
   getSkillName(skill: any): string {
-    if (!skill) return 'Unbekannte Fähigkeit';
+    if (!skill) return this.translateService.instant('USER.UNKNOWN_SKILL');
     // if skill is a string (ID), return a generic name
     if (typeof skill === 'string') {
-      return 'Unbekannte Fähigkeit';
+      return this.translateService.instant('USER.UNKNOWN_SKILL');
     }
     // if skill is an object with skill and name
     if (typeof skill === 'object' && skill.skill && skill.skill.name) {
@@ -664,10 +671,10 @@ export class UserListComponent implements OnInit, OnDestroy {
     }
     // if skill is an object, but no name attribute
     if (typeof skill === 'object' && skill._id) {
-      return 'Unbekannte Fähigkeit';
+      return this.translateService.instant('USER.UNKNOWN_SKILL');
     }
     // fallback
-    return 'Unbekannte Fähigkeit';
+    return this.translateService.instant('USER.UNKNOWN_SKILL');
   }
   
   // method to filter by skills (multiple)
@@ -815,17 +822,17 @@ export class UserListComponent implements OnInit, OnDestroy {
   deactivateUser(user: User): void {
     if (!this.isAdmin && !this.isCompetenceLeader) {
       this.dialogService.showError(
-        'Keine Berechtigung',
-        'Sie haben keine Berechtigung, Benutzer zu deaktivieren. Diese Aktion ist nur für Administratoren und Competence Leader verfügbar.'
+        this.translateService.instant('USER.NO_PERMISSION'),
+        this.translateService.instant('USER.NO_PERMISSION')
       );
       return;
     }
 
     this.dialogService.showConfirmation({
-      title: 'Benutzer deaktivieren',
-      message: `Möchten Sie den Benutzer "${user.firstName} ${user.lastName}" wirklich deaktivieren?`,
-      confirmText: 'Deaktivieren',
-      cancelText: 'Abbrechen'
+      title: this.translateService.instant('USER.DEACTIVATE_USER_CONFIRMATION'),
+      message: this.translateService.instant('USER.DEACTIVATE_USER_MESSAGE'),
+      confirmText: this.translateService.instant('USER.DEACTIVATE'),
+      cancelText: this.translateService.instant('COMMON.CANCEL')
     }).subscribe(confirmed => {
       if (confirmed) {
         this.isLoading = true;
@@ -838,8 +845,8 @@ export class UserListComponent implements OnInit, OnDestroy {
             
             // Show success message
             this.dialogService.showSuccess({
-              title: 'Benutzer deaktiviert',
-              message: `Der Benutzer "${user.firstName} ${user.lastName}" wurde erfolgreich deaktiviert.`,
+              title: this.translateService.instant('USER.DEACTIVATE_USER_CONFIRMATION'),
+              message: this.translateService.instant('USER.USER_DEACTIVATED'),
               buttonText: 'OK'
             });
             
@@ -850,21 +857,21 @@ export class UserListComponent implements OnInit, OnDestroy {
             console.error('Error deactivating user:', error);
             this.isLoading = false;
             
-            let errorMessage = 'Fehler beim Deaktivieren des Benutzers. ';
+            let errorMessage = this.translateService.instant('USER.LOAD_USERS_ERROR');
             
             if (error.status === 401) {
-              errorMessage += 'Sie sind nicht autorisiert. Bitte melden Sie sich erneut an.';
+              errorMessage += ' ' + this.translateService.instant('USER.PLEASE_LOGIN');
               this.authService.logout();
               setTimeout(() => {
                 this.router.navigate(['/login']);
               }, 1500);
             } else if (error.status === 403) {
-              errorMessage += 'Sie haben keine Berechtigung, Benutzer zu deaktivieren.';
+              errorMessage += ' ' + this.translateService.instant('USER.NO_PERMISSION');
             } else {
-              errorMessage += 'Bitte versuchen Sie es später erneut.';
+              errorMessage += ' ' + this.translateService.instant('USER.RETRY');
             }
             
-            this.dialogService.showError('Fehler', errorMessage);
+            this.dialogService.showError(this.translateService.instant('USER.LOAD_USERS_ERROR'), errorMessage);
           }
         });
       }

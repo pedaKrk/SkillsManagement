@@ -10,7 +10,7 @@
           [disabled]="selectedUsers.length === 0"
           *ngIf="isAdmin || isCompetenceLeader"
         >
-          PDF generieren und herunterladen
+          {{ 'USER.GENERATE_PDF' | translate }}
         </button>
         <button 
           class="btn btn-primary" 
@@ -18,11 +18,11 @@
           [disabled]="selectedUsers.length === 0"
           *ngIf="isAdmin || isCompetenceLeader"
         >
-          E-Mail an ausgewählte Person(en) senden
+          {{ 'USER.SEND_EMAIL' | translate }}
         </button>
         <!-- Sortieren for all available -->
         <button class="btn btn-secondary" (click)="sortUsers('username')">
-          Aufsteigend sortieren
+          {{ 'USER.SORT_ASCENDING' | translate }}
         </button>
       </div>
       
@@ -33,7 +33,7 @@
             type="text" 
             [(ngModel)]="searchTerm" 
             (ngModelChange)="applyFilters()"
-            placeholder="Nach Namen suchen..." 
+            [placeholder]="'USER.SEARCH_BY_NAME' | translate" 
             class="form-control"
           >
         </div>
@@ -44,7 +44,7 @@
             <div class="dropdown-wrapper">
               <!-- Dropdown toggle button -->
               <div class="skills-dropdown-toggle" (click)="toggleSkillDropdown()">
-                <span>{{ selectedSkills.length > 0 ? 'Skills: ' + selectedSkills.length + ' ausgewählt' : 'Nach Skills filtern' }}</span>
+                <span>{{ selectedSkills.length > 0 ? ('USER.SKILLS_SELECTED' | translate: {count: selectedSkills.length}) : ('USER.FILTER_BY_SKILLS' | translate) }}</span>
                 <span class="dropdown-arrow">{{ isSkillDropdownOpen ? '▲' : '▼' }}</span>
               </div>
               
@@ -56,7 +56,7 @@
                     type="text" 
                     [(ngModel)]="skillSearchTerm" 
                     (ngModelChange)="filterSkillsList()"
-                    placeholder="Skills suchen..." 
+                    [placeholder]="'USER.SEARCH_SKILLS' | translate" 
                     class="form-control"
                     (click)="$event.stopPropagation()"
                   >
@@ -72,11 +72,11 @@
                     <div class="skill-checkbox">
                       <span *ngIf="selectedSkills.length === 0" class="check-mark">✓</span>
                     </div>
-                    <span class="skill-name">Alle Skills anzeigen</span>
+                    <span class="skill-name">{{ 'USER.SHOW_ALL_SKILLS' | translate }}</span>
                   </div>
                   
                   <div *ngIf="filteredSkillsList.length === 0" class="no-skills">
-                    Keine passenden Skills gefunden
+                    {{ 'USER.NO_SKILLS_FOUND' | translate }}
                   </div>
                   
                   <div 
@@ -108,7 +108,7 @@
             [class.btn-secondary]="!hasActiveFilters()" 
             [class.btn-primary]="hasActiveFilters()" 
             (click)="resetFilters()">
-            Alle Filter löschen
+            {{ 'USER.CLEAR_ALL_FILTERS' | translate }}
           </button>
         </div>
       </div>
@@ -118,13 +118,13 @@
   <!-- loading indicator -->
   <div *ngIf="isLoading" class="loading-indicator">
     <div class="spinner"></div>
-    <span>Benutzer werden geladen...</span>
+    <span>{{ 'USER.USERS_LOADING' | translate }}</span>
   </div>
   
   <!-- error message -->
   <div *ngIf="error" class="alert alert-danger">
     {{ error }}
-    <button class="btn btn-sm btn-outline-danger ml-2" (click)="loadUsers()">Erneut versuchen</button>
+    <button class="btn btn-sm btn-outline-danger ml-2" (click)="loadUsers()">{{ 'USER.RETRY' | translate }}</button>
   </div>
   
   <!-- user table -->
@@ -138,100 +138,100 @@
               id="select-all-checkbox"
               [checked]="selectedUsers.length === filteredUsers.length && filteredUsers.length > 0"
               (change)="selectAllUsers()"
-              aria-label="Alle Benutzer auswählen"
+              [attr.aria-label]="'USER.SELECT_ALL_USERS' | translate"
               class="custom-checkbox"
             >
           </th>
           <th (click)="sortUsers('username')" class="sortable">
             <div class="header-content">
-              <span>Benutzername</span>
+              <span>{{ 'USER.USERNAME' | translate }}</span>
               <span *ngIf="sortField === 'username'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
             </div>
           </th>
           <th (click)="sortUsers('title')" class="sortable">
             <div class="header-content">
-              <span>Titel</span>
+              <span>{{ 'USER.TITLE' | translate }}</span>
               <span *ngIf="sortField === 'title'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
             </div>
           </th>
           <th (click)="sortUsers('firstName')" class="sortable">
             <div class="header-content">
-              <span>Vorname</span>
+              <span>{{ 'USER.FIRST_NAME' | translate }}</span>
               <span *ngIf="sortField === 'firstName'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
             </div>
           </th>
           <th (click)="sortUsers('lastName')" class="sortable">
             <div class="header-content">
-              <span>Nachname</span>
+              <span>{{ 'USER.LAST_NAME' | translate }}</span>
               <span *ngIf="sortField === 'lastName'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
             </div>
           </th>
           <th (click)="sortUsers('email')" class="sortable">
             <div class="header-content">
-              <span>Email</span>
+              <span>{{ 'USER.EMAIL' | translate }}</span>
               <span *ngIf="sortField === 'email'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
             </div>
           </th>
           <th (click)="sortUsers('phoneNumber')" class="sortable">
             <div class="header-content">
-              <span>Telefonnummer</span>
+              <span>{{ 'USER.PHONE_NUMBER_SHORT' | translate }}</span>
               <span *ngIf="sortField === 'phoneNumber'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
             </div>
           </th>
           <th (click)="sortUsers('employmentType')" class="sortable">
             <div class="header-content">
-              <span>Beschäftigungsart</span>
+              <span>{{ 'USER.EMPLOYMENT_TYPE' | translate }}</span>
               <span *ngIf="sortField === 'employmentType'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
             </div>
           </th>
           <th (click)="sortUsers('skills')" class="sortable">
             <div class="header-content">
-              <span>Skills</span>
+              <span>{{ 'USER.SKILLS' | translate }}</span>
               <span *ngIf="sortField === 'skills'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
             </div>
           </th>
-          <th>Aktionen</th>
+          <th>{{ 'USER.ACTIONS' | translate }}</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let user of filteredUsers" [class.selected]="isUserSelected(user.id)" class="user-row">
-          <td class="select-column" data-label="Auswählen">
+          <td class="select-column" [attr.data-label]="'USER.SELECT_ALL_USERS' | translate">
             <div class="checkbox-container">
               <input 
                 type="checkbox" 
                 [id]="'user-checkbox-' + user.id"
                 [checked]="isUserSelected(user.id)"
                 (change)="toggleUserSelection(user.id, $event)"
-                [attr.aria-label]="'Benutzer ' + user.firstName + ' ' + user.lastName + ' auswählen'"
+                [attr.aria-label]="('USER.SELECT_ALL_USERS' | translate) + ': ' + user.firstName + ' ' + user.lastName"
                 class="custom-checkbox"
               >
               <label [for]="'user-checkbox-' + user.id" class="sr-only">
-                {{ user.firstName }} {{ user.lastName }} auswählen
+                {{ user.firstName }} {{ user.lastName }} {{ 'USER.SELECT_ALL_USERS' | translate }}
               </label>
             </div>
           </td>
-          <td data-label="Benutzername">{{ user.username }}</td>
-          <td data-label="Titel">{{ user.title || '-' }}</td>
-          <td data-label="Vorname">{{ user.firstName }}</td>
-          <td data-label="Nachname">{{ user.lastName }}</td>
-          <td data-label="Email">{{ user.email }}</td>
-          <td data-label="Telefonnummer">{{ user.phoneNumber || '-' }}</td>
-          <td data-label="Beschäftigungsart">{{ user.employmentType === 'Internal' ? 'Intern' : 'Extern' }}</td>
-          <td data-label="Skills">
+          <td [attr.data-label]="'USER.USERNAME' | translate">{{ user.username }}</td>
+          <td [attr.data-label]="'USER.TITLE' | translate">{{ user.title || '-' }}</td>
+          <td [attr.data-label]="'USER.FIRST_NAME' | translate">{{ user.firstName }}</td>
+          <td [attr.data-label]="'USER.LAST_NAME' | translate">{{ user.lastName }}</td>
+          <td [attr.data-label]="'USER.EMAIL' | translate">{{ user.email }}</td>
+          <td [attr.data-label]="'USER.PHONE_NUMBER_SHORT' | translate">{{ user.phoneNumber || '-' }}</td>
+          <td [attr.data-label]="'USER.EMPLOYMENT_TYPE' | translate">{{ user.employmentType === 'Internal' ? ('USER.INTERNAL' | translate) : ('USER.EXTERNAL' | translate) }}</td>
+          <td [attr.data-label]="'USER.SKILLS' | translate">
             <div class="skills-list">
               <span class="skill-badge" *ngFor="let entry of user.skills">
-                {{ entry?.skill?.name || 'Unbekannte Fähigkeit' }}
+                {{ entry?.skill?.name || ('USER.UNKNOWN_SKILL' | translate) }}
               </span>
             </div>
           </td>
-          <td class="actions-column" data-label="Aktionen">
+          <td class="actions-column" [attr.data-label]="'USER.ACTIONS' | translate">
             <div class="action-buttons">
               <!-- Skills Management Button -->
               <button 
                 class="btn btn-icon btn-edit" 
                 (click)="editUser(user.id); $event.stopPropagation()" 
                 *ngIf="isAdmin || isCompetenceLeader || user.id === currentUserId"
-                title="Skills verwalten"
+                [title]="'USER.MANAGE_SKILLS' | translate"
               >
                 <i class="fa fa-cog"></i>
               </button>
@@ -240,7 +240,7 @@
               <button 
                 class="btn btn-icon btn-details" 
                 (click)="viewUserDetails(user.id); $event.stopPropagation()" 
-                title="Benutzerdetails anzeigen"
+                [title]="'USER.VIEW_DETAILS' | translate"
               >
                 <i class="fa fa-user"></i>
               </button>
@@ -249,7 +249,7 @@
                 class="btn btn-icon btn-deactivate" 
                 (click)="deactivateUser(user)" 
                 *ngIf="(isAdmin || isCompetenceLeader) && user.id !== currentUserId"
-                title="Benutzer deaktivieren"
+                [title]="'USER.DEACTIVATE_USER_SHORT' | translate"
               >
                 <i class="fa fa-user-slash"></i>
               </button>
@@ -259,7 +259,7 @@
                 class="btn btn-icon btn-delete" 
                 (click)="openDeleteDialog(user)" 
                 *ngIf="isAdmin && user.id !== currentUserId"
-                title="Benutzer löschen"
+                [title]="'USER.DELETE_USER' | translate"
               >
                 <i class="fa fa-trash"></i>
               </button>
@@ -268,7 +268,7 @@
         </tr>
         <tr *ngIf="filteredUsers.length === 0">
           <td colspan="10" class="no-results">
-            Keine Benutzer gefunden.
+            {{ 'USER.NO_USERS_FOUND' | translate }}
           </td>
         </tr>
       </tbody>
