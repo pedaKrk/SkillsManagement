@@ -11,6 +11,7 @@ import { HttpClient } from '@angular/common/http';
 import { API_CONFIG } from '../../core/config/api.config';
 import { environment } from '../../../environments/environment';
 import { SkillLevel } from '../../models/enums/skill-level.enum';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-user-skills-management',
@@ -19,7 +20,8 @@ import { SkillLevel } from '../../models/enums/skill-level.enum';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    RouterModule
+    RouterModule,
+    TranslateModule
   ],
   templateUrl: './user-skills-management.component.html',
   styleUrl: './user-skills-management.component.scss'
@@ -52,7 +54,8 @@ export class UserSkillsManagementComponent implements OnInit {
     private authService: AuthService,
     private dialogService: DialogService,
     private http: HttpClient,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private translateService: TranslateService
   ) {}
   
   ngOnInit(): void {
@@ -91,7 +94,7 @@ export class UserSkillsManagementComponent implements OnInit {
       },
       error: (error) => {
         console.error('Fehler beim Laden der Benutzerdaten:', error);
-        this.error = 'Benutzerdaten konnten nicht geladen werden.';
+        this.error = 'SKILLS.USER_DATA_LOAD_ERROR';
         this.isLoading = false;
       }
     });
@@ -112,7 +115,7 @@ export class UserSkillsManagementComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading skills:', error);
-        this.skillsError = 'Skills konnten nicht geladen werden.';
+        this.skillsError = 'SKILLS.SKILLS_LOAD_ERROR';
         this.isLoadingSkills = false;
       }
     });
@@ -244,15 +247,18 @@ export class UserSkillsManagementComponent implements OnInit {
       next: (response) => {
         console.log('[saveSkills] Save successful. Response:', response);
         this.dialogService.showSuccess({
-          title: 'Erfolg',
-          message: 'Änderungen wurden erfolgreich gespeichert.',
+          title: this.translateService.instant('COMMON.SUCCESS'),
+          message: this.translateService.instant('SKILLS.CHANGES_SAVED'),
         });
         // Die automatische Navigation wird entfernt, um ein Neuladen zu verhindern.
         // this.router.navigate(['/users', this.userId]); 
       },
       error: (error) => {
         console.error('[saveSkills] Error on save:', error);
-        this.dialogService.showError('Fehler', 'Skills konnten nicht gespeichert werden.');
+        this.dialogService.showError(
+          this.translateService.instant('COMMON.ERROR'), 
+          this.translateService.instant('SKILLS.SKILLS_SAVE_ERROR')
+        );
       }
     });
   }
@@ -305,9 +311,9 @@ export class UserSkillsManagementComponent implements OnInit {
     
     // Mapping of roles
     const roleMap: { [key: string]: string } = {
-      'ADMIN': 'Administrator',
-      'COMPETENCE_LEADER': 'Competence Leader',
-      'LECTURER': 'Lecturer'
+      'ADMIN': this.translateService.instant('USER.ADMINISTRATOR'),
+      'COMPETENCE_LEADER': this.translateService.instant('USER.COMPETENCE_LEADER'),
+      'LECTURER': this.translateService.instant('USER.LECTURER')
     };
 
     return roleMap[role] || role;
@@ -335,10 +341,10 @@ export class UserSkillsManagementComponent implements OnInit {
     if (!skillToRemove) return;
 
     this.dialogService.showConfirmation({
-      title: 'Skill entfernen',
-      message: `Möchten Sie den Skill "${skillToRemove.skill.name}" wirklich entfernen?`,
-      confirmText: 'Entfernen',
-      cancelText: 'Abbrechen',
+      title: this.translateService.instant('SKILLS.SKILL_REMOVE_CONFIRMATION'),
+      message: this.translateService.instant('SKILLS.SKILL_REMOVE_MESSAGE', { skillName: skillToRemove.skill.name }),
+      confirmText: this.translateService.instant('SKILLS.SKILL_REMOVE'),
+      cancelText: this.translateService.instant('COMMON.CANCEL'),
       dangerMode: true
     }).subscribe(confirmed => {
       if (confirmed) {

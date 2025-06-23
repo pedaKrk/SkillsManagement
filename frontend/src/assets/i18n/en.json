@@ -56,7 +56,10 @@
     "MANAGE_USERS": "Manage Users",
     "INACTIVE_USERS": "Inactive Users",
     "ACTIVATE_USER": "Activate User",
-    "DEACTIVATE_USER": "Deactivate User"
+    "DEACTIVATE_USER": "Deactivate User",
+    "ADMINISTRATOR": "Administrator",
+    "COMPETENCE_LEADER": "Competence Leader",
+    "LECTURER": "Lecturer"
   },
   "SKILLS": {
     "SKILLS": "Skills",
@@ -72,7 +75,25 @@
     "INTERMEDIATE": "Intermediate",
     "ADVANCED": "Advanced",
     "CATEGORY": "Category",
-    "PARENT_SKILL": "Parent Skill"
+    "PARENT_SKILL": "Parent Skill",
+    "MANAGE_USER_SKILLS": "Manage Skills",
+    "MANAGE_SKILLS_FOR_USER": "Manage skills for",
+    "SKILLS_SELECT": "Select Skills",
+    "SKILLS_SEARCH": "Search skills...",
+    "SKILL_REMOVE_CONFIRMATION": "Remove Skill",
+    "SKILL_REMOVE_MESSAGE": "Do you really want to remove the skill \"{skillName}\"?",
+    "SKILL_REMOVE": "Remove",
+    "SKILL_LEVEL_CHANGE_HINT": "Click here to change the level!",
+    "SKILL_ADDED_BY": "Added by:",
+    "SKILL_ADDED_ON": "on",
+    "SKILLS_LOADING": "Loading skills...",
+    "SKILLS_LOAD_ERROR": "Skills could not be loaded.",
+    "SKILLS_RETRY": "Try again",
+    "USER_DATA_LOADING": "Loading user data...",
+    "USER_DATA_LOAD_ERROR": "User data could not be loaded.",
+    "CHANGES_SAVED": "Changes have been saved successfully.",
+    "SKILLS_SAVE_ERROR": "Skills could not be saved.",
+    "SAVE_CHANGES": "Save Changes"
   },
   "FUTURE_SKILLS": {
     "FUTURE_SKILLS": "Future Skills",
@@ -136,5 +157,10 @@
     "PASSWORD_MISMATCH": "Passwords do not match",
     "MIN_LENGTH": "Minimum length not reached",
     "TECHNIKUM_EMAIL_HINT": "Please use your @technikum-wien.at email address for registration."
+  },
+  "SKILL_LEVELS": {
+    "Beginner": "Beginner",
+    "Intermediate": "Intermediate",
+    "Advanced": "Advanced"
   }
 } 

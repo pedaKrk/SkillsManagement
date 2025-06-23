@@ -55,7 +55,10 @@
     "MANAGE_USERS": "Benutzer verwalten",
     "INACTIVE_USERS": "Inaktive Benutzer",
     "ACTIVATE_USER": "Benutzer aktivieren",
-    "DEACTIVATE_USER": "Benutzer deaktivieren"
+    "DEACTIVATE_USER": "Benutzer deaktivieren",
+    "ADMINISTRATOR": "Administrator",
+    "COMPETENCE_LEADER": "Competence Leader",
+    "LECTURER": "Lecturer"
   },
   "SKILLS": {
     "SKILLS": "Skills",
@@ -71,7 +74,25 @@
     "INTERMEDIATE": "Fortgeschritten",
     "ADVANCED": "Experte",
     "CATEGORY": "Kategorie",
-    "PARENT_SKILL": "Übergeordneter Skill"
+    "PARENT_SKILL": "Übergeordneter Skill",
+    "MANAGE_USER_SKILLS": "Skills verwalten",
+    "MANAGE_SKILLS_FOR_USER": "Verwalten Sie die Skills für",
+    "SKILLS_SELECT": "Skills auswählen",
+    "SKILLS_SEARCH": "Skills suchen...",
+    "SKILL_REMOVE_CONFIRMATION": "Skill entfernen",
+    "SKILL_REMOVE_MESSAGE": "Möchten Sie den Skill \"{skillName}\" wirklich entfernen?",
+    "SKILL_REMOVE": "Entfernen",
+    "SKILL_LEVEL_CHANGE_HINT": "Klicke hier, um den Level zu ändern!",
+    "SKILL_ADDED_BY": "Hinzugefügt von:",
+    "SKILL_ADDED_ON": "am",
+    "SKILLS_LOADING": "Skills werden geladen...",
+    "SKILLS_LOAD_ERROR": "Skills konnten nicht geladen werden.",
+    "SKILLS_RETRY": "Erneut versuchen",
+    "USER_DATA_LOADING": "Benutzerdaten werden geladen...",
+    "USER_DATA_LOAD_ERROR": "Benutzerdaten konnten nicht geladen werden.",
+    "CHANGES_SAVED": "Änderungen wurden erfolgreich gespeichert.",
+    "SKILLS_SAVE_ERROR": "Skills konnten nicht gespeichert werden.",
+    "SAVE_CHANGES": "Änderungen speichern"
   },
   "FUTURE_SKILLS": {
     "FUTURE_SKILLS": "Zukunftsskills",
@@ -135,5 +156,10 @@
     "PASSWORD_MISMATCH": "Passwörter stimmen nicht überein",
     "MIN_LENGTH": "Mindestlänge nicht erreicht",
     "TECHNIKUM_EMAIL_HINT": "Bitte verwenden Sie Ihre @technikum-wien.at E-Mail-Adresse für die Registrierung."
+  },
+  "SKILL_LEVELS": {
+    "Beginner": "Anfänger",
+    "Intermediate": "Fortgeschritten",
+    "Advanced": "Experte"
   }
 } 
