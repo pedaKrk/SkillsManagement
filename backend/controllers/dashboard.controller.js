@@ -1,4 +1,4 @@
-import FutureSkills from '../models/future-skill.model.js';
+import FutureSkills from '../models/future.skill.model.js';
 import skillLevelEnum from '../models/enums/skill.level.enum.js';
 
 // GET /api/v1/dashboard/skills-level-matrix
