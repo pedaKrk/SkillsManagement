@@ -1,277 +1,393 @@
-/** plan.component.scss */
+/** plan.component.scss - Bereinigt und korrigiert */
 
-/* Center the entire content */
+/* Container Styling */
 .container {
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   max-width: 1200px;
   margin: auto;
-  padding: 20px;
   text-align: center;
 }
 
 /* Page Title */
 h1 {
-  font-size: 34px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 30px;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #343a40;
+  margin-bottom: 2rem;
 }
 
-/* Action Buttons */
+/* Action Buttons Container */
 .actions {
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
 }
 
-/* Buttons */
+/* General Button Styling */
 .btn {
-  padding: 10px 15px;
-  border: none;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid transparent;
   cursor: pointer;
-  border-radius: 5px;
-  font-size: 14px;
-  font-weight: bold;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
   transition: all 0.2s ease-in-out;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
 }
 
+/* Primary Button */
 .primary {
-  background-color: #0077A9;;
+  background-color: #0077a9;
   color: white;
+
   &:hover {
-    background-color: #005F87;
+    background-color: #005f87;
   }
 }
 
+/* Secondary Button */
 .secondary {
-  background-color: #f8f9fa;
-  border: 1px solid #ddd;
-  color: #333;
+  background-color: #6c757d;
+  color: white;
+  border-color: #6c757d;
+
   &:hover {
-    background-color: #e2e6ea;
+    background-color: #5a6268;
+    border-color: #545b62;
   }
 }
 
-/* Search & Apply Filters Row */
+/* Icon Buttons - Runde Action Buttons */
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 1rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  min-width: 36px;
+  min-height: 36px;
+  text-transform: none;
+  letter-spacing: normal;
+
+  &.btn-edit {
+    background-color: #95c11f; /* Grünes Zahnrad wie im Screenshot */
+    color: white;
+    &:hover { background-color: #7CB342; }
+  }
+
+  &.btn-delete {
+    background-color: #F44336; /* Rotes Mülleimer-Icon wie im Screenshot */
+    color: white;
+    &:hover { background-color: #E53935; }
+  }
+
+  &.btn-save {
+    background-color: #28a745;
+    color: white;
+    &:hover { background-color: #218838; }
+  }
+
+  &.btn-cancel {
+    background-color: #e53935;
+    color: white;
+    &:hover { background-color: #c62828; }
+  }
+
+  &.btn-mail {
+    background-color: #0077a9; /* Primärblau für Konsistenz */
+    color: white;
+    &:hover { background-color: #005f87; }
+  }
+
+  &.btn-add {
+    background-color: #4CAF50; /* Klares Grün für 'Hinzufügen' */
+    color: white;
+    &:hover { background-color: #45a049; }
+  }
+}
+
+/* Action Buttons Container */
+.actions-column {
+  .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+}
+
+/* Search and Filters */
 .search-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 50px;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-/* Search Box */
 .search-box {
-  width: 300px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 14px;
+  width: 100%;
+  max-width: 400px;
+  padding: 0.7rem 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+
+  &:focus {
+    border-color: #0077a9;
+    box-shadow: 0 0 0 0.2rem rgba(0, 119, 169, 0.25);
+    outline: none;
+  }
 }
 
-/* Filter Dropdown Styling */
+/* Filter Dropdown */
 .filter-dropdown {
-  position: absolute;
-  top: 70px;
-  right: 10%;
-  width: 250px;
   background: white;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
-  padding: 15px;
-  z-index: 100;
-  border: 1px solid #ddd;
-}
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid #e9ecef;
+  margin-bottom: 1.5rem;
 
-/* Filter Inputs */
-.filter-input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 14px;
-  background: #f8f9fa;
-  margin-bottom: 10px;
-}
+  .filter-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    align-items: center;
 
-
-/* Center the table below the search box */
-.table-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Table Styling */
-.skills-table {
-  width: 80%;
-  border-collapse: collapse;
-  background: white;
-  box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
-  overflow: hidden;
-}
-
-/* Table Header */
-.skills-table th {
-  background-color: #0077A9;
-  color: white;
-  font-weight: bold;
-  padding: 12px 15px;
-  text-align: center;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-/* Table Cells */
-.skills-table td {
-  padding: 12px 15px;
-  border-bottom: 1px solid #ddd;
-  transition: background 0.2s;
-  text-align: center;
-  white-space: nowrap;
-
-}
-
-/* Alternate Row Colors */
-.skills-table tbody tr:nth-child(even) {
-  background-color: #f3f3f3;
-}
-
-/* Hover Effect */
-.skills-table tbody tr:hover {
-  background: #f8f9fa;
-}
-
-/* Input Fields (when in edit mode) */
-input, select {
-  width: 100%;
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-/* Actions Section */
-.actions {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-
-
-/* Edit, Delete, Save, Cancel, mail, add Buttons */
-.edit, .delete, .save, .cancel, .mail, .add {
-  cursor: pointer;
-  font-weight: bold;
-  text-decoration: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  transition: all 0.2s;
-  font-size: medium;
-}
-
-/* Edit Button */
-.edit {
-  color: #1956b1;
-  &:hover {
-    text-decoration: underline;
-  }
-
-}
-
-/* Delete Button */
-.delete {
-  color: rgba(184, 16, 16, 0.93);
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.mail {
-  color: #0077A9;
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.add {
-  color: green;
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-
-/* Save Button */
-.save {
-  color: #338c33;
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-/* Cancel Button */
-.cancel {
-  color: rgba(184, 16, 16, 0.93);
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.email-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  .modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 700px;
-    max-width: 90%;
-  }
-
-  textarea {
-    width: 100%;
-    height: 250px;
-    font-family: inherit;
-    margin-top: 10px;
-  }
-
-  .modal-actions {
-    margin-top: 15px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
-  .modal-title {
-    font-size: 1.6rem;
-    font-weight: 600;
-    margin-bottom: 15px;
-    color: #2c3e50;
-  }
-
-  .email-detail {
-    font-size: 1rem;
-    margin: 6px 0;
-
-    .label {
+    label {
       font-weight: 600;
-      color: #34495e;
-      display: inline-block;
-      min-width: 80px;
+      text-align: left;
+      margin-bottom: 0.25rem;
+    }
+
+    .btn {
+      margin-top: 1rem;
     }
   }
 }
 
+/* Table Styling */
+.table-container {
+  overflow-x: auto;
+}
+
+.skills-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  overflow: hidden;
+
+  th {
+    background-color: #0077a9;
+    color: white;
+    font-weight: 600;
+    padding: 1rem 1.2rem;
+    text-align: left;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid #e9ecef;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+  }
+
+  tbody tr:hover {
+    background-color: #e9ecef;
+  }
+}
+
+/* Form Inputs */
+input, select {
+  width: 100%;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.95rem;
+
+  &:focus {
+    border-color: #0077a9;
+    box-shadow: 0 0 0 0.2rem rgba(0, 119, 169, 0.25);
+    outline: none;
+  }
+}
+
+/* Filter Input spezifische Styles */
+.filter-input {
+  width: 100%;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.95rem;
+
+  &:focus {
+    border-color: #0077a9;
+    box-shadow: 0 0 0 0.2rem rgba(0, 119, 169, 0.25);
+    outline: none;
+  }
+}
+
+/* Responsive Design für Tablets */
+@media screen and (max-width: 1024px) {
+  .filter-dropdown .filter-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Responsive Design für Mobile */
+@media screen and (max-width: 768px) {
+  .skills-table thead {
+    display: none;
+  }
+
+  .skills-table tr {
+    display: block;
+    margin-bottom: 1.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    background-color: white;
+  }
+
+  .skills-table td {
+    display: block;
+    text-align: right;
+    padding: 0.75rem;
+    padding-left: 50%;
+    position: relative;
+    border-bottom: 1px solid #e9ecef;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    &:before {
+      content: attr(data-label);
+      position: absolute;
+      left: 1rem;
+      width: calc(50% - 2rem);
+      padding-right: 1rem;
+      white-space: nowrap;
+      text-align: left;
+      font-weight: 600;
+      color: #495057;
+    }
+  }
+
+  /* Action Buttons in mobiler Ansicht */
+  .actions-column .action-buttons {
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  /* Icon-Buttons explizit für Mobile */
+  .btn-icon {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    border-radius: 50% !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Andere Elemente */
+  .actions, .search-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .search-box {
+    width: 100%;
+    max-width: none;
+  }
+
+  .filter-dropdown .filter-container {
+    grid-template-columns: 1fr;
+  }
+
+  /* Form Inputs ausgenommen Icon-Buttons */
+  input:not(.btn-icon),
+  select:not(.btn-icon),
+  .filter-input {
+    width: 100%;
+  }
+}
+
+/* Responsive Design für sehr kleine Screens */
+@media screen and (max-width: 480px) {
+  .container {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Normale Buttons werden volle Breite */
+  .btn:not(.btn-icon) {
+    width: 100%;
+    padding: 0.8rem;
+  }
+
+  /* Icon-Buttons bleiben kompakt aber sichtbar */
+  .btn-icon {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    font-size: 0.9rem;
+  }
+
+  .actions-column .action-buttons {
+    gap: 0.4rem;
+  }
+
+  .skills-table td {
+    padding: 0.5rem;
+    padding-left: 45%;
+
+    &:before {
+      left: 0.5rem;
+      width: calc(45% - 1rem);
+      font-size: 0.85rem;
+    }
+  }
+}
