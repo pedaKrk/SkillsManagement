@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -7,11 +7,12 @@ import { UserRole } from '../../models/enums/user-roles.enum';
 import { interval, Subscription } from 'rxjs';
 import { startWith, switchMap } from 'rxjs/operators';
 import { NotificationService } from '../../core/services/notification/notification.service';
+import { ClickOutsideDirective } from '../../shared/directives/click-outside.directive';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ClickOutsideDirective],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
@@ -99,23 +100,18 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    const dropdown = document.querySelector('.dropdown');
-    const userDropdown = document.querySelector('.user-dropdown');
+  closeFutureSkillsDropdown(): void {
+    this.isDropdownOpen = false;
+  }
 
-    if (this.isDropdownOpen && dropdown && !dropdown.contains(target)) {
-      this.isDropdownOpen = false;
-    }
-
-    if (this.isUserDropdownOpen && userDropdown && !userDropdown.contains(target)) {
-      this.isUserDropdownOpen = false;
-    }
+  closeUserDropdown(): void {
+    this.isUserDropdownOpen = false;
   }
 
   onDropdownItemClick(event: Event): void {
     event.stopPropagation();
+    this.closeFutureSkillsDropdown();
+    this.closeUserDropdown();
   }
 
   isRouteActive(route: string): boolean {

@@ -35,16 +35,16 @@
           </a>
         </li>
         <li class="nav-item" *ngIf="isAdmin || isCompetenceLeader">
-          <div class="user-dropdown">
-            <a class="nav-link user-dropdown-toggle" (click)="toggleDropdown($event)">Future Skills <span class="dropdown-arrow">▾</span></a>
+          <div class="user-dropdown" (clickOutside)="closeFutureSkillsDropdown()">
+            <a class="nav-link user-dropdown-toggle" (click)="toggleDropdown($event)">Future Skills <span class="dropdown-arrow">{{ isDropdownOpen ? '' : '▾' }}</span></a>
             <div class="user-dropdown-menu" *ngIf="isDropdownOpen">
-              <a class="dropdown-item" [routerLink]="['/future-skills/dashboard']"  (click)="onDropdownItemClick($event); closeMenu()">
+              <a class="dropdown-item" [routerLink]="['/future-skills/dashboard']"  (click)="closeMenu()">
                 <i class="fa fa-tachometer"></i> Dashboard
               </a>
-              <a class="dropdown-item" [routerLink]="['/future-skills/plan']"  (click)="onDropdownItemClick($event); closeMenu()">
+              <a class="dropdown-item" [routerLink]="['/future-skills/plan']"  (click)="closeMenu()">
                 <i class="fa fa-calendar"></i> Plan
               </a>
-              <a class="dropdown-item" [routerLink]="['/future-skills/progress']" (click)="onDropdownItemClick($event); closeMenu()">
+              <a class="dropdown-item" [routerLink]="['/future-skills/progress']" (click)="closeMenu()">
                 <i class="fa fa-tasks"></i> Manage Progress
               </a>
             </div>
@@ -58,27 +58,27 @@
       <!-- User menu -->
       <div class="user-menu" *ngIf="isLoggedIn">
         <!-- Dropdown -->
-        <div class="user-dropdown">
+        <div class="user-dropdown" (clickOutside)="closeUserDropdown()">
           <a (click)="toggleUserDropdown($event)" class="user-dropdown-toggle">
             {{ username }}
             <span class="dropdown-arrow">{{ isUserDropdownOpen ? '' : '▾' }}</span>
           </a>
 
           <div *ngIf="isUserDropdownOpen" class="user-dropdown-menu">
-            <a [routerLink]="['/users', userId]" class="dropdown-item" (click)="onDropdownItemClick($event); closeMenu()">
+            <a [routerLink]="['/users', userId]" class="dropdown-item" (click)="closeMenu()">
               <i class="fa fa-user"></i> Mein Profil
             </a>
             <a class="dropdown-item" (click)="editOwnProfile($event); closeMenu()">
               <i class="fa fa-pencil"></i> Profil bearbeiten
             </a>
-            <a [routerLink]="['/profile/skills']" class="dropdown-item" (click)="onDropdownItemClick($event); closeMenu()" *ngIf="!isLecturer">
+            <a [routerLink]="['/profile/skills']" class="dropdown-item" (click)="closeMenu()" *ngIf="!isLecturer">
               <i class="fas fa-cogs"></i> Skills verwalten
             </a>
-            <a [routerLink]="['/change-password']" class="dropdown-item" (click)="onDropdownItemClick($event); closeMenu()">
+            <a [routerLink]="['/change-password']" class="dropdown-item" (click)="closeMenu()">
               <i class="fa fa-key"></i> Passwort ändern
             </a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" (click)="logout(); onDropdownItemClick($event); closeMenu()">
+            <a class="dropdown-item" (click)="logout(); closeMenu()">
               <i class="fa fa-sign-out"></i> Ausloggen
             </a>
           </div>
