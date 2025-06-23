@@ -214,7 +214,38 @@
 .user-menu {
   display: flex;
   align-items: center;
-  margin-left: 1.5rem;
+  margin-left: 1rem;
+  position: relative;
+
+  .language-selector-container {
+    margin-right: 1rem;
+    
+    ::ng-deep .language-selector {
+      .language-select {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        font-size: 0.9rem;
+        padding: 6px 10px;
+        
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.2);
+          border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        &:focus {
+          background-color: rgba(255, 255, 255, 0.2);
+          border-color: white;
+          box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+        }
+        
+        option {
+          background-color: #0077a9;
+          color: white;
+        }
+      }
+    }
+  }
 
   .username {
     color: white;

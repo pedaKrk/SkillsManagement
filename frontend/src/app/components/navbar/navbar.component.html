@@ -57,6 +57,11 @@
 
       <!-- User menu -->
       <div class="user-menu" *ngIf="isLoggedIn">
+        <!-- Language Selector -->
+        <div class="language-selector-container">
+          <app-language-selector></app-language-selector>
+        </div>
+        
         <!-- Dropdown -->
         <div class="user-dropdown" (clickOutside)="closeUserDropdown()">
           <a (click)="toggleUserDropdown($event)" class="user-dropdown-toggle">
@@ -92,6 +97,10 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" [routerLink]="['/register']" routerLinkActive="active" (click)="closeMenu()">Registrieren</a>
+        </li>
+        <!-- Language Selector for guests -->
+        <li class="nav-item">
+          <app-language-selector></app-language-selector>
         </li>
       </ul>
     </div>
