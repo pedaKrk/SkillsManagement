@@ -56,9 +56,16 @@
     "INACTIVE_USERS": "Inaktive Benutzer",
     "ACTIVATE_USER": "Benutzer aktivieren",
     "DEACTIVATE_USER": "Benutzer deaktivieren",
-    "ADMINISTRATOR": "Administrator",
+    "ADMIN": "Administrator",
     "COMPETENCE_LEADER": "Competence Leader",
-    "LECTURER": "Lecturer"
+    "LECTURER": "Lecturer",
+    "ADD_USER_TITLE": "Neuen Benutzer hinzufügen",
+    "ADD_USER_ADMIN_NOTE": "Als Administrator können Sie hier neue Benutzer anlegen.",
+    "ADD_USER_SUBMIT": "Benutzer erstellen",
+    "ROLE": "Rolle",
+    "ADMIN_ROLE_DESC": "Kann Benutzer verwalten und hat vollen Zugriff auf alle Funktionen.",
+    "COMPETENCE_LEADER_ROLE_DESC": "Kann Kompetenzen verwalten und Fortschritte überwachen.",
+    "LECTURER_ROLE_DESC": "Kann Kurse unterrichten und Fortschritte einsehen."
   },
   "SKILLS": {
     "SKILLS": "Skills",
@@ -92,7 +99,8 @@
     "USER_DATA_LOAD_ERROR": "Benutzerdaten konnten nicht geladen werden.",
     "CHANGES_SAVED": "Änderungen wurden erfolgreich gespeichert.",
     "SKILLS_SAVE_ERROR": "Skills konnten nicht gespeichert werden.",
-    "SAVE_CHANGES": "Änderungen speichern"
+    "SAVE_CHANGES": "Änderungen speichern",
+    "SKILLS_SELECT_HINT": "Klicken Sie auf 'Skills auswählen', um Skills hinzuzufügen oder zu entfernen."
   },
   "FUTURE_SKILLS": {
     "FUTURE_SKILLS": "Future Skills",

@@ -1,20 +1,20 @@
 <div class="add-user-container">
   <div class="add-user-box">
-    <h2>Neuen Benutzer hinzufügen</h2>
-    <p class="admin-note">Als Administrator können Sie hier neue Benutzer anlegen.</p>
+    <h2>{{ 'USER.ADD_USER_TITLE' | translate }}</h2>
+    <p class="admin-note">{{ 'USER.ADD_USER_ADMIN_NOTE' | translate }}</p>
     
     <div *ngIf="success" class="alert alert-success">
       {{success}}
     </div>
     
     <div class="alert alert-info">
-      <strong>Hinweis:</strong> Nach dem Erstellen des Benutzers wird ein temporäres Passwort generiert und per E-Mail an die angegebene Adresse gesendet.
+      <strong>{{ 'COMMON.INFO' | translate }}:</strong> {{ 'AUTH.REGISTER_HINT' | translate }}
     </div>
     
     <form [formGroup]="addUserForm" (ngSubmit)="onSubmit()">
       <div class="form-row">
         <div class="form-group">
-          <label for="title">Titel (optional)</label>
+          <label for="title">{{ 'USER.TITLE' | translate }} ({{ 'COMMON.OPTIONAL' | translate }})</label>
           <input
             type="text"
             id="title"
@@ -24,7 +24,7 @@
         </div>
         
         <div class="form-group">
-          <label for="firstName">Vorname</label>
+          <label for="firstName">{{ 'USER.FIRST_NAME' | translate }}</label>
           <input
             type="text"
             id="firstName"
@@ -33,14 +33,14 @@
             [ngClass]="{'is-invalid': submitted && addUserForm.get('firstName')?.errors}"
           />
           <div *ngIf="submitted && addUserForm.get('firstName')?.errors" class="invalid-feedback">
-            <div *ngIf="addUserForm.get('firstName')?.errors?.['required']">Vorname ist erforderlich</div>
+            <div *ngIf="addUserForm.get('firstName')?.errors?.['required']">{{ 'ERRORS.REQUIRED_FIELD' | translate }}</div>
           </div>
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label for="lastName">Nachname</label>
+          <label for="lastName">{{ 'USER.LAST_NAME' | translate }}</label>
           <input
             type="text"
             id="lastName"
@@ -49,12 +49,12 @@
             [ngClass]="{'is-invalid': submitted && addUserForm.get('lastName')?.errors}"
           />
           <div *ngIf="submitted && addUserForm.get('lastName')?.errors" class="invalid-feedback">
-            <div *ngIf="addUserForm.get('lastName')?.errors?.['required']">Nachname ist erforderlich</div>
+            <div *ngIf="addUserForm.get('lastName')?.errors?.['required']">{{ 'ERRORS.REQUIRED_FIELD' | translate }}</div>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="username">Benutzername</label>
+          <label for="username">{{ 'AUTH.USERNAME' | translate }}</label>
           <input
             type="text"
             id="username"
@@ -63,14 +63,14 @@
             [ngClass]="{'is-invalid': submitted && addUserForm.get('username')?.errors}"
           />
           <div *ngIf="submitted && addUserForm.get('username')?.errors" class="invalid-feedback">
-            <div *ngIf="addUserForm.get('username')?.errors?.['required']">Benutzername ist erforderlich</div>
-            <div *ngIf="addUserForm.get('username')?.errors?.['minlength']">Benutzername muss mindestens 3 Zeichen lang sein</div>
+            <div *ngIf="addUserForm.get('username')?.errors?.['required']">{{ 'ERRORS.REQUIRED_FIELD' | translate }}</div>
+            <div *ngIf="addUserForm.get('username')?.errors?.['minlength']">{{ 'ERRORS.MIN_LENGTH' | translate }}</div>
           </div>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="email">E-Mail</label>
+        <label for="email">{{ 'AUTH.EMAIL' | translate }}</label>
         <input
           type="email"
           id="email"
@@ -79,16 +79,16 @@
           [ngClass]="{'is-invalid': submitted && addUserForm.get('email')?.errors}"
         />
         <div *ngIf="submitted && addUserForm.get('email')?.errors" class="invalid-feedback">
-          <div *ngIf="addUserForm.get('email')?.errors?.['required']">E-Mail ist erforderlich</div>
-          <div *ngIf="addUserForm.get('email')?.errors?.['email']">Bitte geben Sie eine gültige E-Mail-Adresse ein</div>
+          <div *ngIf="addUserForm.get('email')?.errors?.['required']">{{ 'ERRORS.REQUIRED_FIELD' | translate }}</div>
+          <div *ngIf="addUserForm.get('email')?.errors?.['email']">{{ 'ERRORS.INVALID_EMAIL' | translate }}</div>
         </div>
         <small class="form-text text-muted">
-          Ein temporäres Passwort wird automatisch generiert und an diese E-Mail-Adresse gesendet.
+          {{ 'AUTH.REGISTER_HINT' | translate }}
         </small>
       </div>
 
       <div class="form-group">
-        <label for="phoneNumber">Telefonnummer (optional)</label>
+        <label for="phoneNumber">{{ 'USER.PHONE_NUMBER' | translate }}</label>
         <input
           type="tel"
           id="phoneNumber"
@@ -99,20 +99,20 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label for="employmentType">Beschäftigungsart</label>
+          <label for="employmentType">{{ 'USER.EMPLOYMENT_TYPE' | translate }}</label>
           <select
             id="employmentType"
             formControlName="employmentType"
             class="form-control"
             [ngClass]="{'is-invalid': submitted && addUserForm.get('employmentType')?.errors}"
           >
-            <option value="Internal">Intern</option>
-            <option value="External">Extern</option>
+            <option value="Internal">{{ 'USER.INTERNAL' | translate }}</option>
+            <option value="External">{{ 'USER.EXTERNAL' | translate }}</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label for="role">Rolle</label>
+          <label for="role">{{ 'USER.ROLE' | translate }}</label>
           <div class="role-options">
             <div class="role-option" *ngFor="let role of roles">
               <input 
@@ -122,34 +122,34 @@
                 formControlName="role"
                 class="role-radio"
               >
-              <label [for]="'role_' + role.id" class="role-label">{{ role.name }}</label>
+              <label [for]="'role_' + role.id" class="role-label">{{ ('USER.' + role.value.toUpperCase()) | translate }}</label>
             </div>
           </div>
           <div *ngIf="submitted && addUserForm.get('role')?.errors" class="invalid-feedback">
-            <div *ngIf="addUserForm.get('role')?.errors?.['required']">Rolle ist erforderlich</div>
+            <div *ngIf="addUserForm.get('role')?.errors?.['required']">{{ 'ERRORS.REQUIRED_FIELD' | translate }}</div>
           </div>
           <small class="form-text text-muted">
-            <strong>AdministratorIn:</strong> Kann Benutzer verwalten und hat vollen Zugriff auf alle Funktionen.<br>
-            <strong>KompetenzleiterIn:</strong> Kann Kompetenzen verwalten und Fortschritte überwachen.<br>
-            <strong>LektorIn:</strong> Kann Kurse unterrichten und Fortschritte einsehen.
+            <strong>{{ 'USER.ADMIN' | translate }}:</strong> {{ 'USER.ADMIN_ROLE_DESC' | translate }}<br>
+            <strong>{{ 'USER.COMPETENCE_LEADER' | translate }}:</strong> {{ 'USER.COMPETENCE_LEADER_ROLE_DESC' | translate }}<br>
+            <strong>{{ 'USER.LECTURER' | translate }}:</strong> {{ 'USER.LECTURER_ROLE_DESC' | translate }}
           </small>
         </div>
       </div>
 
       <!-- Skills Section -->
       <div class="form-group skills-section">
-        <label>Skills</label>
+        <label>{{ 'SKILLS.SKILLS' | translate }}</label>
         
         <!-- Loading indicator -->
         <div *ngIf="isLoadingSkills" class="skills-loading">
           <div class="spinner"></div>
-          <span>Skills werden geladen...</span>
+          <span>{{ 'SKILLS.SKILLS_LOADING' | translate }}</span>
         </div>
         
         <!-- Error message -->
         <div *ngIf="skillsError" class="alert alert-danger">
           {{ skillsError }}
-          <button type="button" class="btn btn-sm btn-outline-danger ml-2" (click)="retryLoadSkills()">Erneut versuchen</button>
+          <button type="button" class="btn btn-sm btn-outline-danger ml-2" (click)="retryLoadSkills()">{{ 'SKILLS.SKILLS_RETRY' | translate }}</button>
         </div>
         
         <!-- Skills dropdown -->
@@ -157,7 +157,7 @@
           <!-- Selected skills display -->
           <div class="selected-skills">
             <div *ngIf="skillsFormArray.length === 0" class="no-skills-selected">
-              Keine Skills ausgewählt
+              {{ 'SKILLS.NO_SKILLS_SELECTED' | translate }}
             </div>
             <div *ngIf="skillsFormArray.length > 0" class="selected-skills-list">
               <div class="skill-badge selected" *ngFor="let skillName of getSelectedSkillsNames()">
@@ -170,7 +170,7 @@
           <div class="dropdown-wrapper">
             <!-- Dropdown toggle button -->
             <div class="skills-dropdown-toggle" (click)="toggleSkillDropdown()">
-              <span>Skills auswählen</span>
+              <span>{{ 'SKILLS.SKILLS_SELECT' | translate }}</span>
               <span class="dropdown-arrow">{{ isSkillDropdownOpen ? '▲' : '▼' }}</span>
             </div>
             
@@ -181,7 +181,7 @@
                 <input 
                   type="text" 
                   [formControl]="skillSearchControl" 
-                  placeholder="Skills suchen..." 
+                  [placeholder]="'SKILLS.SKILLS_SEARCH' | translate" 
                   class="form-control"
                   (click)="$event.stopPropagation()"
                 >
@@ -190,7 +190,7 @@
               <!-- Skills list -->
               <div class="skills-list">
                 <div *ngIf="filteredSkills.length === 0" class="no-skills">
-                  Keine passenden Skills gefunden
+                  {{ 'SKILLS.NO_SKILLS_SELECTED' | translate }}
                 </div>
                 <div 
                   *ngFor="let skill of filteredSkills" 
@@ -209,13 +209,13 @@
         </div>
         
         <small class="form-text text-muted">
-          Klicken Sie auf "Skills auswählen", um Skills hinzuzufügen oder zu entfernen.
+          {{ 'SKILLS.SKILLS_SELECT_HINT' | translate }}
         </small>
       </div>
 
       <div class="form-group">
         <button type="submit" class="btn btn-primary" [disabled]="loading">
-          {{ loading ? 'Wird erstellt...' : 'Benutzer erstellen' }}
+          {{ loading ? ('COMMON.LOADING' | translate) : ('USER.ADD_USER_SUBMIT' | translate) }}
         </button>
       </div>
 

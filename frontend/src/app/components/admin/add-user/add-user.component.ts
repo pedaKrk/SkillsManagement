@@ -8,6 +8,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { API_CONFIG } from '../../../core/config/api.config';
 import { UserRole } from '../../../models/enums/user-roles.enum';
 import { NgZone } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 interface Skill {
   _id: string;
@@ -23,7 +24,8 @@ interface Skill {
     CommonModule, 
     ReactiveFormsModule, 
     RouterModule, 
-    HttpClientModule
+    HttpClientModule,
+    TranslateModule
   ],
   templateUrl: './add-user.component.html',
   styleUrls: ['./add-user.component.scss']
@@ -59,7 +61,8 @@ export class AddUserComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private http: HttpClient,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private translateService: TranslateService
   ) {
     // Initialize add user form with required fields
     this.addUserForm = this.formBuilder.group({
