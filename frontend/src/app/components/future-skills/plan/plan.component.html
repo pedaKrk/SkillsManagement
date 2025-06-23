@@ -85,9 +85,15 @@
         <td data-label="Expected Date">
           <input type="date" [(ngModel)]="newSkill.target_date" />
         </td>
-        <td data-label="Actions">
-          <span class="save" (click)="saveNewSkill()">Save</span>
-          <span class="cancel" (click)="cancelNewSkill()">Cancel</span>
+        <td data-label="Actions" class="actions-column">
+            <div class="action-buttons">
+                <button class="btn btn-icon btn-save" (click)="saveNewSkill()" title="Save">
+                    <i class="fas fa-save"></i>
+                </button>
+                <button class="btn btn-icon btn-cancel" (click)="cancelNewSkill()" title="Cancel">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </td>
       </tr>
 
@@ -124,9 +130,15 @@
             <input type="date" [(ngModel)]="skill.target_date" />
           </td>
 
-          <td data-label="Actions">
-            <span class="save" (click)="saveEdit()">Save</span>
-            <span class="cancel" (click)="cancelEdit()">Cancel</span>
+          <td data-label="Actions" class="actions-column">
+            <div class="action-buttons">
+                <button class="btn btn-icon btn-save" (click)="saveEdit()" title="Save">
+                    <i class="fas fa-save"></i>
+                </button>
+                <button class="btn btn-icon btn-cancel" (click)="cancelEdit()" title="Cancel">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
           </td>
         </ng-container>
 
@@ -136,9 +148,15 @@
           <td data-label="Skill Name">{{ skill.skill_id?.name }}</td>
           <td data-label="Skill Level">{{ skill.future_achievable_level }}</td>
           <td data-label="Expected Date">{{ skill.target_date | date: 'yyyy-MM-dd' }}</td>
-          <td data-label="Actions">
-            <span class="edit" (click)="editSkill(i)">Edit</span>
-            <span class="delete" (click)="deleteSkill(i)">Delete</span>
+          <td class="actions-column" data-label="Actions">
+             <div class="action-buttons">
+                <button class="btn btn-icon btn-edit" (click)="editSkill(i)" title="Edit">
+                  <i class="fa fa-cog"></i>
+                </button>
+                <button class="btn btn-icon btn-delete" (click)="deleteSkill(i)" title="Delete">
+                  <i class="fa fa-trash"></i>
+                </button>
+             </div>
           </td>
         </ng-template>
 
