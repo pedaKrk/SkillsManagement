@@ -99,7 +99,13 @@
   "MAIN_PAGE": {
     "WELCOME": "Herzlich Willkommen",
     "WELCOME_TO_SKILLS_MANAGEMENT": "auf der Skills Management Seite!",
-    "INTRO_TEXT": "Das Skill Management System ist eine umfassende Plattform zur Erfassung, Verwaltung und strategischen Entwicklung von Kompetenzen innerhalb unserer Organisation. Diese Lösung ermöglicht es, das vorhandene Know-how transparent darzustellen und gezielt weiterzuentwickeln."
+    "INTRO_TEXT": "Das Skill Management System ist eine umfassende Plattform zur Erfassung, Verwaltung und strategischen Entwicklung von Kompetenzen innerhalb unserer Organisation. Diese Lösung ermöglicht es, das vorhandene Know-how transparent darzustellen und gezielt weiterzuentwickeln.",
+    "SKILL_OVERVIEW": "Skill Übersicht",
+    "SKILLTREE_INTRO": "Hier können Sie alle verfügbaren Skills und Kompetenzen in einer strukturierten Übersicht einsehen.",
+    "SKILLTREE_HINT": "Nutzen Sie die Baumstruktur, um zwischen verschiedenen Kompetenzbereichen zu navigieren.",
+    "EXPAND_ALL": "Alle öffnen",
+    "COLLAPSE_ALL": "Alle schließen",
+    "EXPORT_SKILLTREE_PDF": "Skill-Baum als PDF"
   },
   "NAVIGATION": {
     "HOME": "Startseite",

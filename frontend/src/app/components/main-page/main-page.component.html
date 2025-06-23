@@ -4,11 +4,11 @@
     
     <div class="welcome-section">
       <h1>
-        Herzlich Willkommen
+        {{ 'MAIN_PAGE.WELCOME' | translate }}
         <span class="user-name" *ngIf="currentUser">
           {{ currentUser.title ? currentUser.title + ' ' : '' }}{{ currentUser.firstName }} {{ currentUser.lastName }}
         </span>
-        auf der Skills Management Seite!
+        {{ 'MAIN_PAGE.WELCOME_TO_SKILLS_MANAGEMENT' | translate }}
       </h1>
     </div>
   </div>
@@ -16,28 +16,28 @@
   <div class="intro-section">
     <img src="assets/logo.png" alt="FH Technikum Wien Logo" class="fhtw-logo">
     <p class="intro-text">
-      Das Skill Management System ist eine umfassende Plattform zur Erfassung, Verwaltung und strategischen Entwicklung von Kompetenzen innerhalb unserer Organisation. Diese Lösung ermöglicht es, das vorhandene Know-how transparent darzustellen und gezielt weiterzuentwickeln.
+      {{ 'MAIN_PAGE.INTRO_TEXT' | translate }}
     </p>
   </div>
   
   <div id="parentSkilltreeContainer" class="skilltree-container">
-    <h2 class="skilltree-header">Skill Übersicht</h2>
+    <h2 class="skilltree-header">{{ 'MAIN_PAGE.SKILL_OVERVIEW' | translate }}</h2>
     
     <div class="intro-section secondary">
       <p class="intro-text">
-        Hier können Sie alle verfügbaren Skills und Kompetenzen in einer strukturierten Übersicht einsehen.
-        <span class="intro-highlight">Nutzen Sie die Baumstruktur</span>, um zwischen verschiedenen Kompetenzbereichen zu navigieren.
+        {{ 'MAIN_PAGE.SKILLTREE_INTRO' | translate }}
+        <span class="intro-highlight">{{ 'MAIN_PAGE.SKILLTREE_HINT' | translate }}</span>
       </p>
     </div>
 
     <div class="tree-controls">
       <button class="control-btn" (click)="toggleAll()">
         <mat-icon>{{ isAllExpanded ? 'unfold_less' : 'unfold_more' }}</mat-icon>
-        {{ isAllExpanded ? 'Alle schließen' : 'Alle öffnen' }}
+        {{ isAllExpanded ? ('MAIN_PAGE.COLLAPSE_ALL' | translate) : ('MAIN_PAGE.EXPAND_ALL' | translate) }}
       </button>
       <button class="control-btn" (click)="exportSkillTreeAsPDF()">
         <mat-icon>download</mat-icon>
-        Skill-Baum als PDF
+        {{ 'MAIN_PAGE.EXPORT_SKILLTREE_PDF' | translate }}
       </button>
     </div>
 

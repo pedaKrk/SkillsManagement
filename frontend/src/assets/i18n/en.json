@@ -100,7 +100,13 @@
   "MAIN_PAGE": {
     "WELCOME": "Welcome",
     "WELCOME_TO_SKILLS_MANAGEMENT": "to the Skills Management Page!",
-    "INTRO_TEXT": "The Skill Management System is a comprehensive platform for recording, managing and strategically developing competencies within our organization. This solution enables transparent presentation of existing know-how and targeted further development."
+    "INTRO_TEXT": "The Skill Management System is a comprehensive platform for recording, managing and strategically developing competencies within our organization. This solution enables transparent presentation of existing know-how and targeted further development.",
+    "SKILL_OVERVIEW": "Skill Overview",
+    "SKILLTREE_INTRO": "Here you can view all available skills and competencies in a structured overview.",
+    "SKILLTREE_HINT": "Use the tree structure to navigate between different areas of competence.",
+    "EXPAND_ALL": "Expand all",
+    "COLLAPSE_ALL": "Collapse all",
+    "EXPORT_SKILLTREE_PDF": "Export skill tree as PDF"
   },
   "NAVIGATION": {
     "HOME": "Home",
