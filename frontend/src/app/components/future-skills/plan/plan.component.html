@@ -61,8 +61,8 @@
 
       <!-- Row for Adding New Skill -->
       <tr *ngIf="addingNewSkill && lecturers.length > 0 && skillOptions.length > 0">
-        <td>{{ skills.length + 1 }}</td>
-        <td>
+        <td data-label="#No.">{{ skills.length + 1 }}</td>
+        <td data-label="Lecturer Name">
           <select [(ngModel)]="newSkill.lecturer_id">
             <option value="">Select Lecturer</option>
             <option *ngFor="let lecturer of lecturers" [value]="lecturer._id">
@@ -70,22 +70,22 @@
             </option>
           </select>
         </td>
-        <td>
+        <td data-label="Skill Name">
           <select [(ngModel)]="newSkill.skill_id">
             <option value="">Select Skill</option>
             <option *ngFor="let skill of skillOptions" [value]="skill._id">{{ skill.name }}</option>
           </select>
         </td>
-        <td>
+        <td data-label="Skill Level">
           <select [(ngModel)]="newSkill.future_achievable_level">
             <option value="">Select Level</option>
             <option *ngFor="let level of skillLevels" [value]="level">{{ level }}</option>
           </select>
         </td>
-        <td>
+        <td data-label="Expected Date">
           <input type="date" [(ngModel)]="newSkill.target_date" />
         </td>
-        <td>
+        <td data-label="Actions">
           <span class="save" (click)="saveNewSkill()">Save</span>
           <span class="cancel" (click)="cancelNewSkill()">Cancel</span>
         </td>
@@ -93,11 +93,11 @@
 
       <!-- Future Skills Rows -->
       <tr *ngFor="let skill of skills; let i = index">
-        <td>{{ i + 1 }}</td>
+        <td data-label="#No.">{{ i + 1 }}</td>
 
         <!-- Editable Row -->
         <ng-container *ngIf="editingIndex === i; else readOnlyRow">
-          <td>
+          <td data-label="Lecturer Name">
             <select [(ngModel)]="skill.lecturer_id">
               <option value="">Select Lecturer</option>
               <option *ngFor="let lecturer of lecturers" [ngValue]="lecturer">
@@ -105,7 +105,7 @@
               </option>
             </select>
           </td>
-          <td>
+          <td data-label="Skill Name">
             <select [(ngModel)]="skill.skill_id">
               <option value="">Select Skill</option>
               <option *ngFor="let skillOption of skillOptions" [ngValue]="skillOption">
@@ -113,18 +113,18 @@
               </option>
             </select>
           </td>
-          <td>
+          <td data-label="Skill Level">
             <select [(ngModel)]="skill.future_achievable_level">
               <option value="">Select Level</option>
               <option *ngFor="let level of skillLevels" [value]="level">{{ level }}</option>
             </select>
 
           </td>
-          <td>
+          <td data-label="Expected Date">
             <input type="date" [(ngModel)]="skill.target_date" />
           </td>
 
-          <td>
+          <td data-label="Actions">
             <span class="save" (click)="saveEdit()">Save</span>
             <span class="cancel" (click)="cancelEdit()">Cancel</span>
           </td>
@@ -132,11 +132,11 @@
 
         <!-- Read-Only Row -->
         <ng-template #readOnlyRow>
-          <td>{{ skill.lecturer_id?.title }} {{ skill.lecturer_id?.firstName }} {{ skill.lecturer_id?.lastName }}</td>
-          <td>{{ skill.skill_id?.name }}</td>
-          <td>{{ skill.future_achievable_level }}</td>
-          <td>{{ skill.target_date | date: 'yyyy-MM-dd' }}</td>
-          <td>
+          <td data-label="Lecturer Name">{{ skill.lecturer_id?.title }} {{ skill.lecturer_id?.firstName }} {{ skill.lecturer_id?.lastName }}</td>
+          <td data-label="Skill Name">{{ skill.skill_id?.name }}</td>
+          <td data-label="Skill Level">{{ skill.future_achievable_level }}</td>
+          <td data-label="Expected Date">{{ skill.target_date | date: 'yyyy-MM-dd' }}</td>
+          <td data-label="Actions">
             <span class="edit" (click)="editSkill(i)">Edit</span>
             <span class="delete" (click)="deleteSkill(i)">Delete</span>
           </td>

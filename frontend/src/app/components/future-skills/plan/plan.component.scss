@@ -200,3 +200,80 @@ input, select {
     text-decoration: underline;
   }
 }
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .skills-table {
+    width: 100%;
+    border: 0;
+  }
+
+  .skills-table thead {
+    display: none;
+  }
+
+  .skills-table tr {
+    display: block;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .skills-table td {
+    display: block;
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+    border-bottom: 1px solid #eee;
+  }
+
+  .skills-table td:before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    width: calc(50% - 20px);
+    padding-right: 10px;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: bold;
+  }
+
+  .skills-table td:last-child {
+    border-bottom: 0;
+  }
+
+  .actions, .search-container {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  .filter-dropdown {
+    width: 90%;
+    right: 5%;
+    top: 120px; /* Adjust as needed */
+  }
+
+  input, select {
+    width: calc(100% - 12px); /* Adjust for padding */
+  }
+}
+
+@media screen and (max-width: 480px) {
+  h1 {
+    font-size: 28px;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 12px;
+  }
+
+  .container {
+    padding: 10px;
+  }
+}
