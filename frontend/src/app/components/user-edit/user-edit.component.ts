@@ -547,6 +547,12 @@ export class UserEditComponent implements OnInit {
    * Navigate back to the previous page
    */
   goBack(): void {
-    this.router.navigate(['/users']);
+    // Check if there's a previous page in the browser history
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      // Fallback: navigate to the user detail page
+      this.router.navigate(['/users', this.userId]);
+    }
   }
 }
