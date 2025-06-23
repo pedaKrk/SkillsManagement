@@ -1,15 +1,14 @@
 <div class="user-dropdown" [class.open]="isDropdownOpen">
   <a (click)="toggleDropdown($event)" class="user-dropdown-toggle">
-    <span class="flag-icon">{{ currentLanguage === 'de' ? '🇩🇪' : '🇺🇸' }}</span>
     <span class="lang-label">{{ currentLanguage === 'de' ? 'Deutsch' : 'English' }}</span>
     <span class="dropdown-arrow">{{ isDropdownOpen ? '' : '▾' }}</span>
   </a>
   <div class="user-dropdown-menu" *ngIf="isDropdownOpen">
     <a class="dropdown-item" (click)="selectLanguage('de')">
-      <span class="flag-icon">🇩🇪</span> Deutsch
+      Deutsch
     </a>
     <a class="dropdown-item" (click)="selectLanguage('en')">
-      <span class="flag-icon">🇺🇸</span> English
+      English
     </a>
   </div>
 </div> 
