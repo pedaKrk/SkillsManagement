@@ -38,13 +38,13 @@
           <div class="user-dropdown">
             <a class="nav-link user-dropdown-toggle" (click)="toggleDropdown($event)">Future Skills <span class="dropdown-arrow">▾</span></a>
             <div class="user-dropdown-menu" *ngIf="isDropdownOpen">
-              <a class="dropdown-item" [routerLink]="['/future-skills/dashboard']" routerLinkActive="active" (click)="onDropdownItemClick($event); closeMenu()">
+              <a class="dropdown-item" [routerLink]="['/future-skills/dashboard']"  (click)="onDropdownItemClick($event); closeMenu()">
                 <i class="fa fa-tachometer"></i> Dashboard
               </a>
-              <a class="dropdown-item" [routerLink]="['/future-skills/plan']" routerLinkActive="active" (click)="onDropdownItemClick($event); closeMenu()">
+              <a class="dropdown-item" [routerLink]="['/future-skills/plan']"  (click)="onDropdownItemClick($event); closeMenu()">
                 <i class="fa fa-calendar"></i> Plan
               </a>
-              <a class="dropdown-item" [routerLink]="['/future-skills/progress']" routerLinkActive="active" (click)="onDropdownItemClick($event); closeMenu()">
+              <a class="dropdown-item" [routerLink]="['/future-skills/progress']" (click)="onDropdownItemClick($event); closeMenu()">
                 <i class="fa fa-tasks"></i> Manage Progress
               </a>
             </div>

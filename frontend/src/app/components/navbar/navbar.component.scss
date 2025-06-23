@@ -294,81 +294,7 @@
   }
 }
 
-// Future Skills Dropdown (EXAKT wie User Menu) - Desktop
-.future-skills-dropdown {
-  position: relative;
-  display: inline-block;
-
-  .future-skills-dropdown-toggle {
-    display: flex;
-    align-items: center;
-    padding: 8px 12px;
-    color: #ffffff;
-    cursor: pointer;
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: none;
-      color: #f0f0f0;
-    }
-
-    .dropdown-arrow {
-      margin-left: 6px;
-      font-size: 12px;
-    }
-  }
-
-  .future-skills-dropdown-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    min-width: 200px;
-    background-color: white;
-    border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    overflow: hidden;
-
-    .dropdown-item {
-      display: flex;
-      align-items: center;
-      padding: 10px 15px;
-      color: #333; // EXAKT wie User-Menu
-      text-decoration: none;
-      transition: background-color 0.2s;
-      font-size: inherit; // Gleiche Schriftgröße
-      font-weight: normal; // Gleiche Schrift-Weight
-
-      i {
-        margin-right: 8px; // EXAKT wie User-Menu
-        width: 16px; // EXAKT wie User-Menu
-        text-align: center; // EXAKT wie User-Menu
-      }
-
-      &:hover {
-        background-color: #f5f5f5;
-        color: #333; // Text bleibt dunkel beim Hover
-      }
-
-      &.active, &[routerLinkActive="active"] {
-        background-color: #f5f5f5;
-        color: #333; // Text bleibt dunkel
-        font-weight: normal; // Kein bold
-      }
-
-      // Entferne alle zusätzlichen Effekte
-      &:after, &:before {
-        display: none;
-      }
-
-      .left-line, .bottom-line {
-        display: none;
-      }
-    }
-  }
-}
-
-// Styles für das Benutzer-Dropdown - Desktop
+// Styles-Dropdown - Desktop
 .user-dropdown {
   position: relative;
   display: inline-block;
@@ -577,13 +503,13 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     font-size: 1rem;
     transform: none; // Override desktop hover
-    
+
     &:hover {
       background-color: rgba(255, 255, 255, 0.1);
       padding-left: 0.5rem;
       transform: none;
     }
-    
+
     &.active {
       background-color: rgba(255, 255, 255, 0.15);
     }
@@ -660,12 +586,12 @@
           font-weight: 600;
           transform: translateX(0.5rem);
         }
-        
+
         &:after, &:before {
           display: none !important;
         }
       }
-      
+
       .dropdown-divider {
         height: 1px;
         background-color: rgba(255, 255, 255, 0.2);
@@ -710,14 +636,6 @@
     .nav-item {
       margin: 0.75rem 0;
       width: 100%;
-
-      .nav-link {
-        // All rules are now at 1024px
-      }
-
-      .user-dropdown {
-        // All rules are now at 1024px
-      }
     }
   }
 
@@ -727,9 +645,6 @@
     align-items: stretch;
     margin-left: 0;
 
-    .user-dropdown {
-      // All rules are now at 1024px
-    }
   }
 }
 
