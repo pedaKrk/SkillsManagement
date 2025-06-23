@@ -508,7 +508,7 @@
         }
         
         &.btn-delete {
-          background-color: #e53935;  // Rot bleibt gleich
+          background-color: #e53935;  
           
           &:hover {
             background-color: #c62828;
@@ -557,6 +557,92 @@
   .user-table {
     th, td {
       padding: 0.5rem;
+    }
+  }
+}
+
+@media (max-width: 1461px) {
+  .user-table-container {
+    overflow-x: auto;
+  }
+
+  .user-table {
+    width: 100%;
+    border-collapse: collapse;
+    
+    thead {
+      display: none;
+    }
+    
+    tbody, tr, td {
+      display: block;
+      width: 100%;
+    }
+    
+    tr {
+      margin-bottom: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      background-color: #fff;
+    }
+    
+    td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #eee;
+      
+      &::before {
+        content: attr(data-label);
+        font-weight: bold;
+        margin-right: 1rem;
+        flex-basis: 50%;
+        text-align: left;
+      }
+      
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .skills-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 0.25rem;
+      }
+    }
+    
+    .select-column {
+      justify-content: flex-start;
+      
+      &::before {
+        display: none;
+      }
+    }
+    
+    .actions-column .action-buttons {
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+  }
+
+  .action-bar {
+    .action-buttons-container {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .action-buttons {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+    }
+
+    .filter-controls {
+      flex-direction: column;
     }
   }
 }
@@ -913,7 +999,6 @@
   }
 }
 
-// Löschen des user-actions-dropdown Stils, da wir zum ursprünglichen Design zurückkehren
 .user-actions-dropdown {
   display: none;
 }

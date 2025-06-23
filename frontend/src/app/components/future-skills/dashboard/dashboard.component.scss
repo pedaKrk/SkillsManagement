@@ -1,58 +1,39 @@
-/* Page Title */
-h1 {
-  font-size: 34px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 20px;
-}
-
 .container {
-  max-width: 90%;
-  margin: auto;
   padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-h2 {
-  font-size: 24px;
-  margin: 30px 0 15px;
+h1 {
+  font-size: 2rem;
+  margin-bottom: 30px;
+  text-align: center;
+  color: #003366;
   font-weight: bold;
 }
 
-.mt {
-  margin-top: 60px;
+.chart-card {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 60px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.skills-table {
+.chart-title {
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+  color: #333;
+  font-weight: 500;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 8px;
+}
+ngx-charts-bar-vertical-stacked,
+ngx-charts-pie-chart,
+ngx-charts-bar-vertical,
+ngx-charts-bar-horizontal {
+  display: block;
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.skills-table th {
-  background-color: #0077A9;
-  color: white;
-  text-align: left;
-  padding: 10px;
-}
-
-.skills-table td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-
-.edit {
-  color: blue;
-  cursor: pointer;
-  margin-right: 10px;
-  font-weight: bold;
-}
-
-.delete {
-  color: red;
-  cursor: pointer;
-  font-weight: bold;
-}
-.mt {
-  margin-top: 60px;
+  height: 400px;
 }

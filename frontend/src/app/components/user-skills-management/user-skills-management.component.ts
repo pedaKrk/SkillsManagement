@@ -42,6 +42,8 @@ export class UserSkillsManagementComponent implements OnInit {
   skillSearchControl = new FormControl('');
   isSkillDropdownOpen = false;
   skillLevels = Object.values(SkillLevel);
+  skillLevelDropdownState: { [skillId: string]: boolean } = {};
+  newlyAddedSkillId: string | null = null;
   
   constructor(
     private route: ActivatedRoute,
@@ -66,11 +68,8 @@ export class UserSkillsManagementComponent implements OnInit {
       }
       this.loadUserData();
     });
-    // Subscribe to search input changes
     this.skillSearchControl.valueChanges.subscribe(searchTerm => {
-      if (searchTerm !== null) {
-        this.filterSkills(searchTerm);
-      }
+      this.filterSkills(searchTerm || '');
     });
   }
   
@@ -82,15 +81,8 @@ export class UserSkillsManagementComponent implements OnInit {
       next: (user) => {
         console.log('User data loaded:', user);
         this.user = user;
-        this.selectedSkills = (user.skills || [])
-          .filter(entry => entry && entry.skill && entry.skill._id && entry.skill.name)
-          .map(entry => ({
-            ...entry,
-            skill: { ...entry.skill, level: entry.skill.level ?? (entry as any).level },
-            showLevelDropdown: false
-          }));
+        this.selectedSkills = user.skills ? [...user.skills] : [];
         this.isLoading = false;
-        
         
         // Load available skills after user data is loaded
         if (!this.availableSkills.length) {
@@ -188,22 +180,33 @@ export class UserSkillsManagementComponent implements OnInit {
   toggleSkill(skillId: string): void {
     const skill = this.availableSkills.find(s => s._id === skillId);
     if (!skill) return;
-    // UserSkillEntry erzeugen
+
     const currentUser = this.authService.currentUserValue;
-    this.selectedSkills.push({
+    if (!currentUser) return;
+
+    const newSkillEntry: UserSkillEntry = {
       skill: skill,
-      addedAt: new Date(),
-      addedBy: currentUser ? {
-        _id: currentUser.id,
-        firstName: undefined,
-        lastName: undefined,
-        email: currentUser.email
-      } : undefined,
-      showLevelDropdown: false
-    });
-    // remove the selected skill from the available skills
+      levelHistory: [{
+        level: SkillLevel.BEGINNER,
+        changedAt: new Date(),
+        changedBy: {
+          _id: currentUser.id,
+          firstName: this.user?.firstName || '',
+          lastName: this.user?.lastName || ''
+        }
+      }]
+    };
+
+    this.selectedSkills.push(newSkillEntry);
+    this.newlyAddedSkillId = skill._id; // ID des neuen Skills merken
+    
     this.availableSkills = this.availableSkills.filter(s => s._id !== skillId);
-    this.filteredSkills = this.filteredSkills.filter(s => s._id !== skillId);
+    this.filterSkills(this.skillSearchControl.value || '');
+
+    // Tooltip nach ein paar Sekunden ausblenden
+    setTimeout(() => {
+      this.newlyAddedSkillId = null;
+    }, 5000); // 5 Sekunden
   }
 
   // Check if a skill is selected
@@ -212,30 +215,43 @@ export class UserSkillsManagementComponent implements OnInit {
   }
   
   saveSkills(): void {
-    if (!this.user) return;
-    // Format for the backend: Array of objects with skill, level, addedAt, addedBy
-    const formattedSkills = this.selectedSkills.map(entry => ({
-      skill: entry.skill._id,
-      level: entry.skill.level,
-      addedAt: entry.addedAt,
-      addedBy: entry.addedBy?._id
-    }));
+    if (!this.user) {
+      console.log('[saveSkills] Aborted: user is null.');
+      return;
+    }
+    console.log(`[saveSkills] Preparing to save ${this.selectedSkills.length} skills.`);
+    
+    const formattedSkills = this.selectedSkills
+      .filter(entry => {
+        const hasHistory = entry.levelHistory && entry.levelHistory.length > 0;
+        if (!hasHistory) console.warn(`[saveSkills] Filtering out skill without history: ${entry.skill.name}`);
+        return hasHistory;
+      })
+      .map(entry => {
+        const latestLevel = entry.levelHistory[entry.levelHistory.length - 1];
+        return {
+          skill: entry.skill._id,
+          level: latestLevel.level,
+        };
+      });
+
+    console.log('[saveSkills] Sending formatted skills to backend:', formattedSkills);
     const updatedUser: Partial<User> = {
-      ...this.user,
-      skills: formattedSkills as any // backend expects this format
+      skills: formattedSkills as any
     };
-    console.log('Saving skills:', formattedSkills);
+
     this.userService.updateUser(this.userId, updatedUser).subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('[saveSkills] Save successful. Response:', response);
         this.dialogService.showSuccess({
           title: 'Erfolg',
-          message: 'Skills wurden erfolgreich aktualisiert.',
-          buttonText: 'OK'
+          message: 'Änderungen wurden erfolgreich gespeichert.',
         });
-        this.router.navigate(['/users', this.userId]);
+        // Die automatische Navigation wird entfernt, um ein Neuladen zu verhindern.
+        // this.router.navigate(['/users', this.userId]); 
       },
       error: (error) => {
-        console.error('Fehler beim Speichern der Skills:', error);
+        console.error('[saveSkills] Error on save:', error);
         this.dialogService.showError('Fehler', 'Skills konnten nicht gespeichert werden.');
       }
     });
@@ -243,60 +259,6 @@ export class UserSkillsManagementComponent implements OnInit {
   
   cancel(): void {
     this.router.navigate(['/users', this.userId]);
-  }
-
-  /**
-   * Shows a confirmation dialog and removes the skill after confirmation
-   */
-  confirmRemoveSkill(skill: Skill): void {
-    this.dialogService.showConfirmation({
-      title: 'Skill entfernen',
-      message: `Möchten Sie den Skill "${skill.name}" wirklich entfernen?`,
-      confirmText: 'Ja, entfernen',
-      cancelText: 'Abbrechen',
-      dangerMode: true
-    }).subscribe((confirmed: boolean) => {
-      if (confirmed && this.user) {
-        // remove the skill locally
-        this.selectedSkills = this.selectedSkills.filter(entry => entry.skill._id !== skill._id);
-        // add the removed skill back to the available skills
-        this.availableSkills.push(skill);
-        // sort the available skills by name
-        this.availableSkills.sort((a, b) => a.name.localeCompare(b.name));
-        this.filteredSkills = [...this.availableSkills];
-        // update the user in the database
-        const formattedSkills = this.selectedSkills.map(entry => ({
-          skill: entry.skill._id,
-          level: entry.skill.level,
-          addedAt: entry.addedAt,
-          addedBy: entry.addedBy?._id
-        }));
-        const updatedUser: Partial<User> = {
-          ...this.user,
-          skills: formattedSkills as any
-        };
-        this.userService.updateUser(this.userId, updatedUser).subscribe({
-          next: () => {
-            this.dialogService.showSuccess({
-              title: 'Erfolg',
-              message: `Skill "${skill.name}" wurde erfolgreich entfernt.`,
-              buttonText: 'OK'
-            });
-          },
-          error: (error) => {
-            console.error('Fehler beim Entfernen des Skills:', error);
-            // restore the original state
-            this.selectedSkills.push({ skill });
-            this.availableSkills = this.filterOutAssignedSkills(this.availableSkills);
-            this.filteredSkills = [...this.availableSkills];
-            this.dialogService.showError(
-              'Fehler',
-              'Der Skill konnte nicht entfernt werden. Bitte versuchen Sie es später erneut.'
-            );
-          }
-        });
-      }
-    });
   }
 
   /**
@@ -351,7 +313,55 @@ export class UserSkillsManagementComponent implements OnInit {
     return roleMap[role] || role;
   }
 
+  // Set skill level from dropdown
   setSkillLevel(skillEntry: UserSkillEntry, level: SkillLevel) {
-    skillEntry.skill.level = level;
+    const currentUser = this.authService.currentUserValue;
+    if (!currentUser) return;
+
+    skillEntry.levelHistory.push({
+      level: level,
+      changedAt: new Date(),
+      changedBy: {
+        _id: currentUser.id,
+        firstName: this.user?.firstName || '',
+        lastName: this.user?.lastName || ''
+      }
+    });
+    this.skillLevelDropdownState[skillEntry.skill._id] = false;
+  }
+
+  removeSkillWithConfirmation(skillId: string): void {
+    const skillToRemove = this.selectedSkills.find(entry => entry.skill._id === skillId);
+    if (!skillToRemove) return;
+
+    this.dialogService.showConfirmation({
+      title: 'Skill entfernen',
+      message: `Möchten Sie den Skill "${skillToRemove.skill.name}" wirklich entfernen?`,
+      confirmText: 'Entfernen',
+      cancelText: 'Abbrechen',
+      dangerMode: true
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        console.log(`[Confirmation] User confirmed removal for skillId: ${skillId}.`);
+        this.removeSkill(skillId);
+      }
+    });
+  }
+
+  removeSkill(skillId: string): void {
+    console.log(`[removeSkill] Attempting to remove skillId: ${skillId}`);
+    const skillToRemove = this.selectedSkills.find(entry => entry.skill._id === skillId);
+    if (skillToRemove) {
+      console.log(`[removeSkill] Found skill to remove: ${skillToRemove.skill.name}. Current count: ${this.selectedSkills.length}`);
+      this.selectedSkills = this.selectedSkills.filter(entry => entry.skill._id !== skillId);
+      console.log(`[removeSkill] Local array updated. New count: ${this.selectedSkills.length}`);
+      this.availableSkills.push(skillToRemove.skill);
+      this.filterSkills(this.skillSearchControl.value || '');
+      
+      console.log('[removeSkill] Triggering save to persist removal.');
+      this.saveSkills();
+    } else {
+      console.warn(`[removeSkill] Could not find skill with id ${skillId} to remove.`);
+    }
   }
 }

@@ -1,26 +1,12 @@
-import User from "../models/user.model.js";
 import mongoose from "mongoose";
-import {comparePassword, hashPassword} from "../services/auth.service.js";
-import fs from 'fs';
-import path from 'path';
 import roleEnum from "../models/enums/role.enum.js";
-
-// only use transactions when changing multiple documents.
-// rather use findOneAndUpdate
+import * as userService from "../services/user.service.js";
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({ isActive: true })
-      .select('-password')
-      .populate({
-        path: 'skills.skill',
-        select: 'name description level category parent_id',
-      })
-      .populate({
-        path: 'skills.addedBy',
-        select: 'firstName lastName email',
-      })
-      .lean();
+    console.info("Get all users");
+    const users = await userService.getAllUsers();
+
     res.status(200).json(users);
   } catch (error) {
     console.error('Error getting users:', error);
@@ -33,35 +19,23 @@ export const getAllUsers = async (req, res) => {
 
 export const getUserById = async (req, res) => {
   try {
+    console.info("Get user by id");
     const { id } = req.params
     
-    const basicUser = await User.findById(id)
+    const basicUser = await userService.getUserById(id)
     if (!basicUser) {
       return res.status(404).json({ message: 'User not found' })
     }
     
     try {
-      const user = await User.findById(id)
-        .populate({
-          path: 'skills.skill',
-          select: 'name description level category parent_id',
-        })
-        .populate({
-          path: 'skills.addedBy',
-          select: 'firstName lastName email',
-        })
-        .populate('futureSkills')
-        .populate('comments')
-      
+      const user = await userService.getUserById(id)
+
       res.status(200).json(user)
     } catch (populateError) {
       console.error('Error populating user references:', populateError)
       
       try {
-        const userWithSkills = await User.findById(id).populate({
-          path: 'skills.skill',
-          select: 'name description level category parent_id',
-        })
+        const userWithSkills = await userService.getUserById(id)
         res.status(200).json(userWithSkills)
       } catch (skillsError) {
         console.error('Error populating skills:', skillsError)
@@ -77,8 +51,9 @@ export const getUserById = async (req, res) => {
 
 export const getAllLecturers = async (req, res) => {
   try {
-    const lecturers = await User.find({ role: { $regex: /^lecturer$/i } })
-        .select('title firstName lastName');
+    console.info("Get all lecturers");
+    const lecturers = await userService.getAllLecturers()
+
     res.status(200).json(lecturers);
   } catch (err) {
     res.status(500).json({ message: 'Error fetching lecturers', error: err });
@@ -86,78 +61,47 @@ export const getAllLecturers = async (req, res) => {
 };
 
 export const createUser = async (req, res) => {
-  const session = await mongoose.startSession()
-  session.startTransaction()
-
   try {
     const userData = req.body
 
-    const newUser = new User(userData)
-    await newUser.save()
+    const newUser = userService.createUser(userData)
 
-    await session.commitTransaction()
-    await session.endSession()
     res.status(201).json(newUser)
   } catch (error) {
-    await session.abortTransaction()
-    await session.endSession()
     res.status(500).json({ message: 'Failed to create user', error })
   }
 }
 
 export const updateUser = async (req, res) => {
-  const session = await mongoose.startSession()
-  session.startTransaction()
-
   try {
-    const { id } = req.params
-    const userData = req.body
-
-    // Skills mapping
-    if (userData.skills && Array.isArray(userData.skills)) {
-      userData.skills = userData.skills.map(skillEntry => ({
-        skill: skillEntry.skill,
-        level: skillEntry.level, 
-        addedAt: skillEntry.addedAt,
-        addedBy: skillEntry.addedBy
-      }));
-    }
-
-    const isOwnProfile = req.user.id === id || req.user._id === id
-    const userRole = req.user.role.toLowerCase()
-    const isAdmin = userRole === roleEnum.ADMIN.toLowerCase()
-    const isCompetenceLeader = userRole === roleEnum.COMPETENCE_LEADER.toLowerCase()
+    console.info("Update user");
+    const { id } = req.params;
+    const userData = req.body;
     
-    if (!isAdmin && !isCompetenceLeader && !isOwnProfile) {
-      await session.abortTransaction()
-      await session.endSession()
-      return res.status(403).json({ 
-        message: 'Sie haben keine Berechtigung, dieses Benutzerprofil zu bearbeiten.' 
-      })
-    }
+    console.log('[updateUser controller] Inspecting req.user:', req.user);
 
-    const updatedUser = await User.findByIdAndUpdate(id, userData, { new: true })
+    const updatedUser = await userService.updateUser(id, userData, req.user);
 
     if (!updatedUser) {
-      await session.abortTransaction()
-      await session.endSession()
-      return res.status(404).json({ message: 'User not found' })
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    await session.commitTransaction()
-    await session.endSession()
-    res.status(200).json(updatedUser)
+    res.status(200).json(updatedUser);
   } catch (error) {
-    await session.abortTransaction()
-    await session.endSession()
-    res.status(500).json({ message: 'Failed to update user', error })
+    console.error('Error in updateUser controller:', error);
+    res.status(500).json({ 
+        message: 'Failed to update user', 
+        error: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 }
 
 export const deleteUser = async (req, res) => {
   try {
+    console.info("Delete user");
     const { id } = req.params
-    const result = await User.findByIdAndDelete(id)
+    const result = await userService.deleteUser(id)
     if (!result) {
       return res.status(404).json({ message: 'User not found' })
     }
@@ -169,6 +113,7 @@ export const deleteUser = async (req, res) => {
 
 export const changePassword = async (req, res) => {
   try {
+    console.info("Change password");
     const { email, currentPassword, newPassword, confirmPassword } = req.body;
     console.log('Password change request received:', { 
       email, 
@@ -187,63 +132,7 @@ export const changePassword = async (req, res) => {
       return res.status(400).json({ error: "Alle Felder müssen ausgefüllt werden" });
     }
 
-    if (newPassword !== confirmPassword) {
-      console.log('Passwords do not match');
-      return res.status(400).json({ error: "Die neuen Passwörter stimmen nicht überein" });
-    }
-
-    console.log('Looking for user with email:', email);
-    const user = await User.findOne({ email });
-    
-    if (!user) {
-      console.log('User not found for email:', email);
-      return res.status(404).json({ error: "Benutzer nicht gefunden" });
-    }
-    
-    console.log('User found:', { 
-      id: user._id, 
-      email: user.email, 
-      mustChangePassword: user.mustChangePassword 
-    });
-
-    // passwort controll
-    if (!user.mustChangePassword) {
-      console.log('Verifying current password for user:', email);
-      const isMatch = await comparePassword(currentPassword, user.password);
-      if (!isMatch) {
-        console.log('Current password verification failed');
-        return res.status(400).json({ error: "Das aktuelle Passwort ist nicht korrekt" });
-      }
-      console.log('Current password verified successfully');
-    } else {
-      console.log('Skipping password verification due to mustChangePassword flag');
-    }
-
-    console.log('Hashing new password...');
-    const hashedPassword = await hashPassword(newPassword);
-    
-    console.log('Updating user password and mustChangePassword flag...');
-    const updatedUser = await User.findOneAndUpdate(
-      { _id: user._id },
-      { 
-        $set: { 
-          password: hashedPassword,
-          mustChangePassword: false
-        }
-      },
-      { new: true }
-    );
-
-    if (!updatedUser) {
-      console.log('Failed to update user');
-      throw new Error('Failed to update user');
-    }
-
-    console.log('Password changed successfully for user:', {
-      id: updatedUser._id,
-      email: updatedUser.email,
-      mustChangePassword: updatedUser.mustChangePassword
-    });
+    await userService.changePassword(email, currentPassword, newPassword, confirmPassword)
 
     res.json({ 
       message: "Passwort wurde erfolgreich geändert. Sie können sich jetzt anmelden.",
@@ -259,44 +148,26 @@ export const changePassword = async (req, res) => {
   }
 }
 
-//upload 
+// ToDo: Error regarding ProfileImage, add and del
 export const uploadProfileImage = async (req, res) => {
   try {
+    console.info("Upload profile image");
     const { id } = req.params;
+    const file = req.file;
     
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'Ungültige Benutzer-ID' });
     }
-    
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ message: 'Benutzer nicht gefunden' });
-    }
-    
-    if (!req.file) {
+
+    if (file) {
       return res.status(400).json({ message: 'Keine Datei hochgeladen' });
     }
     
-    if (user.profileImageUrl) {
-      const oldImagePath = path.join(process.cwd(), user.profileImageUrl.replace(/^\//, ''));
-      if (fs.existsSync(oldImagePath)) {
-        fs.unlinkSync(oldImagePath);
-      }
-    }
-    
-    const profileImageUrl = `/uploads/${req.file.filename}`;
-    console.log('Speichere Profilbild-URL:', profileImageUrl);
-    console.log('Vollständiger Dateipfad:', path.join(process.cwd(), profileImageUrl.replace(/^\//, '')));
-    
-    user.profileImageUrl = profileImageUrl;
-    await user.save();
+    const updatedUser = await userService.uploadProfileImage(id, file)
     
     res.status(200).json({
       message: 'Profilbild erfolgreich hochgeladen',
-      user: {
-        ...user.toObject(),
-        password: undefined
-      }
+      user: updatedUser
     });
   } catch (error) {
     console.error('Fehler beim Hochladen des Profilbilds:', error);
@@ -309,35 +180,18 @@ export const uploadProfileImage = async (req, res) => {
 
 export const removeProfileImage = async (req, res) => {
   try {
+    console.info("remove profile image");
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'Ungültige Benutzer-ID' });
     }
 
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ message: 'Benutzer nicht gefunden' });
-    }
-
-    if (!user.profileImageUrl) {
-      return res.status(400).json({ message: 'Benutzer hat kein Profilbild' });
-    }
-
-    const imagePath = path.join(process.cwd(), user.profileImageUrl.replace(/^\//, ''));
-    if (fs.existsSync(imagePath)) {
-      fs.unlinkSync(imagePath);
-    }
-
-    user.profileImageUrl = undefined;
-    await user.save();
+    const updatedUser = userService.removeProfileImage(id)
     
     res.status(200).json({
       message: 'Profilbild erfolgreich entfernt',
-      user: {
-        ...user.toObject(),
-        password: undefined
-      }
+      user: updatedUser
     });
   } catch (error) {
     console.error('Fehler beim Entfernen des Profilbilds:', error);
@@ -353,9 +207,8 @@ export const removeProfileImage = async (req, res) => {
  */
 export const getInactiveUsers = async (req, res) => {
   try {
-    const inactiveUsers = await User.find({ isActive: false })
-      .select('-password')
-      .lean();
+    console.log("Get Inactive Users");
+    const inactiveUsers = await userService.getInactiveUsers();
     
     res.status(200).json(inactiveUsers);
   } catch (error) {
@@ -372,7 +225,8 @@ export const getInactiveUsers = async (req, res) => {
  */
 export const getInactiveUsersCount = async (req, res) => {
   try {
-    const count = await User.countDocuments({ isActive: false });
+    console.info('Get inactive UsersCount');
+    const count = await userService.getInactiveUserCount();
     res.status(200).json(count);
   } catch (error) {
     console.error('Error getting inactive users count:', error);
@@ -388,15 +242,10 @@ export const getInactiveUsersCount = async (req, res) => {
  */
 export const activateUser = async (req, res) => {
   try {
+    console.info("Activate User");
     const { id } = req.params;
     
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    
-    user.isActive = true;
-    await user.save();
+    await userService.activateUser(id);
     
     res.status(200).json({ message: 'User activated successfully' });
   } catch (error) {
@@ -413,15 +262,10 @@ export const activateUser = async (req, res) => {
  */
 export const deactivateUser = async (req, res) => {
   try {
+    console.info('Deactivate user');
     const { id } = req.params;
     
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    
-    user.isActive = false;
-    await user.save();
+    await userService.deactivateUser(id);
     
     res.status(200).json({ message: 'User deactivated successfully' });
   } catch (error) {
@@ -438,14 +282,12 @@ export const deactivateUser = async (req, res) => {
  */
 export const getUserStatus = async (req, res) => {
   try {
+    console.info("get user status")
     const { id } = req.params;
     
-    const user = await User.findById(id).select('isActive');
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    const isActive = userService.getUserStatus(id);
     
-    res.status(200).json({ isActive: user.isActive });
+    res.status(200).json({ isActive });
   } catch (error) {
     console.error('Error getting user status:', error);
     res.status(500).json({ 

@@ -9,6 +9,7 @@ import commentRoutes from './routes/comment.routes.js'
 import authRoutes from "./routes/auth.routes.js";
 import emailRoutes from "./routes/email.routes.js";
 import futureSkillsRoutes from "./routes/future-skills.routes.js";
+import dashboardRoutes from './routes/dashboard.routes.js';
 
 import connectToDB from "./database/mongodb.js";
 import {smtpService} from "./services/mail/smtp.service.js";
@@ -18,7 +19,7 @@ import { PORT } from "./config/env.js";
 import './models/user.model.js';
 import './models/comment.model.js';
 import './models/skill.model.js';
-import './models/future-skill.model.js';
+import './models/future.skill.model.js';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -39,6 +40,7 @@ app.use('/api/v1/comments', commentRoutes)
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/email', emailRoutes)
 app.use('/api/v1/future-skills', futureSkillsRoutes)
+app.use('/api/v1/dashboard', dashboardRoutes)
 
 app.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`);

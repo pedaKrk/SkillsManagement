@@ -195,7 +195,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let user of filteredUsers" [class.selected]="isUserSelected(user.id)" class="user-row">
-          <td class="select-column">
+          <td class="select-column" data-label="Auswählen">
             <div class="checkbox-container">
               <input 
                 type="checkbox" 
@@ -210,21 +210,21 @@
               </label>
             </div>
           </td>
-          <td>{{ user.username }}</td>
-          <td>{{ user.title || '-' }}</td>
-          <td>{{ user.firstName }}</td>
-          <td>{{ user.lastName }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.phoneNumber || '-' }}</td>
-          <td>{{ user.employmentType === 'Internal' ? 'Intern' : 'Extern' }}</td>
-          <td>
+          <td data-label="Benutzername">{{ user.username }}</td>
+          <td data-label="Titel">{{ user.title || '-' }}</td>
+          <td data-label="Vorname">{{ user.firstName }}</td>
+          <td data-label="Nachname">{{ user.lastName }}</td>
+          <td data-label="Email">{{ user.email }}</td>
+          <td data-label="Telefonnummer">{{ user.phoneNumber || '-' }}</td>
+          <td data-label="Beschäftigungsart">{{ user.employmentType === 'Internal' ? 'Intern' : 'Extern' }}</td>
+          <td data-label="Skills">
             <div class="skills-list">
               <span class="skill-badge" *ngFor="let entry of user.skills">
                 {{ entry?.skill?.name || 'Unbekannte Fähigkeit' }}
               </span>
             </div>
           </td>
-          <td class="actions-column">
+          <td class="actions-column" data-label="Aktionen">
             <div class="action-buttons">
               <!-- Skills Management Button -->
               <button 
@@ -248,23 +248,21 @@
               <button 
                 class="btn btn-icon btn-deactivate" 
                 (click)="deactivateUser(user)" 
-                *ngIf="isAdmin || isCompetenceLeader"
+                *ngIf="(isAdmin || isCompetenceLeader) && user.id !== currentUserId"
                 title="Benutzer deaktivieren"
               >
                 <i class="fa fa-user-slash"></i>
               </button>
               
-              <!-- Delete Button - only for Admins -->
+              <!-- Delete Button - for Admins only -->
               <button 
                 class="btn btn-icon btn-delete" 
-                (click)="confirmDeleteUser(user)" 
-                *ngIf="isAdmin"
+                (click)="openDeleteDialog(user)" 
+                *ngIf="isAdmin && user.id !== currentUserId"
                 title="Benutzer löschen"
               >
                 <i class="fa fa-trash"></i>
               </button>
-              
-              
             </div>
           </td>
         </tr>

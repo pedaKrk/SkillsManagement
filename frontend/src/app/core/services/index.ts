@@ -16,4 +16,7 @@ export * from './dialog';
 //Future-skills Services
 export * from './future-skills/plan.service';
 
+// Dashboard Services
+export * from './dashboard.service';
+
 

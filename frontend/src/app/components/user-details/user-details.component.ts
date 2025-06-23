@@ -442,18 +442,10 @@ export class UserDetailsComponent implements OnInit {
    * @returns The german role name
    */
   getFormattedRole(): string {
-    if (!this.user || !this.user.role) return '';
-    
-    switch (this.user.role) {
-      case UserRole.ADMIN:
-        return 'AdministratorIn';
-      case UserRole.COMPETENCE_LEADER:
-        return 'KompetenzleiterIn';
-      case UserRole.LECTURER:
-        return 'LektorIn';
-      default:
-        return this.user.role;
+    if (!this.user) {
+      return '';
     }
+    return this.user.role.replace('_', ' ');
   }
   
   /**
@@ -743,5 +735,12 @@ export class UserDetailsComponent implements OnInit {
         profileImageUrl: undefined
       };
     }
+  }
+
+  getSkillLevelClass(level: string): string {
+    if (!level) {
+      return '';
+    }
+    return level.toLowerCase();
   }
 }

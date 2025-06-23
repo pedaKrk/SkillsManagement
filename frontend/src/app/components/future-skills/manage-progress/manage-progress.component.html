@@ -49,20 +49,20 @@
     <table class="skills-table">
       <thead>
       <tr>
-        <th>#No.</th>
-        <th>Lecturer Name</th>
-        <th>Skill Name</th>
-        <th>Skill Level</th>
-        <th>Expected Date</th>
-        <th>Actions</th>
+        <th data-label="#No.">#No.</th>
+        <th data-label="Lecturer Name">Lecturer Name</th>
+        <th data-label="Skill Name">Skill Name</th>
+        <th data-label="Skill Level">Skill Level</th>
+        <th data-label="Expected Date">Expected Date</th>
+        <th data-label="Actions">Actions</th>
       </tr>
       </thead>
       <tbody>
 
       <!-- Row for Adding New Skill -->
       <tr *ngIf="addingNewSkill && lecturers.length > 0 && skillOptions.length > 0">
-        <td>{{ skills.length + 1 }}</td>
-        <td>
+        <td data-label="#No.">{{ skills.length + 1 }}</td>
+        <td data-label="Lecturer Name">
           <select [(ngModel)]="newSkill.lecturer_id">
             <option value="">Select Lecturer</option>
             <option *ngFor="let lecturer of lecturers" [value]="lecturer._id">
@@ -70,34 +70,40 @@
             </option>
           </select>
         </td>
-        <td>
+        <td data-label="Skill Name">
           <select [(ngModel)]="newSkill.skill_id">
             <option value="">Select Skill</option>
             <option *ngFor="let skill of skillOptions" [value]="skill._id">{{ skill.name }}</option>
           </select>
         </td>
-        <td>
+        <td data-label="Skill Level">
           <select [(ngModel)]="newSkill.future_achievable_level">
             <option value="">Select Level</option>
             <option *ngFor="let level of skillLevels" [value]="level">{{ level }}</option>
           </select>
         </td>
-        <td>
+        <td data-label="Expected Date">
           <input type="date" [(ngModel)]="newSkill.target_date" />
         </td>
-        <td>
-          <span class="save" (click)="saveNewSkill()">Save</span>
-          <span class="cancel" (click)="cancelNewSkill()">Cancel</span>
+        <td data-label="Actions" class="actions-column">
+          <div class="action-buttons">
+            <button class="btn btn-icon btn-save" (click)="saveNewSkill()" title="Save">
+              <i class="fas fa-save"></i>
+            </button>
+            <button class="btn btn-icon btn-cancel" (click)="cancelNewSkill()" title="Cancel">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
         </td>
       </tr>
 
       <!-- Future Skills Rows -->
       <tr *ngFor="let skill of skills; let i = index">
-        <td>{{ i + 1 }}</td>
+        <td data-label="#No.">{{ i + 1 }}</td>
 
         <!-- Editable Row -->
         <ng-container *ngIf="editingIndex === i; else readOnlyRow">
-          <td>
+          <td data-label="Lecturer Name">
             <select [(ngModel)]="skill.lecturer_id">
               <option value="">Select Lecturer</option>
               <option *ngFor="let lecturer of lecturers" [ngValue]="lecturer">
@@ -105,7 +111,7 @@
               </option>
             </select>
           </td>
-          <td>
+          <td data-label="Skill Name">
             <select [(ngModel)]="skill.skill_id">
               <option value="">Select Skill</option>
               <option *ngFor="let skillOption of skillOptions" [ngValue]="skillOption">
@@ -113,35 +119,51 @@
               </option>
             </select>
           </td>
-          <td>
+          <td data-label="Skill Level">
             <select [(ngModel)]="skill.future_achievable_level">
               <option value="">Select Level</option>
               <option *ngFor="let level of skillLevels" [value]="level">{{ level }}</option>
             </select>
 
           </td>
-          <td>
+          <td data-label="Expected Date">
             <input type="date" [(ngModel)]="skill.target_date" />
           </td>
 
-          <td>
-            <span class="save" (click)="saveEdit()">Save</span>
-            <span class="cancel" (click)="cancelEdit()">Cancel</span>
+          <td data-label="Actions" class="actions-column">
+            <div class="action-buttons">
+              <button class="btn btn-icon btn-save" (click)="saveEdit()" title="Save">
+                <i class="fas fa-save"></i>
+              </button>
+              <button class="btn btn-icon btn-cancel" (click)="cancelEdit()" title="Cancel">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
           </td>
         </ng-container>
 
 
         <!-- Read-Only Row -->
         <ng-template #readOnlyRow>
-          <td>{{ skill.lecturer_id?.title }} {{ skill.lecturer_id?.firstName }} {{ skill.lecturer_id?.lastName }}</td>
-          <td>{{ skill.skill_id?.name }}</td>
-          <td>{{ skill.future_achievable_level }}</td>
-          <td>{{ skill.target_date | date: 'yyyy-MM-dd' }}</td>
-          <td>
-            <span class="edit" (click)="editSkill(i)">Edit</span>
-            <span class="delete" (click)="deleteSkill(i)">Delete</span>
-            <span *ngIf="editingIndex !== i" class="mail" (click)="sendMail(skill)">Mail</span>
-            <span *ngIf="editingIndex !== i" class="add" (click)="addToSkills(skill)">Add to Skills</span>
+          <td data-label="Lecturer Name">{{ skill.lecturer_id?.title }} {{ skill.lecturer_id?.firstName }} {{ skill.lecturer_id?.lastName }}</td>
+          <td data-label="Skill Name">{{ skill.skill_id?.name }}</td>
+          <td data-label="Skill Level">{{ skill.future_achievable_level }}</td>
+          <td data-label="Expected Date">{{ skill.target_date | date: 'yyyy-MM-dd' }}</td>
+          <td data-label="Actions" class="actions-column">
+            <div class="action-buttons">
+              <button class="btn btn-icon btn-edit" (click)="editSkill(i)" title="Edit">
+                <i class="fa fa-cog"></i>
+              </button>
+              <button class="btn btn-icon btn-mail" (click)="sendMail(skill)" title="Send Mail">
+                <i class="fas fa-envelope"></i>
+              </button>
+              <button class="btn btn-icon btn-add" (click)="addToSkills(skill)" title="Add to Skills">
+                <i class="fas fa-plus"></i>
+              </button>
+              <button class="btn btn-icon btn-delete" (click)="deleteSkill(i)" title="Delete">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
           </td>
         </ng-template>
     </tr>

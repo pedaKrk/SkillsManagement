@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -7,11 +7,12 @@ import { UserRole } from '../../models/enums/user-roles.enum';
 import { interval, Subscription } from 'rxjs';
 import { startWith, switchMap } from 'rxjs/operators';
 import { NotificationService } from '../../core/services/notification/notification.service';
+import { ClickOutsideDirective } from '../../shared/directives/click-outside.directive';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ClickOutsideDirective],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
@@ -25,6 +26,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isDropdownOpen = false;
   isUserDropdownOpen = false;
   inactiveUsersCount = 0;
+  isMenuOpen = false;
   private subscription: Subscription = new Subscription();
 
   constructor(
@@ -45,7 +47,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.isLoggedIn = !!user;
       this.username = user?.username || null;
       this.userId = user?.id || null;
-      
+
       if (user?.role) {
         this.isAdmin = user.role === UserRole.ADMIN;
         this.isCompetenceLeader = user.role === UserRole.COMPETENCE_LEADER;
@@ -80,47 +82,42 @@ export class NavbarComponent implements OnInit, OnDestroy {
     event.preventDefault();
     event.stopPropagation();
     this.isDropdownOpen = !this.isDropdownOpen;
-    
+
     // Close user dropdown when Future Skills dropdown is opened
     if (this.isDropdownOpen) {
       this.isUserDropdownOpen = false;
     }
   }
-  
+
   toggleUserDropdown(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
     this.isUserDropdownOpen = !this.isUserDropdownOpen;
-    
-    
+
+
     if (this.isUserDropdownOpen) {
       this.isDropdownOpen = false;
     }
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    const dropdown = document.querySelector('.dropdown');
-    const userDropdown = document.querySelector('.user-dropdown');
-    
-    if (this.isDropdownOpen && dropdown && !dropdown.contains(target)) {
-      this.isDropdownOpen = false;
-    }
-    
-    if (this.isUserDropdownOpen && userDropdown && !userDropdown.contains(target)) {
-      this.isUserDropdownOpen = false;
-    }
+  closeFutureSkillsDropdown(): void {
+    this.isDropdownOpen = false;
+  }
+
+  closeUserDropdown(): void {
+    this.isUserDropdownOpen = false;
   }
 
   onDropdownItemClick(event: Event): void {
     event.stopPropagation();
+    this.closeFutureSkillsDropdown();
+    this.closeUserDropdown();
   }
 
   isRouteActive(route: string): boolean {
     const currentUrl = this.router.url.split('?')[0]; // Ignore query parameters
-    return currentUrl === route || 
-           currentUrl === route + '/' || 
+    return currentUrl === route ||
+           currentUrl === route + '/' ||
            currentUrl.startsWith(route + '/');
   }
 
@@ -135,21 +132,29 @@ export class NavbarComponent implements OnInit, OnDestroy {
   editOwnProfile(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    
+
     if (this.userId) {
       console.log('Navigiere zur Profilbearbeitungsseite für Benutzer:', this.userId);
-      
+
       // Explicit navigation to the edit path
       const url = `/users/${this.userId}/edit`;
       console.log('Navigation URL:', url);
-      
+
       // Close dropdown
       this.isUserDropdownOpen = false;
-      
+
       // Navigate to the edit path
       this.router.navigateByUrl(url);
     } else {
       console.error('Keine Benutzer-ID verfügbar');
     }
   }
-} 
+
+  toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  closeMenu(): void {
+    this.isMenuOpen = false;
+  }
+}

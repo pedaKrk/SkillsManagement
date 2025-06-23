@@ -9,7 +9,7 @@ import {
     updateFutureSkill,
     deleteFutureSkill,
     sendFutureSkillMail
-} from '../controllers/future-skills.controller.js';
+} from '../controllers/future.skills.controller.js';
 import {getFutureSkillStatusEmail} from "../controllers/email.controller.js";
 import {authenticateToken} from "../middleware/auth.middleware.js";
 
@@ -32,7 +32,5 @@ router.get('/skill-names', getAllSkillNames);
 router.get('/skill-levels', getSkillLevels);
 
 router.post('/send-email', sendFutureSkillMail);
-
-
 
 export default router;

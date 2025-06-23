@@ -4,6 +4,11 @@ import {mailService} from "../services/mail/mail.service.js";
 import User from "../models/user.model.js";
 import roles from "../models/enums/role.enum.js";
 
+/*
+ToDo:
+    Refactor whole class
+    use UserService
+ */
 // Register new user
 export const registerUser = async (req, res) => {
     try {
