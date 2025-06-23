@@ -1,6 +1,4 @@
-/** plan.component.scss */
 
-/* Use a consistent container styling */
 .container {
   padding: 1.5rem;
   background-color: #f8f9fa;
@@ -254,7 +252,6 @@ input, select {
   }
 }
 
-/* Remove old text-based action styles */
 .edit, .delete, .save, .cancel {
  display: none;
 }
@@ -337,11 +334,11 @@ input, select {
 }
 
 .icon-edit {
-  background-color: #95c11f; /* Green from image */
+  background-color: #95c11f;
   border-color: #8BC34A;
 
   img {
-    filter: brightness(0) invert(1); /* Makes SVG white */
+    filter: brightness(0) invert(1);
   }
 
   &:hover {
@@ -351,11 +348,11 @@ input, select {
 }
 
 .icon-delete {
-  background-color: #F44336; /* Red from image */
+  background-color: #F44336;
   border-color: #F44336;
 
   img {
-    filter: brightness(0) invert(1); /* Makes SVG white */
+    filter: brightness(0) invert(1);
   }
 
   &:hover {
