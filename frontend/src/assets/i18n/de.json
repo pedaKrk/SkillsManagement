@@ -305,5 +305,20 @@
     "SAVE": "Speichern",
     "SAVING": "Speichern...",
     "CANCEL": "Abbrechen"
+  },
+  "CHANGE_PASSWORD": {
+    "HEADER": "Passwort ändern",
+    "EMAIL": "E-Mail-Adresse",
+    "EMAIL_REQUIRED": "E-Mail-Adresse ist erforderlich",
+    "EMAIL_INVALID": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "CURRENT_PASSWORD": "Aktuelles Passwort",
+    "CURRENT_PASSWORD_REQUIRED": "Aktuelles Passwort ist erforderlich",
+    "NEW_PASSWORD": "Neues Passwort",
+    "NEW_PASSWORD_REQUIRED": "Neues Passwort ist erforderlich",
+    "CONFIRM_PASSWORD": "Passwort bestätigen",
+    "CONFIRM_PASSWORD_REQUIRED": "Passwortbestätigung ist erforderlich",
+    "PASSWORD_MISMATCH": "Passwörter stimmen nicht überein",
+    "SUBMIT": "Passwort ändern",
+    "SUBMIT_LOADING": "Wird geändert..."
   }
 } 
