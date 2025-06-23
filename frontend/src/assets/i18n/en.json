@@ -122,7 +122,15 @@
     "DEACTIVATE": "Deactivate",
     "MANAGE_SKILLS": "Manage Skills",
     "NO_USERS_FOUND": "No users found.",
-    "UNKNOWN_SKILL": "Unknown Skill"
+    "UNKNOWN_SKILL": "Unknown Skill",
+    "REPLY": "Reply",
+    "CANCEL": "Cancel",
+    "SHOW_MORE": "Show more",
+    "SHOW_LESS": "Show less",
+    "REPLY_PLACEHOLDER": "Write a reply...",
+    "NO_COMMENTS": "No comments found",
+    "BY": "by",
+    "ON": "on"
   },
   "SKILLS": {
     "SKILLS": "Skills",
@@ -240,5 +248,34 @@
     "Beginner": "Beginner",
     "Intermediate": "Intermediate",
     "Advanced": "Advanced"
+  },
+  "PROFILE": {
+    "LOADING": "Loading user details...",
+    "ERROR_LOADING": "Error loading user details. Please try again later.",
+    "SERVER_ERROR": "A server error occurred. The backend could not load the user. Please contact the administrator.",
+    "NOT_FOUND": "The requested user was not found.",
+    "UNAUTHORIZED": "You are not authorized to view this information. Please log in.",
+    "RETRY": "Try Again",
+    "BACK_TO_LIST": "Back to user list",
+    "EDIT_PROFILE": "Edit Profile",
+    "ROLE": "Role:",
+    "EMPLOYMENT_TYPE": "Employment Type:",
+    "CONTACT_INFO": "Contact Information",
+    "EMAIL": "Email:",
+    "PHONE_NUMBER": "Phone Number:",
+    "SKILLS": "Skills",
+    "NO_SKILLS": "No skills specified",
+    "COMMENTS": "Comments",
+    "ADD_COMMENT": "Add Comment",
+    "COMMENT_PLACEHOLDER": "Write a comment...",
+    "SEARCH_COMMENTS": "Search comments...",
+    "ALL_AUTHORS": "All Authors",
+    "FROM": "From:",
+    "TO": "To:",
+    "NO_COMMENTS": "No comments available.",
+    "REPLY": "Reply",
+    "SHOW_MORE": "Show more",
+    "SHOW_LESS": "Show less",
+    "REPLY_PLACEHOLDER": "Write a reply..."
   }
 } 

@@ -121,7 +121,15 @@
     "DEACTIVATE": "Deaktivieren",
     "MANAGE_SKILLS": "Skills verwalten",
     "NO_USERS_FOUND": "Keine Benutzer gefunden.",
-    "UNKNOWN_SKILL": "Unbekannte Fähigkeit"
+    "UNKNOWN_SKILL": "Unbekannte Fähigkeit",
+    "REPLY": "Antworten",
+    "CANCEL": "Abbrechen",
+    "SHOW_MORE": "Mehr anzeigen",
+    "SHOW_LESS": "Weniger anzeigen",
+    "REPLY_PLACEHOLDER": "Schreiben Sie eine Antwort...",
+    "NO_COMMENTS": "Keine Kommentare gefunden",
+    "BY": "von",
+    "ON": "am"
   },
   "SKILLS": {
     "SKILLS": "Skills",
@@ -239,5 +247,30 @@
     "Beginner": "Anfänger",
     "Intermediate": "Fortgeschritten",
     "Advanced": "Experte"
+  },
+  "PROFILE": {
+    "LOADING": "Benutzerdetails werden geladen...",
+    "ERROR_LOADING": "Fehler beim Laden der Benutzerdetails. Bitte versuchen Sie es später erneut.",
+    "SERVER_ERROR": "Ein Serverfehler ist aufgetreten. Das Backend konnte den Benutzer nicht laden. Bitte kontaktieren Sie den Administrator.",
+    "NOT_FOUND": "Der angeforderte Benutzer wurde nicht gefunden.",
+    "UNAUTHORIZED": "Sie sind nicht berechtigt, diese Informationen anzuzeigen. Bitte melden Sie sich an.",
+    "RETRY": "Erneut versuchen",
+    "BACK_TO_LIST": "Zurück zur Benutzerliste",
+    "EDIT_PROFILE": "Profil bearbeiten",
+    "ROLE": "Rolle:",
+    "EMPLOYMENT_TYPE": "Beschäftigungsart:",
+    "CONTACT_INFO": "Kontaktinformationen",
+    "EMAIL": "E-Mail:",
+    "PHONE_NUMBER": "Telefonnummer:",
+    "SKILLS": "Skills",
+    "NO_SKILLS": "Keine Fähigkeiten angegeben",
+    "COMMENTS": "Kommentare",
+    "ADD_COMMENT": "Kommentar hinzufügen",
+    "COMMENT_PLACEHOLDER": "Schreiben Sie einen Kommentar...",
+    "SEARCH_COMMENTS": "Kommentare durchsuchen...",
+    "ALL_AUTHORS": "Alle Autoren",
+    "FROM": "Von:",
+    "TO": "Bis:",
+    "NO_COMMENTS": "Keine Kommentare vorhanden."
   }
 } 
