@@ -157,23 +157,48 @@ export class SkillEditComponent implements OnInit {
   startEditing(skill: SkillWithChildren) {
     skill.isEditing = true;
     skill.tempName = skill.name;
+   
+    setTimeout(() => {
+      const inputElement = document.querySelector('.edit-input') as HTMLInputElement;
+      if (inputElement) {
+        inputElement.focus();
+        inputElement.select();
+      }
+    }, 100);
   }
 
   saveEdit(skill: SkillWithChildren) {
     if (skill.tempName && skill.tempName.trim() !== '') {
-      skill.name = skill.tempName.trim();
+      const newName = skill.tempName.trim();
+      
+      if (newName === skill.name) {
+        skill.isEditing = false;
+        skill.tempName = '';
+        return;
+      }
+      
+      // Update the skill name
+      skill.name = newName;
       this.skillService.updateSkill(skill._id, { name: skill.name }).subscribe({
-        next: () => {
+        next: (updatedSkill) => {
           skill.isEditing = false;
           skill.tempName = '';
+          console.log('Skill updated successfully:', updatedSkill);
+          
+          // Reload skills
+          this.loadSkills();
         },
         error: (error: any) => {
           console.error('Error updating skill:', error);
-          skill.tempName = skill.name; // Reset to original name
+          // Revert to original name on error
+          skill.name = skill.tempName || skill.name;
+          skill.tempName = skill.name;
+          skill.isEditing = false;
         }
       });
     } else {
-      skill.tempName = skill.name; // Reset to original name
+      // Empty name - revert to original
+      skill.tempName = skill.name;
       skill.isEditing = false;
     }
   }

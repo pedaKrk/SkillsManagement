@@ -34,13 +34,31 @@ export const createSkill = async (req, res) => {
 }
 
 export const updateSkill = async (req, res) => {
+  const { id } = req.params
+  
   try {
-    const { id } = req.params
     const skillData = req.body
 
+    console.log(`Updating skill ${id} with data:`, skillData)
+    
+    // Get the skill before update to see current state
+    const skillBefore = await skillService.getSkillById(id)
+    console.log(`Skill ${id} before update:`, {
+      name: skillBefore.name,
+      children: skillBefore.children,
+      parent_id: skillBefore.parent_id
+    })
+    
     const updatedSkill = await skillService.updateSkill(id, skillData)
+    console.log(`Skill ${id} updated successfully:`, {
+      name: updatedSkill.name,
+      children: updatedSkill.children,
+      parent_id: updatedSkill.parent_id
+    })
+    
     res.status(200).json(updatedSkill)
   } catch (error) {
+    console.error(`Error updating skill ${id}:`, error)
     res.status(500).json({ message: 'Failed to update skill', error })
   }
 }

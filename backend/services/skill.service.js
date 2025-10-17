@@ -11,7 +11,7 @@ export const getAllSkills = async () => {
 
 export const getSkillById = async (id) => {
     try{
-        const skill = await skillRepository.findSkillById()
+        const skill = await skillRepository.findSkillById(id)
         if(!skill){
             throw new NotFoundError(`Skill with id ${id} not found`)
         }
@@ -47,14 +47,21 @@ export const updateSkill = async (id, data) => {
         const oldParentId = skill.parent_id
         const newParentId = data.parent_id
 
-        if (oldParentId !== newParentId) {
+        // Only handle hierarchy changes if parent_id is being changed
+        if (data.parent_id !== undefined && oldParentId !== newParentId) {
             await skillRepository.updateSkillHierarchy(id, newParentId, oldParentId)
+            return await skillRepository.findSkillById(id)
         } else {
-            const updated = await skillRepository.updateSkill(id, data)
+            
+            const updateData = { ...data }
+            delete updateData.children 
+            delete updateData._id 
+            delete updateData.createdAt 
+            delete updateData.updatedAt 
+            
+            const updated = await skillRepository.updateSkill(id, updateData)
             return updated
         }
-        
-        return await skillRepository.findSkillById(id)
     }catch(error){
         throw error
     }

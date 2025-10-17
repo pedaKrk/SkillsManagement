@@ -6,7 +6,22 @@ export const findSkillById = (id) => Skill.findById(id)
 
 export const createSkill = (data) => new Skill(data).save()
 
-export const updateSkill = (id, data) => Skill.findByIdAndUpdate(id, data, { new: true })
+export const updateSkill = (id, data) => {
+    // Create a copy of data without children to avoid overwriting
+    const updateData = { ...data }
+    if (!updateData.children) {
+        delete updateData.children
+    }
+    
+    return Skill.findByIdAndUpdate(
+        id, 
+        updateData, 
+        { 
+            new: true,
+            runValidators: true
+        }
+    )
+}
 
 export const deleteSkill = (id) => Skill.findByIdAndDelete(id)
 
