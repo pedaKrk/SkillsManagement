@@ -308,7 +308,14 @@ export class SkillEditComponent implements OnInit {
               }
               
               console.log('Extracted skill name:', skillName);
-              errorMessage = this.translateService.instant('SKILL_EDIT.DUPLICATE_NAME_ERROR', { skillName });
+              
+              // Use direct string interpolation instead of translation
+              const currentLang = this.translateService.currentLang || 'de';
+              if (currentLang === 'de') {
+                errorMessage = `Ein Skill mit dem Namen "${skillName}" existiert bereits. Bitte wählen Sie einen anderen Namen.`;
+              } else {
+                errorMessage = `A skill with the name "${skillName}" already exists. Please choose a different name.`;
+              }
             }
             
             this.dialogService.showError(
