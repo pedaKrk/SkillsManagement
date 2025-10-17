@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule } from '@angular/material/dialog';
-import { DialogService, ConfirmDialogConfig } from '../../core/services/dialog/dialog.service';
+import { DialogService, ConfirmDialogConfig, FormDialogConfig } from '../../core/services/dialog/dialog.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { SkillService } from '../../core/services/skill/skill.service';
@@ -239,23 +239,47 @@ export class SkillEditComponent implements OnInit {
   }
 
   addSkill(parentId?: string) {
-    const promptMessage = this.translateService.instant('SKILL_EDIT.ADD_SKILL_PROMPT');
-    const newSkillName = prompt(promptMessage);
-    if (newSkillName && newSkillName.trim() !== '') {
-      const skillData = {
-        name: newSkillName.trim(),
-        parent_id: parentId || null
-      };
-      
-      this.skillService.createSkill(skillData).subscribe({
-        next: () => {
-          this.loadSkills(); // Reload skills after creation
-        },
-        error: (error: any) => {
-          console.error('Error creating skill:', error);
+    const dialogTitle = parentId 
+      ? this.translateService.instant('SKILL_EDIT.ADD_CHILD_SKILL') 
+      : this.translateService.instant('SKILL_EDIT.ADD_ROOT_SKILL');
+    
+    const formConfig: FormDialogConfig = {
+      title: dialogTitle,
+      message: this.translateService.instant('SKILL_EDIT.ADD_SKILL_PROMPT'),
+      formFields: [
+        {
+          id: 'skillName',
+          name: 'skillName',
+          label: this.translateService.instant('SKILL_EDIT.SKILL_NAME_PLACEHOLDER'),
+          type: 'text',
+          required: true,
+          placeholder: this.translateService.instant('SKILL_EDIT.SKILL_NAME_PLACEHOLDER')
         }
-      });
-    }
+      ],
+      submitText: this.translateService.instant('COMMON.ADD') || 'Hinzufügen',
+      cancelText: this.translateService.instant('COMMON.CANCEL'),
+      closeOnBackdropClick: false
+    };
+    
+    this.dialogService.showFormDialog(formConfig).subscribe(result => {
+      if (result && result.skillName && result.skillName.trim() !== '') {
+        const skillData = {
+          name: result.skillName.trim(),
+          parent_id: parentId || null
+        };
+        
+        console.log('Creating skill with data:', skillData);
+        
+        this.skillService.createSkill(skillData).subscribe({
+          next: () => {
+            this.loadSkills(); // Reload skills after creation
+          },
+          error: (error: any) => {
+            console.error('Error creating skill:', error);
+          }
+        });
+      }
+    });
   }
 
   goBack() {

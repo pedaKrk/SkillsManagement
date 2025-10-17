@@ -345,6 +345,7 @@
     "EXPAND_ALL": "Alle öffnen",
     "COLLAPSE_ALL": "Alle schließen",
     "ADD_ROOT_SKILL": "Root-Skill hinzufügen",
+    "ADD_CHILD_SKILL": "Unterkategorie hinzufügen",
     "DELETE_CONFIRMATION": "Skill löschen",
     "DELETE_MESSAGE": "Möchten Sie \"{skillName}\" wirklich löschen? Alle Unterkategorien werden ebenfalls gelöscht.",
     "ADD_SKILL_PROMPT": "Name des neuen Skills:",
@@ -352,6 +353,8 @@
   },
   "COMMON": {
     "CANCEL": "Abbrechen",
-    "DELETE": "Löschen"
+    "DELETE": "Löschen",
+    "ADD": "Hinzufügen",
+    "REQUIRED_FIELD": "Pflichtfeld"
   }
 } 

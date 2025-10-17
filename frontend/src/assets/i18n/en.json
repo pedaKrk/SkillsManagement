@@ -350,6 +350,7 @@
     "EXPAND_ALL": "Expand all",
     "COLLAPSE_ALL": "Collapse all",
     "ADD_ROOT_SKILL": "Add Root Skill",
+    "ADD_CHILD_SKILL": "Add Subcategory",
     "DELETE_CONFIRMATION": "Delete Skill",
     "DELETE_MESSAGE": "Do you really want to delete \"{skillName}\"? All subcategories will also be deleted.",
     "ADD_SKILL_PROMPT": "Name of the new skill:",
@@ -357,6 +358,8 @@
   },
   "COMMON": {
     "CANCEL": "Cancel",
-    "DELETE": "Delete"
+    "DELETE": "Delete",
+    "ADD": "Add",
+    "REQUIRED_FIELD": "Required field"
   }
 } 
