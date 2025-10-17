@@ -8,6 +8,7 @@ import { Skill } from '../../models/skill.model';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { PdfService } from '../../core/services/pdf/pdf.service';
 import { TranslateModule } from '@ngx-translate/core';
+import { UserRole } from '../../models/enums/user-roles.enum';
 
 interface SkillWithChildren extends Skill {
   children?: SkillWithChildren[];
@@ -44,6 +45,7 @@ export class MainPageComponent implements OnInit {
   skillTree: SkillWithChildren[] = [];
   isAllExpanded = false;
   currentUser: any = null;
+  isAdmin = false;
 
   constructor(
     private skillService: SkillService,
@@ -59,10 +61,13 @@ export class MainPageComponent implements OnInit {
 
   loadCurrentUser() {
     const authUser = this.authService.currentUserValue;
+    console.log('Auth User:', authUser);
     if (authUser) {
       this.userService.getUserProfile().subscribe({
         next: (userProfile) => {
+          console.log('User Profile:', userProfile);
           this.currentUser = userProfile;
+          this.isAdmin = userProfile && (userProfile.role === UserRole.ADMIN || userProfile.role === UserRole.COMPETENCE_LEADER);
         },
         error: (error) => {
           console.error('Error loading user profile:', error);
@@ -74,6 +79,7 @@ export class MainPageComponent implements OnInit {
   private loadSkills() {
     this.skillService.getAllSkills().subscribe({
       next: (skills: Skill[]) => {
+        console.log('Received skills:', skills);
         this.skillTree = this.buildHierarchy(skills);
       },
       error: (error) => {
