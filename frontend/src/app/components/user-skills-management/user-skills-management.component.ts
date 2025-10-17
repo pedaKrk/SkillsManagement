@@ -125,9 +125,22 @@ export class UserSkillsManagementComponent implements OnInit {
    * Filter out already assigned skills from the list of available skills
    */
   private filterOutAssignedSkills(allSkills: Skill[]): Skill[] {
-    return allSkills.filter(skill =>
-      !this.selectedSkills.some(selectedSkill => selectedSkill.skill._id === skill._id)
-    );
+    return allSkills.filter(skill => {
+      // Check if skill and its properties exist
+      if (!skill || !skill._id) {
+        console.warn('Invalid skill found:', skill);
+        return false;
+      }
+      
+      return !this.selectedSkills.some(selectedSkill => {
+        // Check if selectedSkill and its skill property exist
+        if (!selectedSkill || !selectedSkill.skill || !selectedSkill.skill._id) {
+          console.warn('Invalid selectedSkill found:', selectedSkill);
+          return false;
+        }
+        return selectedSkill.skill._id === skill._id;
+      });
+    });
   }
 
   // Retry loading skills

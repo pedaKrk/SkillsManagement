@@ -27,8 +27,8 @@
           </div>
           <div class="selected-skills-list">
             <div class="skill-card" *ngFor="let skill of selectedSkills">
-              <div class="skill-header">
-                <span class="skill-name">{{ skill.skill.name }}</span>
+              <div class="skill-header" *ngIf="skill && skill.skill">
+                <span class="skill-name">{{ skill.skill.name || 'Unknown Skill' }}</span>
                 <button
                   class="btn-remove-skill"
                   (click)="removeSkillWithConfirmation(skill.skill._id)"
@@ -39,7 +39,7 @@
               </div>
 
               <!-- Level Dropdown -->
-              <div class="level-selector-container" *ngIf="skill.levelHistory && skill.levelHistory.length > 0">
+              <div class="level-selector-container" *ngIf="skill && skill.skill && skill.levelHistory && skill.levelHistory.length > 0">
                 <div class="current-level-display clickable" (click)="skillLevelDropdownState[skill.skill._id] = !skillLevelDropdownState[skill.skill._id]">
                   <span class="level-badge" [ngClass]="skill.levelHistory[skill.levelHistory.length - 1].level.toLowerCase()">
                     {{ 'SKILL_LEVELS.' + skill.levelHistory[skill.levelHistory.length - 1].level | translate }}
@@ -53,8 +53,8 @@
                   </div>
                 </div>
                 
-                <div class="level-dropdown" *ngIf="skillLevelDropdownState[skill.skill._id]">
-                  <div *ngFor="let level of skillLevels" class="level-option" (click)="setSkillLevel(skill, level); skillLevelDropdownState[skill.skill._id] = false">
+                <div class="level-dropdown" *ngIf="skill && skill.skill && skillLevelDropdownState[skill.skill._id]">
+                  <div *ngFor="let level of skillLevels" class="level-option" (click)="setSkillLevel(skill, level); skillLevelDropdownState[skill.skill._id] = false" *ngIf="skill && skill.skill">
                     {{ 'SKILL_LEVELS.' + level | translate }}
                   </div>
                 </div>
