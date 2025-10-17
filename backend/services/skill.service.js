@@ -24,6 +24,12 @@ export const getSkillById = async (id) => {
 
 export const createSkill = async (data) => {
     try{
+        // Check if skill name already exists
+        const existingSkill = await skillRepository.findSkillByName(data.name)
+        if (existingSkill) {
+            throw new Error(`A skill with the name "${data.name}" already exists. Please choose a different name.`)
+        }
+        
         const newSkill = await skillRepository.createSkill(data)
         
         // if parent exist

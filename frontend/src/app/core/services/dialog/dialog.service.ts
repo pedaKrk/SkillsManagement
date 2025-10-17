@@ -30,6 +30,7 @@ export interface FormDialogConfig extends DialogConfig {
 export interface DialogState {
   confirmDialogs: ConfirmDialogConfig[];
   successDialogs: SuccessDialogConfig[];
+  errorDialogs: SuccessDialogConfig[];
   formDialogs: FormDialogConfig[];
   activeDialogId: string | null;
 }
@@ -44,6 +45,7 @@ export class DialogService {
   private dialogStateSubject = new BehaviorSubject<DialogState>({
     confirmDialogs: [],
     successDialogs: [],
+    errorDialogs: [],
     formDialogs: [],
     activeDialogId: null
   });
@@ -120,16 +122,34 @@ export class DialogService {
   }
   
   /**
-   * Shows an error dialog (uses the same dialog as success, but with different styles)
-   * @param config Configuration for the dialog
+   * Shows an error dialog
+   * @param title Title of the error dialog
+   * @param message Error message
    * @returns Observable, that returns completed when the dialog is closed
    */
   showError(title: string, message: string): Observable<void> {
-    return this.showSuccess({
-      title,
-      message,
-      buttonText: 'OK'
+    const dialogId = this.generateDialogId();
+    const dialogConfig: SuccessDialogConfig = {
+      id: dialogId,
+      title: title,
+      message: message,
+      buttonText: 'OK',
+      closeOnBackdropClick: true
+    };
+    
+    // create result subject
+    const resultSubject = new BehaviorSubject<void>(undefined);
+    this.dialogResults[dialogId] = resultSubject;
+    
+    // add dialog to state
+    const currentState = this.dialogStateSubject.value;
+    this.dialogStateSubject.next({
+      ...currentState,
+      errorDialogs: [...currentState.errorDialogs, dialogConfig],
+      activeDialogId: dialogId
     });
+    
+    return resultSubject.asObservable();
   }
 
   /**
@@ -203,6 +223,7 @@ export class DialogService {
     this.dialogStateSubject.next({
       confirmDialogs: currentState.confirmDialogs.filter(dialog => dialog.id !== dialogId),
       successDialogs: currentState.successDialogs.filter(dialog => dialog.id !== dialogId),
+      errorDialogs: currentState.errorDialogs.filter(dialog => dialog.id !== dialogId),
       formDialogs: currentState.formDialogs.filter(dialog => dialog.id !== dialogId),
       activeDialogId: currentState.activeDialogId === dialogId ? null : currentState.activeDialogId
     });

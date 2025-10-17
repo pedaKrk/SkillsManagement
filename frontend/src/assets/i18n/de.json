@@ -349,7 +349,9 @@
     "DELETE_CONFIRMATION": "Skill löschen",
     "DELETE_MESSAGE": "Möchten Sie \"{skillName}\" wirklich löschen? Alle Unterkategorien werden ebenfalls gelöscht.",
     "ADD_SKILL_PROMPT": "Name des neuen Skills:",
-    "SKILL_NAME_PLACEHOLDER": "Skill-Name eingeben..."
+    "SKILL_NAME_PLACEHOLDER": "Skill-Name eingeben...",
+    "ERROR_TITLE": "Fehler beim Erstellen des Skills",
+    "DUPLICATE_NAME_ERROR": "Ein Skill mit dem Namen \"{skillName}\" existiert bereits. Bitte wählen Sie einen anderen Namen."
   },
   "COMMON": {
     "CANCEL": "Abbrechen",

@@ -4,6 +4,8 @@ export const findAllSkills = () => Skill.find()
 
 export const findSkillById = (id) => Skill.findById(id)
 
+export const findSkillByName = (name) => Skill.findOne({ name: name })
+
 export const createSkill = (data) => new Skill(data).save()
 
 export const updateSkill = (id, data) => {

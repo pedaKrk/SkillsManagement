@@ -29,7 +29,14 @@ export const createSkill = async (req, res) => {
     const newSkill= await skillService.createSkill(skillData)
     res.status(201).json(newSkill)
   } catch (error) {
-    res.status(500).json({ message: 'Failed to create skill', error })
+    console.error('Error creating skill:', error);
+    
+    // Check if it's a duplicate name error
+    if (error.message && error.message.includes('already exists')) {
+      res.status(400).json({ message: error.message })
+    } else {
+      res.status(500).json({ message: 'Failed to create skill', error: error.message })
+    }
   }
 }
 

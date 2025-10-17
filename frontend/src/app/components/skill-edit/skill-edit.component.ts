@@ -276,6 +276,45 @@ export class SkillEditComponent implements OnInit {
           },
           error: (error: any) => {
             console.error('Error creating skill:', error);
+            
+            // Show error message to user
+            let errorMessage = 'Ein Fehler ist aufgetreten beim Erstellen des Skills.';
+            
+            // Extract error message from different possible locations
+            if (error.error && error.error.message) {
+              errorMessage = error.error.message;
+            } else if (error.message) {
+              errorMessage = error.message;
+            }
+            
+            console.log('Full error object:', error);
+            console.log('Extracted error message:', errorMessage);
+            
+            // Translate error message if it's about duplicate names
+            if (errorMessage.includes('already exists')) {
+              // Try different patterns to extract the skill name
+              let skillName = 'diesen Namen';
+              
+              // Pattern 1: "A skill with the name 'JavaScript' already exists"
+              const match1 = errorMessage.match(/name ['"]([^'"]+)['"]/);
+              if (match1) {
+                skillName = match1[1];
+              } else {
+                // Pattern 2: Any text in quotes (fallback)
+                const match2 = errorMessage.match(/['"]([^'"]+)['"]/);
+                if (match2) {
+                  skillName = match2[1];
+                }
+              }
+              
+              console.log('Extracted skill name:', skillName);
+              errorMessage = this.translateService.instant('SKILL_EDIT.DUPLICATE_NAME_ERROR', { skillName });
+            }
+            
+            this.dialogService.showError(
+              this.translateService.instant('SKILL_EDIT.ERROR_TITLE'),
+              errorMessage
+            ).subscribe();
           }
         });
       }

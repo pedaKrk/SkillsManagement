@@ -354,7 +354,9 @@
     "DELETE_CONFIRMATION": "Delete Skill",
     "DELETE_MESSAGE": "Do you really want to delete \"{skillName}\"? All subcategories will also be deleted.",
     "ADD_SKILL_PROMPT": "Name of the new skill:",
-    "SKILL_NAME_PLACEHOLDER": "Enter skill name..."
+    "SKILL_NAME_PLACEHOLDER": "Enter skill name...",
+    "ERROR_TITLE": "Error Creating Skill",
+    "DUPLICATE_NAME_ERROR": "A skill with the name \"{skillName}\" already exists. Please choose a different name."
   },
   "COMMON": {
     "CANCEL": "Cancel",
