@@ -16,6 +16,7 @@ import { DashboardComponent } from './components/future-skills/dashboard/dashboa
 import { MainPageComponent } from './components/main-page/main-page.component';
 import { ManageProgressComponent } from './components/future-skills/manage-progress/manage-progress.component';
 import { InactiveUsersComponent } from './components/inactive-users/inactive-users.component';
+import { SkillEditComponent } from './components/skill-edit/skill-edit.component';
 import { NoAuthGuard } from './core/guards/no-auth.guard';
 
 export const routes: Routes = [
@@ -35,6 +36,7 @@ export const routes: Routes = [
     { path: 'future-skills/plan', component: PlanComponent, canActivate: [AuthGuard, FutureSkillsGuard] },
     { path: 'future-skills/progress', component: ManageProgressComponent, canActivate: [AuthGuard, FutureSkillsGuard] },
     { path: 'inactive-users', component: InactiveUsersComponent, canActivate: [AuthGuard, FutureSkillsGuard] },
+    { path: 'skill-edit', component: SkillEditComponent, canActivate: [AuthGuard, AdminGuard] },
     {
         path: 'profile/skills',
         component: UserSkillsManagementComponent,

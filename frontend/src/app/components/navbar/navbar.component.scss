@@ -131,7 +131,7 @@
   height: 100%;
 
   .nav-item {
-    margin: 0 0.75rem;
+    margin: 0 0.5rem;
     position: relative;
     display: flex;
     align-items: center;
@@ -156,13 +156,15 @@
   .nav-link {
     color: white;
     text-decoration: none;
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 0.5rem;
     border-radius: 4px;
     transition: all 0.3s ease;
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     display: flex;
     align-items: center;
     height: 100%;
+    white-space: nowrap;
+    text-align: center;
 
     &:hover {
       color: rgba(255, 255, 255, 0.8);
@@ -187,6 +189,12 @@
         transform: none;
         color: white;
       }
+    }
+
+    // Spezielle Behandlung für längere Texte
+    &[href*="skill-edit"] {
+      font-size: 0.85rem;
+      padding: 0.5rem 0.4rem;
     }
   }
 }

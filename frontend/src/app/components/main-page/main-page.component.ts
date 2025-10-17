@@ -59,11 +59,9 @@ export class MainPageComponent implements OnInit {
 
   loadCurrentUser() {
     const authUser = this.authService.currentUserValue;
-    console.log('Auth User:', authUser);
     if (authUser) {
       this.userService.getUserProfile().subscribe({
         next: (userProfile) => {
-          console.log('User Profile:', userProfile);
           this.currentUser = userProfile;
         },
         error: (error) => {
@@ -76,7 +74,6 @@ export class MainPageComponent implements OnInit {
   private loadSkills() {
     this.skillService.getAllSkills().subscribe({
       next: (skills: Skill[]) => {
-        console.log('Received skills:', skills);
         this.skillTree = this.buildHierarchy(skills);
       },
       error: (error) => {
@@ -122,6 +119,7 @@ export class MainPageComponent implements OnInit {
       }
     });
   }
+
 
   exportSkillTreeAsPDF() {
     this.pdfService.generateSkillTreePDF();

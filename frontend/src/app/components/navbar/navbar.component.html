@@ -25,6 +25,9 @@
         <li class="nav-item" *ngIf="isAdmin">
           <a class="nav-link" [routerLink]="['/admin/add-user']" routerLinkActive="active" (click)="closeMenu()">{{ 'NAVIGATION.ADD_USER' | translate }}</a>
         </li>
+        <li class="nav-item" *ngIf="isAdmin || isCompetenceLeader">
+          <a class="nav-link" [routerLink]="['/skill-edit']" routerLinkActive="active" (click)="closeMenu()">{{ 'NAVIGATION.EDIT_SKILLS' | translate }}</a>
+        </li>
         <!-- Inactive Users Notification -->
         <li class="nav-item" *ngIf="isAdmin || isCompetenceLeader">
           <a class="nav-link position-relative" [routerLink]="['/inactive-users']" routerLinkActive="active" (click)="closeMenu()">
