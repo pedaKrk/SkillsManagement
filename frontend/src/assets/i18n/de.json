@@ -223,6 +223,7 @@
     "ENGLISH": "Englisch",
     "MAIN_PAGE": "Hauptseite",
     "MANAGE_SKILLS": "Skills verwalten",
+    "EDIT_SKILLS": "Skills bearbeiten",
     "ADD_USER": "BenutzerIn hinzufügen",
     "NEW_REGISTRATIONS": "Neuanmeldungen",
     "USER_OVERVIEW": "Benutzer Übersicht",
@@ -330,5 +331,23 @@
     "PASSWORD_MISMATCH": "Passwörter stimmen nicht überein",
     "SUBMIT": "Passwort ändern",
     "SUBMIT_LOADING": "Wird geändert..."
+  },
+  "SKILL_EDIT": {
+    "TITLE": "Skills bearbeiten",
+    "DESCRIPTION": "Verwalten Sie die Skill-Hierarchie. Erstellen, bearbeiten und löschen Sie Skills und deren Unterkategorien.",
+    "SHOW_TUTORIAL": "Tutorial anzeigen",
+    "SIMPLE_HELP": "Bewegen Sie die Maus über die Skills, um die Bearbeitungsoptionen zu sehen.",
+    "QUICK_GUIDE_TITLE": "Schnellhilfe - Skills bearbeiten",
+    "HOVER_TIP": "Bewegen Sie die Maus über die Skills, um die verfügbaren Aktionen zu sehen.",
+    "GUIDE_EDIT": "Skill bearbeiten",
+    "GUIDE_ADD": "Unterkategorie hinzufügen",
+    "GUIDE_DELETE": "Skill löschen",
+    "EXPAND_ALL": "Alle öffnen",
+    "COLLAPSE_ALL": "Alle schließen",
+    "ADD_ROOT_SKILL": "Root-Skill hinzufügen",
+    "DELETE_CONFIRMATION": "Skill löschen",
+    "DELETE_MESSAGE": "Möchten Sie \"{skillName}\" wirklich löschen? Alle Unterkategorien werden ebenfalls gelöscht.",
+    "ADD_SKILL_PROMPT": "Name des neuen Skills:",
+    "SKILL_NAME_PLACEHOLDER": "Skill-Name eingeben..."
   }
 } 

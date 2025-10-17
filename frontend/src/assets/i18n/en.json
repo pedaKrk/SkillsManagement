@@ -224,6 +224,7 @@
     "ENGLISH": "English",
     "MAIN_PAGE": "Main Page",
     "MANAGE_SKILLS": "Manage Skills",
+    "EDIT_SKILLS": "Edit Skills",
     "ADD_USER": "Add New User",
     "NEW_REGISTRATIONS": "New Registrations",
     "USER_OVERVIEW": "User Overview",
@@ -335,5 +336,23 @@
     "PASSWORD_MISMATCH": "Passwords do not match",
     "SUBMIT": "Change Password",
     "SUBMIT_LOADING": "Changing..."
+  },
+  "SKILL_EDIT": {
+    "TITLE": "Edit Skills",
+    "DESCRIPTION": "Manage the skill hierarchy. Create, edit and delete skills and their subcategories.",
+    "SHOW_TUTORIAL": "Show Tutorial",
+    "SIMPLE_HELP": "Hover over the skills to see the editing options.",
+    "QUICK_GUIDE_TITLE": "Quick Guide - Edit Skills",
+    "HOVER_TIP": "Hover over the skills to see the available actions.",
+    "GUIDE_EDIT": "Edit skill",
+    "GUIDE_ADD": "Add subcategory",
+    "GUIDE_DELETE": "Delete skill",
+    "EXPAND_ALL": "Expand all",
+    "COLLAPSE_ALL": "Collapse all",
+    "ADD_ROOT_SKILL": "Add Root Skill",
+    "DELETE_CONFIRMATION": "Delete Skill",
+    "DELETE_MESSAGE": "Do you really want to delete \"{skillName}\"? All subcategories will also be deleted.",
+    "ADD_SKILL_PROMPT": "Name of the new skill:",
+    "SKILL_NAME_PLACEHOLDER": "Enter skill name..."
   }
 } 

@@ -12,7 +12,7 @@ import { SkillService } from '../../core/services/skill/skill.service';
 import { UserService } from '../../core/services/user/user.service';
 import { Skill } from '../../models/skill.model';
 import { AuthService } from '../../core/services/auth/auth.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { UserRole } from '../../models/enums/user-roles.enum';
 import { Router } from '@angular/router';
 
@@ -68,7 +68,8 @@ export class SkillEditComponent implements OnInit {
     private authService: AuthService,
     private userService: UserService,
     private dialog: MatDialog,
-    private router: Router
+    private router: Router,
+    private translateService: TranslateService
   ) {}
 
   ngOnInit() {
@@ -183,7 +184,8 @@ export class SkillEditComponent implements OnInit {
   }
 
   deleteSkill(skill: SkillWithChildren) {
-    if (confirm(`Möchten Sie "${skill.name}" wirklich löschen? Alle Unterkategorien werden ebenfalls gelöscht.`)) {
+    const deleteMessage = this.translateService.instant('SKILL_EDIT.DELETE_MESSAGE', { skillName: skill.name });
+    if (confirm(deleteMessage)) {
       this.skillService.deleteSkill(skill._id).subscribe({
         next: () => {
           this.loadSkills(); // Reload skills after deletion
@@ -196,7 +198,8 @@ export class SkillEditComponent implements OnInit {
   }
 
   addSkill(parentId?: string) {
-    const newSkillName = prompt('Name des neuen Skills:');
+    const promptMessage = this.translateService.instant('SKILL_EDIT.ADD_SKILL_PROMPT');
+    const newSkillName = prompt(promptMessage);
     if (newSkillName && newSkillName.trim() !== '') {
       const skillData = {
         name: newSkillName.trim(),

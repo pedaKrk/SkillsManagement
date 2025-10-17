@@ -9,7 +9,7 @@ import { startWith, switchMap } from 'rxjs/operators';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { ClickOutsideDirective } from '../../shared/directives/click-outside.directive';
 import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-navbar',
@@ -35,7 +35,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private userService: UserService,
     private router: Router,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private translateService: TranslateService
   ) {
     this.subscription.add(
       this.notificationService.inactiveUsersCountChanged$.subscribe(() => {
@@ -75,7 +76,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (this.isAdmin || this.isCompetenceLeader) {
       this.userService.getInactiveUsersCount().subscribe(
         count => this.inactiveUsersCount = count,
-        error => console.error('Fehler beim Laden der inaktiven Benutzer:', error)
+        error => console.error('Error loading inactive users:', error)
       );
     }
   }
@@ -136,7 +137,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     event.stopPropagation();
 
     if (this.userId) {
-      console.log('Navigiere zur Profilbearbeitungsseite für Benutzer:', this.userId);
+      console.log('Navigate to profile edit page for user:', this.userId);
 
       // Explicit navigation to the edit path
       const url = `/users/${this.userId}/edit`;
@@ -148,7 +149,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       // Navigate to the edit path
       this.router.navigateByUrl(url);
     } else {
-      console.error('Keine Benutzer-ID verfügbar');
+      console.error('No user ID available');
     }
   }
 
