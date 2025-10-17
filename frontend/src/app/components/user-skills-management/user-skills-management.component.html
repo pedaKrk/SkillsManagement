@@ -54,7 +54,7 @@
                 </div>
                 
                 <div class="level-dropdown" *ngIf="skill && skill.skill && skillLevelDropdownState[skill.skill._id]">
-                  <div *ngFor="let level of skillLevels" class="level-option" (click)="setSkillLevel(skill, level); skillLevelDropdownState[skill.skill._id] = false" *ngIf="skill && skill.skill">
+                  <div *ngFor="let level of skillLevels" class="level-option" (click)="setSkillLevel(skill, level); skillLevelDropdownState[skill.skill._id] = false">
                     {{ 'SKILL_LEVELS.' + level | translate }}
                   </div>
                 </div>
