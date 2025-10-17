@@ -103,15 +103,121 @@ export class SkillEditComponent implements OnInit {
   }
 
   private loadSkills() {
+    // Save current expansion states
+    const expansionStates = this.saveExpansionStates();
+    
     this.skillService.getAllSkills().subscribe({
       next: (skills: Skill[]) => {
         console.log('Received skills:', skills);
         this.skillTree = this.buildHierarchy(skills);
+        // Restore expansion states
+        this.restoreExpansionStates(expansionStates);
       },
       error: (error) => {
         console.error('Error fetching skills:', error);
       }
     });
+  }
+
+  private saveExpansionStates(): { [id: string]: boolean } {
+    const states: { [id: string]: boolean } = {};
+    
+    const saveStatesRecursive = (skills: SkillWithChildren[]) => {
+      skills.forEach(skill => {
+        if (skill.isExpanded !== undefined) {
+          states[skill._id] = skill.isExpanded;
+        }
+        if (skill.children) {
+          saveStatesRecursive(skill.children);
+        }
+      });
+    };
+    
+    saveStatesRecursive(this.skillTree);
+    return states;
+  }
+
+  private restoreExpansionStates(states: { [id: string]: boolean }) {
+    const restoreStatesRecursive = (skills: SkillWithChildren[]) => {
+      skills.forEach(skill => {
+        if (states[skill._id] !== undefined) {
+          skill.isExpanded = states[skill._id];
+        }
+        if (skill.children) {
+          restoreStatesRecursive(skill.children);
+        }
+      });
+    };
+    
+    restoreStatesRecursive(this.skillTree);
+  }
+
+  private scrollToNewSkill(skillName: string) {
+    console.log('Looking for skill:', skillName);
+    
+    // Try multiple times with increasing delays to ensure DOM is updated
+    const tryScroll = (attempt: number = 1) => {
+      console.log(`Scroll attempt ${attempt} for skill: ${skillName}`);
+      
+      // Find the skill element by name - try different selectors
+      const selectors = [
+        '.skill-content span',  // Root skills: <span>{{ root.name }}</span>
+        '.skill-content .skill-name',  // Child skills might have .skill-name
+        '.skill-name',
+        '.root-node span',
+        '.skill-row span',
+        '.skill-content'  // Fallback to the entire skill-content div
+      ];
+      
+      let targetElement: Element | null = null;
+      
+      for (const selector of selectors) {
+        const skillElements = document.querySelectorAll(selector);
+        console.log(`Found ${skillElements.length} elements with selector: ${selector}`);
+        
+        for (let i = 0; i < skillElements.length; i++) {
+          const element = skillElements[i];
+          const elementText = element.textContent?.trim();
+          console.log(`Element ${i}: "${elementText}"`);
+          
+          if (elementText === skillName) {
+            targetElement = element;
+            console.log('Found matching skill element!');
+            break;
+          }
+        }
+        
+        if (targetElement) break;
+      }
+      
+      if (targetElement) {
+        console.log('Scrolling to skill element');
+        // Scroll to the skill with smooth behavior
+        targetElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+        
+        // Add a temporary highlight effect
+        const skillRow = targetElement.closest('.skill-row, .child-grandchild-group, .skill-node');
+        if (skillRow) {
+          skillRow.classList.add('new-skill-highlight');
+          setTimeout(() => {
+            skillRow.classList.remove('new-skill-highlight');
+          }, 2000);
+        }
+      } else if (attempt < 5) {
+        // Try again after a longer delay
+        console.log(`Skill not found, retrying in ${attempt * 200}ms...`);
+        setTimeout(() => tryScroll(attempt + 1), attempt * 200);
+      } else {
+        console.log('Skill not found after 5 attempts');
+      }
+    };
+    
+    // Start trying after a short delay
+    setTimeout(() => tryScroll(), 100);
   }
 
   private buildHierarchy(skills: Skill[]): SkillWithChildren[] {
@@ -270,10 +376,27 @@ export class SkillEditComponent implements OnInit {
         
         console.log('Creating skill with data:', skillData);
         
-        this.skillService.createSkill(skillData).subscribe({
-          next: () => {
-            this.loadSkills(); // Reload skills after creation
-          },
+              this.skillService.createSkill(skillData).subscribe({
+                next: (newSkill) => {
+                  // Show success dialog
+                  const successMessage = parentId 
+                    ? this.translateService.instant('SKILL_EDIT.CHILD_SKILL_ADDED_SUCCESS')
+                    : this.translateService.instant('SKILL_EDIT.ROOT_SKILL_ADDED_SUCCESS');
+                  
+                  this.dialogService.showSuccess({
+                    title: this.translateService.instant('SKILL_EDIT.SUCCESS_TITLE'),
+                    message: successMessage,
+                    buttonText: this.translateService.instant('COMMON.OK') || 'OK',
+                    closeOnBackdropClick: true
+                  }).subscribe();
+                  
+                  this.loadSkills(); // Reload skills after creation
+                  
+                  // Scroll to the new skill after a short delay to allow DOM update
+                  setTimeout(() => {
+                    this.scrollToNewSkill(skillData.name);
+                  }, 100);
+                },
           error: (error: any) => {
             console.error('Error creating skill:', error);
             

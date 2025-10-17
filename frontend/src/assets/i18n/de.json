@@ -351,12 +351,16 @@
     "ADD_SKILL_PROMPT": "Name des neuen Skills:",
     "SKILL_NAME_PLACEHOLDER": "Skill-Name eingeben...",
     "ERROR_TITLE": "Fehler beim Erstellen des Skills",
-    "DUPLICATE_NAME_ERROR": "Ein Skill mit dem Namen \"{skillName}\" existiert bereits. Bitte wählen Sie einen anderen Namen."
+    "DUPLICATE_NAME_ERROR": "Ein Skill mit dem Namen \"{skillName}\" existiert bereits. Bitte wählen Sie einen anderen Namen.",
+    "SUCCESS_TITLE": "Erfolgreich",
+    "ROOT_SKILL_ADDED_SUCCESS": "Root-Skill wurde erfolgreich hinzugefügt!",
+    "CHILD_SKILL_ADDED_SUCCESS": "Child-Skill wurde erfolgreich hinzugefügt!"
   },
   "COMMON": {
     "CANCEL": "Abbrechen",
     "DELETE": "Löschen",
     "ADD": "Hinzufügen",
+    "OK": "OK",
     "REQUIRED_FIELD": "Pflichtfeld"
   }
 } 

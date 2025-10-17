@@ -356,12 +356,16 @@
     "ADD_SKILL_PROMPT": "Name of the new skill:",
     "SKILL_NAME_PLACEHOLDER": "Enter skill name...",
     "ERROR_TITLE": "Error Creating Skill",
-    "DUPLICATE_NAME_ERROR": "A skill with the name \"{skillName}\" already exists. Please choose a different name."
+    "DUPLICATE_NAME_ERROR": "A skill with the name \"{skillName}\" already exists. Please choose a different name.",
+    "SUCCESS_TITLE": "Success",
+    "ROOT_SKILL_ADDED_SUCCESS": "Root skill has been successfully added!",
+    "CHILD_SKILL_ADDED_SUCCESS": "Child skill has been successfully added!"
   },
   "COMMON": {
     "CANCEL": "Cancel",
     "DELETE": "Delete",
     "ADD": "Add",
+    "OK": "OK",
     "REQUIRED_FIELD": "Required field"
   }
 } 
