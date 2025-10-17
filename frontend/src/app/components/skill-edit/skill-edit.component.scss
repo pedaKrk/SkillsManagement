@@ -1,3 +1,4 @@
+// ===== CONTAINER & LAYOUT =====
 .skill-edit-container {
   min-height: 100vh;
   background: #f8f9fa;
@@ -49,6 +50,7 @@
   }
 }
 
+// ===== PAGE HEADER =====
 .page-header {
   display: flex;
   align-items: center;
@@ -89,7 +91,7 @@
   color: #495057;
 }
 
-// Simple Help Styles
+// ===== HELP SECTIONS =====
 .simple-help {
   margin-top: 15px;
 }
@@ -110,7 +112,6 @@
   }
 }
 
-// Detailed Help Styles
 .detailed-help {
   margin-top: 20px;
   animation: fadeIn 0.3s ease-out;
@@ -204,6 +205,7 @@
   }
 }
 
+// ===== CONTROLS =====
 .controls-section {
   margin-bottom: 0;
 }
@@ -261,6 +263,7 @@
   }
 }
 
+// ===== SKILL HIERARCHY =====
 .skill-hierarchy {
   background: white;
   border-radius: 15px;
@@ -303,6 +306,7 @@
   }
 }
 
+// ===== NODE TYPES =====
 .root-node {
   background: linear-gradient(135deg, #2E86C1, #1a5c87);
   color: white;
@@ -380,6 +384,7 @@
   }
 }
 
+// ===== CHILD/GRANDCHILD LAYOUT =====
 .child-grandchild-row {
   display: flex;
   flex-direction: column;
@@ -392,6 +397,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  margin-bottom: 8px;
 }
 
 .grandchildren {
@@ -399,29 +405,23 @@
   flex-direction: column;
   gap: 10px;
   padding-top: 5px;
-}
-
-.child-grandchild-group {
-  margin-bottom: 8px;
-}
-
-.grandchildren {
   margin-left: 20px;
   margin-top: 5px;
 }
 
-.expand-icon {
-  transition: transform 0.3s ease;
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
+// ===== SKILL CONTENT =====
+.skill-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 10px;
 }
 
-.expand-icon.expanded {
-  transform: rotate(180deg);
+.skill-content span {
+  flex: 1;
 }
 
-// Admin Actions
+// ===== ADMIN ACTIONS =====
 .admin-actions {
   display: flex;
   gap: 6px;
@@ -433,7 +433,17 @@
   opacity: 1;
 }
 
-.edit-btn {
+// Child node actions are always visible but slightly transparent
+.child-node .admin-actions {
+  opacity: 0.8;
+}
+
+.child-node:hover .admin-actions {
+  opacity: 1;
+}
+
+// ===== BUTTON STYLES =====
+.edit-btn, .add-btn, .delete-btn {
   background-color: rgba(255, 255, 255, 0.1) !important;
   color: rgba(255, 255, 255, 0.9) !important;
   border: 1px solid rgba(255, 255, 255, 0.3) !important;
@@ -464,66 +474,30 @@
   }
 }
 
-// Child node admin actions
-.child-node .edit-btn {
-  background-color: rgba(46, 134, 193, 0.1) !important;
-  color: #2E86C1 !important;
-  border: 1px solid rgba(46, 134, 193, 0.3) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  
-  &:hover {
-    background-color: rgba(46, 134, 193, 0.2) !important;
-    border-color: rgba(46, 134, 193, 0.5) !important;
-    color: #1a5c87 !important;
-  }
-  
-  mat-icon {
-    line-height: 1 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-}
-
-.child-node .add-btn {
-  background-color: rgba(46, 134, 193, 0.1) !important;
-  color: #2E86C1 !important;
-  border: 1px solid rgba(46, 134, 193, 0.3) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  
-  &:hover {
-    background-color: rgba(46, 134, 193, 0.2) !important;
-    border-color: rgba(46, 134, 193, 0.5) !important;
-    color: #1a5c87 !important;
-  }
-  
-  mat-icon {
-    line-height: 1 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-}
-
+// Child node buttons - more prominent
+.child-node .edit-btn,
+.child-node .add-btn,
 .child-node .delete-btn {
-  background-color: rgba(46, 134, 193, 0.1) !important;
+  background-color: rgba(46, 134, 193, 0.15) !important;
   color: #2E86C1 !important;
-  border: 1px solid rgba(46, 134, 193, 0.3) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  border: 2px solid rgba(46, 134, 193, 0.4) !important;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  box-shadow: 0 2px 4px rgba(46, 134, 193, 0.2) !important;
   
   &:hover {
-    background-color: rgba(46, 134, 193, 0.2) !important;
-    border-color: rgba(46, 134, 193, 0.5) !important;
+    background-color: rgba(46, 134, 193, 0.25) !important;
+    border-color: rgba(46, 134, 193, 0.6) !important;
     color: #1a5c87 !important;
+    transform: scale(1.05) !important;
+    box-shadow: 0 4px 8px rgba(46, 134, 193, 0.3) !important;
   }
   
   mat-icon {
+    font-size: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
     line-height: 1 !important;
     display: flex !important;
     align-items: center !important;
@@ -531,29 +505,8 @@
   }
 }
 
-// Grandchild node admin actions
-.grandchild-node .edit-btn {
-  background-color: rgba(108, 117, 125, 0.1) !important;
-  color: #6c757d !important;
-  border: 1px solid rgba(108, 117, 125, 0.3) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  
-  &:hover {
-    background-color: rgba(108, 117, 125, 0.2) !important;
-    border-color: rgba(108, 117, 125, 0.5) !important;
-    color: #495057 !important;
-  }
-  
-  mat-icon {
-    line-height: 1 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-}
-
+// Grandchild node buttons - less prominent
+.grandchild-node .edit-btn,
 .grandchild-node .delete-btn {
   background-color: rgba(108, 117, 125, 0.1) !important;
   color: #6c757d !important;
@@ -576,80 +529,7 @@
   }
 }
 
-.add-btn {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  color: rgba(255, 255, 255, 0.9) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  border-radius: 6px !important;
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
-  margin-right: 6px !important;
-  transition: all 0.2s ease !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.2) !important;
-    border-color: rgba(255, 255, 255, 0.5) !important;
-    color: white !important;
-  }
-  
-  mat-icon {
-    font-size: 18px !important;
-    width: 18px !important;
-    height: 18px !important;
-    line-height: 1 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-}
-
-.delete-btn {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  color: rgba(255, 255, 255, 0.9) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  border-radius: 6px !important;
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
-  transition: all 0.2s ease !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.2) !important;
-    border-color: rgba(255, 255, 255, 0.5) !important;
-    color: white !important;
-  }
-  
-  mat-icon {
-    font-size: 18px !important;
-    width: 18px !important;
-    height: 18px !important;
-    line-height: 1 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-}
-
-// Skill Content Layout
-.skill-content {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  gap: 10px;
-}
-
-.skill-content span {
-  flex: 1;
-}
-
-// Edit Mode Styles
+// ===== EDIT MODE =====
 .edit-container {
   display: flex;
   align-items: center;
@@ -695,11 +575,7 @@
   }
 }
 
-.skill-node .expand-icon {
-  transition: transform 0.3s ease;
-}
-
-// Responsive Design
+// ===== RESPONSIVE DESIGN =====
 @media (max-width: 768px) {
   .skill-edit-container {
     padding: 10px;
