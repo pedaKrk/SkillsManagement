@@ -5,7 +5,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
+import { DialogService, ConfirmDialogConfig } from '../../core/services/dialog/dialog.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { SkillService } from '../../core/services/skill/skill.service';
@@ -67,9 +68,9 @@ export class SkillEditComponent implements OnInit {
     private skillService: SkillService,
     private authService: AuthService,
     private userService: UserService,
-    private dialog: MatDialog,
     private router: Router,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private dialogService: DialogService
   ) {}
 
   ngOnInit() {
@@ -209,17 +210,32 @@ export class SkillEditComponent implements OnInit {
   }
 
   deleteSkill(skill: SkillWithChildren) {
-    const deleteMessage = this.translateService.instant('SKILL_EDIT.DELETE_MESSAGE', { skillName: skill.name });
-    if (confirm(deleteMessage)) {
-      this.skillService.deleteSkill(skill._id).subscribe({
-        next: () => {
-          this.loadSkills(); // Reload skills after deletion
-        },
-        error: (error: any) => {
-          console.error('Error deleting skill:', error);
-        }
-      });
-    }
+    const skillName = skill.name || 'Unknown Skill';
+    
+    const deleteMessageTemplate = this.translateService.instant('SKILL_EDIT.DELETE_MESSAGE');
+    const deleteMessage = deleteMessageTemplate.replace('{skillName}', skillName);
+    
+    const dialogConfig: ConfirmDialogConfig = {
+      title: this.translateService.instant('SKILL_EDIT.DELETE_CONFIRMATION'),
+      message: deleteMessage,
+      confirmText: this.translateService.instant('COMMON.DELETE'),
+      cancelText: this.translateService.instant('COMMON.CANCEL'),
+      dangerMode: true,
+      closeOnBackdropClick: false
+    };
+    
+    this.dialogService.showConfirmation(dialogConfig).subscribe(confirmed => {
+      if (confirmed) {
+        this.skillService.deleteSkill(skill._id).subscribe({
+          next: () => {
+            this.loadSkills(); // Reload skills after deletion
+          },
+          error: (error: any) => {
+            console.error('Error deleting skill:', error);
+          }
+        });
+      }
+    });
   }
 
   addSkill(parentId?: string) {

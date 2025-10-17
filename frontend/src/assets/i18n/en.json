@@ -354,5 +354,9 @@
     "DELETE_MESSAGE": "Do you really want to delete \"{skillName}\"? All subcategories will also be deleted.",
     "ADD_SKILL_PROMPT": "Name of the new skill:",
     "SKILL_NAME_PLACEHOLDER": "Enter skill name..."
+  },
+  "COMMON": {
+    "CANCEL": "Cancel",
+    "DELETE": "Delete"
   }
 } 

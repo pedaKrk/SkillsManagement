@@ -349,5 +349,9 @@
     "DELETE_MESSAGE": "Möchten Sie \"{skillName}\" wirklich löschen? Alle Unterkategorien werden ebenfalls gelöscht.",
     "ADD_SKILL_PROMPT": "Name des neuen Skills:",
     "SKILL_NAME_PLACEHOLDER": "Skill-Name eingeben..."
+  },
+  "COMMON": {
+    "CANCEL": "Abbrechen",
+    "DELETE": "Löschen"
   }
 } 
