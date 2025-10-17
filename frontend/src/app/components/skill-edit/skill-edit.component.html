@@ -89,20 +89,19 @@
           <!-- Normal Display -->
           <div *ngIf="!root.isEditing" class="skill-content">
             <span>{{ root.name }}</span>
+            <!-- Admin Actions -->
+            <div class="admin-actions">
+              <button mat-icon-button (click)="startEditing(root); $event.stopPropagation()" class="edit-btn">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="addSkill(root._id); $event.stopPropagation()" class="add-btn">
+                <mat-icon>add</mat-icon>
+              </button>
+              <button mat-icon-button (click)="deleteSkill(root); $event.stopPropagation()" class="delete-btn">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
             <mat-icon class="expand-icon" [class.expanded]="root.isExpanded">expand_more</mat-icon>
-          </div>
-          
-          <!-- Admin Actions -->
-          <div *ngIf="!root.isEditing" class="admin-actions">
-            <button mat-icon-button (click)="startEditing(root); $event.stopPropagation()" class="edit-btn">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button (click)="addSkill(root._id); $event.stopPropagation()" class="add-btn">
-              <mat-icon>add</mat-icon>
-            </button>
-            <button mat-icon-button (click)="deleteSkill(root); $event.stopPropagation()" class="delete-btn">
-              <mat-icon>delete</mat-icon>
-            </button>
           </div>
         </div>
       </div>
@@ -135,20 +134,19 @@
               <!-- Normal Display -->
               <div *ngIf="!child.isEditing" class="skill-content">
                 <span>{{ child.name }}</span>
+                <!-- Admin Actions -->
+                <div class="admin-actions">
+                  <button mat-icon-button (click)="startEditing(child); $event.stopPropagation()" class="edit-btn">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="addSkill(child._id); $event.stopPropagation()" class="add-btn">
+                    <mat-icon>add</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="deleteSkill(child); $event.stopPropagation()" class="delete-btn">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
                 <mat-icon *ngIf="child.children?.length" class="expand-icon" [class.expanded]="child.isExpanded">expand_more</mat-icon>
-              </div>
-              
-              <!-- Admin Actions -->
-              <div *ngIf="!child.isEditing" class="admin-actions">
-                <button mat-icon-button (click)="startEditing(child); $event.stopPropagation()" class="edit-btn">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button (click)="addSkill(child._id); $event.stopPropagation()" class="add-btn">
-                  <mat-icon>add</mat-icon>
-                </button>
-                <button mat-icon-button (click)="deleteSkill(child); $event.stopPropagation()" class="delete-btn">
-                  <mat-icon>delete</mat-icon>
-                </button>
               </div>
             </div>
             
@@ -178,16 +176,15 @@
                   <!-- Normal Display -->
                   <div *ngIf="!grandchild.isEditing" class="skill-content">
                     <span>{{ grandchild.name }}</span>
-                  </div>
-                  
-                  <!-- Admin Actions -->
-                  <div *ngIf="!grandchild.isEditing" class="admin-actions">
-                    <button mat-icon-button (click)="startEditing(grandchild); $event.stopPropagation()" class="edit-btn">
-                      <mat-icon>edit</mat-icon>
-                    </button>
-                    <button mat-icon-button (click)="deleteSkill(grandchild); $event.stopPropagation()" class="delete-btn">
-                      <mat-icon>delete</mat-icon>
-                    </button>
+                    <!-- Admin Actions -->
+                    <div class="admin-actions">
+                      <button mat-icon-button (click)="startEditing(grandchild); $event.stopPropagation()" class="edit-btn">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button (click)="deleteSkill(grandchild); $event.stopPropagation()" class="delete-btn">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </ng-container>

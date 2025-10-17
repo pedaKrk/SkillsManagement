@@ -425,7 +425,6 @@
 .admin-actions {
   display: flex;
   gap: 6px;
-  margin-left: auto;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -444,6 +443,9 @@
   min-width: 32px !important;
   margin-right: 6px !important;
   transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   
   &:hover {
     background-color: rgba(255, 255, 255, 0.2) !important;
@@ -455,6 +457,122 @@
     font-size: 18px !important;
     width: 18px !important;
     height: 18px !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+// Child node admin actions
+.child-node .edit-btn {
+  background-color: rgba(46, 134, 193, 0.1) !important;
+  color: #2E86C1 !important;
+  border: 1px solid rgba(46, 134, 193, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  
+  &:hover {
+    background-color: rgba(46, 134, 193, 0.2) !important;
+    border-color: rgba(46, 134, 193, 0.5) !important;
+    color: #1a5c87 !important;
+  }
+  
+  mat-icon {
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+.child-node .add-btn {
+  background-color: rgba(46, 134, 193, 0.1) !important;
+  color: #2E86C1 !important;
+  border: 1px solid rgba(46, 134, 193, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  
+  &:hover {
+    background-color: rgba(46, 134, 193, 0.2) !important;
+    border-color: rgba(46, 134, 193, 0.5) !important;
+    color: #1a5c87 !important;
+  }
+  
+  mat-icon {
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+.child-node .delete-btn {
+  background-color: rgba(46, 134, 193, 0.1) !important;
+  color: #2E86C1 !important;
+  border: 1px solid rgba(46, 134, 193, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  
+  &:hover {
+    background-color: rgba(46, 134, 193, 0.2) !important;
+    border-color: rgba(46, 134, 193, 0.5) !important;
+    color: #1a5c87 !important;
+  }
+  
+  mat-icon {
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+// Grandchild node admin actions
+.grandchild-node .edit-btn {
+  background-color: rgba(108, 117, 125, 0.1) !important;
+  color: #6c757d !important;
+  border: 1px solid rgba(108, 117, 125, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  
+  &:hover {
+    background-color: rgba(108, 117, 125, 0.2) !important;
+    border-color: rgba(108, 117, 125, 0.5) !important;
+    color: #495057 !important;
+  }
+  
+  mat-icon {
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+.grandchild-node .delete-btn {
+  background-color: rgba(108, 117, 125, 0.1) !important;
+  color: #6c757d !important;
+  border: 1px solid rgba(108, 117, 125, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  
+  &:hover {
+    background-color: rgba(108, 117, 125, 0.2) !important;
+    border-color: rgba(108, 117, 125, 0.5) !important;
+    color: #495057 !important;
+  }
+  
+  mat-icon {
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 }
 
@@ -468,6 +586,9 @@
   min-width: 32px !important;
   margin-right: 6px !important;
   transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   
   &:hover {
     background-color: rgba(255, 255, 255, 0.2) !important;
@@ -479,6 +600,10 @@
     font-size: 18px !important;
     width: 18px !important;
     height: 18px !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 }
 
@@ -491,6 +616,9 @@
   height: 32px !important;
   min-width: 32px !important;
   transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   
   &:hover {
     background-color: rgba(255, 255, 255, 0.2) !important;
@@ -502,6 +630,10 @@
     font-size: 18px !important;
     width: 18px !important;
     height: 18px !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 }
 
