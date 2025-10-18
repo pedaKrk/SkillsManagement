@@ -45,6 +45,48 @@
       </div>
     </div>
     
+    <!-- Search Section -->
+    <div class="search-section" *ngIf="isAdmin">
+      <div class="search-container">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>{{ 'SKILL_EDIT.SEARCH_PLACEHOLDER' | translate }}</mat-label>
+          <input matInput 
+                 [(ngModel)]="searchQuery" 
+                 (input)="onSearchInput($event)"
+                 placeholder="{{ 'SKILL_EDIT.SEARCH_PLACEHOLDER' | translate }}">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+        
+        <!-- Search Results -->
+        <div class="search-results" *ngIf="isSearching && searchResults.length > 0">
+          <div class="search-results-header">
+            <span>{{ 'SKILL_EDIT.SEARCH_RESULTS' | translate }} ({{ searchResults.length }})</span>
+            <button mat-icon-button (click)="clearSearch()" class="clear-search-btn">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          <div class="search-results-list">
+            <div class="search-result-item" 
+                 *ngFor="let result of searchResults" 
+                 (click)="scrollToSkill(result)">
+              <div class="result-content">
+                <span class="result-name">{{ result.name }}</span>
+                <span class="result-path" 
+                      *ngIf="result.searchPath !== result.name">{{ result.searchPath }}</span>
+              </div>
+              <mat-icon class="result-icon">arrow_forward</mat-icon>
+            </div>
+          </div>
+        </div>
+        
+        <!-- No Results -->
+        <div class="no-results" *ngIf="isSearching && searchResults.length === 0 && searchQuery.length >= 2">
+          <mat-icon>search_off</mat-icon>
+          <span>{{ 'SKILL_EDIT.NO_SEARCH_RESULTS' | translate }}</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Controls inside the header box -->
     <div class="controls-section">
       <div class="tree-controls">

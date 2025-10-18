@@ -359,7 +359,10 @@
     "DUPLICATE_NAME_ERROR": "A skill with the name \"{skillName}\" already exists. Please choose a different name.",
     "SUCCESS_TITLE": "Success",
     "ROOT_SKILL_ADDED_SUCCESS": "Root skill has been successfully added!",
-    "CHILD_SKILL_ADDED_SUCCESS": "Child skill has been successfully added!"
+    "CHILD_SKILL_ADDED_SUCCESS": "Child skill has been successfully added!",
+    "SEARCH_PLACEHOLDER": "Search skills...",
+    "SEARCH_RESULTS": "Search Results",
+    "NO_SEARCH_RESULTS": "No skills found"
   },
   "COMMON": {
     "CANCEL": "Cancel",

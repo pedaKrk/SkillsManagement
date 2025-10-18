@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -22,6 +22,7 @@ interface SkillWithChildren extends Skill {
   isExpanded?: boolean;
   isEditing?: boolean;
   tempName?: string;
+  searchPath?: string;
 }
 
 @Component({
@@ -63,6 +64,9 @@ export class SkillEditComponent implements OnInit {
   isAdmin = false;
   tutorialShown = false;
   showDetailedHelp = false;
+  searchQuery = '';
+  searchResults: SkillWithChildren[] = [];
+  isSearching = false;
 
   constructor(
     private skillService: SkillService,
@@ -70,7 +74,8 @@ export class SkillEditComponent implements OnInit {
     private userService: UserService,
     private router: Router,
     private translateService: TranslateService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -655,5 +660,199 @@ export class SkillEditComponent implements OnInit {
 
   hideDetailedHelp() {
     this.showDetailedHelp = false;
+  }
+
+  // Search functionality
+  onSearchInput(event: any) {
+    this.searchQuery = event.target.value.trim();
+    
+    if (this.searchQuery.length === 0) {
+      this.clearSearch();
+      return;
+    }
+    
+    if (this.searchQuery.length < 2) {
+      return;
+    }
+    
+    this.performSearch();
+  }
+
+  performSearch() {
+    this.isSearching = true;
+    this.searchResults = [];
+    
+    const searchRecursive = (skills: SkillWithChildren[], parentPath: string = '') => {
+      skills.forEach(skill => {
+        const fullPath = parentPath ? `${parentPath} > ${skill.name}` : skill.name;
+        
+        if (skill.name.toLowerCase().includes(this.searchQuery.toLowerCase())) {
+          this.searchResults.push({
+            ...skill,
+            searchPath: fullPath
+          } as any);
+        }
+        
+        if (skill.children && skill.children.length > 0) {
+          searchRecursive(skill.children, fullPath);
+        }
+      });
+    };
+    
+    searchRecursive(this.skillTree);
+  }
+
+  clearSearch() {
+    this.searchQuery = '';
+    this.searchResults = [];
+    this.isSearching = false;
+  }
+
+  scrollToSkill(skill: SkillWithChildren) {
+    this.clearSearch();
+    
+    // Find the actual skill in the tree (not the search result copy)
+    let actualSkill: SkillWithChildren | null = null;
+    const findActualSkill = (skills: SkillWithChildren[]): SkillWithChildren | null => {
+      for (const s of skills) {
+        if (s._id === skill._id) {
+          return s;
+        }
+        if (s.children && s.children.length > 0) {
+          const found = findActualSkill(s.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+    
+    actualSkill = findActualSkill(this.skillTree);
+    
+    if (!actualSkill) {
+      // Fallback: just scroll without expansion
+      setTimeout(() => {
+        this.scrollToSkillElement(skill.name, false);
+      }, 100);
+      return;
+    }
+    
+    // Check if it's a root skill
+    const isRootSkill = this.skillTree.some(root => root._id === actualSkill._id);
+    
+    // Find and expand all parent skills to make the target skill visible
+    const expandAllParents = (targetSkill: SkillWithChildren, skills: SkillWithChildren[], parentPath: SkillWithChildren[] = []): boolean => {
+      for (const skill of skills) {
+        if (skill._id === targetSkill._id) {
+          // Found the target skill, expand all parents in the path
+          parentPath.forEach(parent => {
+            if (!parent.isExpanded) {
+              parent.isExpanded = true;
+            }
+          });
+          return true;
+        }
+        
+        if (skill.children && skill.children.length > 0) {
+          const newPath = [...parentPath, skill];
+          if (expandAllParents(targetSkill, skill.children, newPath)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+    
+    // Expand all parents to make the skill visible
+    expandAllParents(actualSkill, this.skillTree);
+    
+    // For root skills, also expand their children
+    if (isRootSkill) {
+      // Expand the root skill
+      if (!actualSkill.isExpanded) {
+        actualSkill.isExpanded = true;
+      }
+      
+      // Expand all children recursively
+      const expandAllChildren = (children: SkillWithChildren[]) => {
+        children.forEach(child => {
+          if (!child.isExpanded) {
+            child.isExpanded = true;
+          }
+          if (child.children && child.children.length > 0) {
+            expandAllChildren(child.children);
+          }
+        });
+      };
+      
+      if (actualSkill.children && actualSkill.children.length > 0) {
+        expandAllChildren(actualSkill.children);
+      }
+    }
+    
+    // Force change detection
+    this.cdr.detectChanges();
+    
+    // Wait for DOM update, then scroll
+    setTimeout(() => {
+      this.scrollToSkillElement(skill.name, isRootSkill);
+    }, 300);
+  }
+
+  private scrollToSkillElement(skillName: string, isRootSkill: boolean = false) {
+    const selectors = [
+      '.skill-content span',
+      '.child-node .skill-content span',
+      '.grandchild-node .skill-content span',
+      'input[type="text"]',
+      '.edit-input',
+      '.skill-content',
+      'span'
+    ];
+    
+    let targetElement: Element | null = null;
+    
+    for (const selector of selectors) {
+      const elements = document.querySelectorAll(selector);
+      
+      for (let i = 0; i < elements.length; i++) {
+        const element = elements[i];
+        let elementText = element.textContent?.trim();
+        
+        if (element instanceof HTMLInputElement) {
+          elementText = element.value?.trim();
+        }
+        
+        if (elementText && elementText.includes(skillName)) {
+          targetElement = element;
+          break;
+        }
+      }
+      
+      if (targetElement) break;
+    }
+    
+    if (targetElement) {
+      targetElement.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center',
+        inline: 'nearest'
+      });
+      
+      const skillRow = targetElement.closest('.skill-row, .child-grandchild-group, .skill-node');
+      if (skillRow) {
+        // Different highlight for root skills
+        if (isRootSkill) {
+          skillRow.classList.add('root-skill-highlight');
+          setTimeout(() => {
+            skillRow.classList.remove('root-skill-highlight');
+          }, 3000); // Longer highlight for root skills
+        } else {
+          skillRow.classList.add('new-skill-highlight');
+          setTimeout(() => {
+            skillRow.classList.remove('new-skill-highlight');
+          }, 2000);
+        }
+      }
+    }
   }
 }
