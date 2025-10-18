@@ -388,7 +388,6 @@ export class SkillEditComponent implements OnInit {
         
         if (skill.children && skill.children.length > 0) {
           if (expandSkillRecursive(skill.children)) {
-            // Also expand this skill if it contains the target
             skill.isExpanded = true;
             return true;
           }
@@ -401,7 +400,6 @@ export class SkillEditComponent implements OnInit {
   }
 
   private ensureParentExpanded(parentId: string) {
-    // Find and expand the parent skill
     const expandParentRecursive = (skills: SkillWithChildren[]): boolean => {
       for (const skill of skills) {
         if (skill._id === parentId) {
@@ -411,7 +409,6 @@ export class SkillEditComponent implements OnInit {
         
         if (skill.children && skill.children.length > 0) {
           if (expandParentRecursive(skill.children)) {
-            // Also expand this skill if it contains the parent
             skill.isExpanded = true;
             return true;
           }
@@ -427,12 +424,10 @@ export class SkillEditComponent implements OnInit {
     const skillMap: { [id: string]: SkillWithChildren } = {};
     const rootSkills: SkillWithChildren[] = [];
 
-    // Create skill map
     skills.forEach(skill => {
       skillMap[skill._id] = { ...skill, children: [], isExpanded: false };
     });
 
-    // Build hierarchy
     skills.forEach(skill => {
       if (skill.parent_id) {
         const parent = skillMap[skill.parent_id];
@@ -463,7 +458,6 @@ export class SkillEditComponent implements OnInit {
     });
   }
 
-  // Admin-Funktionen
   startEditing(skill: SkillWithChildren) {
     skill.isEditing = true;
     skill.tempName = skill.name;
@@ -487,27 +481,21 @@ export class SkillEditComponent implements OnInit {
         return;
       }
       
-      // Update the skill name
       skill.name = newName;
       this.skillService.updateSkill(skill._id, { name: skill.name }).subscribe({
         next: (updatedSkill) => {
           skill.isEditing = false;
           skill.tempName = '';
-          console.log('Skill updated successfully:', updatedSkill);
-          
-          // Reload skills
           this.loadSkills();
         },
         error: (error: any) => {
           console.error('Error updating skill:', error);
-          // Revert to original name on error
           skill.name = skill.tempName || skill.name;
           skill.tempName = skill.name;
           skill.isEditing = false;
         }
       });
     } else {
-      // Empty name - revert to original
       skill.tempName = skill.name;
       skill.isEditing = false;
     }
@@ -537,7 +525,7 @@ export class SkillEditComponent implements OnInit {
       if (confirmed) {
         this.skillService.deleteSkill(skill._id).subscribe({
           next: () => {
-            this.loadSkills(); // Reload skills after deletion
+            this.loadSkills();
           },
           error: (error: any) => {
             console.error('Error deleting skill:', error);
@@ -577,70 +565,53 @@ export class SkillEditComponent implements OnInit {
           parent_id: parentId || null
         };
         
-        console.log('Creating skill with data:', skillData);
-        
-              this.skillService.createSkill(skillData).subscribe({
-                next: (newSkill) => {
-                  // Show success dialog
-                  const successMessage = parentId 
-                    ? this.translateService.instant('SKILL_EDIT.CHILD_SKILL_ADDED_SUCCESS')
-                    : this.translateService.instant('SKILL_EDIT.ROOT_SKILL_ADDED_SUCCESS');
-                  
-                  this.dialogService.showSuccess({
-                    title: this.translateService.instant('SKILL_EDIT.SUCCESS_TITLE'),
-                    message: successMessage,
-                    buttonText: this.translateService.instant('COMMON.OK') || 'OK',
-                    closeOnBackdropClick: true
-                  }).subscribe();
-                  
-                  this.loadSkills(); // Reload skills after creation
-                  
-                  // If it's a child skill, ensure parent is expanded
-                  if (parentId) {
-                    this.ensureParentExpanded(parentId);
-                  }
-                  
-                  // Simple approach: wait for Angular to update the DOM
-                  setTimeout(() => {
-                    this.scrollToNewSkillSimple(skillData.name, parentId);
-                  }, 1000);
-                },
+        this.skillService.createSkill(skillData).subscribe({
+          next: (newSkill) => {
+            const successMessage = parentId 
+              ? this.translateService.instant('SKILL_EDIT.CHILD_SKILL_ADDED_SUCCESS')
+              : this.translateService.instant('SKILL_EDIT.ROOT_SKILL_ADDED_SUCCESS');
+            
+            this.dialogService.showSuccess({
+              title: this.translateService.instant('SKILL_EDIT.SUCCESS_TITLE'),
+              message: successMessage,
+              buttonText: this.translateService.instant('COMMON.OK') || 'OK',
+              closeOnBackdropClick: true
+            }).subscribe();
+            
+            this.loadSkills();
+            
+            if (parentId) {
+              this.ensureParentExpanded(parentId);
+            }
+            
+            setTimeout(() => {
+              this.scrollToNewSkillSimple(skillData.name, parentId);
+            }, 1000);
+          },
           error: (error: any) => {
             console.error('Error creating skill:', error);
             
-            // Show error message to user
             let errorMessage = 'Ein Fehler ist aufgetreten beim Erstellen des Skills.';
             
-            // Extract error message from different possible locations
             if (error.error && error.error.message) {
               errorMessage = error.error.message;
             } else if (error.message) {
               errorMessage = error.message;
             }
             
-            console.log('Full error object:', error);
-            console.log('Extracted error message:', errorMessage);
-            
-            // Translate error message if it's about duplicate names
             if (errorMessage.includes('already exists')) {
-              // Try different patterns to extract the skill name
               let skillName = 'diesen Namen';
               
-              // Pattern 1: "A skill with the name 'JavaScript' already exists"
               const match1 = errorMessage.match(/name ['"]([^'"]+)['"]/);
               if (match1) {
                 skillName = match1[1];
               } else {
-                // Pattern 2: Any text in quotes (fallback)
                 const match2 = errorMessage.match(/['"]([^'"]+)['"]/);
                 if (match2) {
                   skillName = match2[1];
                 }
               }
               
-              console.log('Extracted skill name:', skillName);
-              
-              // Use direct string interpolation instead of translation
               const currentLang = this.translateService.currentLang || 'de';
               if (currentLang === 'de') {
                 errorMessage = `Ein Skill mit dem Namen "${skillName}" existiert bereits. Bitte wählen Sie einen anderen Namen.`;
@@ -663,7 +634,6 @@ export class SkillEditComponent implements OnInit {
     this.router.navigate(['/main']);
   }
 
-  // Tutorial-Funktionen
   checkTutorialStatus() {
     const tutorialDismissed = localStorage.getItem('skill-edit-tutorial-dismissed');
     this.tutorialShown = tutorialDismissed === 'true';
