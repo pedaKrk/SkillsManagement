@@ -17,7 +17,9 @@
     "WARNING": "Warning",
     "INFO": "Information",
     "OR": "or",
-    "OPTIONAL": "optional"
+    "OPTIONAL": "optional",
+    "REQUIRED_FIELD": "Required field",
+    "OK": "OK"
   },
   "AUTH": {
     "LOGIN": "Login",
@@ -363,12 +365,5 @@
     "SEARCH_PLACEHOLDER": "Search skills...",
     "SEARCH_RESULTS": "Search Results",
     "NO_SEARCH_RESULTS": "No skills found"
-  },
-  "COMMON": {
-    "CANCEL": "Cancel",
-    "DELETE": "Delete",
-    "ADD": "Add",
-    "OK": "OK",
-    "REQUIRED_FIELD": "Required field"
   }
-} 
+}

@@ -16,8 +16,10 @@
     "SUCCESS": "Erfolg",
     "WARNING": "Warnung",
     "INFO": "Information",
-    "OPTIONAL": "optional"
-  },
+    "OPTIONAL": "optional",
+    "REQUIRED_FIELD": "Pflichtfeld",
+    "OK": "OK"
+},
   "AUTH": {
     "LOGIN": "Anmelden",
     "LOGOUT": "Abmelden",
@@ -358,12 +360,5 @@
     "SEARCH_PLACEHOLDER": "Skills durchsuchen...",
     "SEARCH_RESULTS": "Suchergebnisse",
     "NO_SEARCH_RESULTS": "Keine Skills gefunden"
-  },
-  "COMMON": {
-    "CANCEL": "Abbrechen",
-    "DELETE": "Löschen",
-    "ADD": "Hinzufügen",
-    "OK": "OK",
-    "REQUIRED_FIELD": "Pflichtfeld"
   }
-} 
+}
