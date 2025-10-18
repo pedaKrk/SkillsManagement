@@ -8,7 +8,7 @@
           class="btn btn-primary" 
           (click)="generatePDF()" 
           [disabled]="selectedUsers.length === 0"
-          *ngIf="isAdmin || isCompetenceLeader"
+          *ngIf="isAdminOrCompetenceLeader"
         >
           {{ 'USER.GENERATE_PDF' | translate }}
         </button>
@@ -16,7 +16,7 @@
           class="btn btn-primary" 
           (click)="sendEmail()" 
           [disabled]="selectedUsers.length === 0"
-          *ngIf="isAdmin || isCompetenceLeader"
+          *ngIf="isAdminOrCompetenceLeader"
         >
           {{ 'USER.SEND_EMAIL' | translate }}
         </button>
@@ -230,7 +230,7 @@
               <button 
                 class="btn btn-icon btn-edit" 
                 (click)="editUser(user.id); $event.stopPropagation()" 
-                *ngIf="isAdmin || isCompetenceLeader || user.id === currentUserId"
+                *ngIf="isAdminOrCompetenceLeader || user.id === currentUserId"
                 [title]="'USER.MANAGE_SKILLS' | translate"
               >
                 <i class="fa fa-cog"></i>
@@ -248,7 +248,7 @@
               <button 
                 class="btn btn-icon btn-deactivate" 
                 (click)="deactivateUser(user)" 
-                *ngIf="(isAdmin || isCompetenceLeader) && user.id !== currentUserId"
+                *ngIf="isAdminOrCompetenceLeader && user.id !== currentUserId"
                 [title]="'USER.DEACTIVATE_USER_SHORT' | translate"
               >
                 <i class="fa fa-user-slash"></i>
@@ -258,7 +258,7 @@
               <button 
                 class="btn btn-icon btn-delete" 
                 (click)="openDeleteDialog(user)" 
-                *ngIf="isAdmin && user.id !== currentUserId"
+                *ngIf="isAdminOrCompetenceLeader && user.id !== currentUserId"
                 [title]="'USER.DELETE_USER' | translate"
               >
                 <i class="fa fa-trash"></i>

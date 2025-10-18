@@ -56,6 +56,10 @@ export class AddUserComponent implements OnInit {
   skillSearchControl = new FormControl('');
   isSkillDropdownOpen = false;
   
+  // for permission control
+  isAdminOrCompetenceLeader: boolean = false;
+  currentUserId: string = '';
+  
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
@@ -79,6 +83,9 @@ export class AddUserComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Check user permissions
+    this.checkUserPermissions();
+    
     this.loadSkills();
     
     // Subscribe to search input changes
@@ -239,6 +246,34 @@ export class AddUserComponent implements OnInit {
   // get index of a skill in the FormArray
   private findSkillIndexInFormArray(skillId: string): number {
     return this.skillsFormArray.controls.findIndex(control => control.value === skillId);
+  }
+
+  /**
+   * Checks the permissions of the logged in user
+   */
+  checkUserPermissions(): void {
+    const currentUser = this.authService.currentUserValue;
+    if (currentUser) {
+      this.currentUserId = currentUser.id;
+      
+      // Check if user is admin or competence leader
+      this.isAdminOrCompetenceLeader = currentUser.role === UserRole.ADMIN || 
+                                       currentUser.role === UserRole.COMPETENCE_LEADER;
+      
+      console.log('Add User - User permissions:', { 
+        isAdminOrCompetenceLeader: this.isAdminOrCompetenceLeader,
+        currentUserId: this.currentUserId,
+        userRole: currentUser.role
+      });
+      
+      // If not admin or competence leader, redirect to unauthorized page
+      if (!this.isAdminOrCompetenceLeader) {
+        this.router.navigate(['/unauthorized']);
+      }
+    } else {
+      // If no user is logged in, redirect to login
+      this.router.navigate(['/login']);
+    }
   }
 
   // handle form submission

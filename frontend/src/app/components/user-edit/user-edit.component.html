@@ -116,8 +116,8 @@
             </div>
           </div>
           
-          <!-- Role and Employment Type only visible for admins -->
-          <ng-container *ngIf="isAdmin">
+          <!-- Role and Employment Type only visible for admins and competence leaders -->
+          <ng-container *ngIf="isAdminOrCompetenceLeader">
             <div class="form-group">
               <label for="role">{{ 'EDIT_PROFILE.ROLE' | translate }}</label>
               <select id="role" formControlName="role" class="form-control" [class.is-invalid]="isFieldInvalid('role')">

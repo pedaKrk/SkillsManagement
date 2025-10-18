@@ -22,14 +22,14 @@
         <li class="nav-item" *ngIf="isLecturer">
           <a class="nav-link" [routerLink]="['/profile/skills']" routerLinkActive="active" (click)="closeMenu()">{{ 'NAVIGATION.MANAGE_SKILLS' | translate }}</a>
         </li>
-        <li class="nav-item" *ngIf="isAdmin">
+        <li class="nav-item" *ngIf="isAdminOrCompetenceLeader">
           <a class="nav-link" [routerLink]="['/admin/add-user']" routerLinkActive="active" (click)="closeMenu()">{{ 'NAVIGATION.ADD_USER' | translate }}</a>
         </li>
-        <li class="nav-item" *ngIf="isAdmin || isCompetenceLeader">
+        <li class="nav-item" *ngIf="isAdminOrCompetenceLeader">
           <a class="nav-link" [routerLink]="['/skill-edit']" routerLinkActive="active" (click)="closeMenu()">{{ 'NAVIGATION.EDIT_SKILLS' | translate }}</a>
         </li>
         <!-- Inactive Users Notification -->
-        <li class="nav-item" *ngIf="isAdmin || isCompetenceLeader">
+        <li class="nav-item" *ngIf="isAdminOrCompetenceLeader">
           <a class="nav-link position-relative" [routerLink]="['/inactive-users']" routerLinkActive="active" (click)="closeMenu()">
             {{ 'NAVIGATION.NEW_REGISTRATIONS' | translate }}
             <span class="notification-badge" *ngIf="inactiveUsersCount > 0">
@@ -37,7 +37,7 @@
             </span>
           </a>
         </li>
-        <li class="nav-item" *ngIf="isAdmin || isCompetenceLeader">
+        <li class="nav-item" *ngIf="isAdminOrCompetenceLeader">
           <div class="user-dropdown" (clickOutside)="closeFutureSkillsDropdown()">
             <a class="nav-link user-dropdown-toggle" (click)="toggleDropdown($event)">{{ 'NAVIGATION.FUTURE_SKILLS' | translate }} <span class="dropdown-arrow">{{ isDropdownOpen ? '' : '▾' }}</span></a>
             <div class="user-dropdown-menu" *ngIf="isDropdownOpen">
@@ -53,7 +53,7 @@
             </div>
           </div>
         </li>
-        <li class="nav-item" *ngIf="isAdmin">
+        <li class="nav-item" *ngIf="isAdminOrCompetenceLeader">
           <a class="nav-link" [routerLink]="['/user']" routerLinkActive="active" (click)="closeMenu()">{{ 'NAVIGATION.USER_OVERVIEW' | translate }}</a>
         </li>
         

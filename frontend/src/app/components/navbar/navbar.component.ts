@@ -22,8 +22,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isLoggedIn = false;
   username: string | null = null;
   userId: string | null = null;
-  isAdmin = false;
-  isCompetenceLeader = false;
+  isAdminOrCompetenceLeader = false;
   isLecturer = false;
   isDropdownOpen = false;
   isUserDropdownOpen = false;
@@ -52,17 +51,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.userId = user?.id || null;
 
       if (user?.role) {
-        this.isAdmin = user.role === UserRole.ADMIN;
-        this.isCompetenceLeader = user.role === UserRole.COMPETENCE_LEADER;
+        this.isAdminOrCompetenceLeader = user.role === UserRole.ADMIN || user.role === UserRole.COMPETENCE_LEADER;
         this.isLecturer = user.role === UserRole.LECTURER;
 
         // Start checking for inactive users if admin or competence leader
-        if (this.isAdmin || this.isCompetenceLeader) {
+        if (this.isAdminOrCompetenceLeader) {
           this.loadInactiveUsersCount();
         }
       } else {
-        this.isAdmin = false;
-        this.isCompetenceLeader = false;
+        this.isAdminOrCompetenceLeader = false;
         this.isLecturer = false;
       }
     });
@@ -73,7 +70,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   loadInactiveUsersCount() {
-    if (this.isAdmin || this.isCompetenceLeader) {
+    if (this.isAdminOrCompetenceLeader) {
       this.userService.getInactiveUsersCount().subscribe(
         count => this.inactiveUsersCount = count,
         error => console.error('Error loading inactive users:', error)
