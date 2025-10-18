@@ -37,7 +37,8 @@
 
       <div class="form-group">
         <button type="submit" class="btn btn-primary" [disabled]="loading">
-          {{ loading ? ('COMMON.LOADING' | translate) : ('AUTH.LOGIN' | translate) }}
+          <span *ngIf="!loading">{{ 'AUTH.LOGIN' | translate }}</span>
+          <span *ngIf="loading">{{ 'COMMON.LOADING' | translate }}</span>
         </button>
       </div>
 
@@ -45,11 +46,11 @@
         {{error}}
       </div>
     </form>
-    
+
     <!-- Registration link -->
     <div class="links">
       <p>{{ 'AUTH.ALREADY_REGISTERED' | translate }} <a routerLink="/register">{{ 'AUTH.REGISTER_NOW' | translate }}</a></p>
       <p><a routerLink="/forgot-password">{{ 'AUTH.FORGOT_PASSWORD' | translate }}</a></p>
     </div>
   </div>
-</div> 
+</div>

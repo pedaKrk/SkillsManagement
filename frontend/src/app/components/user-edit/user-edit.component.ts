@@ -29,7 +29,7 @@ export class UserEditComponent implements OnInit {
   userForm!: FormGroup;
   isLoading: boolean = false;
   error: string | null = null;
-  isAdmin: boolean = false;
+  isAdminOrCompetenceLeader: boolean = false;
   
   // for the dropdown lists
   userRoles = Object.values(UserRole);
@@ -97,29 +97,42 @@ export class UserEditComponent implements OnInit {
       
       // check if user is admin or competence leader
       const userRole = currentUser.role.toLowerCase();
-      this.isAdmin = userRole === UserRole.ADMIN.toLowerCase() || 
+      this.isAdminOrCompetenceLeader = userRole === UserRole.ADMIN.toLowerCase() || 
                      userRole === UserRole.COMPETENCE_LEADER.toLowerCase();
       
-      console.log('Is admin or competence leader:', this.isAdmin);
+      console.log('Is admin or competence leader:', this.isAdminOrCompetenceLeader);
       
       const isOwnProfile = this.authService.isOwnProfile(this.userId);
       console.log('Is own profile:', isOwnProfile);
       
-      if (!this.isAdmin && !isOwnProfile) {
+      if (!this.isAdminOrCompetenceLeader && !isOwnProfile) {
         console.warn('No permission to edit this profile!');
         this.error = 'Sie haben keine Berechtigung, dieses Benutzerprofil zu bearbeiten.';
         this.router.navigate(['/users', this.userId]);
       } else {
         console.log('Permission granted to edit profile');
         
-        // If not admin, disable role and employmentType fields
-        if (!this.isAdmin) {
+        // Configure role and employmentType fields based on admin/competence leader status
+        if (this.isAdminOrCompetenceLeader) {
+          // Enable fields and add validators for admins and competence leaders
+          this.userForm.get('role')?.enable();
+          this.userForm.get('employmentType')?.enable();
+          this.userForm.get('role')?.setValidators([Validators.required]);
+          this.userForm.get('employmentType')?.setValidators([Validators.required]);
+        } else {
+          // Disable fields for non-admins/non-competence leaders
           this.userForm.get('role')?.disable();
           this.userForm.get('employmentType')?.disable();
+          this.userForm.get('role')?.clearValidators();
+          this.userForm.get('employmentType')?.clearValidators();
         }
+        
+        // Update validators
+        this.userForm.get('role')?.updateValueAndValidity();
+        this.userForm.get('employmentType')?.updateValueAndValidity();
       }
     } else {
-      this.isAdmin = false;
+      this.isAdminOrCompetenceLeader = false;
       this.error = 'Sie müssen angemeldet sein, um Benutzerprofile zu bearbeiten.';
     }
   }
@@ -135,14 +148,11 @@ export class UserEditComponent implements OnInit {
       lastName: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       title: [''],
-      phoneNumber: ['']
+      phoneNumber: [''],
+      // Always add role and employmentType controls, but they will be disabled for non-admins
+      role: [''],
+      employmentType: ['']
     };
-
-    // Add role and employmentType only for admins
-    if (this.isAdmin) {
-      formControls['role'] = ['', [Validators.required]];
-      formControls['employmentType'] = ['', [Validators.required]];
-    }
 
     this.userForm = this.formBuilder.group(formControls);
   }
@@ -224,22 +234,18 @@ export class UserEditComponent implements OnInit {
       email: string;
       title: string;
       phoneNumber: string;
-      role?: string;
-      employmentType?: string;
+      role: string;
+      employmentType: string;
     } = {
       username: this.user.username,
       firstName: this.user.firstName,
       lastName: this.user.lastName,
       email: this.user.email,
       title: this.user.title || '',
-      phoneNumber: this.user.phoneNumber || ''
+      phoneNumber: this.user.phoneNumber || '',
+      role: this.user.role || '',
+      employmentType: this.user.employmentType || ''
     };
-
-    // Add role and employmentType only for admins
-    if (this.isAdmin) {
-      formData.role = this.user.role;
-      formData.employmentType = this.user.employmentType;
-    }
 
     this.userForm.patchValue(formData);
   }
@@ -410,8 +416,8 @@ export class UserEditComponent implements OnInit {
     // get the user data from the form
     const formData: { [key: string]: any } = this.userForm.value;
     
-    // If not admin, keep the existing role and employmentType
-    if (!this.isAdmin && this.user) {
+    // If not admin or competence leader, keep the existing role and employmentType
+    if (!this.isAdminOrCompetenceLeader && this.user) {
       formData['role'] = this.user.role;
       formData['employmentType'] = this.user.employmentType;
     }

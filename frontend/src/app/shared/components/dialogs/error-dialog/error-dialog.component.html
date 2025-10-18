@@ -1,0 +1,19 @@
+<div class="dialog-wrapper">
+  <div class="dialog error-dialog">
+    <div class="dialog-header">
+      <h3>{{ dialog.title }}</h3>
+      <button class="close-button" (click)="onClose()">×</button>
+    </div>
+    <div class="dialog-body">
+      <div class="error-message">
+        <div class="error-icon">⚠</div>
+        <p>{{ dialog.message }}</p>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn btn-primary" (click)="onClose()">
+        {{ dialog.buttonText }}
+      </button>
+    </div>
+  </div>
+</div>

@@ -19,6 +19,14 @@
     ></app-success-dialog>
   </ng-container>
   
+  <!-- Error Dialogs -->
+  <ng-container *ngFor="let dialog of dialogState.errorDialogs">
+    <app-error-dialog
+      [dialog]="dialog"
+      (close)="onCloseDialog(dialog.id!)"
+    ></app-error-dialog>
+  </ng-container>
+  
   <!-- Form Dialogs -->
   <ng-container *ngFor="let dialog of dialogState.formDialogs">
     <app-form-dialog

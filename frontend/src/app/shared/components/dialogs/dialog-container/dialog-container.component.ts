@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { DialogService, DialogState } from '../../../../core/services/dialog/dialog.service';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { SuccessDialogComponent } from '../success-dialog/success-dialog.component';
+import { ErrorDialogComponent } from '../error-dialog/error-dialog.component';
 import { FormDialogComponent } from '../form-dialog/form-dialog.component';
 
 @Component({
@@ -15,6 +16,7 @@ import { FormDialogComponent } from '../form-dialog/form-dialog.component';
     FormsModule,
     ConfirmDialogComponent,
     SuccessDialogComponent,
+    ErrorDialogComponent,
     FormDialogComponent
   ],
   templateUrl: './dialog-container.component.html',
@@ -24,6 +26,7 @@ export class DialogContainerComponent implements OnInit, OnDestroy {
   dialogState: DialogState = {
     confirmDialogs: [],
     successDialogs: [],
+    errorDialogs: [],
     formDialogs: [],
     activeDialogId: null
   };
@@ -48,6 +51,7 @@ export class DialogContainerComponent implements OnInit, OnDestroy {
     return (
       this.dialogState.confirmDialogs.length > 0 ||
       this.dialogState.successDialogs.length > 0 ||
+      this.dialogState.errorDialogs.length > 0 ||
       this.dialogState.formDialogs.length > 0
     );
   }
@@ -59,12 +63,15 @@ export class DialogContainerComponent implements OnInit, OnDestroy {
     // Finde den aktiven Dialog
     const activeConfirmDialog = this.dialogState.confirmDialogs.find(d => d.id === activeDialogId);
     const activeSuccessDialog = this.dialogState.successDialogs.find(d => d.id === activeDialogId);
+    const activeErrorDialog = this.dialogState.errorDialogs.find(d => d.id === activeDialogId);
     const activeFormDialog = this.dialogState.formDialogs.find(d => d.id === activeDialogId);
     
     // Prüfe, ob der Dialog beim Klick auf den Hintergrund geschlossen werden soll
     if (activeConfirmDialog?.closeOnBackdropClick) {
       this.dialogService.cancelDialog(activeDialogId);
     } else if (activeSuccessDialog?.closeOnBackdropClick) {
+      this.dialogService.confirmDialog(activeDialogId);
+    } else if (activeErrorDialog?.closeOnBackdropClick) {
       this.dialogService.confirmDialog(activeDialogId);
     } else if (activeFormDialog?.closeOnBackdropClick) {
       this.dialogService.cancelDialog(activeDialogId);

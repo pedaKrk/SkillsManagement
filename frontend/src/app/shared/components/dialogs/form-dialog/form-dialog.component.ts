@@ -1,12 +1,13 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormDialogConfig } from '../../../../core/services/dialog';
 
 @Component({
   selector: 'app-form-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslateModule],
   templateUrl: './form-dialog.component.html',
   styleUrls: ['./form-dialog.component.scss']
 })
@@ -16,14 +17,17 @@ export class FormDialogComponent implements OnInit {
   @Output() cancel = new EventEmitter<void>();
   
   formData: { [key: string]: any } = {};
+  requiredFieldText: string = '';
   
-  constructor() {}
+  constructor(private translateService: TranslateService) {}
   
   ngOnInit(): void {
-    // Initialisiere formData mit Standardwerten
+   
     this.dialog.formFields.forEach(field => {
       this.formData[field.id] = field.defaultValue || '';
     });
+      
+    this.requiredFieldText = this.translateService.instant('COMMON.REQUIRED_FIELD');
   }
   
   onSubmit(): void {
@@ -37,7 +41,7 @@ export class FormDialogComponent implements OnInit {
   }
   
   isFormValid(): boolean {
-    // Einfache Validierung: Prüfe, ob alle erforderlichen Felder ausgefüllt sind
+   
     return this.dialog.formFields
       .filter(field => field.required)
       .every(field => {
@@ -47,7 +51,7 @@ export class FormDialogComponent implements OnInit {
   }
   
   hasRequiredFields(): boolean {
-    // Prüft, ob es Pflichtfelder gibt
+   
     return this.dialog.formFields.some(field => field.required);
   }
 } 

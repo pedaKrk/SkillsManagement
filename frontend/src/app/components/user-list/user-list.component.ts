@@ -74,8 +74,7 @@ export class UserListComponent implements OnInit, OnDestroy {
   successDialogMessage: string = '';
   
   // for permission control
-  isAdmin: boolean = false;
-  isCompetenceLeader: boolean = false;
+  isAdminOrCompetenceLeader: boolean = false;
   currentUserId: string = '';
   
   constructor(
@@ -106,12 +105,10 @@ export class UserListComponent implements OnInit, OnDestroy {
       const normalizedRole = currentUser.role?.toUpperCase().replace('_', '');
       console.log('Normalized role:', normalizedRole);
       
-      this.isAdmin = currentUser.role === UserRole.ADMIN || currentUser.role === UserRole.COMPETENCE_LEADER;
-      this.isCompetenceLeader = currentUser.role === UserRole.COMPETENCE_LEADER;
+      this.isAdminOrCompetenceLeader = currentUser.role === UserRole.ADMIN || currentUser.role === UserRole.COMPETENCE_LEADER;
       
       console.log('Permissions after check:', {
-        isAdmin: this.isAdmin,
-        isCompetenceLeader: this.isCompetenceLeader,
+        isAdminOrCompetenceLeader: this.isAdminOrCompetenceLeader,
         currentUserId: this.currentUserId,
         normalizedRole
       });
@@ -477,14 +474,13 @@ export class UserListComponent implements OnInit, OnDestroy {
   editUser(userId: string): void {
     console.log('edit user:', userId);
     console.log('Current permissions:', {
-      isAdmin: this.isAdmin,
-      isCompetenceLeader: this.isCompetenceLeader,
+      isAdminOrCompetenceLeader: this.isAdminOrCompetenceLeader,
       currentUserId: this.currentUserId
     });
     
     // Check if the user has permission to edit
     const isOwnProfile = userId === this.currentUserId;
-    const hasManagementPermission = this.isAdmin || this.isCompetenceLeader;
+    const hasManagementPermission = this.isAdminOrCompetenceLeader;
     
     // If neither Admin nor Competence Leader and not own profile
     if (!hasManagementPermission && !isOwnProfile) {
@@ -546,11 +542,11 @@ export class UserListComponent implements OnInit, OnDestroy {
   deleteUser(userId: string): void {
     console.log('delete user:', userId);
     
-    // Check if the user has Admin rights
-    if (!this.isAdmin) {
+    // Check if the user has Admin or Competence Leader rights
+    if (!this.isAdminOrCompetenceLeader) {
       this.dialogService.showError(
         'Keine Berechtigung', 
-        'Sie haben keine Berechtigung, Benutzer zu löschen. Diese Aktion ist nur für Administratoren verfügbar.'
+        'Sie haben keine Berechtigung, Benutzer zu löschen. Diese Aktion ist nur für Administratoren und Kompetenzleiter verfügbar.'
       );
       return;
     }
@@ -590,8 +586,8 @@ export class UserListComponent implements OnInit, OnDestroy {
   
   // Confirm delete user
   confirmDeleteUser(user: User): void {
-    // Check again if the user has Admin rights (additional security level)
-    if (!this.isAdmin) {
+    // Check again if the user has Admin or Competence Leader rights (additional security level)
+    if (!this.isAdminOrCompetenceLeader) {
       this.dialogService.showError(
         this.translateService.instant('USER.NO_PERMISSION'), 
         this.translateService.instant('USER.NO_PERMISSION')
@@ -787,12 +783,10 @@ export class UserListComponent implements OnInit, OnDestroy {
     if (currentUser) {
       this.currentUserId = currentUser.id;
       
-      this.isAdmin = currentUser.role === UserRole.ADMIN || currentUser.role === UserRole.COMPETENCE_LEADER;
-      this.isCompetenceLeader = currentUser.role === UserRole.COMPETENCE_LEADER;
+      this.isAdminOrCompetenceLeader = currentUser.role === UserRole.ADMIN || currentUser.role === UserRole.COMPETENCE_LEADER;
       
       console.log('User permissions:', { 
-        isAdmin: this.isAdmin, 
-        isCompetenceLeader: this.isCompetenceLeader,
+        isAdminOrCompetenceLeader: this.isAdminOrCompetenceLeader,
         currentUserId: this.currentUserId
       });
     }
@@ -819,7 +813,7 @@ export class UserListComponent implements OnInit, OnDestroy {
   
   // Deactivate user
   deactivateUser(user: User): void {
-    if (!this.isAdmin && !this.isCompetenceLeader) {
+    if (!this.isAdminOrCompetenceLeader) {
       this.dialogService.showError(
         this.translateService.instant('USER.NO_PERMISSION'),
         this.translateService.instant('USER.NO_PERMISSION')
