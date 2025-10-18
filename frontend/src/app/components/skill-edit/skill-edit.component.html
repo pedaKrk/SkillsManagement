@@ -64,7 +64,7 @@
   <div class="skill-hierarchy">
     <ng-container *ngFor="let root of skillTree">
       <!-- Root Node -->
-      <div class="skill-row">
+      <div class="skill-row" [attr.data-skill-id]="root._id">
         <div class="skill-node root-node" (click)="toggleExpand(root)">
           <!-- Edit Mode Content -->
           <div *ngIf="root.isEditing" class="edit-container">
@@ -113,7 +113,7 @@
       <div class="child-grandchild-row" *ngIf="root.isExpanded" [@expandCollapse]>
         <ng-container *ngFor="let child of root.children">
           <div class="child-grandchild-group">
-            <div class="skill-node child-node" (click)="toggleExpand(child)">
+            <div class="skill-node child-node" [attr.data-skill-id]="child._id" (click)="toggleExpand(child)">
               <!-- Edit Mode Content -->
               <div *ngIf="child.isEditing" class="edit-container">
                 <input 
@@ -158,7 +158,7 @@
             
             <div class="grandchildren" *ngIf="child.isExpanded" [@expandCollapse]>
               <ng-container *ngFor="let grandchild of child.children">
-                <div class="skill-node grandchild-node">
+                <div class="skill-node grandchild-node" [attr.data-skill-id]="grandchild._id">
                   <!-- Edit Mode Content -->
                   <div *ngIf="grandchild.isEditing" class="edit-container">
                     <input 

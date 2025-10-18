@@ -103,14 +103,11 @@ export class SkillEditComponent implements OnInit {
   }
 
   private loadSkills() {
-    // Save current expansion states
     const expansionStates = this.saveExpansionStates();
     
     this.skillService.getAllSkills().subscribe({
       next: (skills: Skill[]) => {
-        console.log('Received skills:', skills);
         this.skillTree = this.buildHierarchy(skills);
-        // Restore expansion states
         this.restoreExpansionStates(expansionStates);
       },
       error: (error) => {
@@ -152,37 +149,187 @@ export class SkillEditComponent implements OnInit {
     restoreStatesRecursive(this.skillTree);
   }
 
-  private scrollToNewSkill(skillName: string) {
-    console.log('Looking for skill:', skillName);
-    
-    // Try multiple times with increasing delays to ensure DOM is updated
+  private scrollToNewSkill(skillName: string, parentId?: string) {
     const tryScroll = (attempt: number = 1) => {
-      console.log(`Scroll attempt ${attempt} for skill: ${skillName}`);
+      let searchContainer: Element | Document = document;
       
-      // Find the skill element by name - try different selectors
+      if (parentId) {
+        const parentElement = document.querySelector(`[data-skill-id="${parentId}"]`);
+        if (parentElement) {
+          const childrenArea = parentElement.querySelector('.child-grandchild-row, .grandchildren');
+          if (childrenArea) {
+            searchContainer = childrenArea;
+          }
+        }
+      }
+      
       const selectors = [
-        '.skill-content span',  // Root skills: <span>{{ root.name }}</span>
-        '.skill-content .skill-name',  // Child skills might have .skill-name
+        '.skill-content span',
+        '.skill-content .skill-name',
         '.skill-name',
         '.root-node span',
         '.skill-row span',
-        '.skill-content'  // Fallback to the entire skill-content div
+        '.skill-content'
       ];
       
       let targetElement: Element | null = null;
       
       for (const selector of selectors) {
-        const skillElements = document.querySelectorAll(selector);
-        console.log(`Found ${skillElements.length} elements with selector: ${selector}`);
+        const skillElements = searchContainer.querySelectorAll(selector);
         
         for (let i = 0; i < skillElements.length; i++) {
           const element = skillElements[i];
           const elementText = element.textContent?.trim();
-          console.log(`Element ${i}: "${elementText}"`);
           
-          if (elementText === skillName) {
+          if (elementText && elementText.includes(skillName)) {
+            const spanElement = element.querySelector('span');
+            if (spanElement && spanElement.textContent?.trim() === skillName) {
+              targetElement = spanElement;
+              break;
+            } else if (elementText === skillName) {
+              targetElement = element;
+              break;
+            }
+          }
+        }
+        
+        if (targetElement) break;
+      }
+      
+      if (targetElement) {
+        targetElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+        
+        const skillRow = targetElement.closest('.skill-row, .child-grandchild-group, .skill-node');
+        if (skillRow) {
+          skillRow.classList.add('new-skill-highlight');
+          setTimeout(() => {
+            skillRow.classList.remove('new-skill-highlight');
+          }, 2000);
+        }
+      } else if (attempt < 10) {
+        setTimeout(() => tryScroll(attempt + 1), attempt * 300);
+      }
+    };
+    
+    setTimeout(() => {
+      tryScroll();
+    }, 100);
+  }
+
+  private scrollToNewSkillAfterDOMUpdate(skillName: string, parentId?: string) {
+    const observer = new MutationObserver((mutations) => {
+      let searchContainer: Element | Document = document;
+      
+      if (parentId) {
+        const parentElement = document.querySelector(`[data-skill-id="${parentId}"]`);
+        if (parentElement) {
+          const childrenArea = parentElement.querySelector('.child-grandchild-row, .grandchildren');
+          if (childrenArea) {
+            searchContainer = childrenArea;
+          }
+        }
+      }
+      
+      const skillElements = searchContainer.querySelectorAll('.skill-content span');
+      let found = false;
+      
+      for (let i = 0; i < skillElements.length; i++) {
+        const element = skillElements[i];
+        const elementText = element.textContent?.trim();
+        
+        if (elementText && elementText.includes(skillName)) {
+          found = true;
+          
+          element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center',
+            inline: 'nearest'
+          });
+          
+          const skillRow = element.closest('.skill-row, .child-grandchild-group, .skill-node');
+          if (skillRow) {
+            skillRow.classList.add('new-skill-highlight');
+            setTimeout(() => {
+              skillRow.classList.remove('new-skill-highlight');
+            }, 2000);
+          }
+          
+          break;
+        }
+      }
+      
+      if (found) {
+        observer.disconnect();
+      }
+    });
+    
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+    
+    setTimeout(() => {
+      observer.disconnect();
+    }, 5000);
+  }
+
+  private scrollToNewSkillSimple(skillName: string, parentId?: string) {
+    if (parentId) {
+      this.ensureParentExpanded(parentId);
+      
+      setTimeout(() => {
+        this.searchAndScrollToSkill(skillName, parentId);
+      }, 300);
+    } else {
+      this.searchAndScrollToSkill(skillName);
+    }
+  }
+
+  private searchAndScrollToSkill(skillName: string, parentId?: string) {
+    const tryScroll = (attempt: number = 1) => {
+      let searchContainer: Element | Document = document;
+      
+      if (parentId) {
+        const parentElement = document.querySelector(`[data-skill-id="${parentId}"]`);
+        if (parentElement) {
+          const childrenArea = parentElement.querySelector('.child-grandchild-row, .grandchildren');
+          if (childrenArea) {
+            searchContainer = childrenArea;
+          } else {
+            searchContainer = document;
+          }
+        }
+      }
+      
+      const selectors = [
+        '.skill-content span',
+        '.child-node .skill-content span',
+        '.grandchild-node .skill-content span',
+        'input[type="text"]',
+        '.edit-input',
+        '.skill-content',
+        'span'
+      ];
+      
+      let targetElement: Element | null = null;
+      
+      for (const selector of selectors) {
+        const elements = searchContainer.querySelectorAll(selector);
+        
+        for (let i = 0; i < elements.length; i++) {
+          const element = elements[i];
+          let elementText = element.textContent?.trim();
+          
+          if (element instanceof HTMLInputElement) {
+            elementText = element.value?.trim();
+          }
+          
+          if (elementText && elementText.includes(skillName)) {
             targetElement = element;
-            console.log('Found matching skill element!');
             break;
           }
         }
@@ -191,15 +338,14 @@ export class SkillEditComponent implements OnInit {
       }
       
       if (targetElement) {
-        console.log('Scrolling to skill element');
-        // Scroll to the skill with smooth behavior
+        this.ensureAllParentsExpanded(targetElement);
+        
         targetElement.scrollIntoView({ 
           behavior: 'smooth', 
           block: 'center',
           inline: 'nearest'
         });
         
-        // Add a temporary highlight effect
         const skillRow = targetElement.closest('.skill-row, .child-grandchild-group, .skill-node');
         if (skillRow) {
           skillRow.classList.add('new-skill-highlight');
@@ -208,16 +354,73 @@ export class SkillEditComponent implements OnInit {
           }, 2000);
         }
       } else if (attempt < 5) {
-        // Try again after a longer delay
-        console.log(`Skill not found, retrying in ${attempt * 200}ms...`);
-        setTimeout(() => tryScroll(attempt + 1), attempt * 200);
-      } else {
-        console.log('Skill not found after 5 attempts');
+        setTimeout(() => tryScroll(attempt + 1), attempt * 500);
       }
     };
     
-    // Start trying after a short delay
-    setTimeout(() => tryScroll(), 100);
+    tryScroll();
+  }
+
+  private ensureAllParentsExpanded(targetElement: Element) {
+    let currentElement = targetElement.closest('.skill-node');
+    
+    while (currentElement) {
+      const parentRow = currentElement.closest('.skill-row');
+      if (parentRow) {
+        const skillId = parentRow.getAttribute('data-skill-id');
+        if (skillId) {
+          this.expandSkillById(skillId);
+        }
+      }
+      
+      const nextParent = currentElement.closest('.skill-node')?.parentElement?.closest('.skill-node');
+      currentElement = nextParent || null;
+    }
+  }
+
+  private expandSkillById(skillId: string) {
+    const expandSkillRecursive = (skills: SkillWithChildren[]): boolean => {
+      for (const skill of skills) {
+        if (skill._id === skillId) {
+          skill.isExpanded = true;
+          return true;
+        }
+        
+        if (skill.children && skill.children.length > 0) {
+          if (expandSkillRecursive(skill.children)) {
+            // Also expand this skill if it contains the target
+            skill.isExpanded = true;
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+    
+    expandSkillRecursive(this.skillTree);
+  }
+
+  private ensureParentExpanded(parentId: string) {
+    // Find and expand the parent skill
+    const expandParentRecursive = (skills: SkillWithChildren[]): boolean => {
+      for (const skill of skills) {
+        if (skill._id === parentId) {
+          skill.isExpanded = true;
+          return true;
+        }
+        
+        if (skill.children && skill.children.length > 0) {
+          if (expandParentRecursive(skill.children)) {
+            // Also expand this skill if it contains the parent
+            skill.isExpanded = true;
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+    
+    expandParentRecursive(this.skillTree);
   }
 
   private buildHierarchy(skills: Skill[]): SkillWithChildren[] {
@@ -392,10 +595,15 @@ export class SkillEditComponent implements OnInit {
                   
                   this.loadSkills(); // Reload skills after creation
                   
-                  // Scroll to the new skill after a short delay to allow DOM update
+                  // If it's a child skill, ensure parent is expanded
+                  if (parentId) {
+                    this.ensureParentExpanded(parentId);
+                  }
+                  
+                  // Simple approach: wait for Angular to update the DOM
                   setTimeout(() => {
-                    this.scrollToNewSkill(skillData.name);
-                  }, 100);
+                    this.scrollToNewSkillSimple(skillData.name, parentId);
+                  }, 1000);
                 },
           error: (error: any) => {
             console.error('Error creating skill:', error);
