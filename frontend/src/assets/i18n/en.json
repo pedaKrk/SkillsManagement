@@ -141,6 +141,8 @@
     "EMAIL_MESSAGE_LABEL": "Message",
     "EMAIL_MESSAGE_PLACEHOLDER": "Enter message...",
     "EMAIL_SEND_BUTTON": "Send Email",
+    "EMAIL_NO_USERS_SELECTED": "Please select at least one user.",
+    "EMAIL_TEMPLATE_ERROR": "Failed to load email template.",
     "USER_EDIT_TITLE": "Edit profile of {{name}}",
     "USER_EDIT_SUBTITLE": "Edit information for {{name}}"
   },

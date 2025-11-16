@@ -140,6 +140,8 @@
     "EMAIL_MESSAGE_LABEL": "Nachricht",
     "EMAIL_MESSAGE_PLACEHOLDER": "Nachricht eingeben...",
     "EMAIL_SEND_BUTTON": "E-Mail senden",
+    "EMAIL_NO_USERS_SELECTED": "Bitte wählen Sie mindestens einen Benutzer aus.",
+    "EMAIL_TEMPLATE_ERROR": "E-Mail-Vorlage konnte nicht geladen werden.",
     "USER_EDIT_TITLE": "Profil von {{name}} bearbeiten",
     "USER_EDIT_SUBTITLE": "Informationen für {{name}} bearbeiten"
   },
