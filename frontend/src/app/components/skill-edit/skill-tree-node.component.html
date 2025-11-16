@@ -1,0 +1,62 @@
+<div class="skill-node-wrapper" [style.margin-left]="getMarginLeft()">
+  <div class="skill-node" [class]="getNodeClass()" [attr.data-skill-id]="skill._id" (click)="onToggleExpand()">
+    <!-- Edit Mode Content -->
+    <div *ngIf="skill.isEditing" class="edit-container">
+      <input 
+        [(ngModel)]="skill.tempName" 
+        (keyup.enter)="onSaveEdit($event)"
+        (keyup.escape)="onCancelEdit($event)"
+        class="edit-input"
+        #editInput
+        (focus)="editInput.select()"
+        [placeholder]="'SKILL_EDIT.SKILL_NAME_PLACEHOLDER' | translate"
+        type="text"
+        autocomplete="off"
+        (click)="$event.stopPropagation()"
+      >
+      <div class="edit-actions">
+        <button mat-icon-button (click)="onSaveEdit($event)" class="save-btn">
+          <mat-icon>check</mat-icon>
+        </button>
+        <button mat-icon-button (click)="onCancelEdit($event)" class="cancel-btn">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Normal Display -->
+    <div *ngIf="!skill.isEditing" class="skill-content">
+      <span>{{ skill.name }}</span>
+      <!-- Admin Actions -->
+      <div class="admin-actions" *ngIf="isAdmin">
+        <button mat-icon-button (click)="onStartEditing($event)" class="edit-btn">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button (click)="onAddSkill($event)" class="add-btn">
+          <mat-icon>add</mat-icon>
+        </button>
+        <button mat-icon-button (click)="onDeleteSkill($event)" class="delete-btn">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+      <mat-icon *ngIf="skill.children?.length" class="expand-icon" [class.expanded]="skill.isExpanded">expand_more</mat-icon>
+    </div>
+  </div>
+  
+  <!-- Recursive Children -->
+  <div class="children-container" *ngIf="skill.isExpanded && skill.children?.length" [@expandCollapse]>
+    <app-skill-tree-node
+      *ngFor="let child of skill.children"
+      [skill]="child"
+      [depth]="depth + 1"
+      [isAdmin]="isAdmin"
+      (toggleExpand)="toggleExpand.emit($event)"
+      (startEditing)="startEditing.emit($event)"
+      (saveEdit)="saveEdit.emit($event)"
+      (cancelEdit)="cancelEdit.emit($event)"
+      (addSkill)="addSkill.emit($event)"
+      (deleteSkill)="deleteSkill.emit($event)"
+    ></app-skill-tree-node>
+  </div>
+</div>
+

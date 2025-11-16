@@ -60,4 +60,20 @@ export class EmailService {
     
     window.location.href = `mailto:${recipients}?subject=${encodedSubject}&body=${encodedBody}`;
   }
+
+  /**
+   * Loads the email template for user list emails
+   * @param customMessage Optional custom message to include in the template
+   * @returns Observable with the template response
+   */
+  getUserListEmail(customMessage?: string): Observable<any> {
+    const headers = this.getAuthHeaders();
+    let url = `${this.apiUrl}/user-list-email`;
+    
+    if (customMessage) {
+      url += `?customMessage=${encodeURIComponent(customMessage)}`;
+    }
+    
+    return this.http.get(url, { headers });
+  }
 } 

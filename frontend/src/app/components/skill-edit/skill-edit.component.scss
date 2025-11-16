@@ -273,316 +273,28 @@
   padding: 30px;
   max-width: 1000px;
   margin: 0 auto;
-}
-
-.skill-row {
-  margin-bottom: 10px;
-}
-
-.skill-node {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 15px;
-  margin: 5px 0;
-  border-radius: 8px;
-  background-color: #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  .expand-icon {
-    transition: transform 0.3s ease;
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    
-    &.expanded {
-      transform: rotate(-180deg);
-    }
-  }
-
-  &:hover .expand-icon {
-    color: rgba(255, 255, 255, 1);
-  }
-}
-
-// ===== NODE TYPES =====
-.root-node {
-  background: linear-gradient(135deg, #2E86C1, #1a5c87);
-  color: white;
-  font-weight: 600;
-  border-left: none;
-  position: relative;
-  overflow: hidden;
-
-  &:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(45deg, rgba(255,255,255,0.1), transparent);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  &:hover:before {
-    opacity: 1;
-  }
-}
-
-.child-node {
-  background-color: #f8f9fa;
-  margin-left: 40px;
-  border-left: 4px solid #2E86C1;
-  position: relative;
-
-  &:before {
-    content: '';
-    position: absolute;
-    left: -24px;
-    top: 50%;
-    width: 20px;
-    height: 2px;
-    background-color: #2E86C1;
-  }
-
-  .expand-icon {
-    color: #2E86C1;
-    
-    &.expanded {
-      transform: rotate(-180deg);
-    }
-  }
-
-  &:hover .expand-icon {
-    color: #1a5c87;
-  }
-}
-
-.grandchild-node {
-  background-color: white;
-  margin-left: 80px;
-  border-left: 3px solid #6c757d;
-  position: relative;
-  cursor: default;
-
-  &:before {
-    content: '';
-    position: absolute;
-    left: -24px;
-    top: 50%;
-    width: 20px;
-    height: 2px;
-    background-color: #6c757d;
-  }
-
-  &:hover {
-    transform: none;
-    background-color: #f8f9fa;
-  }
-}
-
-// ===== CHILD/GRANDCHILD LAYOUT =====
-.child-grandchild-row {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
-
-.child-grandchild-group {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-
-.grandchildren {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding-top: 5px;
-  margin-left: 20px;
-  margin-top: 5px;
-}
-
-// ===== SKILL CONTENT =====
-.skill-content {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  gap: 10px;
-}
-
-.skill-content span {
-  flex: 1;
-}
-
-// ===== ADMIN ACTIONS =====
-.admin-actions {
-  display: flex;
-  gap: 6px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.skill-node:hover .admin-actions {
-  opacity: 1;
-}
-
-// Child node actions are always visible but slightly transparent
-.child-node .admin-actions {
-  opacity: 0.8;
-}
-
-.child-node:hover .admin-actions {
-  opacity: 1;
-}
-
-// ===== BUTTON STYLES =====
-.edit-btn, .add-btn, .delete-btn {
-  background-color: rgba(255, 255, 255, 0.15) !important;
-  color: white !important;
-  border: 1px solid rgba(255, 255, 255, 0.4) !important;
-  border-radius: 6px !important;
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
-  margin-right: 6px !important;
-  transition: all 0.2s ease !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.3) !important;
-    border-color: rgba(255, 255, 255, 0.7) !important;
-    color: white !important;
-    transform: scale(1.05) !important;
-  }
-  
-  mat-icon {
-    font-size: 18px !important;
-    width: 18px !important;
-    height: 18px !important;
-    line-height: 1 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-}
-
-// Child node buttons - more prominent
-.child-node .edit-btn,
-.child-node .add-btn,
-.child-node .delete-btn {
-  background-color: rgba(46, 134, 193, 0.12) !important;
-  color: #2E86C1 !important;
-  border: 1px solid rgba(46, 134, 193, 0.3) !important;
-  width: 34px !important;
-  height: 34px !important;
-  min-width: 34px !important;
-  box-shadow: 0 1px 3px rgba(46, 134, 193, 0.15) !important;
-  
-  &:hover {
-    background-color: rgba(46, 134, 193, 0.2) !important;
-    border-color: rgba(46, 134, 193, 0.5) !important;
-    color: #1a5c87 !important;
-    transform: scale(1.05) !important;
-    box-shadow: 0 2px 6px rgba(46, 134, 193, 0.25) !important;
-  }
-  
-  mat-icon {
-    font-size: 19px !important;
-    width: 19px !important;
-    height: 19px !important;
-    line-height: 1 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-}
-
-// Grandchild node buttons - less prominent
-.grandchild-node .edit-btn,
-.grandchild-node .delete-btn {
-  background-color: rgba(108, 117, 125, 0.08) !important;
-  color: #6c757d !important;
-  border: 1px solid rgba(108, 117, 125, 0.25) !important;
-  width: 30px !important;
-  height: 30px !important;
-  min-width: 30px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  transition: all 0.2s ease !important;
-  
-  &:hover {
-    background-color: rgba(108, 117, 125, 0.15) !important;
-    border-color: rgba(108, 117, 125, 0.4) !important;
-    color: #495057 !important;
-    transform: scale(1.05) !important;
-  }
-  
-  mat-icon {
-    font-size: 16px !important;
-    width: 16px !important;
-    height: 16px !important;
-    line-height: 1 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-}
-
-// ===== EDIT MODE =====
-.edit-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  overflow-x: auto;
+  overflow-y: visible;
+  min-width: 0; 
   width: 100%;
-}
-
-.edit-input {
-  flex: 1;
-  padding: 8px 12px;
-  border: 2px solid #007bff;
-  border-radius: 6px;
-  font-size: 16px;
-  font-weight: 500;
-  outline: none;
+  box-sizing: border-box;
   
-  &:focus {
-    border-color: #0056b3;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  &::-webkit-scrollbar {
+    height: 8px;
   }
-}
-
-.edit-actions {
-  display: flex;
-  gap: 5px;
-}
-
-.save-btn {
-  color: #28a745 !important;
-  background-color: rgba(40, 167, 69, 0.1) !important;
   
-  &:hover {
-    background-color: rgba(40, 167, 69, 0.2) !important;
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
   }
-}
-
-.cancel-btn {
-  color: #dc3545 !important;
-  background-color: rgba(220, 53, 69, 0.1) !important;
   
-  &:hover {
-    background-color: rgba(220, 53, 69, 0.2) !important;
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+    
+    &:hover {
+      background: #555;
+    }
   }
 }
 
@@ -600,22 +312,6 @@
   .control-btn {
     width: 100%;
     justify-content: center;
-  }
-  
-  .skill-node {
-    padding: 12px 16px;
-  }
-  
-  .child-node {
-    margin-left: 10px;
-  }
-  
-  .grandchild-node {
-    margin-left: 20px;
-  }
-  
-  .grandchildren {
-    margin-left: 10px;
   }
 }
 

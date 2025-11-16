@@ -1,0 +1,15 @@
+Hallo,
+
+wir hoffen, es geht dir gut! Wir möchten dich gerne über wichtige Informationen aus dem Skills Management System informieren.
+
+{{#if customMessage}}
+{{customMessage}}
+{{else}}
+Dies ist eine Nachricht vom Skills Management System.
+{{/if}}
+
+Falls du Fragen hast oder Unterstützung benötigst, stehen wir dir gerne zur Verfügung.
+
+Beste Grüße,
+Das Skills Management Team
+

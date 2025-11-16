@@ -6,6 +6,8 @@ import {AuthService, EmailService} from '../../../core';
 import {UserRole} from '../../../models/enums/user-roles.enum';
 import {EmploymentType} from '../../../models/enums/employment-type.enum';
 import {forkJoin} from 'rxjs';
+import {DialogService, FormDialogConfig} from '../../../core/services/dialog/dialog.service';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
 
 
 // adjust path as needed
@@ -14,7 +16,7 @@ import {forkJoin} from 'rxjs';
 @Component({
   selector: 'app-manage-progress',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './manage-progress.component.html',
   styleUrls: ['./manage-progress.component.scss']
 })
@@ -41,14 +43,14 @@ export class ManageProgressComponent implements OnInit {
     target_date: ''
   };
 
-  emailModalOpen = false;
-  emailData = {
-    recipient: '',
-    subject: '',
-    message: ''
-  };
-
-  constructor(private manageProgressService: ManageProgressService, private cdr: ChangeDetectorRef, private mailService: EmailService, private authService: AuthService) {}
+  constructor(
+    private manageProgressService: ManageProgressService, 
+    private cdr: ChangeDetectorRef, 
+    private mailService: EmailService, 
+    private authService: AuthService,
+    private dialogService: DialogService,
+    private translateService: TranslateService
+  ) {}
 
     ngOnInit(): void {
       forkJoin({
@@ -259,71 +261,115 @@ export class ManageProgressComponent implements OnInit {
     const skillInfo = skill.skill_id;
 
     if (!lecturer || !skillInfo) {
-      alert('❌ Missing skill or lecturer data.');
+      this.dialogService.showError(
+        this.translateService.instant('COMMON.ERROR') || 'Error',
+        this.translateService.instant('MANAGE_PROGRESS.MISSING_DATA') || 'Missing skill or lecturer data.'
+      ).subscribe();
       return;
     }
 
     const userName = `${lecturer.firstName} ${lecturer.lastName}`;
     const skillName = skillInfo.name;
-    const recipientEmail = lecturer.email;  // ✅ actual email from user model
+    const recipientEmail = lecturer.email;
 
-    const token = this.authService.currentUserValue?.token;
-    if (!token) {
-      alert('❌ Missing auth token.');
-      return;
-    }
-
-    const url = new URL('http://localhost:3000/api/v1/email/future-skill-status-email');
-    url.searchParams.append('userName', userName);
-    url.searchParams.append('skillName', skillName);
-
-    fetch(url.toString(), {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      }
-    })
-      .then(res => res.json())
-      .then(res => {
+    // Lade Email-Template vom Backend
+    this.manageProgressService.getFutureSkillStatusEmail(userName, skillName).subscribe({
+      next: (res) => {
         if (res.success) {
-          this.emailData = {
-            recipient: recipientEmail || `${userName.replace(/\s+/g, '.')}@example.com`, // fallback
-            subject: `Status request for ${skillName}`,
-            message: res.template
+          const defaultSubject = this.translateService.instant('MANAGE_PROGRESS.EMAIL_SUBJECT_DEFAULT', { skillName }) || `Status request for ${skillName}`;
+          const defaultMessage = res.template || '';
+
+          // Verwende DialogService wie in user-list
+          const formConfig: FormDialogConfig = {
+            title: this.translateService.instant('MANAGE_PROGRESS.EMAIL_DIALOG_TITLE') || 'Send Email',
+            message: this.translateService.instant('MANAGE_PROGRESS.EMAIL_DIALOG_INFO', { userName, skillName }) || `Send email to ${userName} about ${skillName}`,
+            formFields: [
+              {
+                id: 'recipient',
+                label: this.translateService.instant('MANAGE_PROGRESS.EMAIL_RECIPIENT_LABEL') || 'Recipient',
+                type: 'text',
+                defaultValue: `${userName} (${recipientEmail})`,
+                required: true,
+                disabled: true
+              },
+              {
+                id: 'subject',
+                label: this.translateService.instant('MANAGE_PROGRESS.EMAIL_SUBJECT_LABEL') || 'Subject',
+                type: 'text',
+                defaultValue: defaultSubject,
+                required: true,
+                placeholder: this.translateService.instant('MANAGE_PROGRESS.EMAIL_SUBJECT_PLACEHOLDER') || 'Email subject'
+              },
+              {
+                id: 'message',
+                label: this.translateService.instant('MANAGE_PROGRESS.EMAIL_MESSAGE_LABEL') || 'Message',
+                type: 'textarea',
+                defaultValue: defaultMessage,
+                required: true,
+                placeholder: this.translateService.instant('MANAGE_PROGRESS.EMAIL_MESSAGE_PLACEHOLDER') || 'Email message',
+                rows: 10
+              }
+            ],
+            submitText: this.translateService.instant('MANAGE_PROGRESS.EMAIL_SEND_BUTTON') || 'Send',
+            cancelText: this.translateService.instant('COMMON.CANCEL') || 'Cancel',
+            closeOnBackdropClick: false
           };
-          this.emailModalOpen = true;
+
+          this.dialogService.showFormDialog(formConfig).subscribe(formData => {
+            if (formData) {
+              this.sendEmailToUser(recipientEmail, formData.subject, formData.message);
+            }
+          });
         } else {
-          alert('❌ Failed to load email template.');
+          this.dialogService.showError(
+            this.translateService.instant('COMMON.ERROR') || 'Error',
+            this.translateService.instant('MANAGE_PROGRESS.EMAIL_TEMPLATE_ERROR') || 'Failed to load email template.'
+          ).subscribe();
         }
-      })
-      .catch(err => {
-        console.error(err);
-        alert('❌ Could not load email template.');
-      });
+      },
+      error: (err) => {
+        console.error('Error loading email template:', err);
+        this.dialogService.showError(
+          this.translateService.instant('COMMON.ERROR') || 'Error',
+          this.translateService.instant('MANAGE_PROGRESS.EMAIL_TEMPLATE_ERROR') || 'Could not load email template.'
+        ).subscribe();
+      }
+    });
   }
 
-  sendEmail() {
+  private sendEmailToUser(recipientEmail: string, subject: string, message: string) {
     const fakeUser = {
       id: '',
       username: '',
-      email: this.emailData.recipient,
+      email: recipientEmail,
       role: UserRole.LECTURER,
       firstName: '',
       lastName: '',
       employmentType: EmploymentType.EXTERNAL
     };
 
-    this.mailService.sendEmailToUsers(
-      [fakeUser],
-      this.emailData.subject,
-      this.emailData.message
-    ).subscribe({
+    this.mailService.sendEmailToUsers([fakeUser], subject, message).subscribe({
       next: () => {
-        alert('✅ Email sent successfully!');
-        this.emailModalOpen = false;
+        this.dialogService.showSuccess({
+          title: this.translateService.instant('COMMON.SUCCESS') || 'Success',
+          message: this.translateService.instant('MANAGE_PROGRESS.EMAIL_SENT_SUCCESS') || 'Email sent successfully!',
+          buttonText: this.translateService.instant('COMMON.OK') || 'OK'
+        }).subscribe();
       },
-      error: () => {
-        alert('❌ Failed to send email.');
+      error: (error) => {
+        console.error('Error sending email:', error);
+        let errorMessage = this.translateService.instant('MANAGE_PROGRESS.EMAIL_SEND_ERROR') || 'Failed to send email.';
+        
+        if (error.status === 401) {
+          errorMessage += ' ' + (this.translateService.instant('MANAGE_PROGRESS.EMAIL_UNAUTHORIZED') || 'You are not authorized.');
+        } else if (error.status === 400) {
+          errorMessage += ' ' + (this.translateService.instant('MANAGE_PROGRESS.EMAIL_INVALID') || 'Invalid input.');
+        }
+        
+        this.dialogService.showError(
+          this.translateService.instant('COMMON.ERROR') || 'Error',
+          errorMessage
+        ).subscribe();
       }
     });
   }

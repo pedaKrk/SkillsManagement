@@ -140,6 +140,8 @@
     "EMAIL_MESSAGE_LABEL": "Nachricht",
     "EMAIL_MESSAGE_PLACEHOLDER": "Nachricht eingeben...",
     "EMAIL_SEND_BUTTON": "E-Mail senden",
+    "EMAIL_NO_USERS_SELECTED": "Bitte wählen Sie mindestens einen Benutzer aus.",
+    "EMAIL_TEMPLATE_ERROR": "E-Mail-Vorlage konnte nicht geladen werden.",
     "USER_EDIT_TITLE": "Profil von {{name}} bearbeiten",
     "USER_EDIT_SUBTITLE": "Informationen für {{name}} bearbeiten"
   },
@@ -191,6 +193,23 @@
     "STATUS": "Status",
     "PROGRESS": "Fortschritt",
     "NOTES": "Notizen"
+  },
+  "MANAGE_PROGRESS": {
+    "EMAIL_DIALOG_TITLE": "E-Mail senden",
+    "EMAIL_DIALOG_INFO": "E-Mail an {{userName}} bezüglich {{skillName}} senden",
+    "EMAIL_RECIPIENT_LABEL": "Empfänger",
+    "EMAIL_SUBJECT_LABEL": "Betreff",
+    "EMAIL_SUBJECT_PLACEHOLDER": "E-Mail-Betreff",
+    "EMAIL_SUBJECT_DEFAULT": "Statusanfrage für {{skillName}}",
+    "EMAIL_MESSAGE_LABEL": "Nachricht",
+    "EMAIL_MESSAGE_PLACEHOLDER": "E-Mail-Nachricht",
+    "EMAIL_SEND_BUTTON": "Senden",
+    "MISSING_DATA": "Fehlende Skill- oder Dozentendaten.",
+    "EMAIL_TEMPLATE_ERROR": "E-Mail-Vorlage konnte nicht geladen werden.",
+    "EMAIL_SENT_SUCCESS": "E-Mail wurde erfolgreich gesendet!",
+    "EMAIL_SEND_ERROR": "Fehler beim Senden der E-Mail.",
+    "EMAIL_UNAUTHORIZED": "Sie sind nicht autorisiert.",
+    "EMAIL_INVALID": "Ungültige Eingabe."
   },
   "DASHBOARD": {
     "DASHBOARD": "Dashboard",

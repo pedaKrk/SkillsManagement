@@ -354,54 +354,79 @@ export class UserListComponent implements OnInit, OnDestroy {
     console.log('Opening email dialog for selected users:', this.selectedUsers);
     
     if (this.selectedUsers.length === 0) {
-      this.dialogService.showError('Error', 'Please select at least one user.');
+      this.dialogService.showError(
+        this.translateService.instant('COMMON.ERROR') || 'Error',
+        this.translateService.instant('USER.EMAIL_NO_USERS_SELECTED') || 'Please select at least one user.'
+      ).subscribe();
       return;
     }
     
     const selectedUsers = this.getSelectedUsers();
     
-    this.translateService.get('USER.EMAIL_DIALOG_INFO', { count: selectedUsers.length }).subscribe(infoText => {
-      this.dialogService.showFormDialog({
-        title: this.translateService.instant('USER.EMAIL_DIALOG_TITLE'),
-        message: infoText,
-        formFields: [
-          {
-            id: 'recipients',
-            label: this.translateService.instant('USER.EMAIL_RECIPIENTS_LABEL'),
-            type: 'textarea',
-            defaultValue: selectedUsers.map((user: User) => `${user.firstName} ${user.lastName} (${user.email})`).join('\n'),
-            required: true,
-            disabled: true,
-            rows: Math.min(selectedUsers.length, 4)
-          },
-          {
-            id: 'subject',
-            label: this.translateService.instant('USER.EMAIL_SUBJECT_LABEL'),
-            type: 'text',
-            defaultValue: this.emailSubject,
-            required: true,
-            placeholder: this.translateService.instant('USER.EMAIL_SUBJECT_PLACEHOLDER')
-          },
-          {
-            id: 'message',
-            label: this.translateService.instant('USER.EMAIL_MESSAGE_LABEL'),
-            type: 'textarea',
-            defaultValue: this.emailMessage,
-            required: true,
-            placeholder: this.translateService.instant('USER.EMAIL_MESSAGE_PLACEHOLDER'),
-            rows: 6
-          }
-        ],
-        submitText: this.translateService.instant('USER.EMAIL_SEND_BUTTON'),
-        cancelText: this.translateService.instant('COMMON.CANCEL')
-      }).subscribe(formData => {
-        if (formData) {
-          this.emailSubject = formData.subject;
-          this.emailMessage = formData.message;
-          // send email to users
-          this.sendEmailToUsers(selectedUsers, formData.subject, formData.message);
+    // load email template from backend
+    this.emailService.getUserListEmail().subscribe({
+      next: (res) => {
+        if (res.success) {
+          const defaultSubject = this.translateService.instant('USER.EMAIL_SUBJECT') || 'Nachricht vom Skills Management System';
+          const defaultMessage = res.template || '';
+          
+          this.translateService.get('USER.EMAIL_DIALOG_INFO', { count: selectedUsers.length }).subscribe(infoText => {
+            this.dialogService.showFormDialog({
+              title: this.translateService.instant('USER.EMAIL_DIALOG_TITLE'),
+              message: infoText,
+              formFields: [
+                {
+                  id: 'recipients',
+                  label: this.translateService.instant('USER.EMAIL_RECIPIENTS_LABEL'),
+                  type: 'textarea',
+                  defaultValue: selectedUsers.map((user: User) => `${user.firstName} ${user.lastName} (${user.email})`).join('\n'),
+                  required: true,
+                  disabled: true,
+                  rows: Math.min(selectedUsers.length, 4)
+                },
+                {
+                  id: 'subject',
+                  label: this.translateService.instant('USER.EMAIL_SUBJECT_LABEL'),
+                  type: 'text',
+                  defaultValue: defaultSubject,
+                  required: true,
+                  placeholder: this.translateService.instant('USER.EMAIL_SUBJECT_PLACEHOLDER')
+                },
+                {
+                  id: 'message',
+                  label: this.translateService.instant('USER.EMAIL_MESSAGE_LABEL'),
+                  type: 'textarea',
+                  defaultValue: defaultMessage,
+                  required: true,
+                  placeholder: this.translateService.instant('USER.EMAIL_MESSAGE_PLACEHOLDER'),
+                  rows: 6
+                }
+              ],
+              submitText: this.translateService.instant('USER.EMAIL_SEND_BUTTON'),
+              cancelText: this.translateService.instant('COMMON.CANCEL')
+            }).subscribe(formData => {
+              if (formData) {
+                this.emailSubject = formData.subject;
+                this.emailMessage = formData.message;
+                // send email to users
+                this.sendEmailToUsers(selectedUsers, formData.subject, formData.message);
+              }
+            });
+          });
+        } else {
+          this.dialogService.showError(
+            this.translateService.instant('COMMON.ERROR') || 'Error',
+            this.translateService.instant('USER.EMAIL_TEMPLATE_ERROR') || 'Failed to load email template.'
+          ).subscribe();
         }
-      });
+      },
+      error: (err) => {
+        console.error('Error loading email template:', err);
+        this.dialogService.showError(
+          this.translateService.instant('COMMON.ERROR') || 'Error',
+          this.translateService.instant('USER.EMAIL_TEMPLATE_ERROR') || 'Could not load email template.'
+        ).subscribe();
+      }
     });
   }
   
@@ -430,32 +455,35 @@ export class UserListComponent implements OnInit, OnDestroy {
           
           // show success message with the dialog service
           this.dialogService.showSuccess({
-            title: 'Erfolg',
-            message: 'Die E-Mail wurde erfolgreich gesendet!',
-            buttonText: 'OK'
+            title: this.translateService.instant('COMMON.SUCCESS') || 'Success',
+            message: this.translateService.instant('USER.EMAIL_SENT') || 'Email has been successfully sent.',
+            buttonText: this.translateService.instant('COMMON.OK') || 'OK'
           });
         },
         error: (error) => {
           console.error('Error sending email', error);
           this.isLoading = false;
           
-          let errorMessage = 'Fehler beim Senden der E-Mail. ';
+          let errorMessage = this.translateService.instant('USER.EMAIL_SEND_ERROR') || 'Error sending email. ';
           
           if (error.status === 401) {
-            errorMessage += 'Sie sind nicht autorisiert. Bitte melden Sie sich erneut an.';
+            errorMessage += ' ' + (this.translateService.instant('USER.EMAIL_UNAUTHORIZED') || 'You are not authorized. Please log in again.');
             // Log out user and redirect to login page
             this.authService.logout();
             setTimeout(() => {
               this.router.navigate(['/login']);
             }, 1500);
           } else if (error.status === 400) {
-            errorMessage += 'Ungültige Eingabe. Bitte überprüfen Sie die E-Mail-Adressen.';
+            errorMessage += ' ' + (this.translateService.instant('USER.EMAIL_INVALID') || 'Invalid input. Please check the email addresses.');
           } else {
-            errorMessage += 'Bitte versuchen Sie es später erneut.';
+            errorMessage += ' ' + (this.translateService.instant('USER.RETRY') || 'Please try again later.');
           }
           
           // show error message with the dialog service
-          this.dialogService.showError('Fehler', errorMessage);
+          this.dialogService.showError(
+            this.translateService.instant('COMMON.ERROR') || 'Error',
+            errorMessage
+          );
         }
       });
   }

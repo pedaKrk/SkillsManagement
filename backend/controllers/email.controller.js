@@ -58,3 +58,26 @@ export const getFutureSkillStatusEmail = async (req, res) => {
         })
     }
 }
+
+export const getUserListEmail = async (req, res) => {
+    try{
+        const { customMessage } = req.query;
+        
+        const data = {};
+        if (customMessage) {
+            data.customMessage = customMessage;
+        }
+        
+        const template = mailService.loadUserListEmail(data);
+        return res.status(200).json({
+            success: true,
+            template
+        });
+    }catch(error){
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to load template',
+            error: 'Internal Server Error'
+        })
+    }
+}

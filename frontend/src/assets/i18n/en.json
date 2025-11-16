@@ -141,6 +141,8 @@
     "EMAIL_MESSAGE_LABEL": "Message",
     "EMAIL_MESSAGE_PLACEHOLDER": "Enter message...",
     "EMAIL_SEND_BUTTON": "Send Email",
+    "EMAIL_NO_USERS_SELECTED": "Please select at least one user.",
+    "EMAIL_TEMPLATE_ERROR": "Failed to load email template.",
     "USER_EDIT_TITLE": "Edit profile of {{name}}",
     "USER_EDIT_SUBTITLE": "Edit information for {{name}}"
   },
@@ -192,6 +194,23 @@
     "STATUS": "Status",
     "PROGRESS": "Progress",
     "NOTES": "Notes"
+  },
+  "MANAGE_PROGRESS": {
+    "EMAIL_DIALOG_TITLE": "Send Email",
+    "EMAIL_DIALOG_INFO": "Send email to {{userName}} about {{skillName}}",
+    "EMAIL_RECIPIENT_LABEL": "Recipient",
+    "EMAIL_SUBJECT_LABEL": "Subject",
+    "EMAIL_SUBJECT_PLACEHOLDER": "Email subject",
+    "EMAIL_SUBJECT_DEFAULT": "Status request for {{skillName}}",
+    "EMAIL_MESSAGE_LABEL": "Message",
+    "EMAIL_MESSAGE_PLACEHOLDER": "Email message",
+    "EMAIL_SEND_BUTTON": "Send",
+    "MISSING_DATA": "Missing skill or lecturer data.",
+    "EMAIL_TEMPLATE_ERROR": "Failed to load email template.",
+    "EMAIL_SENT_SUCCESS": "Email sent successfully!",
+    "EMAIL_SEND_ERROR": "Failed to send email.",
+    "EMAIL_UNAUTHORIZED": "You are not authorized.",
+    "EMAIL_INVALID": "Invalid input."
   },
   "DASHBOARD": {
     "DASHBOARD": "Dashboard",

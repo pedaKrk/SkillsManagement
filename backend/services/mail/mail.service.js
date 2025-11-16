@@ -118,6 +118,35 @@ class MailService {
             throw error;
         }
     }
+
+    /**
+     * Loads an email template for sending emails to users from the user list.
+     *
+     * This method generates a plain-text version of the email template that can be used
+     * to send messages to users. The email content can be customized with optional data.
+     *
+     * @param {Object} data - An object containing the data to populate the email template.
+     * @param {string} [data.customMessage] - An optional custom message to include in the email.
+     * @returns {string} - The plain-text version of the generated email template with the provided data inserted.
+     *
+     * @throws {Error} - Will throw an error if there's an issue generating the email content or loading the template.
+     *
+     * @example
+     * const data = {
+     *   customMessage: 'This is a custom message for the users.'
+     * };
+     * const emailContent = loadUserListEmail(data);
+     * console.log(emailContent);  // The generated email content
+     */
+    loadUserListEmail(data = {}){
+        try {
+            const { text } = mailTemplateService.generateEmailContent("userListEmail", data, true, false);
+            return text;
+        }catch(error){
+            console.error("Error loading user list email:", error);
+            throw error;
+        }
+    }
 }
 
 export const mailService = new MailService();
