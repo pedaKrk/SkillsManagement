@@ -104,145 +104,17 @@
   </div>
 
   <div class="skill-hierarchy">
-    <ng-container *ngFor="let root of skillTree">
-      <!-- Root Node -->
-      <div class="skill-row" [attr.data-skill-id]="root._id">
-        <div class="skill-node root-node" (click)="toggleExpand(root)">
-          <!-- Edit Mode Content -->
-          <div *ngIf="root.isEditing" class="edit-container">
-            <input 
-              [(ngModel)]="root.tempName" 
-              (keyup.enter)="saveEdit(root)"
-              (keyup.escape)="cancelEdit(root)"
-              class="edit-input"
-              #editInput
-              (focus)="editInput.select()"
-              [placeholder]="'SKILL_EDIT.SKILL_NAME_PLACEHOLDER' | translate"
-              type="text"
-              autocomplete="off"
-            >
-            <div class="edit-actions">
-              <button mat-icon-button (click)="saveEdit(root); $event.stopPropagation()" class="save-btn">
-                <mat-icon>check</mat-icon>
-              </button>
-              <button mat-icon-button (click)="cancelEdit(root); $event.stopPropagation()" class="cancel-btn">
-                <mat-icon>close</mat-icon>
-              </button>
-            </div>
-          </div>
-          
-          <!-- Normal Display -->
-          <div *ngIf="!root.isEditing" class="skill-content">
-            <span>{{ root.name }}</span>
-            <!-- Admin Actions -->
-            <div class="admin-actions">
-              <button mat-icon-button (click)="startEditing(root); $event.stopPropagation()" class="edit-btn">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button mat-icon-button (click)="addSkill(root._id); $event.stopPropagation()" class="add-btn">
-                <mat-icon>add</mat-icon>
-              </button>
-              <button mat-icon-button (click)="deleteSkill(root); $event.stopPropagation()" class="delete-btn">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-            <mat-icon class="expand-icon" [class.expanded]="root.isExpanded">expand_more</mat-icon>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Child and Grandchild Nodes -->
-      <div class="child-grandchild-row" *ngIf="root.isExpanded" [@expandCollapse]>
-        <ng-container *ngFor="let child of root.children">
-          <div class="child-grandchild-group">
-            <div class="skill-node child-node" [attr.data-skill-id]="child._id" (click)="toggleExpand(child)">
-              <!-- Edit Mode Content -->
-              <div *ngIf="child.isEditing" class="edit-container">
-                <input 
-                  [(ngModel)]="child.tempName" 
-                  (keyup.enter)="saveEdit(child)"
-                  (keyup.escape)="cancelEdit(child)"
-                  class="edit-input"
-                  #editInput
-                  (focus)="editInput.select()"
-                  [placeholder]="'SKILL_EDIT.SKILL_NAME_PLACEHOLDER' | translate"
-                  type="text"
-                  autocomplete="off"
-                >
-                <div class="edit-actions">
-                  <button mat-icon-button (click)="saveEdit(child); $event.stopPropagation()" class="save-btn">
-                    <mat-icon>check</mat-icon>
-                  </button>
-                  <button mat-icon-button (click)="cancelEdit(child); $event.stopPropagation()" class="cancel-btn">
-                    <mat-icon>close</mat-icon>
-                  </button>
-                </div>
-              </div>
-              
-              <!-- Normal Display -->
-              <div *ngIf="!child.isEditing" class="skill-content">
-                <span>{{ child.name }}</span>
-                <!-- Admin Actions -->
-                <div class="admin-actions">
-                  <button mat-icon-button (click)="startEditing(child); $event.stopPropagation()" class="edit-btn">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button mat-icon-button (click)="addSkill(child._id); $event.stopPropagation()" class="add-btn">
-                    <mat-icon>add</mat-icon>
-                  </button>
-                  <button mat-icon-button (click)="deleteSkill(child); $event.stopPropagation()" class="delete-btn">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-                <mat-icon *ngIf="child.children?.length" class="expand-icon" [class.expanded]="child.isExpanded">expand_more</mat-icon>
-              </div>
-            </div>
-            
-            <div class="grandchildren" *ngIf="child.isExpanded" [@expandCollapse]>
-              <ng-container *ngFor="let grandchild of child.children">
-                <div class="skill-node grandchild-node" [attr.data-skill-id]="grandchild._id">
-                  <!-- Edit Mode Content -->
-                  <div *ngIf="grandchild.isEditing" class="edit-container">
-                    <input 
-                      [(ngModel)]="grandchild.tempName" 
-                      (keyup.enter)="saveEdit(grandchild)"
-                      (keyup.escape)="cancelEdit(grandchild)"
-                      class="edit-input"
-                      #editInput
-                      (focus)="editInput.select()"
-                      [placeholder]="'SKILL_EDIT.SKILL_NAME_PLACEHOLDER' | translate"
-                      type="text"
-                      autocomplete="off"
-                    >
-                    <div class="edit-actions">
-                      <button mat-icon-button (click)="saveEdit(grandchild); $event.stopPropagation()" class="save-btn">
-                        <mat-icon>check</mat-icon>
-                      </button>
-                      <button mat-icon-button (click)="cancelEdit(grandchild); $event.stopPropagation()" class="cancel-btn">
-                        <mat-icon>close</mat-icon>
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <!-- Normal Display -->
-                  <div *ngIf="!grandchild.isEditing" class="skill-content">
-                    <span>{{ grandchild.name }}</span>
-                    <!-- Admin Actions -->
-                    <div class="admin-actions">
-                      <button mat-icon-button (click)="startEditing(grandchild); $event.stopPropagation()" class="edit-btn">
-                        <mat-icon>edit</mat-icon>
-                      </button>
-                      <button mat-icon-button (click)="deleteSkill(grandchild); $event.stopPropagation()" class="delete-btn">
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </ng-container>
-            </div>
-          </div>
-        </ng-container>
-      </div>
-    </ng-container>
+    <app-skill-tree-node
+      *ngFor="let root of skillTree"
+      [skill]="root"
+      [depth]="0"
+      [isAdmin]="isAdmin"
+      (toggleExpand)="toggleExpand($event)"
+      (startEditing)="startEditing($event)"
+      (saveEdit)="saveEdit($event)"
+      (cancelEdit)="cancelEdit($event)"
+      (addSkill)="addSkill($event)"
+      (deleteSkill)="deleteSkill($event)"
+    ></app-skill-tree-node>
   </div>
 </div>

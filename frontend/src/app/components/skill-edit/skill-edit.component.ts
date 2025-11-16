@@ -8,7 +8,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule } from '@angular/material/dialog';
 import { DialogService, ConfirmDialogConfig, FormDialogConfig } from '../../core/services/dialog/dialog.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { trigger, state, style, transition, animate } from '@angular/animations';
 import { SkillService } from '../../core/services/skill/skill.service';
 import { UserService } from '../../core/services/user/user.service';
 import { Skill } from '../../models/skill.model';
@@ -16,14 +15,9 @@ import { AuthService } from '../../core/services/auth/auth.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { UserRole } from '../../models/enums/user-roles.enum';
 import { Router } from '@angular/router';
+import { SkillTreeNodeComponent, SkillWithChildren } from './skill-tree-node.component';
 
-interface SkillWithChildren extends Skill {
-  children?: SkillWithChildren[];
-  isExpanded?: boolean;
-  isEditing?: boolean;
-  tempName?: string;
-  searchPath?: string;
-}
+export type { SkillWithChildren };
 
 @Component({
   selector: 'app-skill-edit',
@@ -37,25 +31,11 @@ interface SkillWithChildren extends Skill {
     MatFormFieldModule,
     MatDialogModule,
     MatTooltipModule,
-    TranslateModule
+    TranslateModule,
+    SkillTreeNodeComponent
   ],
   templateUrl: './skill-edit.component.html',
-  styleUrls: ['./skill-edit.component.scss'],
-  animations: [
-    trigger('expandCollapse', [
-      state('void', style({
-        height: '0',
-        opacity: '0'
-      })),
-      state('*', style({
-        height: '*',
-        opacity: '1'
-      })),
-      transition('void <=> *', [
-        animate('300ms ease-in-out')
-      ])
-    ])
-  ]
+  styleUrls: ['./skill-edit.component.scss']
 })
 export class SkillEditComponent implements OnInit {
   skillTree: SkillWithChildren[] = [];
@@ -161,7 +141,7 @@ export class SkillEditComponent implements OnInit {
       if (parentId) {
         const parentElement = document.querySelector(`[data-skill-id="${parentId}"]`);
         if (parentElement) {
-          const childrenArea = parentElement.querySelector('.child-grandchild-row, .grandchildren');
+          const childrenArea = parentElement.closest('.skill-node-wrapper')?.querySelector('.children-container');
           if (childrenArea) {
             searchContainer = childrenArea;
           }
@@ -173,7 +153,7 @@ export class SkillEditComponent implements OnInit {
         '.skill-content .skill-name',
         '.skill-name',
         '.root-node span',
-        '.skill-row span',
+        '.skill-node-wrapper span',
         '.skill-content'
       ];
       
@@ -208,7 +188,7 @@ export class SkillEditComponent implements OnInit {
           inline: 'nearest'
         });
         
-        const skillRow = targetElement.closest('.skill-row, .child-grandchild-group, .skill-node');
+        const skillRow = targetElement.closest('.skill-node-wrapper, .skill-node');
         if (skillRow) {
           skillRow.classList.add('new-skill-highlight');
           setTimeout(() => {
@@ -232,7 +212,7 @@ export class SkillEditComponent implements OnInit {
       if (parentId) {
         const parentElement = document.querySelector(`[data-skill-id="${parentId}"]`);
         if (parentElement) {
-          const childrenArea = parentElement.querySelector('.child-grandchild-row, .grandchildren');
+          const childrenArea = parentElement.closest('.skill-node-wrapper')?.querySelector('.children-container');
           if (childrenArea) {
             searchContainer = childrenArea;
           }
@@ -255,7 +235,7 @@ export class SkillEditComponent implements OnInit {
             inline: 'nearest'
           });
           
-          const skillRow = element.closest('.skill-row, .child-grandchild-group, .skill-node');
+          const skillRow = element.closest('.skill-node-wrapper, .skill-node');
           if (skillRow) {
             skillRow.classList.add('new-skill-highlight');
             setTimeout(() => {
@@ -301,7 +281,7 @@ export class SkillEditComponent implements OnInit {
       if (parentId) {
         const parentElement = document.querySelector(`[data-skill-id="${parentId}"]`);
         if (parentElement) {
-          const childrenArea = parentElement.querySelector('.child-grandchild-row, .grandchildren');
+          const childrenArea = parentElement.closest('.skill-node-wrapper')?.querySelector('.children-container');
           if (childrenArea) {
             searchContainer = childrenArea;
           } else {
@@ -313,7 +293,7 @@ export class SkillEditComponent implements OnInit {
       const selectors = [
         '.skill-content span',
         '.child-node .skill-content span',
-        '.grandchild-node .skill-content span',
+        '.nested-node .skill-content span',
         'input[type="text"]',
         '.edit-input',
         '.skill-content',
@@ -351,7 +331,7 @@ export class SkillEditComponent implements OnInit {
           inline: 'nearest'
         });
         
-        const skillRow = targetElement.closest('.skill-row, .child-grandchild-group, .skill-node');
+        const skillRow = targetElement.closest('.skill-node-wrapper, .skill-node');
         if (skillRow) {
           skillRow.classList.add('new-skill-highlight');
           setTimeout(() => {
@@ -370,15 +350,13 @@ export class SkillEditComponent implements OnInit {
     let currentElement = targetElement.closest('.skill-node');
     
     while (currentElement) {
-      const parentRow = currentElement.closest('.skill-row');
-      if (parentRow) {
-        const skillId = parentRow.getAttribute('data-skill-id');
-        if (skillId) {
-          this.expandSkillById(skillId);
-        }
+      const skillId = currentElement.getAttribute('data-skill-id');
+      if (skillId) {
+        this.expandSkillById(skillId);
       }
       
-      const nextParent = currentElement.closest('.skill-node')?.parentElement?.closest('.skill-node');
+      const wrapper = currentElement.closest('.skill-node-wrapper');
+      const nextParent = wrapper?.parentElement?.closest('.skill-node-wrapper')?.querySelector('.skill-node');
       currentElement = nextParent || null;
     }
   }
@@ -453,14 +431,17 @@ export class SkillEditComponent implements OnInit {
 
   toggleAll() {
     this.isAllExpanded = !this.isAllExpanded;
-    this.skillTree.forEach(root => {
-      root.isExpanded = this.isAllExpanded;
-      if (root.children) {
-        root.children.forEach(child => {
-          child.isExpanded = this.isAllExpanded;
-        });
-      }
-    });
+    
+    const toggleRecursive = (skills: SkillWithChildren[]) => {
+      skills.forEach(skill => {
+        skill.isExpanded = this.isAllExpanded;
+        if (skill.children && skill.children.length > 0) {
+          toggleRecursive(skill.children);
+        }
+      });
+    };
+    
+    toggleRecursive(this.skillTree);
   }
 
   startEditing(skill: SkillWithChildren) {
@@ -802,7 +783,7 @@ export class SkillEditComponent implements OnInit {
     const selectors = [
       '.skill-content span',
       '.child-node .skill-content span',
-      '.grandchild-node .skill-content span',
+      '.nested-node .skill-content span',
       'input[type="text"]',
       '.edit-input',
       '.skill-content',
@@ -838,7 +819,7 @@ export class SkillEditComponent implements OnInit {
         inline: 'nearest'
       });
       
-      const skillRow = targetElement.closest('.skill-row, .child-grandchild-group, .skill-node');
+      const skillRow = targetElement.closest('.skill-node-wrapper, .skill-node');
       if (skillRow) {
         // Different highlight for root skills
         if (isRootSkill) {
