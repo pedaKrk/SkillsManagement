@@ -25,4 +25,8 @@ export class DashboardService {
   getFieldsPopularity(): Observable<any> {
     return this.http.get(`${this.apiUrl}/fields-popularity`);
   }
+
+  getUserFutureSkillLevelMatrix(userId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/user/${userId}/future-skills-level-matrix`);
+  }
 }
