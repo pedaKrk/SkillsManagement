@@ -10,6 +10,7 @@ import { User, Comment, UserSkillEntry } from '../../models/user.model';
 import { UserRole } from '../../models/enums/user-roles.enum';
 import { environment } from '../../../environments/environment';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import {UserStatisticsComponent} from '../user-statistics/user-statistics.component';
 
 @Component({
   selector: 'app-user-details',
@@ -18,7 +19,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
     CommonModule,
     FormsModule,
     RouterModule,
-    TranslateModule
+    TranslateModule,
+    UserStatisticsComponent
   ],
   templateUrl: './user-details.component.html',
   styleUrl: './user-details.component.scss'
@@ -29,32 +31,32 @@ export class UserDetailsComponent implements OnInit {
   isLoading: boolean = false;
   error: string | null = null;
   showInitialsOnError: boolean = false;
-  
+
   // for comments
   newComment: string = '';
   comments: Comment[] = [];
-  
+
   // answer to comments
   replyingToComment: Comment | null = null;
   replyText: string = '';
-  
+
   // for filtering comments
   commentSearchTerm: string = '';
   selectedAuthor: string = '';
   dateFrom: string = '';
   dateTo: string = '';
-  
+
   // for displaying long texts
   expandedComments: Set<string> = new Set<string>();
   expandedReplies: Set<string> = new Set<string>();
   maxTextLength: number = 150; // Maximum number of characters before text is truncated
-  
+
   isAuthorDropdownOpen: boolean = false;
-  
+
   // permissions
   canAddComments: boolean = false;
   isAdmin: boolean = false;
-  
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -64,18 +66,18 @@ export class UserDetailsComponent implements OnInit {
     private commentService: CommentService,
     private translateService: TranslateService
   ) {}
-  
+
   ngOnInit(): void {
     // check if user is logged in
     const currentUser = this.authService.currentUserValue;
     console.log('Aktueller Benutzer:', currentUser);
-    
+
     if (!currentUser || !currentUser.token) {
       console.warn('User is not logged in or token is missing');
       this.error = 'Sie müssen eingeloggt sein, um diese Seite anzuzeigen.';
       return;
     }
-    
+
     // get user id from url
     this.route.params.subscribe(params => {
       this.userId = params['id'];
@@ -83,18 +85,18 @@ export class UserDetailsComponent implements OnInit {
         this.loadUserDetails();
       }
     });
-    
+
     // check permissions
     this.checkPermissions();
   }
-  
+
   /**
    * loads user details from server
    */
   loadUserDetails(): void {
     this.isLoading = true;
     this.error = null;
-    
+
     this.userService.getUserById(this.userId).subscribe({
       next: (user) => {
         this.user = user;
@@ -120,13 +122,13 @@ export class UserDetailsComponent implements OnInit {
       }
     });
   }
-  
+
   /**
    * loads comments for the user
    */
   loadComments(): void {
     this.isLoading = true;
-    
+
     this.commentService.getCommentsForUser(this.userId).subscribe({
       next: (comments) => {
         // collect all unique user IDs
@@ -197,37 +199,37 @@ export class UserDetailsComponent implements OnInit {
       }
     });
   }
-  
+
   /**
    * returns all unique authors who have written comments
    * @returns array of author objects with id and name
    */
   getUniqueAuthors(): {id: string, name: string}[] {
     const uniqueAuthors = new Map<string, string>();
-    
+
     // add each author only once (based on the ID)
     this.comments.forEach(comment => {
       if (comment.authorId && comment.authorName) {
         uniqueAuthors.set(comment.authorId, comment.authorName);
       }
     });
-    
+
     // convert the map to an array of objects
     return Array.from(uniqueAuthors.entries()).map(([id, name]) => ({
       id,
       name
     }));
   }
-  
+
   /**
    * checks the permissions of the current user
    */
   checkPermissions(): void {
     const currentUser = this.authService.currentUserValue;
-    
+
     if (currentUser) {
       const userRole = currentUser.role.toLowerCase();
-      this.isAdmin = userRole === UserRole.ADMIN.toLowerCase() || 
+      this.isAdmin = userRole === UserRole.ADMIN.toLowerCase() ||
                      userRole === UserRole.COMPETENCE_LEADER.toLowerCase();
       this.canAddComments = this.isAdmin;
     } else {
@@ -235,17 +237,17 @@ export class UserDetailsComponent implements OnInit {
       this.isAdmin = false;
     }
   }
-  
+
   /**
    * checks if the current user is viewing their own profile
    */
   isOwnProfile(): boolean {
     const currentUser = this.authService.currentUserValue;
     if (!currentUser) return false;
-    
+
     return currentUser.id === this.userId;
   }
-  
+
   /**
    * adds a new comment
    */
@@ -253,9 +255,9 @@ export class UserDetailsComponent implements OnInit {
     if (!this.newComment.trim()) {
       return;
     }
-    
+
     this.isLoading = true;
-    
+
     // check if user is logged in
     const currentUser = this.authService.currentUserValue;
     if (!currentUser || !currentUser.token) {
@@ -267,7 +269,7 @@ export class UserDetailsComponent implements OnInit {
       this.isLoading = false;
       return;
     }
-    
+
     this.commentService.addCommentToUser(this.userId, this.newComment).subscribe({
       next: (comment) => {
         if (comment && (comment.id || comment._id)) {
@@ -275,7 +277,7 @@ export class UserDetailsComponent implements OnInit {
           this.userService.getUserById(currentUser.id).subscribe({
             next: (fullUserData) => {
               const authorName = this.createFormalName(fullUserData);
-              
+
               const newComment: Comment = {
                 id: comment.id || comment._id || '',
                 userId: this.userId,
@@ -284,10 +286,10 @@ export class UserDetailsComponent implements OnInit {
                 text: comment.content || this.newComment,
                 createdAt: new Date(comment.time_stamp) || new Date()
               };
-              
+
               this.comments.unshift(newComment);
               this.newComment = '';
-              
+
               this.dialogService.showSuccess({
                 title: 'Erfolg',
                 message: 'Kommentar wurde erfolgreich hinzugefügt.',
@@ -306,7 +308,7 @@ export class UserDetailsComponent implements OnInit {
                 text: comment.content || this.newComment,
                 createdAt: new Date(comment.time_stamp) || new Date()
               };
-              
+
               this.comments.unshift(newComment);
               this.newComment = '';
               this.isLoading = false;
@@ -324,7 +326,7 @@ export class UserDetailsComponent implements OnInit {
       }
     });
   }
-  
+
   /**
    * creates a formal name from title (if available), first name and last name
    */
@@ -341,23 +343,23 @@ export class UserDetailsComponent implements OnInit {
     }
     return parts.length > 0 ? parts.join(' ') : user.username || 'Unbekannter Benutzer';
   }
-  
+
   /**
    * filters comments based on the filter criteria
    */
   filterComments(): Comment[] {
     return this.comments.filter(comment => {
       // filter by text
-      if (this.commentSearchTerm && 
+      if (this.commentSearchTerm &&
           !comment.text.toLowerCase().includes(this.commentSearchTerm.toLowerCase())) {
         return false;
       }
-      
+
       // filter by author
       if (this.selectedAuthor && comment.authorId !== this.selectedAuthor) {
         return false;
       }
-      
+
       // filter by date (from)
       if (this.dateFrom) {
         const fromDate = new Date(this.dateFrom);
@@ -365,7 +367,7 @@ export class UserDetailsComponent implements OnInit {
           return false;
         }
       }
-      
+
       // filter by date (to)
       if (this.dateTo) {
         const toDate = new Date(this.dateTo);
@@ -374,11 +376,11 @@ export class UserDetailsComponent implements OnInit {
           return false;
         }
       }
-      
+
       return true;
     });
   }
-  
+
   /**
    * navigates to the edit page of the user
    */
@@ -386,7 +388,7 @@ export class UserDetailsComponent implements OnInit {
     console.log('Navigiere zur Bearbeitungsseite für Benutzer:', this.userId);
     this.router.navigate(['/users', this.userId, 'edit']);
   }
-  
+
   /**
    * formats the date for display
    */
@@ -398,17 +400,17 @@ export class UserDetailsComponent implements OnInit {
       year: 'numeric'
     });
   }
-  
+
   /**
    * returns the initials of the user (for the avatar)
    */
   getUserInitials(): string {
-    
+
     if (!this.user) {
       console.log('No user object available');
       return '';
     }
-    
+
     if (!this.user.firstName || !this.user.lastName) {
       console.log('Missing firstName or lastName:', {
         firstName: this.user.firstName,
@@ -416,11 +418,11 @@ export class UserDetailsComponent implements OnInit {
       });
       return '';
     }
-    
+
     const initials = (this.user.firstName.charAt(0) + this.user.lastName.charAt(0)).toUpperCase();
     return initials;
   }
-  
+
   /**
    * returns the formatted name of the user
    */
@@ -428,7 +430,7 @@ export class UserDetailsComponent implements OnInit {
     if (!this.user) return '';
     return `${this.user.title ? this.user.title + ' ' : ''}${this.user.firstName} ${this.user.lastName}`;
   }
-  
+
   /**
    * returns the formatted employment type
    */
@@ -436,7 +438,7 @@ export class UserDetailsComponent implements OnInit {
     if (!this.user) return '';
     return this.user.employmentType === 'Internal' ? 'Intern' : 'Extern';
   }
-  
+
   /**
    * returns the german role name
    * @returns The german role name
@@ -447,7 +449,7 @@ export class UserDetailsComponent implements OnInit {
     }
     return this.user.role.replace('_', ' ');
   }
-  
+
   /**
    * returns the name of a skill, regardless of the format
    * @param skill the skill object
@@ -460,7 +462,7 @@ export class UserDetailsComponent implements OnInit {
     if (skill._id) return `Fähigkeit (ID: ${skill._id.substring(0, 5)}...)`;
     return 'Unbekannte Fähigkeit';
   }
-  
+
   /**
    * Returns the name of an author by its ID
    * @param authorId The ID of the author
@@ -468,11 +470,11 @@ export class UserDetailsComponent implements OnInit {
    */
   getAuthorNameById(authorId: string): string {
     if (!authorId) return 'Alle Autoren';
-    
+
     const author = this.getUniqueAuthors().find(a => a.id === authorId);
     return author ? author.name : 'Unbekannter Autor';
   }
-  
+
   /**
    * Sets the selected author
    * @param authorId The ID of the selected author or an empty string for "All authors"
@@ -481,21 +483,21 @@ export class UserDetailsComponent implements OnInit {
     this.selectedAuthor = authorId;
     this.isAuthorDropdownOpen = false;
   }
-  
+
   /**
    * Opens or closes the author dropdown
    */
   toggleAuthorDropdown(): void {
     this.isAuthorDropdownOpen = !this.isAuthorDropdownOpen;
   }
-  
+
   /**
    * navigates back to the user list
    */
   goBack(): void {
     this.router.navigate(['/user']);
   }
-  
+
   /**
    * sets the comment to reply to
    * @param comment the comment to reply to
@@ -504,7 +506,7 @@ export class UserDetailsComponent implements OnInit {
     this.replyingToComment = comment;
     this.replyText = '';
   }
-  
+
   /**
    * cancels the reply to a comment
    */
@@ -512,7 +514,7 @@ export class UserDetailsComponent implements OnInit {
     this.replyingToComment = null;
     this.replyText = '';
   }
-  
+
   /**
    * adds a reply to a comment
    */
@@ -520,9 +522,9 @@ export class UserDetailsComponent implements OnInit {
     if (!this.replyingToComment || !this.replyText.trim()) {
       return;
     }
-    
+
     this.isLoading = true;
-    
+
     // check if user is logged in
     const currentUser = this.authService.currentUserValue;
     if (!currentUser || !currentUser.token) {
@@ -534,11 +536,11 @@ export class UserDetailsComponent implements OnInit {
       this.isLoading = false;
       return;
     }
-    
+
     // add reply to comment
     this.commentService.addReplyToComment(
-      this.userId, 
-      this.replyingToComment.id || this.replyingToComment._id || '', 
+      this.userId,
+      this.replyingToComment.id || this.replyingToComment._id || '',
       this.replyText
     ).subscribe({
       next: (reply: any) => {
@@ -547,7 +549,7 @@ export class UserDetailsComponent implements OnInit {
           this.userService.getUserById(currentUser.id).subscribe({
             next: (fullUserData) => {
               const authorName = this.createFormalName(fullUserData);
-              
+
               // create new reply
               const newReply: Comment = {
                 id: reply.id || reply._id || '',
@@ -558,20 +560,20 @@ export class UserDetailsComponent implements OnInit {
                 createdAt: new Date(reply.time_stamp) || new Date(),
                 parentId: this.replyingToComment?.id || this.replyingToComment?._id || ''
               };
-              
+
               // add reply to comment
               if (this.replyingToComment && !this.replyingToComment.replies) {
                 this.replyingToComment.replies = [];
               }
-              
+
               if (this.replyingToComment && this.replyingToComment.replies) {
                 this.replyingToComment.replies.push(newReply);
               }
-              
+
               // clear input field and end reply mode
               this.replyText = '';
               this.replyingToComment = null;
-              
+
               this.dialogService.showSuccess({
                 title: 'Erfolg',
                 message: 'Antwort wurde erfolgreich hinzugefügt.',
@@ -591,15 +593,15 @@ export class UserDetailsComponent implements OnInit {
                 createdAt: new Date(reply.time_stamp) || new Date(),
                 parentId: this.replyingToComment?.id || this.replyingToComment?._id || ''
               };
-              
+
               if (this.replyingToComment && !this.replyingToComment.replies) {
                 this.replyingToComment.replies = [];
               }
-              
+
               if (this.replyingToComment && this.replyingToComment.replies) {
                 this.replyingToComment.replies.push(newReply);
               }
-              
+
               this.replyText = '';
               this.replyingToComment = null;
               this.isLoading = false;
@@ -617,7 +619,7 @@ export class UserDetailsComponent implements OnInit {
       }
     });
   }
-  
+
   /**
    * checks if a text is too long and should be truncated
    * @param text the text to check
@@ -626,7 +628,7 @@ export class UserDetailsComponent implements OnInit {
   isTextTooLong(text: string | undefined): boolean {
     return !!text && text.length > this.maxTextLength;
   }
-  
+
   /**
    * returns a truncated text if it is too long
    * @param text the text to truncate
@@ -638,35 +640,35 @@ export class UserDetailsComponent implements OnInit {
     if (isExpanded || text.length <= this.maxTextLength) return text;
     return text.substring(0, this.maxTextLength) + '...';
   }
-  
+
   /**
    * toggles the expansion status of a comment
    * @param commentId the ID of the comment
    */
   toggleCommentExpansion(commentId: string | undefined): void {
     if (!commentId) return;
-    
+
     if (this.expandedComments.has(commentId)) {
       this.expandedComments.delete(commentId);
     } else {
       this.expandedComments.add(commentId);
     }
   }
-  
+
   /**
    * toggles the expansion status of a reply
    * @param replyId the ID of the reply
    */
   toggleReplyExpansion(replyId: string | undefined): void {
     if (!replyId) return;
-    
+
     if (this.expandedReplies.has(replyId)) {
       this.expandedReplies.delete(replyId);
     } else {
       this.expandedReplies.add(replyId);
     }
   }
-  
+
   /**
    * checks if a comment is expanded
    * @param commentId the ID of the comment
@@ -675,7 +677,7 @@ export class UserDetailsComponent implements OnInit {
   isCommentExpanded(commentId: string | undefined): boolean {
     return !!commentId && this.expandedComments.has(commentId);
   }
-  
+
   /**
    * checks if a reply is expanded
    * @param replyId the ID of the reply
@@ -684,7 +686,7 @@ export class UserDetailsComponent implements OnInit {
   isReplyExpanded(replyId: string | undefined): boolean {
     return !!replyId && this.expandedReplies.has(replyId);
   }
-  
+
   /**
    * returns the current user role for debugging purposes
    */
@@ -692,7 +694,7 @@ export class UserDetailsComponent implements OnInit {
     const currentUser = this.authService.currentUserValue;
     return currentUser?.role || 'keine Rolle';
   }
-  
+
   /**
    * returns the full URL for a profile image
    * @param profileImageUrl the relative URL of the profile image
@@ -700,34 +702,34 @@ export class UserDetailsComponent implements OnInit {
    */
   getProfileImageUrl(profileImageUrl: string): string {
     if (!profileImageUrl) return '';
-    
+
     // if the URL is already absolute (starts with http or https), use it directly
     if (profileImageUrl.startsWith('http')) {
       return profileImageUrl;
     }
-    
+
     // if the URL starts with a slash, remove it
     const cleanUrl = profileImageUrl.startsWith('/') ? profileImageUrl.substring(1) : profileImageUrl;
-    
+
     // create the full URL
     // use the base URL without the API path
     const baseUrl = environment.apiUrl.split('/api/v1')[0];
-    
+
     // use a direct URL to the backend server
     const fullUrl = `${baseUrl}/${cleanUrl}`;
     console.log('Profilbild-URL:', fullUrl);
-    
+
     // use a static URL without timestamp to avoid Angular errors
     return fullUrl;
   }
-  
+
   /**
    * Handles errors when loading the profile image
    */
   handleImageError(): void {
     console.log('Fehler beim Laden des Profilbilds');
     this.showInitialsOnError = true;
-    
+
     // if the user is available, set the profile image URL to undefined
     if (this.user) {
       this.user = {
