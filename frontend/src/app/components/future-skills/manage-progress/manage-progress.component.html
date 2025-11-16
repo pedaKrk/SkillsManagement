@@ -171,27 +171,4 @@
   </table>
 </div>
 
-<!--  EMAIL MODAL -->
-<div class="email-modal" *ngIf="emailModalOpen">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>Send Email</h2>
-      <div class="email-section">
-      <label class="field-label">To:</label>
-      <div class="field-value">{{ emailData.recipient }}</div>
-    </div>
-
-    <div class="email-section">
-      <label class="field-label">Subject:</label>
-      <div class="field-value">{{ emailData.subject }}</div>
-    </div>
-    <textarea [(ngModel)]="emailData.message" rows="10" cols="60"></textarea>
-
-    <div class="modal-actions">
-      <button class="btn primary" (click)="sendEmail()">Send</button>
-      <button class="btn secondary" (click)="emailModalOpen = false">Cancel</button>
-    </div>
-  </div>
-</div>
-</div>
 </div>

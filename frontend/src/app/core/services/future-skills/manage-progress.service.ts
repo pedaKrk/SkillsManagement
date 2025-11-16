@@ -53,14 +53,11 @@ export class ManageProgressService {
    * Loads the email template for a given user and skill name
    */
   getFutureSkillStatusEmail(userName: string, skillName: string): Observable<any> {
-    const token = localStorage.getItem('accessToken');
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token || ''}`
-    });
+    const headers = this.getAuthHeaders();
+    const emailApiUrl = 'http://localhost:3000/api/v1/email';
 
     return this.http.get(
-      `${this.apiUrl}/future-skill-status-email?userName=${encodeURIComponent(userName)}&skillName=${encodeURIComponent(skillName)}`,
+      `${emailApiUrl}/future-skill-status-email?userName=${encodeURIComponent(userName)}&skillName=${encodeURIComponent(skillName)}`,
       { headers }
     );
   }
