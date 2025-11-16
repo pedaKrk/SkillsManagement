@@ -273,6 +273,29 @@
   padding: 30px;
   max-width: 1000px;
   margin: 0 auto;
+  overflow-x: auto;
+  overflow-y: visible;
+  min-width: 0; 
+  width: 100%;
+  box-sizing: border-box;
+  
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+    
+    &:hover {
+      background: #555;
+    }
+  }
 }
 
 // ===== RESPONSIVE DESIGN =====

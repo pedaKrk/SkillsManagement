@@ -1,5 +1,7 @@
 .skill-node-wrapper {
   margin-bottom: 8px;
+  min-width: 0; 
+  flex-shrink: 0; 
 }
 
 .skill-node {
@@ -14,6 +16,10 @@
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
+  min-width: 280px; 
+  max-width: calc(100vw - 100px); 
+  box-sizing: border-box;
+  flex-shrink: 0; 
 
   .expand-icon {
     transition: transform 0.3s ease;
@@ -121,10 +127,16 @@
   align-items: center;
   flex: 1;
   gap: 10px;
+  min-width: 0; 
+  overflow: hidden;
 }
 
 .skill-content span {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 // ===== ADMIN ACTIONS =====
@@ -133,6 +145,8 @@
   gap: 6px;
   opacity: 0;
   transition: opacity 0.3s ease;
+  flex-shrink: 0; 
+  min-width: fit-content;
 }
 
 .skill-node:hover .admin-actions {
@@ -270,7 +284,22 @@
   gap: 8px;
   padding-top: 5px;
   padding-bottom: 5px;
-  margin-left: 20px;
+  margin-left: 5px; 
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, 
+      rgba(108, 117, 125, 0.3) 0%,
+      rgba(108, 117, 125, 0.2) 50%,
+      rgba(108, 117, 125, 0.1) 100%
+    );
+  }
 }
 
 // ===== HIGHLIGHT ANIMATIONS =====

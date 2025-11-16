@@ -103,7 +103,15 @@ export class SkillTreeNodeComponent {
   }
 
   getMarginLeft(): string {
-    return `${this.depth * 40}px`;
+    const maxDepth = 3;
+    const indentPerLevel = 15; 
+    const maxIndent = maxDepth * indentPerLevel; 
+    
+    if (this.depth <= maxDepth) {
+      return `${this.depth * indentPerLevel}px`;
+    } else {
+      return `${maxIndent}px`;
+    }
   }
 }
 
