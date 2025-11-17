@@ -2,6 +2,8 @@ import express from 'express'
 import cors from 'cors'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { swaggerSpec, swaggerUi } from "./docs/swagger.js"; // SWAGGER
+
 
 import userRoutes from './routes/user.routes.js'
 import skillRoutes from './routes/skill.routes.js'
@@ -41,6 +43,10 @@ app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/email', emailRoutes)
 app.use('/api/v1/future-skills', futureSkillsRoutes)
 app.use('/api/v1/dashboard', dashboardRoutes)
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec)); // SWAGGER
+
+
 
 app.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`);
