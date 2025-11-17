@@ -1,4 +1,5 @@
-import * as skillService from '../services/skill.service.js'
+import { skillService } from '../services/skill.service.js'
+import {skillRepository} from "../repositories/skill.repository.js";
 
 export const getAllSkills = async (req, res) => {
   try {
@@ -79,4 +80,16 @@ export const deleteSkill = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Failed to delete skill', error })
   }
+}
+
+export const getRootSkills = async (req, res) => {
+    try{
+        console.log("getting root skills")
+        const result = await skillService.getRootSkills()
+        console.log(result)
+        res.status(200).json(result)
+    } catch (error){
+        console.error('Error getting root skills', error)
+        res.status(500).json({ message: 'Failed to get root skills', error })
+    }
 }
