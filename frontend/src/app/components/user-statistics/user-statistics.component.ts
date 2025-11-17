@@ -14,6 +14,10 @@ import {Skill} from '../../models/skill.model';
 
 echarts.use([RadarChart, TooltipComponent, LegendComponent, TitleComponent , CanvasRenderer]);
 
+interface SkillWithChildren extends Skill {
+  children?: SkillWithChildren[];
+}
+
 @Component({
   selector: 'app-user-statistics',
   imports: [
@@ -39,40 +43,66 @@ export class UserStatisticsComponent implements OnInit {
       throw new Error("UserStatisticsComponent requires user");
     }
 
-    this.skillService.getRootSkills().subscribe(
-      (allSkills: Skill[]) => {
-        this.rootSkills = allSkills;
+    this.skillService.getAllSkills().subscribe((allSkills: Skill[]) => {
+      const skillMap: { [id: string]: Skill } = {};
+      allSkills.forEach(skill => skillMap[skill._id] = skill);
 
-        this.radarOptions = {
-          title: {
-            text: 'Basic Radar Chart'
-          },
-          legend: {
-            data: ['Allocated Budget', 'Actual Spending']
-          },
-          radar: {
-            // shape: 'circle',
-            indicator: this.rootSkills.map(skill => ({
-              name: skill.name,
-              max: 5,
-            }))
-          },
-          series: [
-            {
-              name: 'User Skills',
-              type: 'radar',
-              symbol: 'none',
-              areaStyle: {},
-              data: [
-                {
-                  value: [2, 4, 0, 0, 5, 3, 5, 0, 0, 0, 0,0,0, 3, 1, 0],
-                  name: 'Skills'
-                },
-              ]
-            }
-          ]
-        };
-      }
-    )
+      // Root-Skills ermitteln
+      const rootSkills: Skill[] = allSkills.filter(skill => !skill.parent_id);
+      this.rootSkills = rootSkills;
+
+      // Zähler für jeden Root-Skill vorbereiten
+      const rootSkillCounts: { [id: string]: number } = {};
+      rootSkills.forEach(root => rootSkillCounts[root._id] = 0);
+
+      // Jeden User-Skill hoch traversieren bis zum Root
+      this.user.skills?.forEach(userSkillEntry => {
+        let skill = skillMap[userSkillEntry.skill._id];
+        while (skill) {
+          if (!skill.parent_id) {
+            rootSkillCounts[skill._id]++;
+            break;
+          }
+          skill = skillMap[skill.parent_id];
+        }
+      });
+
+      // Array für Chart vorbereiten
+      const data = rootSkills.map(root => ({
+        name: root.name,
+        count: rootSkillCounts[root._id] || 0
+      }));
+
+      // todo: bug: 4 user skills aber nur 3 punkte???
+      console.log("user skills:" + this.user.skills?.map(s => s.skill.name));
+      console.log(data);
+
+      this.radarOptions = {
+        title: {
+          text: 'Basic Radar Chart'
+        },
+        legend: {
+          data: ['User Skills']
+        },
+        radar: {
+          // shape: 'circle',
+          indicator: data.map(s => ({name: s.name, max: Math.min(s.count)})),
+        },
+        series: [
+          {
+            name: 'User Skills',
+            type: 'radar',
+            symbol: 'none',
+            areaStyle: {},
+            data: [
+              {
+                value: data.map(s => s.count),
+                name: 'Skills'
+              },
+            ]
+          }
+        ]
+      };
+    })
   }
 }
