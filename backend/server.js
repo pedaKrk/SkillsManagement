@@ -3,6 +3,8 @@ import cors from 'cors'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import morgan from 'morgan'
+import { swaggerSpec, swaggerUi } from "./docs/swagger.js"; // SWAGGER
+
 
 import userRoutes from './routes/user.routes.js'
 import skillRoutes from './routes/skill.routes.js'
@@ -42,7 +44,7 @@ const morganStream = {
 };
 
 const morganFormat = NODE_ENV === 'production' ? 'combined' : 'dev';
-app.use(morgan(morganFormat, { 
+app.use(morgan(morganFormat, {
   stream: morganStream,
   skip: (req, res) => {
     return req.method === 'OPTIONS' || (req.method === 'GET' && res.statusCode < 400);
@@ -63,6 +65,10 @@ app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/email', emailRoutes)
 app.use('/api/v1/future-skills', futureSkillsRoutes)
 app.use('/api/v1/dashboard', dashboardRoutes)
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec)); // SWAGGER
+
+
 
 app.listen(PORT, async () => {
   logger.info(`Server is running on http://localhost:${PORT}`);
