@@ -26,6 +26,8 @@
     "@swimlane/ngx-charts": "^22.0.0",
     "browser-image-compression": "^2.0.2",
     "chart.js": "^4.4.8",
+    "echarts": "^6.0.0",
+    "ngx-echarts": "^19.0.0",
     "rxjs": "~7.8.0",
     "src": "^1.1.2",
     "tslib": "^2.3.0",
