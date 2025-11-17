@@ -19,6 +19,19 @@ import { handleProfileImageUpload } from '../middleware/upload.middleware.js'
 import {getAllLecturers} from "../controllers/user.controller.js";
 const router = express.Router()
 
+/**
+ * @openapi
+ * /api/v1/users:
+ *   get:
+ *     summary: Returns all users
+ *     tags:
+ *       - Users
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: A list of users
+ */
 
 router.get('/inactive', authenticateToken, authorizeRole(['Admin', 'competence_leader']), getInactiveUsers)
 router.get('/inactive/count', authenticateToken, authorizeRole(['Admin', 'competence_leader']), getInactiveUsersCount)
