@@ -1,10 +1,10 @@
-import{skillRepository} from '../repositories/skill.repository.js'
+import SkillRepository from '../repositories/skill.repository.js'
 import {NotFoundError} from "../errors/not.found.error.js";
 
 class SkillService {
     getAllSkills = async () => {
         try {
-            return await skillRepository.findAllSkills()
+            return await SkillRepository.findAllSkills()
         } catch (error) {
             throw error
         }
@@ -12,7 +12,7 @@ class SkillService {
 
     getSkillById = async (id) => {
         try {
-            const skill = await skillRepository.findSkillById(id)
+            const skill = await SkillRepository.findSkillById(id)
             if (!skill) {
                 throw new NotFoundError(`Skill with id ${id} not found`)
             }
@@ -26,16 +26,16 @@ class SkillService {
     createSkill = async (data) => {
         try {
             // Check if skill name already exists
-            const existingSkill = await skillRepository.findSkillByName(data.name)
+            const existingSkill = await SkillRepository.findSkillByName(data.name)
             if (existingSkill) {
                 throw new Error(`A skill with the name "${data.name}" already exists. Please choose a different name.`)
             }
 
-            const newSkill = await skillRepository.createSkill(data)
+            const newSkill = await SkillRepository.createSkill(data)
 
             // if parent exist
             if (data.parent_id) {
-                await skillRepository.addChildToParent(data.parent_id, newSkill._id)
+                await SkillRepository.addChildToParent(data.parent_id, newSkill._id)
             }
 
             return newSkill
@@ -46,7 +46,7 @@ class SkillService {
 
     updateSkill = async (id, data) => {
         try {
-            const skill = await skillRepository.findSkillById(id)
+            const skill = await SkillRepository.findSkillById(id)
             if (!skill) {
                 throw new NotFoundError(`Skill with id ${id} not found`)
             }
@@ -56,8 +56,8 @@ class SkillService {
 
             // Only handle hierarchy changes if parent_id is being changed
             if (data.parent_id !== undefined && oldParentId !== newParentId) {
-                await skillRepository.updateSkillHierarchy(id, newParentId, oldParentId)
-                return await skillRepository.findSkillById(id)
+                await SkillRepository.updateSkillHierarchy(id, newParentId, oldParentId)
+                return await SkillRepository.findSkillById(id)
             } else {
 
                 const updateData = {...data}
@@ -66,7 +66,7 @@ class SkillService {
                 delete updateData.createdAt
                 delete updateData.updatedAt
 
-                const updated = await skillRepository.updateSkill(id, updateData)
+                const updated = await SkillRepository.updateSkill(id, updateData)
                 return updated
             }
         } catch (error) {
@@ -76,16 +76,16 @@ class SkillService {
 
     deleteSkill = async (id) => {
         try {
-            const skill = await skillRepository.findSkillById(id)
+            const skill = await SkillRepository.findSkillById(id)
             if (!skill) {
                 throw new NotFoundError(`Skill with id ${id} not found`)
             }
 
             if (skill.parent_id) {
-                await skillRepository.removeChildFromParent(skill.parent_id, id)
+                await SkillRepository.removeChildFromParent(skill.parent_id, id)
             }
 
-            const deleted = await skillRepository.deleteSkillWithChildren(id)
+            const deleted = await SkillRepository.deleteSkillWithChildren(id)
             return deleted
         } catch (error) {
             throw error
@@ -94,7 +94,7 @@ class SkillService {
 
     getRootSkills = async () => {
         try {
-            const allSkills = await skillRepository.findAllSkills()
+            const allSkills = await SkillRepository.findAllSkills()
             return allSkills.filter(skill => !skill.parent_id)
         } catch (error) {
             throw error
