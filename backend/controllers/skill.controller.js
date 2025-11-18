@@ -1,5 +1,5 @@
 import { skillService } from '../services/skill.service.js'
-import {skillRepository} from "../repositories/skill.repository.js";
+import SkillRepository from "../repositories/skill.repository.js";
 
 export const getAllSkills = async (req, res) => {
   try {
