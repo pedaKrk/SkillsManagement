@@ -1,13 +1,13 @@
-import * as userRepository from '../repositories/user.repository.js';
 import roleEnum from "../models/enums/role.enum.js";
 import {NotFoundError} from "../errors/not.found.error.js";
 import {ForbiddenError} from "../errors/forbidden.error.js";
 import {comparePassword, hashPassword} from "./auth.service.js";
 import path from "path";
 import fs from "fs";
+import UserRepository from "../repositories/user.repository.js";
 
 export const getAllUsers = async () => {
-    return userRepository.findAllActiveUsers()
+    return UserRepository.findAllActiveUsers()
         .select('-password')
         .populate({ path: 'skills.skill', select: 'name description level category parent_id' })
         .populate({ path: 'skills.levelHistory.changedBy', select: 'firstName lastName email' })
@@ -15,7 +15,7 @@ export const getAllUsers = async () => {
 }
 
 export const getUserById = async (id) => {
-    const user = await userRepository.findUserById(id);
+    const user = await UserRepository.findUserById(id);
     if (!user) {
         return null;
     }
@@ -49,11 +49,11 @@ export const getUserById = async (id) => {
 }
 
 export const getAllLecturers = async () => {
-    return await userRepository.findLecturers()
+    return await UserRepository.findLecturers()
 }
 
 export const createUser = async (user) => {
-    return await userRepository.createUser(user)
+    return await UserRepository.createUser(user)
 }
 
 export const updateUser = async (userId, updateData, currentUser) => {
@@ -73,7 +73,7 @@ export const updateUser = async (userId, updateData, currentUser) => {
         }
 
         if (updateData.skills && Array.isArray(updateData.skills)) {
-            const user = await userRepository.findUserById(userId);
+            const user = await UserRepository.findUserById(userId);
             if (!user) {
                 throw new NotFoundError();
             }
@@ -112,7 +112,7 @@ export const updateUser = async (userId, updateData, currentUser) => {
             delete updateData.skills; 
         }
 
-        const updatedUser = await userRepository.updateUserById(userId, updateData);
+        const updatedUser = await UserRepository.updateUserById(userId, updateData);
 
         if (!updatedUser) {
             throw new NotFoundError();
@@ -125,7 +125,7 @@ export const updateUser = async (userId, updateData, currentUser) => {
 }
 
 export const deleteUser = async (id) => {
-    const result = await userRepository.deleteUserById(id)
+    const result = await UserRepository.deleteUserById(id)
     if(!result){
         throw new NotFoundError()
     }
@@ -141,7 +141,7 @@ export const changePassword = async (email, currentPassword, newPassword, confir
         }
 
         console.log('Looking for user with email:', email);
-        const user = await userRepository.findUserByEmail(email);
+        const user = await UserRepository.findUserByEmail(email);
 
         if (!user) {
             throw new NotFoundError()
@@ -170,7 +170,7 @@ export const changePassword = async (email, currentPassword, newPassword, confir
         const hashedPassword = await hashPassword(newPassword);
 
         console.log('Updating user password and mustChangePassword flag...');
-        const updatedUser = await userRepository.updateUserPassword(user.id, hashedPassword);
+        const updatedUser = await UserRepository.updateUserPassword(user.id, hashedPassword);
 
         if (!updatedUser) {
             console.log('Failed to update user');
@@ -190,7 +190,7 @@ export const changePassword = async (email, currentPassword, newPassword, confir
 
 export const getInactiveUsers = async () => {
     try {
-        return await userRepository.findAllInactiveUsers()
+        return await UserRepository.findAllInactiveUsers()
     }
     catch (error) {
         throw error
@@ -199,7 +199,7 @@ export const getInactiveUsers = async () => {
 
 export const getInactiveUserCount = async () => {
     try{
-        return await userRepository.countAllInactiveUsers()
+        return await UserRepository.countAllInactiveUsers()
     }
     catch(error){
         throw error
@@ -208,12 +208,12 @@ export const getInactiveUserCount = async () => {
 
 export const activateUser = async (id) => {
     try {
-        const user = userRepository.findUserById(id)
+        const user = UserRepository.findUserById(id)
         if (!user) {
             throw new NotFoundError()
         }
 
-        return await userRepository.activateUserById(id)
+        return await UserRepository.activateUserById(id)
     }
     catch (error){
         throw error
@@ -222,12 +222,12 @@ export const activateUser = async (id) => {
 
 export const deactivateUser = async (id) => {
     try {
-        const user = userRepository.findUserById(id)
+        const user = UserRepository.findUserById(id)
         if (!user) {
             throw new NotFoundError()
         }
 
-        return await userRepository.deactivateUserById(id)
+        return await UserRepository.deactivateUserById(id)
     }
     catch (error){
         throw error
@@ -236,7 +236,7 @@ export const deactivateUser = async (id) => {
 
 export const getUserStatus = async (id) => {
     try {
-        const user = await userRepository.findUserStatusById(id)
+        const user = await UserRepository.findUserStatusById(id)
         if(!user) {
             throw new NotFoundError()
         }
@@ -249,7 +249,7 @@ export const getUserStatus = async (id) => {
 
 export const uploadProfileImage = async (id, file) => {
     try {
-        const user = await userRepository.findUserById(id)
+        const user = await UserRepository.findUserById(id)
         if (!user) {
             throw new NotFoundError()
         }
@@ -265,7 +265,7 @@ export const uploadProfileImage = async (id, file) => {
         console.log('Speichere Profilbild-URL:', profileImageUrl);
         console.log('Vollständiger Dateipfad:', path.join(process.cwd(), profileImageUrl.replace(/^\//, '')));
 
-        return await userRepository.updateUserProfileImage(id, profileImageUrl);
+        return await UserRepository.updateUserProfileImage(id, profileImageUrl);
     }
     catch (error) {
         throw error
@@ -274,7 +274,7 @@ export const uploadProfileImage = async (id, file) => {
 
 export const removeProfileImage = async (id) => {
     try {
-        const user = await userRepository.findUserById(id)
+        const user = await UserRepository.findUserById(id)
         if (!user) {
             throw new NotFoundError()
         }
@@ -287,7 +287,7 @@ export const removeProfileImage = async (id) => {
             fs.unlinkSync(imagePath);
         }
 
-        return await userRepository.updateUserProfileImage(id, undefined);
+        return await UserRepository.updateUserProfileImage(id, undefined);
     }
     catch (error) {
         throw error
