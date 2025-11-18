@@ -120,25 +120,39 @@ export const getFieldsPopularity = async (req, res) => {
             {
                 $lookup: {
                     from: 'skills',
-                    localField: 'skill_id',   // OLD FIELD NAME
+                    localField: 'skillId',
                     foreignField: '_id',
                     as: 'skill'
                 }
             },
             { $unwind: '$skill' },
             {
-                $match: { 'skill.category': { $exists: true, $ne: null } }
+                $lookup: {
+                    from: 'skills',
+                    localField: 'skill.parent_id',
+                    foreignField: '_id',
+                    as: 'parentSkill'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$parentSkill',
+                    preserveNullAndEmptyArrays: true
+                }
             },
             {
                 $group: {
-                    _id: { $ifNull: ['$skill.category', 'Unknown category'] },
+                    _id: {
+                        $ifNull: ['$parentSkill.name', '$skill.name']
+                    },
                     count: { $sum: 1 }
                 }
             },
             {
                 $project: {
                     name: '$_id',
-                    value: '$count'
+                    value: '$count',
+                    _id: 0
                 }
             }
         ]);
@@ -171,3 +185,5 @@ export const getUserSkillDistribution = async (req, res) => {
         res.status(500).json({ message: 'Failed to getUserSkillDistribution', error: err });
     }
 }
+
+

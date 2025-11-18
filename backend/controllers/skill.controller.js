@@ -1,3 +1,9 @@
+import * as skillService from '../services/skill.service.js'
+import * as futureSkillService from "../services/future.skill.service.js";
+import Skill from '../models/skill.model.js';
+import FutureSkill from '../models/future.skill.model.js';
+import User from '../models/user.model.js';
+
 import { skillService } from '../services/skill.service.js'
 import SkillRepository from "../repositories/skill.repository.js";
 
@@ -81,6 +87,71 @@ export const deleteSkill = async (req, res) => {
     res.status(500).json({ message: 'Failed to delete skill', error })
   }
 }
+export const addFutureSkillToSkills = async (req, res) => {
+  try {
+    const { futureSkillId } = req.params;
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ message: "Missing userId in request" });
+    }
+
+    // Load future skill
+    let futureSkill = await futureSkillService.getFutureSkillById(futureSkillId);
+    if (!futureSkill) {
+      return res.status(404).json({ message: "Future skill not found" });
+    }
+
+    const skillName = futureSkill.skill_id?.name;
+    if (!skillName) {
+      return res.status(400).json({ message: "Future skill has no skill name" });
+    }
+
+    // Check if skill already exists in Skills collection
+    let existingSkill = await Skill.findOne({ name: skillName });
+
+    if (!existingSkill) {
+      existingSkill = await Skill.create({
+        name: skillName
+      });
+    }
+
+    // Build new user skill entry
+    const newUserSkill = {
+      skill: existingSkill._id,
+      levelHistory: [
+        {
+          level: futureSkill.future_achievable_level || "Beginner",
+          changedAt: new Date(),
+          changedBy: userId
+        }
+      ]
+    };
+
+    // Add new skill entry only if not already present
+    await User.findByIdAndUpdate(
+        userId,
+        { $addToSet: { skills: newUserSkill } },
+        { new: true }
+    );
+
+    // Remove future skill after adding
+    await futureSkillService.deleteFutureSkill(futureSkillId);
+
+    return res.status(200).json({
+      message: "Future skill added to user's skills",
+      skill: newUserSkill
+    });
+
+  } catch (error) {
+    console.error("Error converting future skill:", error);
+    return res.status(500).json({
+      message: "Failed to convert future skill",
+      error: error.message
+    });
+  }
+};
+
 
 export const getRootSkills = async (req, res) => {
     try{

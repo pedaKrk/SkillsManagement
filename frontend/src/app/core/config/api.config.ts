@@ -33,6 +33,7 @@ export const API_CONFIG = {
       skillLevels: '/future-skills/skill-levels',
       sendEmail: '/future-skills/send-email',
       getTemplate: '/email/future-skill-status-email',
+      addToSkills: (id: string) => `/future-skills/${id}/add-to-skills`,
     },
     dashboard: {
       skillsLevelMatrix: '/dashboard/skills-level-matrix',

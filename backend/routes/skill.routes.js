@@ -10,6 +10,7 @@ import {
 } from '../controllers/skill.controller.js'
 import {authenticateToken, authorizeRole} from '../middleware/auth.middleware.js'
 
+router.post('/from-future/:futureSkillId', authenticateToken, addFutureSkillToSkills);
 //public
 router.get('/root', getRootSkills)
 router.get('/:id', getSkillById)
