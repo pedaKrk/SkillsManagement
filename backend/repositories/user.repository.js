@@ -1,44 +1,51 @@
 import User from '../models/user.model.js';
 import Role from '../models/enums/role.enum.js';
 
-export const findAllUsers = () => User.find();
+class UserRepository {
 
-export const findAllActiveUsers = () => User.find({ isActive: true });
+    findAllUsers = () => User.find();
 
-export const findAllInactiveUsers = () => User.find({ isActive: false });
+    findAllActiveUsers = () => User.find({isActive: true});
 
-export const countAllInactiveUsers = () => User.countDocuments({ isActive: false });
+    findAllInactiveUsers = () => User.find({isActive: false});
 
-export const findUserById = (id) => User.findById(id);
+    countAllInactiveUsers = () => User.countDocuments({isActive: false});
 
-export const findLecturers = () => User.find({ role: Role.LECTURER });
+    findUserById = (id) => User.findById(id);
 
-export const createUser = (userData) => new User(userData).save();
+    findLecturers = () => User.find({role: Role.LECTURER});
 
-export const updateUserById = (id, userData) => User.findByIdAndUpdate(id, userData, { new: true });
+    createUser = (userData) => new User(userData).save();
 
-export const deleteUserById = (id) => User.findByIdAndDelete(id);
+    updateUserById = (id, userData) => User.findByIdAndUpdate(id, userData, {new: true});
 
-export const findUserByEmail = (email) => User.findOne({ email });
+    deleteUserById = (id) => User.findByIdAndDelete(id);
 
-export const updateUserPassword = (id, hashedPassword) =>
-    User.findByIdAndUpdate(id, { $set: { password: hashedPassword, mustChangePassword: false } }, { new: true });
+    findUserByEmail = (email) => User.findOne({email});
 
-export const activateUserById = (id) => User.findByIdAndUpdate(id, {isActive: true}, { new: true});
+    updateUserPassword = (id, hashedPassword) =>
+        User.findByIdAndUpdate(id, {$set: {password: hashedPassword, mustChangePassword: false}}, {new: true});
 
-export const deactivateUserById = (id) => User.findByIdAndUpdate(id, {isActive: false}, { new: true});
+    activateUserById = (id) => User.findByIdAndUpdate(id, {isActive: true}, {new: true});
 
-export const findUserStatusById = (id) => User.findById(id).select('isActive');
+    deactivateUserById = (id) => User.findByIdAndUpdate(id, {isActive: false}, {new: true});
 
-export const updateUserProfileImage = (id, profileImageUrl) =>
-    User.findByIdAndUpdate(id, { $set: { profileImageUrl } }, { new: true });
+    findUserStatusById = (id) => User.findById(id).select('isActive');
 
-export const loadCommentsFromUser = (id) => User.findById(id).select('comments');
+    updateUserProfileImage = (id, profileImageUrl) =>
+        User.findByIdAndUpdate(id, {$set: {profileImageUrl}}, {new: true});
 
-export const userExists = (id) => User.exists({ _id: id });
+    loadCommentsFromUser = (id) => User.findById(id).select('comments');
 
-export const removeCommentFromUser = (userId, commentId) => User.findByIdAndUpdate(userId, { $pull: { comments: commentId } })
+    findUserSkills = (id) => User.findById(id).select('skills');
 
-export const addCommentToUser = (userId, commentId) => User.findByIdAndUpdate(userId, { $push: { comments: commentId } })
+    userExists = (id) => User.exists({_id: id});
 
-export const userHasComment = (userId, commentId) => User.exists({ _id: userId, comments: commentId });
+    removeCommentFromUser = (userId, commentId) => User.findByIdAndUpdate(userId, {$pull: {comments: commentId}})
+
+    addCommentToUser = (userId, commentId) => User.findByIdAndUpdate(userId, {$push: {comments: commentId}})
+
+    userHasComment = (userId, commentId) => User.exists({_id: userId, comments: commentId});
+}
+
+export default new UserRepository();
