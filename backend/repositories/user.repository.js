@@ -37,7 +37,7 @@ class UserRepository {
 
     loadCommentsFromUser = (id) => User.findById(id).select('comments');
 
-    findUserSkills = (id) => User.findById(id).select('skills');
+    findUserSkills = (id) => User.findById(id).select('skills').lean();
 
     userExists = (id) => User.exists({_id: id});
 
