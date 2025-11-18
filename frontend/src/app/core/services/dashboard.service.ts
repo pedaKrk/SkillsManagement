@@ -29,4 +29,8 @@ export class DashboardService {
   getUserFutureSkillLevelMatrix(userId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/user/${userId}/future-skills-level-matrix`);
   }
+
+  getUserSkillDistribution(userId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/user/${userId}/skills/distribution`);
+  }
 }
