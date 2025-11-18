@@ -1,16 +1,14 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {NgxChartsModule} from '@swimlane/ngx-charts';
-import {SkillService} from '../../core/services/skill/skill.service';
 import {DashboardService} from '../../core';
 import {TranslatePipe} from '@ngx-translate/core';
-import {User, UserSkillEntry} from '../../models/user.model';
+import {User} from '../../models/user.model';
 import {NgxEchartsDirective, provideEchartsCore} from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { RadarChart} from 'echarts/charts';
 import { TooltipComponent, LegendComponent, TitleComponent } from 'echarts/components';
 import { CanvasRenderer} from 'echarts/renderers';
-import {Skill} from '../../models/skill.model';
 
 echarts.use([RadarChart, TooltipComponent, LegendComponent, TitleComponent , CanvasRenderer]);
 
@@ -52,10 +50,10 @@ export class UserStatisticsComponent implements OnInit {
       }))
       this.radarOptions = {
         title: {
-          text: 'Basic Radar Chart'
+          text: "Skill Distribution"
         },
         legend: {
-          data: ['User Skills']
+          data: ['Skills']
         },
         radar: {
           // shape: 'circle',
@@ -63,7 +61,7 @@ export class UserStatisticsComponent implements OnInit {
         },
         series: [
           {
-            name: 'User Skills',
+            name: 'Skills',
             type: 'radar',
             symbol: 'none',
             areaStyle: {},
