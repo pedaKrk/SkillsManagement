@@ -16,7 +16,7 @@ router.get('/fields-popularity', getFieldsPopularity);
 
 
 router.get('/user/:userId/future-skills-level-matrix', getUserFutureSkillLevelMatrix);
-router.get('/user/:userId/skills/field-distribution', getUserSkillDistribution);
+router.get('/user/:userId/skills/distribution', getUserSkillDistribution);
 /*
 router.get('/user/:userId/skills-by-level', getUserSkillsByLevel);
 router.get('/user/:userId/skills-popularity', getUserSkillsPopularity);
