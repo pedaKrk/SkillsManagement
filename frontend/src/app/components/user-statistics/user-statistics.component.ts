@@ -14,8 +14,10 @@ import {Skill} from '../../models/skill.model';
 
 echarts.use([RadarChart, TooltipComponent, LegendComponent, TitleComponent , CanvasRenderer]);
 
-interface SkillWithChildren extends Skill {
-  children?: SkillWithChildren[];
+interface UserSkillDistributionEntry {
+  rootSkillId: string;
+  rootSkillName: string;
+  count: number;
 }
 
 @Component({
@@ -33,50 +35,21 @@ export class UserStatisticsComponent implements OnInit {
 
   @Input() user!: User;
 
-  rootSkills: Skill[] = [];
   radarOptions: any;
 
-  constructor(private dashboardService: DashboardService, private skillService: SkillService) { }
+  constructor(private dashboardService: DashboardService) { }
 
   ngOnInit(): void {
     if(!this.user){
       throw new Error("UserStatisticsComponent requires user");
     }
 
-    this.skillService.getAllSkills().subscribe((allSkills: Skill[]) => {
-      const skillMap: { [id: string]: Skill } = {};
-      allSkills.forEach(skill => skillMap[skill._id] = skill);
-
-      // Root-Skills ermitteln
-      const rootSkills: Skill[] = allSkills.filter(skill => !skill.parent_id);
-      this.rootSkills = rootSkills;
-
-      // Zähler für jeden Root-Skill vorbereiten
-      const rootSkillCounts: { [id: string]: number } = {};
-      rootSkills.forEach(root => rootSkillCounts[root._id] = 0);
-
-      // Jeden User-Skill hoch traversieren bis zum Root
-      this.user.skills?.forEach(userSkillEntry => {
-        let skill = skillMap[userSkillEntry.skill._id];
-        while (skill) {
-          if (!skill.parent_id) {
-            rootSkillCounts[skill._id]++;
-            break;
-          }
-          skill = skillMap[skill.parent_id];
-        }
-      });
-
-      // Array für Chart vorbereiten
-      const data = rootSkills.map(root => ({
-        name: root.name,
-        count: rootSkillCounts[root._id] || 0
-      }));
-
-      // todo: bug: 4 user skills aber nur 3 punkte???
-      console.log("user skills:" + this.user.skills?.map(s => s.skill.name));
-      console.log(data);
-
+    this.dashboardService.getUserSkillDistribution(this.user._id || '').subscribe((data: UserSkillDistributionEntry[]) => {
+      const counts = data.map(entry => entry.count);
+      const indicators = data.map(entry => ({
+        name: entry.rootSkillName,
+        max: Math.max(...counts, 1)
+      }))
       this.radarOptions = {
         title: {
           text: 'Basic Radar Chart'
@@ -86,7 +59,7 @@ export class UserStatisticsComponent implements OnInit {
         },
         radar: {
           // shape: 'circle',
-          indicator: data.map(s => ({name: s.name, max: Math.min(s.count)})),
+          indicator: indicators,
         },
         series: [
           {
@@ -96,7 +69,7 @@ export class UserStatisticsComponent implements OnInit {
             areaStyle: {},
             data: [
               {
-                value: data.map(s => s.count),
+                value: counts,
                 name: 'Skills'
               },
             ]
