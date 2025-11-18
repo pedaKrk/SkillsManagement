@@ -75,4 +75,4 @@ class SkillRepository {
     }
 }
 
-export const skillRepository = new SkillRepository()
+export default new SkillRepository()
