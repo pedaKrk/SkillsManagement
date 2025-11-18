@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {AuthService} from '../auth/auth.service';
+import {API_CONFIG} from '../../config/api.config';
 
 @Injectable({ providedIn: 'root' })
 export class ManageProgressService {
@@ -48,6 +49,20 @@ export class ManageProgressService {
   deleteSkill(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
+  addFutureSkillToSkills(futureSkillId: string, userId: string): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.post(
+      `${API_CONFIG.baseUrl}/skills/from-future/${futureSkillId}`,
+      { userId },
+      { headers }
+    );
+  }
+
+
+
+
+
 
   /**
    * Loads the email template for a given user and skill name

@@ -7,7 +7,9 @@ export const findAllFutureSkills = () =>
 
 export const createFutureSkill = (data) => new FutureSkill(data).save()
 
-export const findFutureSkillById = (id) => FutureSkill.findById(id)
+export const findFutureSkillById = async (id) => {
+    return await FutureSkill.findById(id).populate('skill_id').populate('lecturer_id');
+};
 
 export const updateFutureSkill = (id, data) =>
     FutureSkill.findByIdAndUpdate(id, data, { new: true })

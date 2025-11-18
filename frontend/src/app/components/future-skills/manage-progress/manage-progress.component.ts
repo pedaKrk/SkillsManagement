@@ -44,21 +44,22 @@ export class ManageProgressComponent implements OnInit {
   };
 
   constructor(
-    private manageProgressService: ManageProgressService, 
-    private cdr: ChangeDetectorRef, 
-    private mailService: EmailService, 
+    private manageProgressService: ManageProgressService,
+    private cdr: ChangeDetectorRef,
+    private mailService: EmailService,
     private authService: AuthService,
     private dialogService: DialogService,
     private translateService: TranslateService
-  ) {}
+  ) {
+  }
 
-    ngOnInit(): void {
-      forkJoin({
-        lecturers: this.manageProgressService.getAllLecturers(),
-        skillOptions: this.manageProgressService.fetchAllSkillNames(),
-        skillLevels: this.manageProgressService.fetchAllSkillLevels(),
-        futureSkills: this.manageProgressService.getAllFutureSkills()
-  }).subscribe(({ lecturers, skillOptions, skillLevels, futureSkills }) => {
+  ngOnInit(): void {
+    forkJoin({
+      lecturers: this.manageProgressService.getAllLecturers(),
+      skillOptions: this.manageProgressService.fetchAllSkillNames(),
+      skillLevels: this.manageProgressService.fetchAllSkillLevels(),
+      futureSkills: this.manageProgressService.getAllFutureSkills()
+    }).subscribe(({lecturers, skillOptions, skillLevels, futureSkills}) => {
       this.lecturers = lecturers;
       this.skillOptions = skillOptions;
       this.skillLevels = skillLevels;
@@ -93,12 +94,12 @@ export class ManageProgressComponent implements OnInit {
   // Edit
   editSkill(index: number) {
     this.editingIndex = index;
-    this.originalSkill = { ...this.skills[index] };
+    this.originalSkill = {...this.skills[index]};
   }
 
   saveEdit() {
     if (this.editingIndex !== null) {
-      const updatedSkill = { ...this.skills[this.editingIndex] };
+      const updatedSkill = {...this.skills[this.editingIndex]};
 
       if (typeof updatedSkill.skill_id === 'object') {
         updatedSkill.skill_id = updatedSkill.skill_id._id;
@@ -124,7 +125,7 @@ export class ManageProgressComponent implements OnInit {
 
   cancelEdit() {
     if (this.editingIndex !== null) {
-      this.skills[this.editingIndex] = { ...this.originalSkill };
+      this.skills[this.editingIndex] = {...this.originalSkill};
       this.editingIndex = null;
       this.originalSkill = null;
     }
@@ -143,6 +144,7 @@ export class ManageProgressComponent implements OnInit {
       });
     }
   }
+
   //create
   addNewSkill() {
     if (this.lecturers.length > 0 && this.skillOptions.length > 0) {
@@ -167,6 +169,7 @@ export class ManageProgressComponent implements OnInit {
       target_date: ''
     };
   }
+
   saveNewSkill() {
     if (
       this.newSkill.lecturer_id &&
@@ -206,6 +209,7 @@ export class ManageProgressComponent implements OnInit {
       alert('Please fill all fields.');
     }
   }
+
   //filter
   filterSkills(event: Event) {
     const value = (event.target as HTMLInputElement).value.toLowerCase();
@@ -276,13 +280,16 @@ export class ManageProgressComponent implements OnInit {
     this.manageProgressService.getFutureSkillStatusEmail(userName, skillName).subscribe({
       next: (res) => {
         if (res.success) {
-          const defaultSubject = this.translateService.instant('MANAGE_PROGRESS.EMAIL_SUBJECT_DEFAULT', { skillName }) || `Status request for ${skillName}`;
+          const defaultSubject = this.translateService.instant('MANAGE_PROGRESS.EMAIL_SUBJECT_DEFAULT', {skillName}) || `Status request for ${skillName}`;
           const defaultMessage = res.template || '';
 
           // Verwende DialogService wie in user-list
           const formConfig: FormDialogConfig = {
             title: this.translateService.instant('MANAGE_PROGRESS.EMAIL_DIALOG_TITLE') || 'Send Email',
-            message: this.translateService.instant('MANAGE_PROGRESS.EMAIL_DIALOG_INFO', { userName, skillName }) || `Send email to ${userName} about ${skillName}`,
+            message: this.translateService.instant('MANAGE_PROGRESS.EMAIL_DIALOG_INFO', {
+              userName,
+              skillName
+            }) || `Send email to ${userName} about ${skillName}`,
             formFields: [
               {
                 id: 'recipient',
@@ -359,13 +366,13 @@ export class ManageProgressComponent implements OnInit {
       error: (error) => {
         console.error('Error sending email:', error);
         let errorMessage = this.translateService.instant('MANAGE_PROGRESS.EMAIL_SEND_ERROR') || 'Failed to send email.';
-        
+
         if (error.status === 401) {
           errorMessage += ' ' + (this.translateService.instant('MANAGE_PROGRESS.EMAIL_UNAUTHORIZED') || 'You are not authorized.');
         } else if (error.status === 400) {
           errorMessage += ' ' + (this.translateService.instant('MANAGE_PROGRESS.EMAIL_INVALID') || 'Invalid input.');
         }
-        
+
         this.dialogService.showError(
           this.translateService.instant('COMMON.ERROR') || 'Error',
           errorMessage
@@ -375,6 +382,25 @@ export class ManageProgressComponent implements OnInit {
   }
 
   addToSkills(skill: any) {
-    alert(`Added "${skill.skillName}" to Skills!`);
+    const currentUser = this.authService.currentUserValue;
+    if (!currentUser) return;
+
+    this.manageProgressService.addFutureSkillToSkills(skill._id, currentUser.id)
+      .subscribe({
+        next: () => {
+          this.dialogService.showSuccess({
+            title: 'Success',
+            message: `"${skill.skill_id?.name}" added to your skills.`,
+            buttonText: 'OK'
+          }).subscribe(() => {
+            this.getAllFutureSkills();
+          });
+        },
+        error: (err) => {
+          console.error(err);
+          this.dialogService.showError('Error', 'Could not add skill.').subscribe();
+        }
+      });
   }
+
 }
