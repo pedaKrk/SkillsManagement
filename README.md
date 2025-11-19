@@ -48,17 +48,8 @@ The env.development.local file should contain parameters for:
 By default, the backend runs on Port **3000** and the frontend on Port **4200**.
 
 ## Run the Project
-### Navigate to the backend folder and run the Server
-
-`npm start`
-
-This starts the server by default on http://localhost:3000/, or the port you specified in the .env file.
-
-### Navigate to the frontend folder and run the Frontend
-
-`ng serve -o`
-
-This starts the Angular app on http://localhost:4200/.
+Execute `npm start` from the root of the project.
+This starts the server by default on http://localhost:3000/ and the Angular app on http://localhost:4200/ by default.
 
 ## Project Structure
 The project is divided in frontend and backend.
