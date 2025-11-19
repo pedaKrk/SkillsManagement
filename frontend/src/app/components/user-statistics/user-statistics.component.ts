@@ -9,6 +9,7 @@ import * as echarts from 'echarts/core';
 import { RadarChart} from 'echarts/charts';
 import { TooltipComponent, LegendComponent, TitleComponent } from 'echarts/components';
 import { CanvasRenderer} from 'echarts/renderers';
+import {RadarChartComponent} from '../radar-chart/radar-chart.component';
 
 echarts.use([RadarChart, TooltipComponent, LegendComponent, TitleComponent , CanvasRenderer]);
 
@@ -21,7 +22,7 @@ interface UserSkillDistributionEntry {
 @Component({
   selector: 'app-user-statistics',
   imports: [
-    CommonModule, NgxChartsModule, TranslatePipe, NgxEchartsDirective
+    CommonModule, NgxChartsModule, TranslatePipe, NgxEchartsDirective, RadarChartComponent
   ],
   providers: [
     provideEchartsCore({echarts}),
@@ -32,8 +33,8 @@ interface UserSkillDistributionEntry {
 export class UserStatisticsComponent implements OnInit {
 
   @Input() user!: User;
-
-  radarOptions: any;
+  indicators: any[] = [];
+  counts: number[] = [];
 
   constructor(private dashboardService: DashboardService) { }
 
@@ -43,37 +44,11 @@ export class UserStatisticsComponent implements OnInit {
     }
 
     this.dashboardService.getUserSkillDistribution(this.user._id || '').subscribe((data: UserSkillDistributionEntry[]) => {
-      const counts = data.map(entry => entry.count);
-      const indicators = data.map(entry => ({
+      this.counts = data.map(entry => entry.count);
+      this.indicators = data.map(entry => ({
         name: entry.rootSkillName,
-        max: Math.max(...counts, 1)
+        max: Math.max(...this.counts, 1)
       }))
-      this.radarOptions = {
-        title: {
-          text: "Skill Distribution"
-        },
-        legend: {
-          data: ['Skills']
-        },
-        radar: {
-          // shape: 'circle',
-          indicator: indicators,
-        },
-        series: [
-          {
-            name: 'Skills',
-            type: 'radar',
-            symbol: 'none',
-            areaStyle: {},
-            data: [
-              {
-                value: counts,
-                name: 'Skills'
-              },
-            ]
-          }
-        ]
-      };
     })
   }
 }
