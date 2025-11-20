@@ -4,7 +4,7 @@
     <div class="spinner"></div>
     <span>{{ 'PROFILE.LOADING' | translate }}</span>
   </div>
-  
+
   <!-- Error message -->
   <div *ngIf="error" class="error-container">
     <div class="error-message">{{ error }}</div>
@@ -13,7 +13,7 @@
       <button class="btn btn-secondary" (click)="goBack()">{{ 'PROFILE.BACK_TO_LIST' | translate }}</button>
     </div>
   </div>
-  
+
   <!-- User details -->
   <div *ngIf="user && !isLoading && !error" class="user-details-container">
     <!-- Header with profile image and main information -->
@@ -23,9 +23,9 @@
           <span class="initials">{{ getUserInitials() }}</span>
         </div>
         <div *ngIf="user.profileImageUrl" class="user-avatar">
-          <img 
-            [src]="getProfileImageUrl(user.profileImageUrl)" 
-            alt="Profilbild" 
+          <img
+            [src]="getProfileImageUrl(user.profileImageUrl)"
+            alt="Profilbild"
             class="profile-image"
             (error)="handleImageError()"
           >
@@ -34,21 +34,21 @@
           </div>
         </div>
       </div>
-      
+
       <div class="user-info">
         <h1 class="user-name">{{ getUserFullName() }}</h1>
         <div class="user-username">{{'@'}}{{ user.username }}</div>
-        
+
         <div class="user-role" *ngIf="user.role">
           <span class="label">{{ 'PROFILE.ROLE' | translate }}</span>
           <span class="value">{{ getFormattedRole() }}</span>
         </div>
-        
+
         <div class="user-employment">
           <span class="label">{{ 'PROFILE.EMPLOYMENT_TYPE' | translate }}</span>
           <span class="value">{{ getEmploymentType() }}</span>
         </div>
-        
+
         <!-- Edit-Button for Admins and own profile -->
         <div *ngIf="isAdmin || isOwnProfile()" class="admin-actions mt-3">
           <button class="btn btn-primary" (click)="editUser()">
@@ -57,7 +57,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Detail information -->
     <div class="user-details-sections">
       <!-- Contact information -->
@@ -72,7 +72,7 @@
           <span class="info-value">{{ user.phoneNumber }}</span>
         </div>
       </div>
-      
+
       <!-- Skills -->
       <div class="details-section">
         <h2 class="section-title">{{ 'PROFILE.SKILLS' | translate }}</h2>
@@ -81,8 +81,8 @@
             <div class="skill-header">
               <span class="skill-name">{{ userSkill.skill.name }}</span>
               <!-- The last level -->
-              <span *ngIf="userSkill.levelHistory && userSkill.levelHistory.length > 0" 
-                    class="level-badge" 
+              <span *ngIf="userSkill.levelHistory && userSkill.levelHistory.length > 0"
+                    class="level-badge"
                     [ngClass]="getSkillLevelClass(userSkill.levelHistory[userSkill.levelHistory.length - 1].level)">
                 {{ userSkill.levelHistory[userSkill.levelHistory.length - 1].level | translate }}
               </span>
@@ -108,38 +108,40 @@
         </div>
       </div>
     </div>
-    
+
+    <app-user-statistics [user]="user"></app-user-statistics>
+
     <!-- Comments -->
     <div class="comments-section">
       <h2 class="section-title">{{ 'PROFILE.COMMENTS' | translate }}</h2>
-      
+
       <!-- Add comment (only for authorized users) -->
       <div class="add-comment-container" *ngIf="canAddComments">
-        <textarea 
-          [(ngModel)]="newComment" 
-          [placeholder]="'PROFILE.COMMENT_PLACEHOLDER' | translate" 
+        <textarea
+          [(ngModel)]="newComment"
+          [placeholder]="'PROFILE.COMMENT_PLACEHOLDER' | translate"
           class="comment-input"
           rows="3"
         ></textarea>
-        <button 
-          class="btn btn-primary" 
-          [disabled]="!newComment.trim()" 
+        <button
+          class="btn btn-primary"
+          [disabled]="!newComment.trim()"
           (click)="addComment()"
         >
           {{ 'PROFILE.ADD_COMMENT' | translate }}
         </button>
       </div>
-      
+
       <!-- Comment filter -->
       <div class="comments-filter">
         <div class="filter-row">
-          <input 
-            type="text" 
-            [(ngModel)]="commentSearchTerm" 
-            [placeholder]="'PROFILE.SEARCH_COMMENTS' | translate" 
+          <input
+            type="text"
+            [(ngModel)]="commentSearchTerm"
+            [placeholder]="'PROFILE.SEARCH_COMMENTS' | translate"
             class="search-input"
           >
-          
+
           <div class="author-select-container">
             <!-- Dropdown with Toggle and Menu -->
             <div class="dropdown-wrapper">
@@ -148,13 +150,13 @@
                 <span>{{ selectedAuthor ? getAuthorNameById(selectedAuthor) : ('PROFILE.ALL_AUTHORS' | translate) }}</span>
                 <span class="dropdown-arrow">{{ isAuthorDropdownOpen ? '▲' : '▼' }}</span>
               </div>
-              
+
               <!-- Dropdown menu -->
               <div *ngIf="isAuthorDropdownOpen" class="author-dropdown-menu">
                 <!-- Author list -->
                 <div class="author-list">
-                  <div 
-                    class="author-item" 
+                  <div
+                    class="author-item"
                     [class.selected]="selectedAuthor === ''"
                     (click)="selectAuthor('')"
                   >
@@ -163,10 +165,10 @@
                     </span>
                     <span class="author-name">{{ 'PROFILE.ALL_AUTHORS' | translate }}</span>
                   </div>
-                  
-                  <div 
-                    *ngFor="let author of getUniqueAuthors()" 
-                    class="author-item" 
+
+                  <div
+                    *ngFor="let author of getUniqueAuthors()"
+                    class="author-item"
                     [class.selected]="selectedAuthor === author.id"
                     (click)="selectAuthor(author.id)"
                   >
@@ -180,7 +182,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="filter-row date-filters">
           <div class="date-filter">
             <label>{{ 'PROFILE.FROM' | translate }}</label>
@@ -188,7 +190,7 @@
               <input type="date" [(ngModel)]="dateFrom" class="date-input">
             </div>
           </div>
-          
+
           <div class="date-filter">
             <label>{{ 'PROFILE.TO' | translate }}</label>
             <div class="date-input-container">
@@ -197,13 +199,13 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Comment list -->
       <div class="comments-list">
         <div *ngIf="filterComments().length === 0" class="no-comments">
           {{ 'USER.NO_COMMENTS' | translate }}
         </div>
-        
+
         <div *ngFor="let comment of filterComments()" class="comment-card">
           <div class="comment-header">
             <span class="comment-author">{{ comment.authorName }}</span>
@@ -211,47 +213,47 @@
           </div>
           <div class="comment-text" [class.expanded]="isCommentExpanded(comment.id)">
             {{ getDisplayText(comment.text, isCommentExpanded(comment.id)) }}
-            <button 
-              *ngIf="isTextTooLong(comment.text)" 
+            <button
+              *ngIf="isTextTooLong(comment.text)"
               class="text-expand-btn"
               (click)="toggleCommentExpansion(comment.id)"
             >
               {{ isCommentExpanded(comment.id) ? ('PROFILE.SHOW_LESS' | translate) : ('PROFILE.SHOW_MORE' | translate) }}
             </button>
           </div>
-          
+
           <!-- reply button -->
           <div class="comment-actions">
             <button class="btn-reply" (click)="replyToComment(comment)">
               <i class="fa fa-reply"></i> {{ 'USER.REPLY' | translate }}
             </button>
           </div>
-          
+
           <!-- reply form -->
           <div *ngIf="replyingToComment && replyingToComment.id === comment.id" class="reply-form">
-            <textarea 
-              [(ngModel)]="replyText" 
-              [placeholder]="'USER.REPLY_PLACEHOLDER' | translate" 
+            <textarea
+              [(ngModel)]="replyText"
+              [placeholder]="'USER.REPLY_PLACEHOLDER' | translate"
               class="reply-input"
               rows="2"
             ></textarea>
             <div class="reply-actions">
-              <button 
-                class="btn btn-primary btn-sm" 
-                [disabled]="!replyText.trim()" 
+              <button
+                class="btn btn-primary btn-sm"
+                [disabled]="!replyText.trim()"
                 (click)="addReply()"
               >
                 {{ 'USER.REPLY' | translate }}
               </button>
-              <button 
-                class="btn btn-secondary btn-sm" 
+              <button
+                class="btn btn-secondary btn-sm"
                 (click)="cancelReply()"
               >
                 {{ 'USER.CANCEL' | translate }}
               </button>
             </div>
           </div>
-          
+
           <!-- replies -->
           <div *ngIf="comment.replies && comment.replies.length > 0" class="replies-container">
             <div *ngFor="let reply of comment.replies" class="reply-card">
@@ -261,8 +263,8 @@
               </div>
               <div class="reply-text" [class.expanded]="isReplyExpanded(reply.id)">
                 {{ getDisplayText(reply.text, isReplyExpanded(reply.id)) }}
-                <button 
-                  *ngIf="isTextTooLong(reply.text)" 
+                <button
+                  *ngIf="isTextTooLong(reply.text)"
                   class="text-expand-btn"
                   (click)="toggleReplyExpansion(reply.id)"
                 >

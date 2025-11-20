@@ -1,12 +1,21 @@
 import express from 'express'
 const router = express.Router()
-import {getAllSkills, getSkillById, createSkill, updateSkill, deleteSkill, addFutureSkillToSkills} from '../controllers/skill.controller.js'
+import {
+    getAllSkills,
+    getSkillById,
+    createSkill,
+    updateSkill,
+    deleteSkill,
+    getRootSkills,
+    addFutureSkillToSkills
+} from '../controllers/skill.controller.js'
 import {authenticateToken, authorizeRole} from '../middleware/auth.middleware.js'
 
 router.post('/from-future/:futureSkillId', authenticateToken, addFutureSkillToSkills);
 //public
-router.get('/', getAllSkills)
+router.get('/root', getRootSkills)
 router.get('/:id', getSkillById)
+router.get('/', getAllSkills)
 
 // private
 router.post('/', authenticateToken, authorizeRole(['Admin', 'competence_leader']), createSkill)

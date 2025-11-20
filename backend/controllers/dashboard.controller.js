@@ -1,5 +1,9 @@
 import FutureSkills from '../models/future.skill.model.js';
 import skillLevelEnum from '../models/enums/skill.level.enum.js';
+import {futureSkillRepository} from "../repositories/future.skill.repository.js";
+import DashboardService from "../services/dashboard.service.js";
+
+//Todo: move logic in repository and service
 
 // GET /api/v1/dashboard/skills-level-matrix
 export const getSkillsLevelMatrix = async (req, res) => {
@@ -159,5 +163,27 @@ export const getFieldsPopularity = async (req, res) => {
         res.status(500).json({ message: 'Error fetching Fields Popularity', error: err });
     }
 };
+
+export const getUserFutureSkillLevelMatrix = async (req, res) => {
+    try{
+        const {userId} = req.params;
+        const data = await futureSkillRepository.getUserFutureSkillLevelMatrix(userId)
+        console.log(data)
+        return data
+    }catch(err){
+        console.error('Error in getUserFutureSkillLevelMatrix:', err);
+        res.status(500).json({ message: 'Failed to getUserFutureSkillLevelMatrix', error: err });
+    }
+};
+
+export const getUserSkillDistribution = async (req, res) => {
+    try{
+        const {userId} = req.params;
+        return res.status(200).json( await DashboardService.getUserSkillDistribution(userId))
+    }catch(err){
+        console.error('Error in getUserSkillDistribution:', err);
+        res.status(500).json({ message: 'Failed to getUserSkillDistribution', error: err });
+    }
+}
 
 

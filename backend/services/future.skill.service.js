@@ -1,4 +1,4 @@
-import * as futureSkillRepository from '../repositories/future.skill.repository.js'
+import {futureSkillRepository} from '../repositories/future.skill.repository.js'
 import {NotFoundError} from "../errors/not.found.error.js";
 import FutureSkill from "../models/future.skill.model.js";
 

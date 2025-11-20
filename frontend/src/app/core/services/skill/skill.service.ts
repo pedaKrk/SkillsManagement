@@ -11,7 +11,7 @@ import { AuthService } from '../auth/auth.service';
 export class SkillService {
   // Cache for skills, to avoid repeated API calls
   private skillsCache: Map<string, Skill> = new Map();
-  
+
   constructor(
     private http: HttpClient,
     private authService: AuthService
@@ -54,7 +54,7 @@ export class SkillService {
     if (this.skillsCache.has(skillId)) {
       return of(this.skillsCache.get(skillId) as Skill);
     }
-    
+
     return this.http.get<Skill>(
       `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.skills.all}/${skillId}`,
       { headers: this.getAuthHeaders() }
@@ -67,6 +67,22 @@ export class SkillService {
       catchError(error => {
         console.error(`Error fetching skill with ID ${skillId}:`, error);
         return of(null);
+      })
+    );
+  }
+
+  /**
+   * Gets all root skills from the server
+   * @return Observable<Skill[]>
+   */
+  getRootSkills(): Observable<Skill[]> {
+    return this.http.get<Skill[]>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.skills.root}`,
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      catchError(error => {
+        console.error('Error fetching root skills:', error);
+        return of([]);
       })
     );
   }
@@ -140,4 +156,4 @@ export class SkillService {
       })
     );
   }
-} 
+}

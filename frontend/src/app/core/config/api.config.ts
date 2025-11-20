@@ -20,6 +20,7 @@ export const API_CONFIG = {
     },
     skills: {
       all: '/skills',
+      root: '/skills/root',
       names: '/skills/names',
       levels: '/skills/levels'
     },

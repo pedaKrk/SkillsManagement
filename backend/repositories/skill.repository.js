@@ -1,73 +1,78 @@
 import Skill from "../models/skill.model.js";
 
-export const findAllSkills = () => Skill.find()
+class SkillRepository {
 
-export const findSkillById = (id) => Skill.findById(id)
+    findAllSkills = () => Skill.find()
 
-export const findSkillByName = (name) => Skill.findOne({ name: name })
+    findSkillById = (id) => Skill.findById(id)
 
-export const createSkill = (data) => new Skill(data).save()
+    findSkillByName = (name) => Skill.findOne({name: name})
 
-export const updateSkill = (id, data) => {
-    // Create a copy of data without children to avoid overwriting
-    const updateData = { ...data }
-    if (!updateData.children) {
-        delete updateData.children
-    }
-    
-    return Skill.findByIdAndUpdate(
-        id, 
-        updateData, 
-        { 
-            new: true,
-            runValidators: true
+    createSkill = (data) => new Skill(data).save()
+
+    updateSkill = (id, data) => {
+        // Create a copy of data without children to avoid overwriting
+        const updateData = {...data}
+        if (!updateData.children) {
+            delete updateData.children
         }
-    )
-}
 
-export const deleteSkill = (id) => Skill.findByIdAndDelete(id)
-
-// Hierarchie-Management
-export const addChildToParent = async (parentId, childId) => {
-    return await Skill.findByIdAndUpdate(
-        parentId, 
-        { $addToSet: { children: childId } }, 
-        { new: true }
-    )
-}
-
-export const removeChildFromParent = async (parentId, childId) => {
-    return await Skill.findByIdAndUpdate(
-        parentId, 
-        { $pull: { children: childId } }, 
-        { new: true }
-    )
-}
-
-export const updateSkillHierarchy = async (skillId, newParentId, oldParentId) => {
-    const updates = []
-    
-    updates.push(Skill.findByIdAndUpdate(skillId, { parent_id: newParentId }, { new: true }))
-
-    if (newParentId) {
-        updates.push(addChildToParent(newParentId, skillId))
+        return Skill.findByIdAndUpdate(
+            id,
+            updateData,
+            {
+                new: true,
+                runValidators: true
+            }
+        )
     }
 
-    if (oldParentId) {
-        updates.push(removeChildFromParent(oldParentId, skillId))
+    deleteSkill = (id) => Skill.findByIdAndDelete(id)
+
+    // Hierarchie-Management
+    addChildToParent = async (parentId, childId) => {
+        return await Skill.findByIdAndUpdate(
+            parentId,
+            {$addToSet: {children: childId}},
+            {new: true}
+        )
     }
-    
-    return await Promise.all(updates)
-}
 
-export const deleteSkillWithChildren = async (skillId) => {
+    removeChildFromParent = async (parentId, childId) => {
+        return await Skill.findByIdAndUpdate(
+            parentId,
+            {$pull: {children: childId}},
+            {new: true}
+        )
+    }
 
-    const skill = await Skill.findById(skillId)
-    if (skill && skill.children.length > 0) {
-        for (const childId of skill.children) {
-            await deleteSkillWithChildren(childId)
+    updateSkillHierarchy = async (skillId, newParentId, oldParentId) => {
+        const updates = []
+
+        updates.push(Skill.findByIdAndUpdate(skillId, {parent_id: newParentId}, {new: true}))
+
+        if (newParentId) {
+            updates.push(addChildToParent(newParentId, skillId))
         }
+
+        if (oldParentId) {
+            updates.push(removeChildFromParent(oldParentId, skillId))
+        }
+
+        return await Promise.all(updates)
     }
-  
-    return await Skill.findByIdAndDelete(skillId)
+
+    deleteSkillWithChildren = async (skillId) => {
+
+        const skill = await Skill.findById(skillId)
+        if (skill && skill.children.length > 0) {
+            for (const childId of skill.children) {
+                await deleteSkillWithChildren(childId)
+            }
+        }
+
+        return await Skill.findByIdAndDelete(skillId)
+    }
 }
+
+export default new SkillRepository()

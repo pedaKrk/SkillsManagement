@@ -1,10 +1,10 @@
 import * as commentRepository from '../repositories/comment.repository.js'
-import * as userRepository from "../repositories/user.repository.js";
+import UserRepository from "../repositories/user.repository.js";
 import {NotFoundError} from "../errors/not.found.error.js";
 
 export const getCommentsForUser = async (userId) => {
     try {
-        const user = await userRepository.loadCommentsFromUser(userId);
+        const user = await UserRepository.loadCommentsFromUser(userId);
         if (!user) {
             throw new NotFoundError();
         }
@@ -22,11 +22,11 @@ export const getCommentsForUser = async (userId) => {
 }
 
 export const createCommentForUser = async (userId, authorId, content) => {
-    const user = await userRepository.findUserById(userId);
+    const user = await UserRepository.findUserById(userId);
     if (!user) {
         throw new NotFoundError();
     }
-    const authorExists = await userRepository.userExists(authorId)
+    const authorExists = await UserRepository.userExists(authorId)
     if(!authorExists) {
         throw new NotFoundError();
     }
@@ -37,18 +37,18 @@ export const createCommentForUser = async (userId, authorId, content) => {
     }
     const newComment = await commentRepository.createComment(commentData)
 
-    await userRepository.addCommentToUser(userId, newComment.id)
+    await UserRepository.addCommentToUser(userId, newComment.id)
 
     return await commentRepository.findPopulatedComment(newComment.id);
 }
 
 export const updateCommentForUser = async (userId, commentId, content) => {
     try {
-        const user = await userRepository.findUserById(userId);
+        const user = await UserRepository.findUserById(userId);
         if (!user) {
             throw new NotFoundError();
         }
-        const hasComment = await userRepository.userHasComment(commentId);
+        const hasComment = await UserRepository.userHasComment(commentId);
         if(!hasComment) {
             throw new NotFoundError();
         }
@@ -62,7 +62,7 @@ export const updateCommentForUser = async (userId, commentId, content) => {
 
 export const deleteCommentFromUser = async (userId, commentId) => {
     try{
-        await userRepository.removeCommentFromUser(userId, commentId);
+        await UserRepository.removeCommentFromUser(userId, commentId);
         return await commentRepository.deleteCommentById(commentId);
     }catch(error){
         throw error;
@@ -71,7 +71,7 @@ export const deleteCommentFromUser = async (userId, commentId) => {
 
 export const createReplyToComment = async (userId, commentId, authorId, content) => {
     try{
-        const user = await userRepository.findUserById(userId);
+        const user = await UserRepository.findUserById(userId);
         if (!user) {
             throw new NotFoundError();
         }
@@ -79,11 +79,11 @@ export const createReplyToComment = async (userId, commentId, authorId, content)
         if (!parentComment) {
             throw new NotFoundError();
         }
-        const hasComment = await userRepository.userHasComment(userId, commentId);
+        const hasComment = await UserRepository.userHasComment(userId, commentId);
         if(!hasComment) {
             throw new NotFoundError();
         }
-        const authorExists = await userRepository.userExists(authorId);
+        const authorExists = await UserRepository.userExists(authorId);
         if(!authorExists) {
             throw new NotFoundError();
         }
