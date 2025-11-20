@@ -1,11 +1,10 @@
-import * as skillService from '../services/skill.service.js'
 import * as futureSkillService from "../services/future.skill.service.js";
 import Skill from '../models/skill.model.js';
 import FutureSkill from '../models/future.skill.model.js';
 import User from '../models/user.model.js';
-
-import { skillService } from '../services/skill.service.js'
 import SkillRepository from "../repositories/skill.repository.js";
+import { skillService } from '../services/skill.service.js';
+
 
 export const getAllSkills = async (req, res) => {
   try {

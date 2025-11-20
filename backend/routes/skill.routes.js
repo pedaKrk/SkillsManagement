@@ -6,7 +6,8 @@ import {
     createSkill,
     updateSkill,
     deleteSkill,
-    getRootSkills
+    getRootSkills,
+    addFutureSkillToSkills
 } from '../controllers/skill.controller.js'
 import {authenticateToken, authorizeRole} from '../middleware/auth.middleware.js'
 
