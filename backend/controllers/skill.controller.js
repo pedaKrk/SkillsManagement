@@ -4,14 +4,15 @@ import FutureSkill from '../models/future.skill.model.js';
 import User from '../models/user.model.js';
 import SkillRepository from "../repositories/skill.repository.js";
 import { skillService } from '../services/skill.service.js';
+import logger from '../config/logger.js';
 
 
 export const getAllSkills = async (req, res) => {
   try {
-    console.info("Get all skills");
     const skills = await skillService.getAllSkills()
     res.status(200).json(skills)
   } catch (error) {
+    logger.error('Failed to get skills:', error);
     res.status(500).json({ message: 'Failed to get skills', error })
   }
 }
@@ -33,9 +34,10 @@ export const createSkill = async (req, res) => {
     const skillData = req.body
 
     const newSkill= await skillService.createSkill(skillData)
+    logger.info(`Skill created: ${newSkill.name} (${newSkill._id})`);
     res.status(201).json(newSkill)
   } catch (error) {
-    console.error('Error creating skill:', error);
+    logger.error('Error creating skill:', error);
     
     // Check if it's a duplicate name error
     if (error.message && error.message.includes('already exists')) {
@@ -51,27 +53,13 @@ export const updateSkill = async (req, res) => {
   
   try {
     const skillData = req.body
-
-    console.log(`Updating skill ${id} with data:`, skillData)
-    
-    // Get the skill before update to see current state
-    const skillBefore = await skillService.getSkillById(id)
-    console.log(`Skill ${id} before update:`, {
-      name: skillBefore.name,
-      children: skillBefore.children,
-      parent_id: skillBefore.parent_id
-    })
     
     const updatedSkill = await skillService.updateSkill(id, skillData)
-    console.log(`Skill ${id} updated successfully:`, {
-      name: updatedSkill.name,
-      children: updatedSkill.children,
-      parent_id: updatedSkill.parent_id
-    })
+    logger.info(`Skill updated: ${updatedSkill.name} (${id})`)
     
     res.status(200).json(updatedSkill)
   } catch (error) {
-    console.error(`Error updating skill ${id}:`, error)
+    logger.error(`Error updating skill ${id}:`, error)
     res.status(500).json({ message: 'Failed to update skill', error })
   }
 }
@@ -80,9 +68,12 @@ export const deleteSkill = async (req, res) => {
   try {
     const { id } = req.params
 
+    logger.info(`Deleting skill ${id}`);
     const result = await skillService.deleteSkill(id)
+    logger.info(`Skill ${id} deleted successfully`);
     res.status(200).json({ message: 'Skill deleted successfully' })
   } catch (error) {
+    logger.error(`Error deleting skill ${id}:`, error);
     res.status(500).json({ message: 'Failed to delete skill', error })
   }
 }
@@ -143,7 +134,7 @@ export const addFutureSkillToSkills = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error converting future skill:", error);
+    logger.error("Error converting future skill:", error);
     return res.status(500).json({
       message: "Failed to convert future skill",
       error: error.message
@@ -154,12 +145,10 @@ export const addFutureSkillToSkills = async (req, res) => {
 
 export const getRootSkills = async (req, res) => {
     try{
-        console.log("getting root skills")
         const result = await skillService.getRootSkills()
-        console.log(result)
         res.status(200).json(result)
     } catch (error){
-        console.error('Error getting root skills', error)
+        logger.error('Error getting root skills:', error)
         res.status(500).json({ message: 'Failed to get root skills', error })
     }
 }
