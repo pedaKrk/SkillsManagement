@@ -2,10 +2,11 @@ import Handlebars from 'handlebars';
 import fs from 'fs';
 import path from 'path';
 import {TEMPLATES_PATH} from "../../config/env.js";
+import logger from "../../config/logger.js";
 
 class MailTemplateService {
     constructor(){
-        console.log('📂 TEMPLATES_PATH from .env =', TEMPLATES_PATH);
+        logger.debug('TEMPLATES_PATH from .env:', TEMPLATES_PATH);
         this.path = TEMPLATES_PATH;
     }
 
@@ -38,7 +39,7 @@ class MailTemplateService {
      */
     generateEmailContent(templateName, data, loadText = true, loadHtml = true){
         if(!loadText && !loadHtml){
-            console.error("Both `loadText` and `loadHtml` are false, so no templates will be loaded.")
+            logger.error("Both `loadText` and `loadHtml` are false, so no templates will be loaded.")
             throw new Error("Both `loadText` and `loadHtml` are false, so no templates will be loaded.")
         }
 
@@ -56,7 +57,7 @@ class MailTemplateService {
 
             return result;
         }catch(error){
-            console.error("Error while generating email content", error.message);
+            logger.error("Error while generating email content:", error.message);
             throw new Error(error.message);
         }
     }
@@ -72,10 +73,10 @@ class MailTemplateService {
      */
     loadTemplate(templateName, type) {
         const filePath = path.resolve(this.path, templateName, `${templateName}.${type}`);
-        console.log('🟡 [MailTemplateService] Looking for template at:', filePath);
+        logger.debug(`[MailTemplateService] Loading template: ${filePath}`);
 
         if (!fs.existsSync(filePath)) {
-            console.error('❌ Template file not found:', filePath);
+            logger.error('Template file not found:', filePath);
             throw new Error(`Template file not found at: ${filePath}`);
         }
 
@@ -98,7 +99,7 @@ class MailTemplateService {
             const template = Handlebars.compile(templateContent);
             return template(data);
         }catch(error){
-            console.error(`Error while compiling Template: ${error.message}`);
+            logger.error(`Error while compiling Template: ${error.message}`);
             throw new Error(`Failed to compile template: ${error.message}`);
         }
     }

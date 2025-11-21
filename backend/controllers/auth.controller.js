@@ -3,6 +3,7 @@ import {blacklistToken, generateToken} from "../services/jwt.service.js";
 import {mailService} from "../services/mail/mail.service.js";
 import User from "../models/user.model.js";
 import roles from "../models/enums/role.enum.js";
+import logger from "../config/logger.js";
 
 /*
 ToDo:
@@ -46,7 +47,7 @@ export const registerUser = async (req, res) => {
             message: "User successfully created"
         });
     } catch (err) {
-        console.error("Registration error:", err);
+        logger.error("Registration error:", err);
         res.status(500).json({ message: "Registration failed", error: err.message });
     }
 };
@@ -55,7 +56,6 @@ export const registerUser = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { identifier, password } = req.body;
-        console.log('Login attempt with identifier:', identifier);
         
         // Find user by email or username
         const user = await User.findOne({
@@ -65,38 +65,29 @@ export const login = async (req, res) => {
             ]
         }).select('+email +username +role +password +mustChangePassword +isActive');
         
-        console.log('User found:', user ? {
-            id: user._id,
-            email: user.email,
-            username: user.username,
-            mustChangePassword: user.mustChangePassword,
-            isActive: user.isActive
-        } : 'No user');
-        
         // Return error if user not found
         if (!user) {
-            console.log('User not found for identifier:', identifier);
+            logger.warn('Login failed - User not found:', identifier);
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
         // Check if user is active
         if (!user.isActive) {
-            console.log('Inactive user attempted to login:', identifier);
+            logger.warn('Login failed - Inactive user:', identifier);
             return res.status(403).json({ message: "Account is not activated yet" });
         }
 
         // Check if password matches
         const isPasswordValid = await comparePassword(password, user.password);
-        console.log('Password valid:', isPasswordValid);
         
         if (!isPasswordValid) {
-            console.log('Invalid password for user:', identifier);
+            logger.warn('Login failed - Invalid password for user:', identifier);
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
         // if user need to change passwort
         if (user.mustChangePassword === true) {
-            console.log('User must change password:', user.email);
+            logger.info('Login blocked - User must change password:', user.email);
             return res.status(403).json({ 
                 message: "User needs to change default password",
                 user: {
@@ -111,7 +102,7 @@ export const login = async (req, res) => {
         
         // Generate JWT token for authentication
         const token = generateToken(user);
-        console.log('Login successful for:', user.email);
+        logger.info(`Login successful: ${user.email}`);
         
         // Return success with user data and token
         res.status(200).json({ 
@@ -126,7 +117,7 @@ export const login = async (req, res) => {
             }
         });
     } catch (err) {
-        console.error("Login error:", err);
+        logger.error("Login error:", err);
         res.status(500).json({ message: "Login failed" });
     }
 };
@@ -149,7 +140,7 @@ export const logout = async (req, res) => {
             message: "Successfully logged out"
         });
     } catch (err) {
-        console.error("Logout error:", err);
+        logger.error("Logout error:", err);
         res.status(500).json({ message: "Logout failed" });
     }
 };
@@ -185,7 +176,7 @@ export const resetPassword = async (req, res) => {
             message: "Password has been reset. Check your email for the new password."
         });
     } catch (err) {
-        console.error("Password reset error:", err);
+        logger.error("Password reset error:", err);
         res.status(500).json({ message: "Password reset failed", error: err.message });
     }
 };

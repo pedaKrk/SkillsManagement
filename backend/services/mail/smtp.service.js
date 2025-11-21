@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import {SMTP_HOST, SMTP_PASSWORD, SMTP_PORT, SMTP_USER} from "../../config/env.js";
+import logger from "../../config/logger.js";
 
 class SMTPService {
     constructor() {
@@ -30,10 +31,10 @@ class SMTPService {
         try {
             await this.transporter.verify();
             this.isConnected = true;
-            console.log("Connected to SMTP-Server");
+            logger.info("Connected to SMTP-Server");
         } catch (error) {
             this.isConnected = false;
-            console.log("Error connecting to SMTP-Server:", error);
+            logger.error("Error connecting to SMTP-Server:", error);
         }
     }
 
@@ -62,10 +63,10 @@ class SMTPService {
                 text,
             };
             const info = await this.transporter.sendMail(mailOptions);
-            console.log("Email sent:", info.messageId);
+            logger.info(`Email sent to ${to}:`, info.messageId);
             return info;
         } catch (error) {
-            console.error("Error sending email:", error);
+            logger.error("Error sending email:", error);
             throw error;
         }
     }
