@@ -41,6 +41,30 @@
               class="form-control textarea"
             ></textarea>
             
+            <!-- Rich Text Editor -->
+            <div *ngIf="field.type === 'richtext'" class="richtext-container">
+              <div [id]="'quill-editor-' + field.id" class="quill-editor"></div>
+            </div>
+            
+            <!-- File Upload -->
+            <div *ngIf="field.type === 'file'" class="file-upload-container">
+              <input 
+                type="file"
+                [id]="field.id"
+                [name]="field.id"
+                [required]="field.required"
+                [disabled]="field.disabled"
+                [multiple]="field.multiple || false"
+                [accept]="field.accept || '*'"
+                (change)="onFileChange(field.id, $event)"
+                class="file-input"
+              >
+              <label [for]="field.id" class="file-label">
+                <span class="file-label-text">{{ getFileNames(field.id) || (field.placeholder || 'Datei auswählen...') }}</span>
+                <span class="file-label-button">Durchsuchen</span>
+              </label>
+            </div>
+            
             <!-- Select -->
             <select 
               *ngIf="field.type === 'select'"

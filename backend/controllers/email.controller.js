@@ -1,4 +1,5 @@
 import {mailService} from "../services/mail/mail.service.js";
+import logger from "../config/logger.js";
 
 /**
  * Sends an email
@@ -8,7 +9,20 @@ import {mailService} from "../services/mail/mail.service.js";
  */
 export const sendEmail = async (req, res) => {
     try {
-        const { recipients, subject, message } = req.body;
+        // Handle both JSON and FormData
+        let recipients, subject, message;
+        
+        if (req.body.recipients) {
+            // FormData - recipients is JSON string
+            recipients = JSON.parse(req.body.recipients);
+            subject = req.body.subject;
+            message = req.body.message;
+        } else {
+            // JSON body (backward compatibility)
+            recipients = req.body.recipients;
+            subject = req.body.subject;
+            message = req.body.message;
+        }
 
         // Check if all required fields are present
         if (!recipients || !subject || !message) {
@@ -18,7 +32,44 @@ export const sendEmail = async (req, res) => {
             });
         }
 
-        const result = await mailService.sendEmail(recipients, subject, null, message);
+        // Get attachments from uploaded files
+        const attachments = req.files || [];
+        
+        // Convert HTML message to plain text for text version
+        // Remove HTML tags but preserve line breaks
+        const textMessage = message
+            .replace(/<br\s*\/?>/gi, '\n')
+            .replace(/<\/p>/gi, '\n\n')
+            .replace(/<\/div>/gi, '\n')
+            .replace(/<[^>]*>/g, '')
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .trim() || message;
+
+        let cleanedHtml = message;
+        
+        cleanedHtml = cleanedHtml.replace(/class="[^"]*"/g, '');
+        
+        cleanedHtml = cleanedHtml.replace(/<p>/g, '<p style="margin: 0 0 10px 0;">');
+        cleanedHtml = cleanedHtml.replace(/<br\s*\/?>/gi, '<br style="line-height: 1.6;">');
+        
+        // Wrap in proper HTML structure for email clients
+        const htmlMessage = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px;">
+    ${cleanedHtml}
+</body>
+</html>`;
+
+        logger.debug(`Sending email with HTML content length: ${htmlMessage.length} characters`);
+        const result = await mailService.sendEmail(recipients, subject, htmlMessage, textMessage, undefined, attachments);
 
         return res.status(200).json({
             success: true,
@@ -26,7 +77,7 @@ export const sendEmail = async (req, res) => {
             data: result
         });
     } catch (error) {
-        console.error('Error in sendEmail controller:', error);
+        logger.error('Error in sendEmail controller:', error);
         return res.status(500).json({
             success: false,
             message: 'Failed to send email',

@@ -33,18 +33,52 @@ export class EmailService {
    * Sends an email to selected users directly from the system
    * @param users The selected users
    * @param subject The email subject
-   * @param message The email content
+   * @param message The email content (HTML or plain text)
+   * @param attachments Optional array of files to attach
    * @returns Observable with the server response
    */
-  sendEmailToUsers(users: User[], subject: string, message: string): Observable<any> {
+  sendEmailToUsers(users: User[], subject: string, message: string, attachments: File[] = []): Observable<any> {
     const recipients = users.map(user => user.email);
     
-    return this.http.post(`${this.apiUrl}/send`, {
-      recipients,
-      subject,
-      message,
-      sender: 'technikumwienmailservice@gmail.com' // Fixed sender
-    }, { headers: this.getAuthHeaders() });
+    const formData = new FormData();
+    formData.append('recipients', JSON.stringify(recipients));
+    formData.append('subject', subject);
+    formData.append('message', message);
+    formData.append('sender', 'technikumwienmailservice@gmail.com');
+    
+    // Add attachments
+    attachments.forEach((file, index) => {
+      formData.append('attachments', file, file.name);
+    });
+    
+    return this.http.post(`${this.apiUrl}/send`, formData, { 
+      headers: this.getAuthHeaders().delete('Content-Type') // Let browser set Content-Type for FormData
+    });
+  }
+
+  /**
+   * Sends an email to a single user
+   * @param userEmail The recipient's email address
+   * @param subject The email subject
+   * @param message The email content (HTML or plain text)
+   * @param attachments Optional array of files to attach
+   * @returns Observable with the server response
+   */
+  sendEmailToUser(userEmail: string, subject: string, message: string, attachments: File[] = []): Observable<any> {
+    const formData = new FormData();
+    formData.append('recipients', JSON.stringify([userEmail]));
+    formData.append('subject', subject);
+    formData.append('message', message);
+    formData.append('sender', 'technikumwienmailservice@gmail.com');
+    
+    // Add attachments
+    attachments.forEach((file, index) => {
+      formData.append('attachments', file, file.name);
+    });
+    
+    return this.http.post(`${this.apiUrl}/send`, formData, { 
+      headers: this.getAuthHeaders().delete('Content-Type') // Let browser set Content-Type for FormData
+    });
   }
   
   /**

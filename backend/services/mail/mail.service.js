@@ -1,5 +1,6 @@
 import {mailTemplateService} from "./mail.template.service.js";
 import {smtpService} from "./smtp.service.js";
+import logger from "../../config/logger.js";
 
 class MailService {
 
@@ -32,7 +33,7 @@ class MailService {
             await smtpService.sendEmail(to, "Your Account Credentials", html, text);
         }
         catch(error){
-            console.error("Error sending default password email:", error);
+            logger.error("Error sending default password email:", error);
             throw error;
         }
     }
@@ -73,16 +74,16 @@ class MailService {
             const {html, text} = mailTemplateService.generateEmailContent("newRegistrationNotificationMail", data);
             await smtpService.sendEmail(to, "A new user registered to the Skills Management System", html, text);
         }catch(error){
-            console.error("Error sending new registration notification email:", error);
+            logger.error("Error sending new registration notification email:", error);
             throw error;
         }
     }
 
-    async sendEmail(to, subject, html, text){
+    async sendEmail(to, subject, html, text, from, attachments){
         try{
-            await smtpService.sendEmail(to, subject, html, text);
+            await smtpService.sendEmail(to, subject, html, text, from, attachments);
         }catch (error){
-            console.error("Error sending email:", error);
+            logger.error("Error sending email:", error);
             throw error;
         }
     }
@@ -114,7 +115,7 @@ class MailService {
             const { text } = mailTemplateService.generateEmailContent("futureSkillStatusMail",data, true, false);
             return text;
         }catch(error){
-            console.error("Error loading future skill status email:", error);
+            logger.error("Error loading future skill status email:", error);
             throw error;
         }
     }
@@ -143,7 +144,7 @@ class MailService {
             const { text } = mailTemplateService.generateEmailContent("userListEmail", data, true, false);
             return text;
         }catch(error){
-            console.error("Error loading user list email:", error);
+            logger.error("Error loading user list email:", error);
             throw error;
         }
     }
