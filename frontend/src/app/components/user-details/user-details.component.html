@@ -49,10 +49,12 @@
           <span class="value">{{ getEmploymentType() }}</span>
         </div>
 
-        <!-- Edit-Button for Admins and own profile -->
         <div *ngIf="isAdmin || isOwnProfile()" class="admin-actions mt-3">
           <button class="btn btn-primary" (click)="editUser()">
             <i class="fa fa-pencil"></i> {{ 'PROFILE.EDIT_PROFILE' | translate }}
+          </button>
+          <button *ngIf="isAdmin" class="btn btn-secondary" (click)="sendEmail()">
+            <i class="fa fa-envelope"></i> {{ 'PROFILE.SEND_EMAIL' | translate }}
           </button>
         </div>
       </div>

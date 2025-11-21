@@ -3,8 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {ManageProgressService} from '../../../core/services/future-skills/manage-progress.service';
 import {AuthService, EmailService} from '../../../core';
-import {UserRole} from '../../../models/enums/user-roles.enum';
-import {EmploymentType} from '../../../models/enums/employment-type.enum';
 import {forkJoin} from 'rxjs';
 import {DialogService, FormDialogConfig} from '../../../core/services/dialog/dialog.service';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
@@ -345,17 +343,7 @@ export class ManageProgressComponent implements OnInit {
   }
 
   private sendEmailToUser(recipientEmail: string, subject: string, message: string) {
-    const fakeUser = {
-      id: '',
-      username: '',
-      email: recipientEmail,
-      role: UserRole.LECTURER,
-      firstName: '',
-      lastName: '',
-      employmentType: EmploymentType.EXTERNAL
-    };
-
-    this.mailService.sendEmailToUsers([fakeUser], subject, message).subscribe({
+    this.mailService.sendEmailToUser(recipientEmail, subject, message).subscribe({
       next: () => {
         this.dialogService.showSuccess({
           title: this.translateService.instant('COMMON.SUCCESS') || 'Success',

@@ -4,8 +4,9 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { UserService } from '../../core/services/user/user.service';
 import { AuthService } from '../../core/services/auth/auth.service';
-import { DialogService } from '../../core/services/dialog/dialog.service';
+import { DialogService, FormDialogConfig } from '../../core/services/dialog/dialog.service';
 import { CommentService } from '../../core/services/comment/comment.service';
+import { EmailService } from '../../core/services/email/email.service';
 import { User, Comment, UserSkillEntry } from '../../models/user.model';
 import { UserRole } from '../../models/enums/user-roles.enum';
 import { environment } from '../../../environments/environment';
@@ -64,6 +65,7 @@ export class UserDetailsComponent implements OnInit {
     private authService: AuthService,
     private dialogService: DialogService,
     private commentService: CommentService,
+    private emailService: EmailService,
     private translateService: TranslateService
   ) {}
 
@@ -744,5 +746,95 @@ export class UserDetailsComponent implements OnInit {
       return '';
     }
     return level.toLowerCase();
+  }
+
+  /**
+   * Sends an email to the user
+   */
+  sendEmail(): void {
+    if (!this.user) {
+      return;
+    }
+
+    // Load email template from backend
+    this.emailService.getUserListEmail().subscribe({
+      next: (res) => {
+        if (res.success) {
+          const defaultSubject = this.translateService.instant('USER.EMAIL_SUBJECT') || 'Nachricht vom Skills Management System';
+          const defaultMessage = res.template || '';
+          
+          const userName = this.getUserFullName();
+          const userEmail = this.user?.email || '';
+          
+          const formConfig: FormDialogConfig = {
+            title: this.translateService.instant('PROFILE.EMAIL_DIALOG_TITLE'),
+            message: this.translateService.instant('PROFILE.EMAIL_DIALOG_INFO', { userName }),
+            formFields: [
+              {
+                id: 'recipient',
+                label: this.translateService.instant('PROFILE.EMAIL_RECIPIENT_LABEL'),
+                type: 'text',
+                defaultValue: `${userName} (${userEmail})`,
+                required: true,
+                disabled: true
+              },
+              {
+                id: 'subject',
+                label: this.translateService.instant('USER.EMAIL_SUBJECT_LABEL'),
+                type: 'text',
+                defaultValue: defaultSubject,
+                required: true,
+                placeholder: this.translateService.instant('USER.EMAIL_SUBJECT_PLACEHOLDER')
+              },
+              {
+                id: 'message',
+                label: this.translateService.instant('USER.EMAIL_MESSAGE_LABEL'),
+                type: 'textarea',
+                defaultValue: defaultMessage,
+                required: true,
+                placeholder: this.translateService.instant('USER.EMAIL_MESSAGE_PLACEHOLDER'),
+                rows: 6
+              }
+            ],
+            submitText: this.translateService.instant('USER.EMAIL_SEND_BUTTON'),
+            cancelText: this.translateService.instant('COMMON.CANCEL'),
+            closeOnBackdropClick: false
+          };
+
+          this.dialogService.showFormDialog(formConfig).subscribe(formData => {
+            if (formData && this.user?.email) {
+              this.emailService.sendEmailToUser(this.user.email, formData.subject, formData.message).subscribe({
+                next: (response) => {
+                  this.dialogService.showSuccess({
+                    title: this.translateService.instant('COMMON.SUCCESS') || 'Erfolg',
+                    message: this.translateService.instant('PROFILE.EMAIL_SENT_SUCCESS') || 'E-Mail wurde erfolgreich gesendet.',
+                    buttonText: this.translateService.instant('COMMON.OK') || 'OK'
+                  }).subscribe();
+                },
+                error: (error) => {
+                  console.error('Error sending email:', error);
+                  this.dialogService.showError(
+                    this.translateService.instant('COMMON.ERROR') || 'Fehler',
+                    this.translateService.instant('PROFILE.EMAIL_SEND_ERROR') || 'E-Mail konnte nicht gesendet werden.'
+                  ).subscribe();
+                }
+              });
+            }
+          });
+        } else {
+          this.dialogService.showError(
+            this.translateService.instant('COMMON.ERROR') || 'Fehler',
+            this.translateService.instant('USER.EMAIL_TEMPLATE_ERROR') || 'E-Mail-Vorlage konnte nicht geladen werden.'
+          ).subscribe();
+        }
+      },
+      error: (err) => {
+        console.error('Error loading email template:', err);
+        this.dialogService.showError(
+          this.translateService.instant('COMMON.ERROR') || 'Fehler',
+          this.translateService.instant('USER.EMAIL_TEMPLATE_ERROR') || 'E-Mail-Vorlage konnte nicht geladen werden.'
+        ).subscribe();
+      }
+    });
   }
 }

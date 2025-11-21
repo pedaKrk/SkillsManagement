@@ -309,7 +309,13 @@
     "REPLY": "Reply",
     "SHOW_MORE": "Show more",
     "SHOW_LESS": "Show less",
-    "REPLY_PLACEHOLDER": "Write a reply..."
+    "REPLY_PLACEHOLDER": "Write a reply...",
+    "SEND_EMAIL": "Send Email",
+    "EMAIL_DIALOG_TITLE": "Send Email",
+    "EMAIL_DIALOG_INFO": "Send email to {{userName}}",
+    "EMAIL_RECIPIENT_LABEL": "Recipient",
+    "EMAIL_SENT_SUCCESS": "Email sent successfully.",
+    "EMAIL_SEND_ERROR": "Failed to send email."
   },
   "EDIT_PROFILE": {
     "HEADER": "Edit User Profile",

@@ -46,6 +46,22 @@ export class EmailService {
       sender: 'technikumwienmailservice@gmail.com' // Fixed sender
     }, { headers: this.getAuthHeaders() });
   }
+
+  /**
+   * Sends an email to a single user
+   * @param userEmail The recipient's email address
+   * @param subject The email subject
+   * @param message The email content
+   * @returns Observable with the server response
+   */
+  sendEmailToUser(userEmail: string, subject: string, message: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/send`, {
+      recipients: [userEmail],
+      subject,
+      message,
+      sender: 'technikumwienmailservice@gmail.com' // Fixed sender
+    }, { headers: this.getAuthHeaders() });
+  }
   
   /**
    * Opens the user's default email client with prefilled recipients

@@ -304,7 +304,13 @@
     "ALL_AUTHORS": "Alle Autoren",
     "FROM": "Von:",
     "TO": "Bis:",
-    "NO_COMMENTS": "Keine Kommentare vorhanden."
+    "NO_COMMENTS": "Keine Kommentare vorhanden.",
+    "SEND_EMAIL": "E-Mail senden",
+    "EMAIL_DIALOG_TITLE": "E-Mail senden",
+    "EMAIL_DIALOG_INFO": "E-Mail an {{userName}} senden",
+    "EMAIL_RECIPIENT_LABEL": "Empfänger",
+    "EMAIL_SENT_SUCCESS": "E-Mail wurde erfolgreich gesendet.",
+    "EMAIL_SEND_ERROR": "E-Mail konnte nicht gesendet werden."
   },
   "EDIT_PROFILE": {
     "HEADER": "Benutzerprofil bearbeiten",
