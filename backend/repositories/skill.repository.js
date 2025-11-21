@@ -52,11 +52,11 @@ class SkillRepository {
         updates.push(Skill.findByIdAndUpdate(skillId, {parent_id: newParentId}, {new: true}))
 
         if (newParentId) {
-            updates.push(addChildToParent(newParentId, skillId))
+            updates.push(this.addChildToParent(newParentId, skillId))
         }
 
         if (oldParentId) {
-            updates.push(removeChildFromParent(oldParentId, skillId))
+            updates.push(this.removeChildFromParent(oldParentId, skillId))
         }
 
         return await Promise.all(updates)
@@ -67,7 +67,7 @@ class SkillRepository {
         const skill = await Skill.findById(skillId)
         if (skill && skill.children.length > 0) {
             for (const childId of skill.children) {
-                await deleteSkillWithChildren(childId)
+                await this.deleteSkillWithChildren(childId)
             }
         }
 
