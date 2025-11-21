@@ -368,7 +368,17 @@ export class UserListComponent implements OnInit, OnDestroy {
       next: (res) => {
         if (res.success) {
           const defaultSubject = this.translateService.instant('USER.EMAIL_SUBJECT') || 'Nachricht vom Skills Management System';
-          const defaultMessage = res.template || '';
+          let defaultMessage = res.template || '';
+          
+          // Convert plain text template to HTML for Quill editor
+          // Replace line breaks with <p> tags to preserve formatting
+          if (defaultMessage && !defaultMessage.includes('<')) {
+            defaultMessage = defaultMessage
+              .split('\n')
+              .filter((line: string) => line.trim().length > 0)
+              .map((line: string) => `<p>${line.trim()}</p>`)
+              .join('');
+          }
           
           this.translateService.get('USER.EMAIL_DIALOG_INFO', { count: selectedUsers.length }).subscribe(infoText => {
             this.dialogService.showFormDialog({

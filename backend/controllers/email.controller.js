@@ -36,9 +36,40 @@ export const sendEmail = async (req, res) => {
         const attachments = req.files || [];
         
         // Convert HTML message to plain text for text version
-        const textMessage = message.replace(/<[^>]*>/g, '').trim() || message;
+        // Remove HTML tags but preserve line breaks
+        const textMessage = message
+            .replace(/<br\s*\/?>/gi, '\n')
+            .replace(/<\/p>/gi, '\n\n')
+            .replace(/<\/div>/gi, '\n')
+            .replace(/<[^>]*>/g, '')
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .trim() || message;
 
-        const result = await mailService.sendEmail(recipients, subject, message, textMessage, undefined, attachments);
+        let cleanedHtml = message;
+        
+        cleanedHtml = cleanedHtml.replace(/class="[^"]*"/g, '');
+        
+        cleanedHtml = cleanedHtml.replace(/<p>/g, '<p style="margin: 0 0 10px 0;">');
+        cleanedHtml = cleanedHtml.replace(/<br\s*\/?>/gi, '<br style="line-height: 1.6;">');
+        
+        // Wrap in proper HTML structure for email clients
+        const htmlMessage = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px;">
+    ${cleanedHtml}
+</body>
+</html>`;
+
+        logger.debug(`Sending email with HTML content length: ${htmlMessage.length} characters`);
+        const result = await mailService.sendEmail(recipients, subject, htmlMessage, textMessage, undefined, attachments);
 
         return res.status(200).json({
             success: true,
