@@ -789,11 +789,18 @@ export class UserDetailsComponent implements OnInit {
               {
                 id: 'message',
                 label: this.translateService.instant('USER.EMAIL_MESSAGE_LABEL'),
-                type: 'textarea',
+                type: 'richtext',
                 defaultValue: defaultMessage,
                 required: true,
-                placeholder: this.translateService.instant('USER.EMAIL_MESSAGE_PLACEHOLDER'),
-                rows: 6
+                placeholder: this.translateService.instant('USER.EMAIL_MESSAGE_PLACEHOLDER')
+              },
+              {
+                id: 'attachments',
+                label: this.translateService.instant('PROFILE.EMAIL_ATTACHMENTS_LABEL') || 'Anhänge',
+                type: 'file',
+                required: false,
+                multiple: true,
+                accept: '*/*'
               }
             ],
             submitText: this.translateService.instant('USER.EMAIL_SEND_BUTTON'),
@@ -803,7 +810,15 @@ export class UserDetailsComponent implements OnInit {
 
           this.dialogService.showFormDialog(formConfig).subscribe(formData => {
             if (formData && this.user?.email) {
-              this.emailService.sendEmailToUser(this.user.email, formData.subject, formData.message).subscribe({
+              let attachments: File[] = [];
+              if (formData.attachments) {
+                if (formData.attachments instanceof FileList) {
+                  attachments = Array.from(formData.attachments);
+                } else if (Array.isArray(formData.attachments)) {
+                  attachments = formData.attachments.filter((f: any) => f instanceof File) as File[];
+                }
+              }
+              this.emailService.sendEmailToUser(this.user.email, formData.subject, formData.message, attachments).subscribe({
                 next: (response) => {
                   this.dialogService.showSuccess({
                     title: this.translateService.instant('COMMON.SUCCESS') || 'Erfolg',

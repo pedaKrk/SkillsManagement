@@ -143,6 +143,7 @@
     "EMAIL_SEND_BUTTON": "Send Email",
     "EMAIL_NO_USERS_SELECTED": "Please select at least one user.",
     "EMAIL_TEMPLATE_ERROR": "Failed to load email template.",
+    "EMAIL_ATTACHMENTS_LABEL": "Attachments",
     "USER_EDIT_TITLE": "Edit profile of {{name}}",
     "USER_EDIT_SUBTITLE": "Edit information for {{name}}"
   },
@@ -210,7 +211,8 @@
     "EMAIL_SENT_SUCCESS": "Email sent successfully!",
     "EMAIL_SEND_ERROR": "Failed to send email.",
     "EMAIL_UNAUTHORIZED": "You are not authorized.",
-    "EMAIL_INVALID": "Invalid input."
+    "EMAIL_INVALID": "Invalid input.",
+    "EMAIL_ATTACHMENTS_LABEL": "Attachments"
   },
   "DASHBOARD": {
     "DASHBOARD": "Dashboard",
@@ -315,7 +317,8 @@
     "EMAIL_DIALOG_INFO": "Send email to {{userName}}",
     "EMAIL_RECIPIENT_LABEL": "Recipient",
     "EMAIL_SENT_SUCCESS": "Email sent successfully.",
-    "EMAIL_SEND_ERROR": "Failed to send email."
+    "EMAIL_SEND_ERROR": "Failed to send email.",
+    "EMAIL_ATTACHMENTS_LABEL": "Attachments"
   },
   "EDIT_PROFILE": {
     "HEADER": "Edit User Profile",

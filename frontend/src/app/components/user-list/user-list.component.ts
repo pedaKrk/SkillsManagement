@@ -395,11 +395,18 @@ export class UserListComponent implements OnInit, OnDestroy {
                 {
                   id: 'message',
                   label: this.translateService.instant('USER.EMAIL_MESSAGE_LABEL'),
-                  type: 'textarea',
+                  type: 'richtext',
                   defaultValue: defaultMessage,
                   required: true,
-                  placeholder: this.translateService.instant('USER.EMAIL_MESSAGE_PLACEHOLDER'),
-                  rows: 6
+                  placeholder: this.translateService.instant('USER.EMAIL_MESSAGE_PLACEHOLDER')
+                },
+                {
+                  id: 'attachments',
+                  label: this.translateService.instant('USER.EMAIL_ATTACHMENTS_LABEL') || 'Anhänge',
+                  type: 'file',
+                  required: false,
+                  multiple: true,
+                  accept: '*/*'
                 }
               ],
               submitText: this.translateService.instant('USER.EMAIL_SEND_BUTTON'),
@@ -408,8 +415,17 @@ export class UserListComponent implements OnInit, OnDestroy {
               if (formData) {
                 this.emailSubject = formData.subject;
                 this.emailMessage = formData.message;
+                // Handle attachments
+                let attachments: File[] = [];
+                if (formData.attachments) {
+                  if (formData.attachments instanceof FileList) {
+                    attachments = Array.from(formData.attachments);
+                  } else if (Array.isArray(formData.attachments)) {
+                    attachments = formData.attachments.filter((f: any) => f instanceof File) as File[];
+                  }
+                }
                 // send email to users
-                this.sendEmailToUsers(selectedUsers, formData.subject, formData.message);
+                this.sendEmailToUsers(selectedUsers, formData.subject, formData.message, attachments);
               }
             });
           });
@@ -442,12 +458,12 @@ export class UserListComponent implements OnInit, OnDestroy {
   /**
    * sends an email to the selected users
    */
-  sendEmailToUsers(users: User[], subject: string, message: string): void {
+  sendEmailToUsers(users: User[], subject: string, message: string, attachments: File[] = []): void {
     // show loading animation
     this.isLoading = true;
     
     // send email directly from the system
-    this.emailService.sendEmailToUsers(users, subject, message)
+    this.emailService.sendEmailToUsers(users, subject, message, attachments)
       .subscribe({
         next: (response) => {
           console.log('Email sent successfully', response);

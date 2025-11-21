@@ -308,11 +308,18 @@ export class ManageProgressComponent implements OnInit {
               {
                 id: 'message',
                 label: this.translateService.instant('MANAGE_PROGRESS.EMAIL_MESSAGE_LABEL') || 'Message',
-                type: 'textarea',
+                type: 'richtext',
                 defaultValue: defaultMessage,
                 required: true,
-                placeholder: this.translateService.instant('MANAGE_PROGRESS.EMAIL_MESSAGE_PLACEHOLDER') || 'Email message',
-                rows: 10
+                placeholder: this.translateService.instant('MANAGE_PROGRESS.EMAIL_MESSAGE_PLACEHOLDER') || 'Email message'
+              },
+              {
+                id: 'attachments',
+                label: this.translateService.instant('MANAGE_PROGRESS.EMAIL_ATTACHMENTS_LABEL') || 'Attachments',
+                type: 'file',
+                required: false,
+                multiple: true,
+                accept: '*/*'
               }
             ],
             submitText: this.translateService.instant('MANAGE_PROGRESS.EMAIL_SEND_BUTTON') || 'Send',
@@ -322,7 +329,15 @@ export class ManageProgressComponent implements OnInit {
 
           this.dialogService.showFormDialog(formConfig).subscribe(formData => {
             if (formData) {
-              this.sendEmailToUser(recipientEmail, formData.subject, formData.message);
+              let attachments: File[] = [];
+              if (formData.attachments) {
+                if (formData.attachments instanceof FileList) {
+                  attachments = Array.from(formData.attachments);
+                } else if (Array.isArray(formData.attachments)) {
+                  attachments = formData.attachments.filter((f: any) => f instanceof File) as File[];
+                }
+              }
+              this.sendEmailToUser(recipientEmail, formData.subject, formData.message, attachments);
             }
           });
         } else {
@@ -342,8 +357,8 @@ export class ManageProgressComponent implements OnInit {
     });
   }
 
-  private sendEmailToUser(recipientEmail: string, subject: string, message: string) {
-    this.mailService.sendEmailToUser(recipientEmail, subject, message).subscribe({
+  private sendEmailToUser(recipientEmail: string, subject: string, message: string, attachments: File[] = []) {
+    this.mailService.sendEmailToUser(recipientEmail, subject, message, attachments).subscribe({
       next: () => {
         this.dialogService.showSuccess({
           title: this.translateService.instant('COMMON.SUCCESS') || 'Success',
