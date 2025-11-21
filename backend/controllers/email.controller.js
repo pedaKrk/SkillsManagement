@@ -1,4 +1,5 @@
 import {mailService} from "../services/mail/mail.service.js";
+import logger from "../config/logger.js";
 
 /**
  * Sends an email
@@ -8,7 +9,20 @@ import {mailService} from "../services/mail/mail.service.js";
  */
 export const sendEmail = async (req, res) => {
     try {
-        const { recipients, subject, message } = req.body;
+        // Handle both JSON and FormData
+        let recipients, subject, message;
+        
+        if (req.body.recipients) {
+            // FormData - recipients is JSON string
+            recipients = JSON.parse(req.body.recipients);
+            subject = req.body.subject;
+            message = req.body.message;
+        } else {
+            // JSON body (backward compatibility)
+            recipients = req.body.recipients;
+            subject = req.body.subject;
+            message = req.body.message;
+        }
 
         // Check if all required fields are present
         if (!recipients || !subject || !message) {
@@ -18,7 +32,13 @@ export const sendEmail = async (req, res) => {
             });
         }
 
-        const result = await mailService.sendEmail(recipients, subject, null, message);
+        // Get attachments from uploaded files
+        const attachments = req.files || [];
+        
+        // Convert HTML message to plain text for text version
+        const textMessage = message.replace(/<[^>]*>/g, '').trim() || message;
+
+        const result = await mailService.sendEmail(recipients, subject, message, textMessage, undefined, attachments);
 
         return res.status(200).json({
             success: true,
@@ -26,7 +46,7 @@ export const sendEmail = async (req, res) => {
             data: result
         });
     } catch (error) {
-        console.error('Error in sendEmail controller:', error);
+        logger.error('Error in sendEmail controller:', error);
         return res.status(500).json({
             success: false,
             message: 'Failed to send email',
