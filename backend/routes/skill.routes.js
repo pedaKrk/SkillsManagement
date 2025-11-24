@@ -23,3 +23,35 @@ router.put('/:id', authenticateToken, authorizeRole(['Admin', 'competence_leader
 router.delete('/:id', authenticateToken, authorizeRole(['Admin', 'competence_leader']), deleteSkill)
 
 export default router
+
+/**
+ * @openapi
+ * /api/v1/skills:
+ *   get:
+ *     summary: Returns all skills
+ *     tags:
+ *       - Skills
+ *     responses:
+ *       200:
+ *         description: A list of skills
+ */
+
+/**
+ * @openapi
+ * /api/v1/skills/{id}:
+ *   get:
+ *     summary: Returns a skill by ID
+ *     tags:
+ *       - Skills
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Skill object
+ *       404:
+ *         description: Skill not found
+ */
