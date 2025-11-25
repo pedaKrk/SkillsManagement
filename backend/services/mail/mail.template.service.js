@@ -6,12 +6,14 @@ import logger from "../../config/logger.js";
 
 class MailTemplateService {
     constructor() {
-    const fallbackPath = path.resolve('./services/mail/templates');
+        if(!fs.existsSync(TEMPLATES_PATH)){
+            logger.error('Templates path specified in env file does not exist');
+            throw new Error("Templates path specified in env file does not exist");
+        }
 
-    this.path = TEMPLATES_PATH || fallbackPath;
-
-    console.log('📂 Using template path:', this.path);
-}
+        this.path = TEMPLATES_PATH;
+        console.log('Using template path:', this.path);
+    }
 
 
     /**
