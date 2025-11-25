@@ -4,10 +4,14 @@ import path from 'path';
 import {TEMPLATES_PATH} from "../../config/env.js";
 
 class MailTemplateService {
-    constructor(){
-        console.log('📂 TEMPLATES_PATH from .env =', TEMPLATES_PATH);
-        this.path = TEMPLATES_PATH;
-    }
+    constructor() {
+    const fallbackPath = path.resolve('./services/mail/templates');
+
+    this.path = TEMPLATES_PATH || fallbackPath;
+
+    console.log('📂 Using template path:', this.path);
+}
+
 
     /**
      * Generates HTML and/or plain-text versions of an email from a template and data.
