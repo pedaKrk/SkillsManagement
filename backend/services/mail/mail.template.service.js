@@ -12,7 +12,7 @@ class MailTemplateService {
         }
 
         this.path = TEMPLATES_PATH;
-        console.log('Using template path:', this.path);
+        logger.info('Using template path:', this.path);
     }
 
 
