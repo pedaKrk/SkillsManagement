@@ -1,16 +1,12 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {NgxChartsModule} from '@swimlane/ngx-charts';
 import {DashboardService} from '../../core';
 import {TranslatePipe} from '@ngx-translate/core';
 import {User} from '../../models/user.model';
-import {NgxEchartsDirective, provideEchartsCore} from 'ngx-echarts';
-import * as echarts from 'echarts/core';
-import { RadarChart} from 'echarts/charts';
-import { TooltipComponent, LegendComponent, TitleComponent } from 'echarts/components';
-import { CanvasRenderer} from 'echarts/renderers';
+import {SkillLevel} from '../../models/enums/skill-level.enum';
 
-echarts.use([RadarChart, TooltipComponent, LegendComponent, TitleComponent , CanvasRenderer]);
+import {RadarChartComponent} from '../radar-chart/radar-chart.component';
+import {BarChartComponent} from '../bar-chart/bar-chart.component';
 
 interface UserSkillDistributionEntry {
   rootSkillId: string;
@@ -21,10 +17,7 @@ interface UserSkillDistributionEntry {
 @Component({
   selector: 'app-user-statistics',
   imports: [
-    CommonModule, NgxChartsModule, TranslatePipe, NgxEchartsDirective
-  ],
-  providers: [
-    provideEchartsCore({echarts}),
+    CommonModule, TranslatePipe, RadarChartComponent, BarChartComponent
   ],
   templateUrl: './user-statistics.component.html',
   styleUrl: './user-statistics.component.scss'
@@ -32,8 +25,17 @@ interface UserSkillDistributionEntry {
 export class UserStatisticsComponent implements OnInit {
 
   @Input() user!: User;
+  indicators: any[] = [];
+  counts: number[] = [];
 
-  radarOptions: any;
+  xData: string[] = [];
+  yData: number[] = [];
+
+  skillLevelMapping: Record<SkillLevel, number> = {
+    [SkillLevel.BEGINNER]: 1,
+    [SkillLevel.INTERMEDIATE]: 2,
+    [SkillLevel.ADVANCED]: 3
+  };
 
   constructor(private dashboardService: DashboardService) { }
 
@@ -43,37 +45,36 @@ export class UserStatisticsComponent implements OnInit {
     }
 
     this.dashboardService.getUserSkillDistribution(this.user._id || '').subscribe((data: UserSkillDistributionEntry[]) => {
-      const counts = data.map(entry => entry.count);
-      const indicators = data.map(entry => ({
+      this.counts = data.map(entry => entry.count);
+      this.indicators = data.map(entry => ({
         name: entry.rootSkillName,
-        max: Math.max(...counts, 1)
+        max: Math.max(...this.counts, 1)
       }))
-      this.radarOptions = {
-        title: {
-          text: "Skill Distribution"
-        },
-        legend: {
-          data: ['Skills']
-        },
-        radar: {
-          // shape: 'circle',
-          indicator: indicators,
-        },
-        series: [
-          {
-            name: 'Skills',
-            type: 'radar',
-            symbol: 'none',
-            areaStyle: {},
-            data: [
-              {
-                value: counts,
-                name: 'Skills'
-              },
-            ]
-          }
-        ]
-      };
     })
+
+    const skills = this.user.skills ?? [];
+    console.log(skills);
+
+    this.xData = skills.map(entry => entry.skill.name);
+
+    this.yData = skills.map(entry => {
+      const latestLevelStr = entry.levelHistory?.[entry.levelHistory.length - 1]?.level;
+      const levelEnum = this.mapStringToSkillLevel(latestLevelStr);
+      return this.skillLevelMapping[levelEnum];
+    });
+
+  }
+
+  private mapStringToSkillLevel(levelStr: string | undefined): SkillLevel {
+    switch (levelStr?.toLowerCase()) {
+      case 'beginner':
+        return SkillLevel.BEGINNER;
+      case 'intermediate':
+        return SkillLevel.INTERMEDIATE;
+      case 'advanced':
+        return SkillLevel.ADVANCED;
+      default:
+        return SkillLevel.BEGINNER;
+    }
   }
 }

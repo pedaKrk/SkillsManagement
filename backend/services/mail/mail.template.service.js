@@ -5,10 +5,16 @@ import {TEMPLATES_PATH} from "../../config/env.js";
 import logger from "../../config/logger.js";
 
 class MailTemplateService {
-    constructor(){
-        logger.debug('TEMPLATES_PATH from .env:', TEMPLATES_PATH);
+    constructor() {
+        if(!fs.existsSync(TEMPLATES_PATH)){
+            logger.error('Templates path specified in env file does not exist');
+            throw new Error("Templates path specified in env file does not exist");
+        }
+
         this.path = TEMPLATES_PATH;
+        logger.info(`Using template path: ${this.path}`);
     }
+
 
     /**
      * Generates HTML and/or plain-text versions of an email from a template and data.
