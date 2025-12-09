@@ -113,6 +113,80 @@ class FutureSkillRepository {
             }
         ]);
     }
+
+    countFutureSkillsByLevel = (level) => {
+        return FutureSkill.countDocuments({ future_achievable_level: level });
+    }
+
+    getSkillsPopularity = () => {
+        return FutureSkill.aggregate([
+            {
+                $lookup: {
+                    from: 'skills',
+                    localField: 'skill_id',
+                    foreignField: '_id',
+                    as: 'skill'
+                }
+            },
+            { $unwind: '$skill' },
+            {
+                $group: {
+                    _id: '$skill.name',
+                    value: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    name: '$_id',
+                    value: 1
+                }
+            }
+        ]);
+    }
+
+    getFieldsPopularity = () => {
+        return FutureSkill.aggregate([
+            {
+                $lookup: {
+                    from: 'skills',
+                    localField: 'skillId',
+                    foreignField: '_id',
+                    as: 'skill'
+                }
+            },
+            { $unwind: '$skill' },
+            {
+                $lookup: {
+                    from: 'skills',
+                    localField: 'skill.parent_id',
+                    foreignField: '_id',
+                    as: 'parentSkill'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$parentSkill',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        $ifNull: ['$parentSkill.name', '$skill.name']
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    name: '$_id',
+                    value: '$count',
+                    _id: 0
+                }
+            }
+        ]);
+    }
 }
 
 export const futureSkillRepository = new FutureSkillRepository();

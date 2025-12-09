@@ -100,6 +100,15 @@ class SkillService {
             throw error
         }
     }
+
+    getAllSkillNames = async () => {
+        try {
+            const skills = await SkillRepository.findAllSkills()
+            return skills.map(skill => skill.name)
+        } catch (error) {
+            throw error
+        }
+    }
 }
 
 export const skillService = new SkillService()

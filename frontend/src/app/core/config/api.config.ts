@@ -30,7 +30,6 @@ export const API_CONFIG = {
       create: '/future-skills',
       update: (id: string) => `/future-skills/${id}`,
       delete: (id: string) => `/future-skills/${id}`,
-      skillLevels: '/future-skills/skill-levels',
       sendEmail: '/future-skills/send-email',
       getTemplate: '/email/future-skill-status-email',
       addToSkills: (id: string) => `/future-skills/${id}/add-to-skills`,
