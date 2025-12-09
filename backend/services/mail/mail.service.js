@@ -79,6 +79,40 @@ class MailService {
         }
     }
 
+    /**
+     * Sends an email to a user containing their reset password.
+     *
+     * This method uses the 'resetPasswordMail' template to generate both the HTML
+     * and plain-text versions of the email. The email will contain the new password
+     * for the user and will be sent via SMTP to the provided recipient.
+     *
+     * @async
+     * @function
+     * @param {string} to - The recipient's email address to send the reset password to.
+     * @param {Object} data - An object containing the data used to populate the email template.
+     * @param {string} data.password - The new password assigned to the user.
+     * @returns {Promise<void>} A promise that resolves when the email has been successfully sent.
+     *
+     * @throws {Error} Will throw an error if the email generation or sending fails.
+     *
+     * @example
+     * const recipientEmail = 'user@example.com';
+     * const data = { password: 'newPassword123' };
+     * sendResetPasswordEmail(recipientEmail, data)
+     *   .then(() => console.log('Email sent successfully'))
+     *   .catch(error => console.error('Error sending email:', error));
+     */
+    async sendResetPasswordEmail(to, data){
+        try{
+            const {html, text} = mailTemplateService.generateEmailContent("resetPasswordMail", data);
+            await smtpService.sendEmail(to, "Password Reset", html, text);
+        }
+        catch(error){
+            logger.error("Error sending reset password email:", error);
+            throw error;
+        }
+    }
+
     async sendEmail(to, subject, html, text, from, attachments){
         try{
             await smtpService.sendEmail(to, subject, html, text, from, attachments);

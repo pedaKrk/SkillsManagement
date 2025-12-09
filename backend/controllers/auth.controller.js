@@ -162,9 +162,8 @@ export const resetPassword = async (req, res) => {
         // Update user's password and set mustChangePassword flag using UserService
         await userService.resetUserPassword(user._id, hashedPassword, true);
 
-        // Send email with new password
-        //ToDo: create own sendResetPasswordEmail method in mailService
-        await mailService.sendEmail(email, "reset password", null, newPassword);
+        // Send email with new password using dedicated reset password email method
+        await mailService.sendResetPasswordEmail(email, {password: newPassword});
 
         res.status(200).json({ 
             message: "Password has been reset. Check your email for the new password."
