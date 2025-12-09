@@ -41,6 +41,10 @@ export class UserDetailsComponent implements OnInit {
   replyingToComment: Comment | null = null;
   replyText: string = '';
 
+  // for editing comments
+  editingComment: Comment | null = null;
+  editCommentText: string = '';
+
   // for filtering comments
   commentSearchTerm: string = '';
   selectedAuthor: string = '';
@@ -238,6 +242,24 @@ export class UserDetailsComponent implements OnInit {
       this.canAddComments = false;
       this.isAdmin = false;
     }
+  }
+
+  /**
+   * checks if the current user is the author of a comment
+   */
+  isCommentAuthor(comment: Comment): boolean {
+    const currentUser = this.authService.currentUserValue;
+    if (!currentUser || !comment.authorId) {
+      return false;
+    }
+    return currentUser.id === comment.authorId;
+  }
+
+  /**
+   * checks if the current user can delete a comment (author or admin)
+   */
+  canDeleteComment(comment: Comment): boolean {
+    return this.isCommentAuthor(comment) || this.isAdmin;
   }
 
   /**
@@ -859,6 +881,119 @@ export class UserDetailsComponent implements OnInit {
           this.translateService.instant('COMMON.ERROR') || 'Fehler',
           this.translateService.instant('USER.EMAIL_TEMPLATE_ERROR') || 'E-Mail-Vorlage konnte nicht geladen werden.'
         ).subscribe();
+      }
+    });
+  }
+
+  /**
+   * starts editing a comment
+   */
+  startEditComment(comment: Comment): void {
+    this.editingComment = comment;
+    this.editCommentText = comment.text || '';
+    // Cancel any active reply
+    this.replyingToComment = null;
+    this.replyText = '';
+  }
+
+  /**
+   * cancels editing a comment
+   */
+  cancelEditComment(): void {
+    this.editingComment = null;
+    this.editCommentText = '';
+  }
+
+  /**
+   * saves the edited comment
+   */
+  saveEditComment(): void {
+    if (!this.editingComment || !this.editCommentText.trim()) {
+      return;
+    }
+
+    this.isLoading = true;
+    const commentId = this.editingComment.id || this.editingComment._id;
+    
+    if (!commentId) {
+      this.dialogService.showError('Fehler', 'Kommentar-ID nicht gefunden.');
+      this.isLoading = false;
+      return;
+    }
+
+    this.commentService.updateComment(this.userId, commentId, this.editCommentText).subscribe({
+      next: (updatedComment) => {
+        // Update the comment in the local array
+        const index = this.comments.findIndex(c => (c.id || c._id) === commentId);
+        if (index !== -1) {
+          this.comments[index].text = updatedComment.content || this.editCommentText;
+        }
+        
+        this.dialogService.showSuccess({
+          title: 'Erfolg',
+          message: 'Kommentar wurde erfolgreich aktualisiert.',
+          buttonText: 'OK'
+        });
+        
+        this.cancelEditComment();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error updating comment:', error);
+        let errorMessage = 'Der Kommentar konnte nicht aktualisiert werden.';
+        if (error.status === 403) {
+          errorMessage = 'Sie haben keine Berechtigung, diesen Kommentar zu bearbeiten.';
+        }
+        this.dialogService.showError('Fehler', errorMessage);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  /**
+   * deletes a comment
+   */
+  deleteComment(comment: Comment): void {
+    const commentId = comment.id || comment._id;
+    
+    if (!commentId) {
+      this.dialogService.showError('Fehler', 'Kommentar-ID nicht gefunden.');
+      return;
+    }
+
+    this.dialogService.showConfirmation({
+      title: 'Kommentar löschen',
+      message: 'Möchten Sie diesen Kommentar wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+      confirmText: 'Ja, löschen',
+      cancelText: 'Abbrechen',
+      dangerMode: true
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this.isLoading = true;
+        
+        this.commentService.deleteComment(this.userId, commentId).subscribe({
+          next: () => {
+            // Remove the comment from the local array
+            this.comments = this.comments.filter(c => (c.id || c._id) !== commentId);
+            
+            this.dialogService.showSuccess({
+              title: 'Erfolg',
+              message: 'Kommentar wurde erfolgreich gelöscht.',
+              buttonText: 'OK'
+            });
+            
+            this.isLoading = false;
+          },
+          error: (error) => {
+            console.error('Error deleting comment:', error);
+            let errorMessage = 'Der Kommentar konnte nicht gelöscht werden.';
+            if (error.status === 403) {
+              errorMessage = 'Sie haben keine Berechtigung, diesen Kommentar zu löschen.';
+            }
+            this.dialogService.showError('Fehler', errorMessage);
+            this.isLoading = false;
+          }
+        });
       }
     });
   }
