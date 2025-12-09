@@ -19,15 +19,28 @@ export const getAllSkills = async (req, res) => {
 
 export const getSkillById = async (req, res) => {
   try {
-    const { id } = req.params
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "Invalid skill ID format"
+      });
+    }
+    const skill = await skillService.getSkillById(id);
+    if (!skill) {
+      return res.status(404).json({
+        message: "Skill not found"
+      });
+    }
+    res.status(200).json(skill);
 
-    const skill = await skillService.getSkillById(id)
-
-    res.status(200).json(skill)
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get skill', error })
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message
+    });
   }
-}
+};
+
 
 export const createSkill = async (req, res) => {
   try {

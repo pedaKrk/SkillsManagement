@@ -34,6 +34,20 @@ export default router
  *     responses:
  *       200:
  *         description: A list of skills
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                 example:
+ *                   _id: "675ab12f3a0c9b4f45eabc91"
+ *                   name: "JavaScript"
  */
 
 /**
@@ -52,6 +66,18 @@ export default router
  *     responses:
  *       200:
  *         description: Skill object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *               example:
+ *                 _id: "675ab12f3a0c9b4f45eabc91"
+ *                 name: "JavaScript"
  *       404:
  *         description: Skill not found
  */
