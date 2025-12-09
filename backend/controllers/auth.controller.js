@@ -12,6 +12,7 @@ export const registerUser = async (req, res) => {
         const isAdminCreation = req.headers['x-admin-creation'] === 'true';
         
         if (!email) {
+            logger.warn('User registration attempted without email');
             return res.status(400).json({ message: "Email is required" });
         }
 
@@ -32,6 +33,7 @@ export const registerUser = async (req, res) => {
 
         // Send email with generated password to user
         await mailService.sendDefaultPasswordEmail(newUser.email, {password: userPassword});
+        logger.info(`Default password email sent to: ${newUser.email}`);
 
         // Get admin and competence leader emails for notification
         const adminUsers = await userService.findUsersByRoles([roles.COMPETENCE_LEADER, roles.ADMIN]);
@@ -42,7 +44,9 @@ export const registerUser = async (req, res) => {
             userEmail: newUser.email, 
             userRole: newUser.role
         });
+        logger.info(`User registration notification sent to ${emails.length} admin(s)`);
 
+        logger.info(`User successfully registered: ${newUser.email} (${newUser._id})`);
         res.status(201).json({ 
             message: "User successfully created"
         });
@@ -124,11 +128,13 @@ export const logout = async (req, res) => {
         const token = authHeader && authHeader.split(' ')[1];
 
         if (!token) {
+            logger.warn('Logout attempted without token');
             return res.status(400).json({ message: "No token provided" });
         }
 
         // Add token to blacklist
         await blacklistToken(token);
+        logger.info('User successfully logged out');
 
         res.status(200).json({ 
             message: "Successfully logged out"
@@ -145,6 +151,7 @@ export const resetPassword = async (req, res) => {
         const { email } = req.body;
         
         if (!email) {
+            logger.warn('Password reset attempted without email');
             return res.status(400).json({ message: "Email is required" });
         }
 
@@ -152,6 +159,7 @@ export const resetPassword = async (req, res) => {
         const user = await userService.findUserByIdentifier(email);
         
         if (!user) {
+            logger.warn(`Password reset attempted for non-existent user: ${email}`);
             return res.status(404).json({ message: "User not found" });
         }
 
@@ -161,9 +169,11 @@ export const resetPassword = async (req, res) => {
         
         // Update user's password and set mustChangePassword flag using UserService
         await userService.resetUserPassword(user._id, hashedPassword, true);
+        logger.info(`Password reset for user: ${email} (${user._id})`);
 
         // Send email with new password using dedicated reset password email method
         await mailService.sendResetPasswordEmail(email, {password: newPassword});
+        logger.info(`Reset password email sent to: ${email}`);
 
         res.status(200).json({ 
             message: "Password has been reset. Check your email for the new password."

@@ -31,6 +31,7 @@ class MailService {
         try{
             const {html, text} = mailTemplateService.generateEmailContent("defaultPasswordMail", data);
             await smtpService.sendEmail(to, "Your Account Credentials", html, text);
+            logger.info(`Default password email sent successfully to: ${to}`);
         }
         catch(error){
             logger.error("Error sending default password email:", error);
@@ -73,6 +74,7 @@ class MailService {
         try{
             const {html, text} = mailTemplateService.generateEmailContent("newRegistrationNotificationMail", data);
             await smtpService.sendEmail(to, "A new user registered to the Skills Management System", html, text);
+            logger.info(`New registration notification email sent successfully to ${Array.isArray(to) ? to.length : 1} recipient(s)`);
         }catch(error){
             logger.error("Error sending new registration notification email:", error);
             throw error;
@@ -106,6 +108,7 @@ class MailService {
         try{
             const {html, text} = mailTemplateService.generateEmailContent("resetPasswordMail", data);
             await smtpService.sendEmail(to, "Password Reset", html, text);
+            logger.info(`Reset password email sent successfully to: ${to}`);
         }
         catch(error){
             logger.error("Error sending reset password email:", error);
