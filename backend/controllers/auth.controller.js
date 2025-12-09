@@ -1,15 +1,10 @@
 import {comparePassword, generatePassword, hashPassword} from "../services/auth.service.js";
 import {blacklistToken, generateToken} from "../services/jwt.service.js";
 import {mailService} from "../services/mail/mail.service.js";
-import User from "../models/user.model.js";
+import * as userService from "../services/user.service.js";
 import roles from "../models/enums/role.enum.js";
 import logger from "../config/logger.js";
 
-/*
-ToDo:
-    Refactor whole class
-    use UserService
- */
 // Register new user
 export const registerUser = async (req, res) => {
     try {
@@ -24,24 +19,29 @@ export const registerUser = async (req, res) => {
         const userPassword = generatePassword();
         const hashedPassword = await hashPassword(userPassword);
 
-        // Create new user with hashed password
-        const newUser = new User({
+        // Prepare user data
+        const userData = {
             ...req.body,
             password: hashedPassword,
             // For admin creation, use the provided role; for self-registration, always use 'lecturer'
             role: isAdminCreation ? (role || 'lecturer') : 'lecturer'
-        });
+        };
+
+        // Create new user with hashed password using UserService
+        const newUser = await userService.createUser(userData);
 
         // Send email with generated password to user
         await mailService.sendDefaultPasswordEmail(newUser.email, {password: userPassword});
 
-        await newUser.save();
+        // Get admin and competence leader emails for notification
+        const adminUsers = await userService.findUsersByRoles([roles.COMPETENCE_LEADER, roles.ADMIN]);
+        const emails = adminUsers.map(user => user.email);
 
-
-        const users = await User.find({role: { $in: [roles.COMPETENCE_LEADER, roles.ADMIN] }}).select('email');
-        const emails = users.map(user => user.email);
-
-        await mailService.sendNewRegistrationNotificationEmail(emails, {userName: newUser.username, userEmail: newUser.email, userRole: newUser.role});
+        await mailService.sendNewRegistrationNotificationEmail(emails, {
+            userName: newUser.username, 
+            userEmail: newUser.email, 
+            userRole: newUser.role
+        });
 
         res.status(201).json({ 
             message: "User successfully created"
@@ -57,15 +57,9 @@ export const login = async (req, res) => {
     try {
         const { identifier, password } = req.body;
         
-        // Find user by email or username
-        const user = await User.findOne({
-            $or: [
-                { email: identifier },
-                { username: identifier }
-            ]
-        }).select('+email +username +role +password +mustChangePassword +isActive');
+        // Find user by email or username using UserService
+        const user = await userService.findUserByIdentifier(identifier);
         
-        // Return error if user not found
         if (!user) {
             logger.warn('Login failed - User not found:', identifier);
             return res.status(401).json({ message: "Invalid credentials" });
@@ -85,7 +79,7 @@ export const login = async (req, res) => {
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
-        // if user need to change passwort
+        // if user need to change password
         if (user.mustChangePassword === true) {
             logger.info('Login blocked - User must change password:', user.email);
             return res.status(403).json({ 
@@ -154,8 +148,8 @@ export const resetPassword = async (req, res) => {
             return res.status(400).json({ message: "Email is required" });
         }
 
-        // Find user by email
-        const user = await User.findOne({ email });
+        // Find user by email using UserService
+        const user = await userService.findUserByIdentifier(email);
         
         if (!user) {
             return res.status(404).json({ message: "User not found" });
@@ -163,10 +157,10 @@ export const resetPassword = async (req, res) => {
 
         // Generate new password
         const newPassword = generatePassword();
-        // Update user's password and set mustChangePassword flag
-        user.password = await hashPassword(newPassword);
-        user.mustChangePassword = true;
-        await user.save();
+        const hashedPassword = await hashPassword(newPassword);
+        
+        // Update user's password and set mustChangePassword flag using UserService
+        await userService.resetUserPassword(user._id, hashedPassword, true);
 
         // Send email with new password
         //ToDo: create own sendResetPasswordEmail method in mailService

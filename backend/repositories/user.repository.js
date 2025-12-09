@@ -23,8 +23,20 @@ class UserRepository {
 
     findUserByEmail = (email) => User.findOne({email});
 
+    findUserByIdentifier = (identifier) => User.findOne({
+        $or: [
+            { email: identifier },
+            { username: identifier }
+        ]
+    }).select('+email +username +role +password +mustChangePassword +isActive');
+
+    findUsersByRoles = (roles) => User.find({role: { $in: roles }}).select('email');
+
     updateUserPassword = (id, hashedPassword) =>
         User.findByIdAndUpdate(id, {$set: {password: hashedPassword, mustChangePassword: false}}, {new: true});
+
+    updateUserPasswordWithFlag = (id, hashedPassword, mustChangePassword) =>
+        User.findByIdAndUpdate(id, {$set: {password: hashedPassword, mustChangePassword}}, {new: true});
 
     activateUserById = (id) => User.findByIdAndUpdate(id, {isActive: true}, {new: true});
 
