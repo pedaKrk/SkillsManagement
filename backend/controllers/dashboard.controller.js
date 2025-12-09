@@ -1,7 +1,9 @@
+import Skills from "../models/skill.model.js";
 import FutureSkills from '../models/future.skill.model.js';
 import skillLevelEnum from '../models/enums/skill.level.enum.js';
 import {futureSkillRepository} from "../repositories/future.skill.repository.js";
 import DashboardService from "../services/dashboard.service.js";
+import User from "../models/user.model.js";
 
 //Todo: move logic in repository and service
 
@@ -185,5 +187,122 @@ export const getUserSkillDistribution = async (req, res) => {
         res.status(500).json({ message: 'Failed to getUserSkillDistribution', error: err });
     }
 }
+export const getGoalsPerformance = async (req, res) => {
+    try {
+        const users = await User.find({})
+            .populate("skills.skill")         // populate old skills
+            .populate("futureSkills");        // populate future goals
 
+        let reached = 0;
+        let delayed = 0;
 
+        for (const user of users) {
+
+            if (!user.futureSkills) continue;
+
+            for (const fs of user.futureSkills) {
+
+                // ✔ Ensure fs.skill_id exists
+                if (!fs.skill_id) continue;
+
+                // Match futureSkill.skill_id with user.skills.skill
+                const hasReached = user.skills?.some(s => {
+                    if (!s.skill) return false;
+
+                    const userSkillId = s.skill._id ? s.skill._id.toString() : s.skill.toString();
+                    const futureSkillId = fs.skill_id._id ? fs.skill_id._id.toString() : fs.skill_id.toString();
+
+                    return userSkillId === futureSkillId;
+                });
+
+                const pastDeadline = fs.target_date && (new Date() > new Date(fs.target_date));
+
+                if (hasReached) {
+                    reached++;
+                } else if (pastDeadline) {
+                    delayed++;
+                }
+            }
+        }
+
+        return res.json([
+            { name: "Reached", value: reached },
+            { name: "Delayed", value: delayed }
+        ]);
+
+    } catch (error) {
+        console.error("Error calculating goals performance:", error);
+        res.status(500).json({ message: "Failed to calculate goals performance" });
+    }
+};
+export const getLecturersSkillFields = async (req, res) => {
+    try {
+        // Load all future skills with lecturer + skill hierarchy
+        const futureSkills = await FutureSkills.find({})
+            .populate("lecturer_id")
+            .populate({ path: "skill_id", model: "Skills" })
+            .lean();
+
+        const allSkills = await Skills.find({}).lean();
+
+        // Helper to find root field
+        const findRoot = (skill) => {
+            if (!skill) return null;
+
+            let current = allSkills.find(s => s._id.toString() === skill._id.toString());
+            if (!current) return null;
+
+            while (current.parent_id) {
+                const parent = allSkills.find(s => s._id.toString() === current.parent_id.toString());
+                if (!parent) break;
+                current = parent;
+            }
+
+            return current;
+        };
+
+        const lecturerFields = {}; // { lecturerId: Set(fields...) }
+
+        // Build field list for each lecturer
+        for (const fs of futureSkills) {
+            const lecturer = fs.lecturer_id;
+            const skill = fs.skill_id;
+
+            if (!lecturer || !skill) continue;
+
+            const root = findRoot(skill);
+            if (!root?.name) continue;
+
+            if (!lecturerFields[lecturer._id]) {
+                lecturerFields[lecturer._id] = new Set();
+            }
+
+            lecturerFields[lecturer._id].add(root.name);
+        }
+
+        // Count how many lecturers belong to each field
+        const counts = {};
+
+        for (const lecturerId in lecturerFields) {
+            for (const field of lecturerFields[lecturerId]) {
+                counts[field] = (counts[field] || 0) + 1;
+            }
+        }
+
+        // Convert to ngx-charts format
+        const result = Object.entries(counts).map(([name, value]) => ({
+            name,
+            value
+        }));
+
+        return res.status(200).json(result);
+
+    } catch (err) {
+        console.error("\n🔥 ERROR in getLecturersSkillFields:");
+        console.error("Message:", err.message);
+        console.error("Full error object:", err);
+        console.error("Stack:", err.stack);
+        return res.status(500).json({ message: "Backend error", error: err.message });
+    }
+
+};

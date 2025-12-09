@@ -33,4 +33,13 @@ export class DashboardService {
   getUserSkillDistribution(userId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/user/${userId}/skills/distribution`);
   }
+
+  getGoalsPerformance(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/goals-performance`);
+  }
+
+  getLecturersSkillFields(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/lecturers-skill-fields`);
+  }
+
 }

@@ -16,6 +16,8 @@ export class DashboardComponent implements OnInit {
   skillsData: any[] = [];
   skillsByLevelData: any[] = [];
   skillsPerFieldData: any[] = [];
+  goalsPerformanceData: any[] = [];
+  lecturersSkillFields: any[] = [];
 
   yAxisTickFormatting = (value: number) => {
     return Number.isInteger(value) ? value.toString() : '';
@@ -43,6 +45,15 @@ export class DashboardComponent implements OnInit {
     this.dashboardService.getFieldsPopularity().subscribe(data => {
       this.skillsPerFieldData = data;
     });
+
+    this.dashboardService.getGoalsPerformance().subscribe(data => {
+      this.goalsPerformanceData = data;
+    });
+
+    this.dashboardService.getLecturersSkillFields().subscribe(data => {
+      this.lecturersSkillFields = data;
+    });
+
   }
 
 }
