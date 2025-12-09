@@ -2,8 +2,6 @@ import express from 'express';
 const router = express.Router();
 
 import {
-    getAllSkillNames,
-    getSkillLevels,
     getAllFutureSkills,
     createFutureSkill,
     updateFutureSkill,
@@ -24,12 +22,6 @@ router.put('/:id', updateFutureSkill);
 
 // DELETE a skill by ID
 router.delete('/:id', deleteFutureSkill);
-
-// ✅ NEW: GET distinct skill names
-router.get('/skill-names', getAllSkillNames);
-
-// ✅ NEW: GET skill levels
-router.get('/skill-levels', getSkillLevels);
 
 router.post('/send-email', sendFutureSkillMail);
 

@@ -39,7 +39,7 @@ export class ManageProgressService {
   }
 
   fetchAllSkillLevels(): Observable<string[]> {
-    return this.http.get<string[]>('http://localhost:3000/api/v1/future-skills/skill-levels');
+    return this.http.get<string[]>('http://localhost:3000/api/v1/skills/levels');
   }
 
   updateSkill(id: string, updatedSkill: any): Observable<any> {
