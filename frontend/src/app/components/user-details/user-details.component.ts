@@ -315,9 +315,9 @@ export class UserDetailsComponent implements OnInit {
               this.newComment = '';
 
               this.dialogService.showSuccess({
-                title: 'Erfolg',
-                message: 'Kommentar wurde erfolgreich hinzugefügt.',
-                buttonText: 'OK'
+                title: this.translateService.instant('COMMON.SUCCESS') || 'Success',
+                message: this.translateService.instant('PROFILE.COMMENT_ADDED_SUCCESS') || 'Comment was successfully added.',
+                buttonText: this.translateService.instant('COMMON.OK') || 'OK'
               });
               this.isLoading = false;
             },
@@ -342,10 +342,12 @@ export class UserDetailsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error adding comment:', error);
-        this.dialogService.showError(
-          'Fehler',
-          'Der Kommentar konnte nicht hinzugefügt werden. Bitte versuchen Sie es später erneut.'
-        );
+        this.translateService.get(['COMMON.ERROR', 'PROFILE.COMMENT_ADD_ERROR']).subscribe(translations => {
+          this.dialogService.showError(
+            translations['COMMON.ERROR'] || 'Error',
+            translations['PROFILE.COMMENT_ADD_ERROR'] || 'The comment could not be added. Please try again later.'
+          );
+        });
         this.isLoading = false;
       }
     });
@@ -598,10 +600,12 @@ export class UserDetailsComponent implements OnInit {
               this.replyText = '';
               this.replyingToComment = null;
 
-              this.dialogService.showSuccess({
-                title: 'Erfolg',
-                message: 'Antwort wurde erfolgreich hinzugefügt.',
-                buttonText: 'OK'
+              this.translateService.get(['COMMON.SUCCESS', 'PROFILE.REPLY_ADDED_SUCCESS', 'COMMON.OK']).subscribe(translations => {
+                this.dialogService.showSuccess({
+                  title: translations['COMMON.SUCCESS'] || 'Success',
+                  message: translations['PROFILE.REPLY_ADDED_SUCCESS'] || 'Reply was successfully added.',
+                  buttonText: translations['COMMON.OK'] || 'OK'
+                });
               });
               this.isLoading = false;
             },
@@ -635,10 +639,12 @@ export class UserDetailsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Fehler beim Hinzufügen der Antwort:', error);
-        this.dialogService.showError(
-          'Fehler',
-          'Die Antwort konnte nicht hinzugefügt werden. Bitte versuchen Sie es später erneut.'
-        );
+        this.translateService.get(['COMMON.ERROR', 'PROFILE.REPLY_ADD_ERROR']).subscribe(translations => {
+          this.dialogService.showError(
+            translations['COMMON.ERROR'] || 'Error',
+            translations['PROFILE.REPLY_ADD_ERROR'] || 'The reply could not be added. Please try again later.'
+          );
+        });
         this.isLoading = false;
       }
     });
@@ -930,9 +936,9 @@ export class UserDetailsComponent implements OnInit {
         }
         
         this.dialogService.showSuccess({
-          title: 'Erfolg',
-          message: 'Kommentar wurde erfolgreich aktualisiert.',
-          buttonText: 'OK'
+          title: this.translateService.instant('COMMON.SUCCESS') || 'Success',
+          message: this.translateService.instant('PROFILE.COMMENT_UPDATED_SUCCESS') || 'Comment was successfully updated.',
+          buttonText: this.translateService.instant('COMMON.OK') || 'OK'
         });
         
         this.cancelEditComment();
@@ -940,11 +946,16 @@ export class UserDetailsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error updating comment:', error);
-        let errorMessage = 'Der Kommentar konnte nicht aktualisiert werden.';
-        if (error.status === 403) {
-          errorMessage = 'Sie haben keine Berechtigung, diesen Kommentar zu bearbeiten.';
-        }
-        this.dialogService.showError('Fehler', errorMessage);
+        this.translateService.get(['PROFILE.COMMENT_UPDATE_ERROR', 'PROFILE.COMMENT_EDIT_PERMISSION_ERROR', 'COMMON.ERROR']).subscribe(translations => {
+          let errorMessage = translations['PROFILE.COMMENT_UPDATE_ERROR'] || 'The comment could not be updated.';
+          if (error.status === 403) {
+            errorMessage = translations['PROFILE.COMMENT_EDIT_PERMISSION_ERROR'] || 'You do not have permission to edit this comment.';
+          }
+          this.dialogService.showError(
+            translations['COMMON.ERROR'] || 'Error',
+            errorMessage
+          );
+        });
         this.isLoading = false;
       }
     });
@@ -957,44 +968,58 @@ export class UserDetailsComponent implements OnInit {
     const commentId = comment.id || comment._id;
     
     if (!commentId) {
-      this.dialogService.showError('Fehler', 'Kommentar-ID nicht gefunden.');
+      this.translateService.get(['COMMON.ERROR', 'PROFILE.COMMENT_ID_NOT_FOUND']).subscribe(translations => {
+        this.dialogService.showError(
+          translations['COMMON.ERROR'] || 'Error',
+          translations['PROFILE.COMMENT_ID_NOT_FOUND'] || 'Comment ID not found.'
+        );
+      });
       return;
     }
 
-    this.dialogService.showConfirmation({
-      title: 'Kommentar löschen',
-      message: 'Möchten Sie diesen Kommentar wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
-      confirmText: 'Ja, löschen',
-      cancelText: 'Abbrechen',
-      dangerMode: true
-    }).subscribe(confirmed => {
-      if (confirmed) {
-        this.isLoading = true;
-        
-        this.commentService.deleteComment(this.userId, commentId).subscribe({
-          next: () => {
-            // Remove the comment from the local array
-            this.comments = this.comments.filter(c => (c.id || c._id) !== commentId);
-            
-            this.dialogService.showSuccess({
-              title: 'Erfolg',
-              message: 'Kommentar wurde erfolgreich gelöscht.',
-              buttonText: 'OK'
-            });
-            
-            this.isLoading = false;
-          },
-          error: (error) => {
-            console.error('Error deleting comment:', error);
-            let errorMessage = 'Der Kommentar konnte nicht gelöscht werden.';
-            if (error.status === 403) {
-              errorMessage = 'Sie haben keine Berechtigung, diesen Kommentar zu löschen.';
+    this.translateService.get(['PROFILE.COMMENT_DELETE_CONFIRMATION', 'PROFILE.COMMENT_DELETE_MESSAGE', 'PROFILE.COMMENT_DELETE_CONFIRM', 'COMMON.CANCEL']).subscribe(translations => {
+      this.dialogService.showConfirmation({
+        title: translations['PROFILE.COMMENT_DELETE_CONFIRMATION'] || 'Delete Comment',
+        message: translations['PROFILE.COMMENT_DELETE_MESSAGE'] || 'Do you really want to delete this comment? This action cannot be undone.',
+        confirmText: translations['PROFILE.COMMENT_DELETE_CONFIRM'] || 'Yes, delete',
+        cancelText: translations['COMMON.CANCEL'] || 'Cancel',
+        dangerMode: true
+      }).subscribe(confirmed => {
+        if (confirmed) {
+          this.isLoading = true;
+          
+          this.commentService.deleteComment(this.userId, commentId).subscribe({
+            next: () => {
+              // Remove the comment from the local array
+              this.comments = this.comments.filter(c => (c.id || c._id) !== commentId);
+              
+              this.translateService.get(['COMMON.SUCCESS', 'PROFILE.COMMENT_DELETED_SUCCESS', 'COMMON.OK']).subscribe(successTranslations => {
+                this.dialogService.showSuccess({
+                  title: successTranslations['COMMON.SUCCESS'] || 'Success',
+                  message: successTranslations['PROFILE.COMMENT_DELETED_SUCCESS'] || 'Comment was successfully deleted.',
+                  buttonText: successTranslations['COMMON.OK'] || 'OK'
+                });
+              });
+              
+              this.isLoading = false;
+            },
+            error: (error) => {
+              console.error('Error deleting comment:', error);
+              this.translateService.get(['PROFILE.COMMENT_DELETE_ERROR', 'PROFILE.COMMENT_DELETE_PERMISSION_ERROR', 'COMMON.ERROR']).subscribe(errorTranslations => {
+                let errorMessage = errorTranslations['PROFILE.COMMENT_DELETE_ERROR'] || 'The comment could not be deleted.';
+                if (error.status === 403) {
+                  errorMessage = errorTranslations['PROFILE.COMMENT_DELETE_PERMISSION_ERROR'] || 'You do not have permission to delete this comment.';
+                }
+                this.dialogService.showError(
+                  errorTranslations['COMMON.ERROR'] || 'Error',
+                  errorMessage
+                );
+              });
+              this.isLoading = false;
             }
-            this.dialogService.showError('Fehler', errorMessage);
-            this.isLoading = false;
-          }
-        });
-      }
+          });
+        }
+      });
     });
   }
 }
