@@ -6,6 +6,7 @@ services:
     container_name: skillsmanagement_backend
     ports:
       - "3000:3000"
+    #ToDo: mount volume for logs and template folder.
 
   frontend:
     build: ./frontend
