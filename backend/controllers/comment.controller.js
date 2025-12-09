@@ -21,24 +21,17 @@ export const getCommentsForUser = async (req, res) => {
 export const addCommentToUser = async (req, res) => {
   try {
     const { userId } = req.params
-    const { content, authorId } = req.body
-    let commentAuthorId = req.user.id;
+    const { content } = req.body
+    const commentAuthorId = req.user.id;
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       logger.warn('Invalid user ID for comment:', userId);
       return res.status(400).json({ message: 'Ungültige Benutzer-ID' });
     }
 
-    //ToDo: cleanup
     if (!commentAuthorId || !mongoose.Types.ObjectId.isValid(commentAuthorId)) {
       logger.warn('Invalid author ID from token:', commentAuthorId);
-      
-      if (authorId && mongoose.Types.ObjectId.isValid(authorId)) {
-        logger.debug('Using author ID from request body:', authorId);
-        commentAuthorId = authorId;
-      } else {
-        return res.status(400).json({ message: 'Keine gültige Autor-ID verfügbar' });
-      }
+      return res.status(400).json({ message: 'Keine gültige Autor-ID verfügbar' });
     }
 
     const populatedComment = await commentService.createCommentForUser(userId, commentAuthorId, content)
