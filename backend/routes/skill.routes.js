@@ -28,6 +28,73 @@ router.delete('/:id', authenticateToken, authorizeRole(['Admin', 'competence_lea
 
 export default router
 
+
+
+/**
+ * @openapi
+ * /api/v1/skills/names:
+ *   get:
+ *     summary: Returns a list of all skill names
+ *     tags:
+ *       - Skills
+ *     responses:
+ *       200:
+ *         description: List of skill names retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: string
+ *               example: ["JavaScript", "Python", "React"]
+ */
+
+/**
+ * @openapi
+ * /api/v1/skills/levels:
+ *   get:
+ *     summary: Returns all skill levels
+ *     tags:
+ *       - Skills
+ *     responses:
+ *       200:
+ *         description: List of skill levels retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: string
+ *               example: ["Beginner", "Intermediate", "Advanced"]
+ */
+/**
+ * @openapi
+ * /api/v1/skills/root:
+ *   get:
+ *     summary: Returns all root skills (skills without a parent)
+ *     tags:
+ *       - Skills
+ *     responses:
+ *       200:
+ *         description: List of root skills
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                 example:
+ *                   _id: "6486007a9cb9397bafe2e527"
+ *                   name: "Programming Fundamentals"
+ *       401:
+ *         description: Unauthorized
+ */
+
 /**
  * @openapi
  * /api/v1/skills:

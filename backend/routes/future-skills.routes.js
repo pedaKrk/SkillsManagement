@@ -26,3 +26,24 @@ router.delete('/:id', deleteFutureSkill);
 router.post('/send-email', sendFutureSkillMail);
 
 export default router;
+
+
+/**
+ * @openapi
+ * /api/future-skills:
+ *   get:
+ *     summary: Returns all future skills
+ *     tags:
+ *       - FutureSkills
+ *     responses:
+ *       200:
+ *         description: List of all future skills retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *       500:
+ *         description: Error fetching future skills
+ */
