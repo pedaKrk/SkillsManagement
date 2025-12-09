@@ -1,0 +1,16 @@
+services:
+  backend:
+    build: ./backend
+    env_file:
+      - ./backend/.env.development.local
+    container_name: skillsmanagement_backend
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build: ./frontend
+    container_name: skillsmanagement_frontend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
