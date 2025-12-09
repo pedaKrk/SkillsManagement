@@ -293,3 +293,30 @@ export const removeProfileImage = async (id) => {
         throw error
     }
 }
+
+export const findUserByIdentifier = async (identifier) => {
+    try {
+        return await UserRepository.findUserByIdentifier(identifier);
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+export const findUsersByRoles = async (roles) => {
+    try {
+        return await UserRepository.findUsersByRoles(roles);
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+export const resetUserPassword = async (userId, hashedPassword, mustChangePassword = true) => {
+    try {
+        return await UserRepository.updateUserPasswordWithFlag(userId, hashedPassword, mustChangePassword);
+    }
+    catch (error) {
+        throw error;
+    }
+}
