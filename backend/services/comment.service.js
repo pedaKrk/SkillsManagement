@@ -1,6 +1,8 @@
 import * as commentRepository from '../repositories/comment.repository.js'
 import UserRepository from "../repositories/user.repository.js";
 import {NotFoundError} from "../errors/not.found.error.js";
+import {ForbiddenError} from "../errors/forbidden.error.js";
+import roleEnum from "../models/enums/role.enum.js";
 
 export const getCommentsForUser = async (userId) => {
     try {
@@ -42,15 +44,28 @@ export const createCommentForUser = async (userId, authorId, content) => {
     return await commentRepository.findPopulatedComment(newComment.id);
 }
 
-export const updateCommentForUser = async (userId, commentId, content) => {
+export const updateCommentForUser = async (userId, commentId, content, currentUserId, currentUserRole) => {
     try {
         const user = await UserRepository.findUserById(userId);
         if (!user) {
             throw new NotFoundError();
         }
-        const hasComment = await UserRepository.userHasComment(commentId);
+        const hasComment = await UserRepository.userHasComment(userId, commentId);
         if(!hasComment) {
             throw new NotFoundError();
+        }
+
+        // Check if comment exists and get author
+        const comment = await commentRepository.findCommentById(commentId);
+        if (!comment) {
+            throw new NotFoundError();
+        }
+
+        // Check permissions: only author can update
+        const isAuthor = comment.author.toString() === currentUserId;
+        
+        if (!isAuthor) {
+            throw new ForbiddenError();
         }
 
         return await commentRepository.updateCommentById(commentId, content)
@@ -60,8 +75,22 @@ export const updateCommentForUser = async (userId, commentId, content) => {
     }
 }
 
-export const deleteCommentFromUser = async (userId, commentId) => {
+export const deleteCommentFromUser = async (userId, commentId, currentUserId, currentUserRole) => {
     try{
+        // Check if comment exists and get author
+        const comment = await commentRepository.findCommentById(commentId);
+        if (!comment) {
+            throw new NotFoundError();
+        }
+
+        // Check permissions: only author or admin can delete
+        const isAuthor = comment.author.toString() === currentUserId;
+        const isAdmin = currentUserRole && currentUserRole.toLowerCase() === roleEnum.ADMIN.toLowerCase();
+        
+        if (!isAuthor && !isAdmin) {
+            throw new ForbiddenError();
+        }
+
         await UserRepository.removeCommentFromUser(userId, commentId);
         return await commentRepository.deleteCommentById(commentId);
     }catch(error){
