@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -45,6 +45,10 @@ export class UserDetailsComponent implements OnInit {
   editingComment: Comment | null = null;
   editCommentText: string = '';
 
+  // for editing replies
+  editingReply: Comment | null = null;
+  editReplyText: string = '';
+
   // for filtering comments
   commentSearchTerm: string = '';
   selectedAuthor: string = '';
@@ -70,7 +74,8 @@ export class UserDetailsComponent implements OnInit {
     private dialogService: DialogService,
     private commentService: CommentService,
     private emailService: EmailService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -170,10 +175,14 @@ export class UserDetailsComponent implements OnInit {
             const authorName = this.createFormalName(authorData);
 
             // convert replies, if available
+            const commentId = comment.id || comment._id || '';
             const replies = comment.replies ? comment.replies.map((reply: any) => {
               const replyAuthor = reply.author?._id ? authorMap.get(reply.author._id) : null;
               const replyAuthorData = replyAuthor || reply.author || { username: 'Unbekannt' };
               const replyAuthorName = this.createFormalName(replyAuthorData);
+
+              // Get parentComment ID from reply object, or fallback to the comment ID
+              const parentId = reply.parentComment?._id || reply.parentComment || commentId;
 
               return {
                 id: reply.id || reply._id || '',
@@ -181,7 +190,8 @@ export class UserDetailsComponent implements OnInit {
                 authorId: replyAuthorData._id || '',
                 authorName: replyAuthorName,
                 text: reply.content || '',
-                createdAt: new Date(reply.time_stamp || new Date())
+                createdAt: new Date(reply.time_stamp || new Date()),
+                parentId: parentId
               };
             }) : [];
 
@@ -260,6 +270,24 @@ export class UserDetailsComponent implements OnInit {
    */
   canDeleteComment(comment: Comment): boolean {
     return this.isCommentAuthor(comment) || this.isAdmin;
+  }
+
+  /**
+   * checks if the current user is the author of a reply
+   */
+  isReplyAuthor(reply: Comment): boolean {
+    const currentUser = this.authService.currentUserValue;
+    if (!currentUser || !reply.authorId) {
+      return false;
+    }
+    return currentUser.id === reply.authorId;
+  }
+
+  /**
+   * checks if the current user can delete a reply (author or admin)
+   */
+  canDeleteReply(reply: Comment): boolean {
+    return this.isReplyAuthor(reply) || this.isAdmin;
   }
 
   /**
@@ -1009,6 +1037,239 @@ export class UserDetailsComponent implements OnInit {
                 let errorMessage = errorTranslations['PROFILE.COMMENT_DELETE_ERROR'] || 'The comment could not be deleted.';
                 if (error.status === 403) {
                   errorMessage = errorTranslations['PROFILE.COMMENT_DELETE_PERMISSION_ERROR'] || 'You do not have permission to delete this comment.';
+                }
+                this.dialogService.showError(
+                  errorTranslations['COMMON.ERROR'] || 'Error',
+                  errorMessage
+                );
+              });
+              this.isLoading = false;
+            }
+          });
+        }
+      });
+    });
+  }
+
+  /**
+   * starts editing a reply
+   */
+  startEditReply(reply: Comment): void {
+    this.editingReply = reply;
+    this.editReplyText = reply.text || '';
+    // Cancel any active comment edit
+    this.editingComment = null;
+    this.editCommentText = '';
+    // Cancel any active reply form
+    this.replyingToComment = null;
+    this.replyText = '';
+  }
+
+  /**
+   * cancels editing a reply
+   */
+  cancelEditReply(): void {
+    this.editingReply = null;
+    this.editReplyText = '';
+  }
+
+  /**
+   * saves the edited reply
+   */
+  saveEditReply(): void {
+    if (!this.editingReply || !this.editReplyText.trim()) {
+      return;
+    }
+
+    this.isLoading = true;
+    const replyId = this.editingReply.id || this.editingReply._id;
+    let parentCommentId = this.editingReply.parentId;
+    
+    // If parentId is not set, find the parent comment from the comments array
+    if (!parentCommentId) {
+      for (const comment of this.comments) {
+        if (comment.replies) {
+          const reply = comment.replies.find(r => (r.id || r._id) === replyId);
+          if (reply) {
+            parentCommentId = comment.id || comment._id;
+            break;
+          }
+        }
+      }
+    }
+    
+    if (!replyId || !parentCommentId) {
+      this.translateService.get(['COMMON.ERROR', 'PROFILE.COMMENT_ID_NOT_FOUND']).subscribe(translations => {
+        this.dialogService.showError(
+          translations['COMMON.ERROR'] || 'Error',
+          translations['PROFILE.COMMENT_ID_NOT_FOUND'] || 'Reply ID not found.'
+        );
+      });
+      this.isLoading = false;
+      return;
+    }
+
+    this.commentService.updateReply(this.userId, parentCommentId, replyId, this.editReplyText).subscribe({
+      next: (updatedReply) => {
+        // Find and update the reply in the comments array
+        for (const comment of this.comments) {
+          if (comment.replies) {
+            const replyIndex = comment.replies.findIndex(r => (r.id || r._id) === replyId);
+            if (replyIndex !== -1) {
+              comment.replies[replyIndex].text = updatedReply.content || this.editReplyText;
+              break;
+            }
+          }
+        }
+        
+        this.translateService.get(['COMMON.SUCCESS', 'PROFILE.REPLY_UPDATED_SUCCESS', 'COMMON.OK']).subscribe(translations => {
+          this.dialogService.showSuccess({
+            title: translations['COMMON.SUCCESS'] || 'Success',
+            message: translations['PROFILE.REPLY_UPDATED_SUCCESS'] || 'Reply was successfully updated.',
+            buttonText: translations['COMMON.OK'] || 'OK'
+          });
+        });
+        
+        this.cancelEditReply();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error updating reply:', error);
+        this.translateService.get(['PROFILE.REPLY_UPDATE_ERROR', 'PROFILE.REPLY_EDIT_PERMISSION_ERROR', 'COMMON.ERROR']).subscribe(translations => {
+          let errorMessage = translations['PROFILE.REPLY_UPDATE_ERROR'] || 'The reply could not be updated.';
+          if (error.status === 403) {
+            errorMessage = translations['PROFILE.REPLY_EDIT_PERMISSION_ERROR'] || 'You do not have permission to edit this reply.';
+          }
+          this.dialogService.showError(
+            translations['COMMON.ERROR'] || 'Error',
+            errorMessage
+          );
+        });
+        this.isLoading = false;
+      }
+    });
+  }
+
+  /**
+   * deletes a reply
+   */
+  deleteReply(reply: Comment): void {
+    const replyId = reply.id || reply._id;
+    let parentCommentId = reply.parentId;
+    
+    // If parentId is not set, find the parent comment from the comments array
+    if (!parentCommentId) {
+      for (const comment of this.comments) {
+        if (comment.replies) {
+          const foundReply = comment.replies.find(r => (r.id || r._id) === replyId);
+          if (foundReply) {
+            parentCommentId = comment.id || comment._id;
+            break;
+          }
+        }
+      }
+    }
+    
+    if (!replyId || !parentCommentId) {
+      this.translateService.get(['COMMON.ERROR', 'PROFILE.COMMENT_ID_NOT_FOUND']).subscribe(translations => {
+        this.dialogService.showError(
+          translations['COMMON.ERROR'] || 'Error',
+          translations['PROFILE.COMMENT_ID_NOT_FOUND'] || 'Reply ID not found.'
+        );
+      });
+      return;
+    }
+
+    this.translateService.get(['PROFILE.REPLY_DELETE_CONFIRMATION', 'PROFILE.REPLY_DELETE_MESSAGE', 'PROFILE.REPLY_DELETE_CONFIRM', 'COMMON.CANCEL']).subscribe(translations => {
+      this.dialogService.showConfirmation({
+        title: translations['PROFILE.REPLY_DELETE_CONFIRMATION'] || 'Delete Reply',
+        message: translations['PROFILE.REPLY_DELETE_MESSAGE'] || 'Do you really want to delete this reply? This action cannot be undone.',
+        confirmText: translations['PROFILE.REPLY_DELETE_CONFIRM'] || 'Yes, delete',
+        cancelText: translations['COMMON.CANCEL'] || 'Cancel',
+        dangerMode: true
+      }).subscribe(confirmed => {
+        if (confirmed) {
+          this.isLoading = true;
+          
+          this.commentService.deleteReply(this.userId, parentCommentId, replyId).subscribe({
+            next: () => {
+              // Remove the reply from the parent comment's replies array
+              const parentComment = this.comments.find(c => (c.id || c._id) === parentCommentId);
+              if (parentComment && parentComment.replies) {
+                const replyIndex = parentComment.replies.findIndex(r => (r.id || r._id) === replyId);
+                if (replyIndex !== -1) {
+                  parentComment.replies.splice(replyIndex, 1);
+                } else {
+                  // Fallback: search in all comments if not found in expected parent
+                  for (const comment of this.comments) {
+                    if (comment.replies) {
+                      const fallbackIndex = comment.replies.findIndex(r => (r.id || r._id) === replyId);
+                      if (fallbackIndex !== -1) {
+                        comment.replies.splice(fallbackIndex, 1);
+                        break;
+                      }
+                    }
+                  }
+                }
+              } else {
+                // Fallback: search in all comments if parent not found
+                for (const comment of this.comments) {
+                  if (comment.replies) {
+                    const replyIndex = comment.replies.findIndex(r => (r.id || r._id) === replyId);
+                    if (replyIndex !== -1) {
+                      comment.replies.splice(replyIndex, 1);
+                      break;
+                    }
+                  }
+                }
+              }
+              
+              // Force change detection to update the UI
+              this.cdr.detectChanges();
+              
+              this.translateService.get(['COMMON.SUCCESS', 'PROFILE.REPLY_DELETED_SUCCESS', 'COMMON.OK']).subscribe(successTranslations => {
+                this.dialogService.showSuccess({
+                  title: successTranslations['COMMON.SUCCESS'] || 'Success',
+                  message: successTranslations['PROFILE.REPLY_DELETED_SUCCESS'] || 'Reply was successfully deleted.',
+                  buttonText: successTranslations['COMMON.OK'] || 'OK'
+                });
+              });
+              
+              this.isLoading = false;
+            },
+            error: (error) => {
+              console.error('Error deleting reply:', error);
+              
+              // If reply was already deleted (404), just remove it from UI without showing error
+              if (error.status === 404) {
+                const parentComment = this.comments.find(c => (c.id || c._id) === parentCommentId);
+                if (parentComment && parentComment.replies) {
+                  const replyIndex = parentComment.replies.findIndex(r => (r.id || r._id) === replyId);
+                  if (replyIndex !== -1) {
+                    parentComment.replies.splice(replyIndex, 1);
+                  }
+                } else {
+                  // Fallback: search in all comments
+                  for (const comment of this.comments) {
+                    if (comment.replies) {
+                      const replyIndex = comment.replies.findIndex(r => (r.id || r._id) === replyId);
+                      if (replyIndex !== -1) {
+                        comment.replies.splice(replyIndex, 1);
+                        break;
+                      }
+                    }
+                  }
+                }
+                // Force change detection to update the UI
+                this.cdr.detectChanges();
+                this.isLoading = false;
+                return;
+              }
+              
+              this.translateService.get(['PROFILE.REPLY_DELETE_ERROR', 'PROFILE.REPLY_DELETE_PERMISSION_ERROR', 'COMMON.ERROR']).subscribe(errorTranslations => {
+                let errorMessage = errorTranslations['PROFILE.REPLY_DELETE_ERROR'] || 'The reply could not be deleted.';
+                if (error.status === 403) {
+                  errorMessage = errorTranslations['PROFILE.REPLY_DELETE_PERMISSION_ERROR'] || 'You do not have permission to delete this reply.';
                 }
                 this.dialogService.showError(
                   errorTranslations['COMMON.ERROR'] || 'Error',

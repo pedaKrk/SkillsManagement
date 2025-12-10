@@ -306,7 +306,35 @@
                 <span class="reply-author">{{ reply.authorName }}</span>
                 <span class="reply-date">{{ formatDate(reply.createdAt) }}</span>
               </div>
-              <div class="reply-text" [class.expanded]="isReplyExpanded(reply.id)">
+              
+              <!-- Edit form for reply -->
+              <div *ngIf="editingReply && (editingReply.id === reply.id || editingReply._id === reply._id)" class="edit-reply-form">
+                <textarea
+                  [(ngModel)]="editReplyText"
+                  class="form-control"
+                  rows="3"
+                  [placeholder]="'COMMON.ENTER_TEXT' | translate"
+                ></textarea>
+                <div class="edit-actions">
+                  <button
+                    class="btn btn-primary btn-sm"
+                    (click)="saveEditReply()"
+                    [disabled]="!editReplyText.trim() || isLoading"
+                  >
+                    {{ 'COMMON.SAVE' | translate }}
+                  </button>
+                  <button
+                    class="btn btn-secondary btn-sm"
+                    (click)="cancelEditReply()"
+                    [disabled]="isLoading"
+                  >
+                    {{ 'COMMON.CANCEL' | translate }}
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Display reply text (when not editing) -->
+              <div *ngIf="!editingReply || (editingReply.id !== reply.id && editingReply._id !== reply._id)" class="reply-text" [class.expanded]="isReplyExpanded(reply.id)">
                 {{ getDisplayText(reply.text, isReplyExpanded(reply.id)) }}
                 <button
                   *ngIf="isTextTooLong(reply.text)"
@@ -314,6 +342,27 @@
                   (click)="toggleReplyExpansion(reply.id)"
                 >
                   {{ isReplyExpanded(reply.id) ? ('USER.SHOW_LESS' | translate) : ('USER.SHOW_MORE' | translate) }}
+                </button>
+              </div>
+              
+              <!-- Edit/Delete buttons for reply -->
+              <div *ngIf="!editingReply || (editingReply.id !== reply.id && editingReply._id !== reply._id)" class="reply-actions">
+                <!-- Edit button (for author only) -->
+                <button
+                  *ngIf="isReplyAuthor(reply)"
+                  class="btn-edit"
+                  (click)="startEditReply(reply)"
+                  [disabled]="editingReply !== null || editingComment !== null"
+                >
+                  <i class="fa fa-pencil"></i> {{ 'COMMON.EDIT' | translate }}
+                </button>
+                <!-- Delete button (for author or admin) -->
+                <button
+                  *ngIf="canDeleteReply(reply)"
+                  class="btn-delete"
+                  (click)="deleteReply(reply)"
+                >
+                  <i class="fa fa-trash"></i> {{ 'COMMON.DELETE' | translate }}
                 </button>
               </div>
             </div>

@@ -25,3 +25,13 @@ export const addReplyToComment = (commentId, replyId) =>
     Comment.findByIdAndUpdate(commentId, { $push: { replies: replyId } })
 
 export const createComment = (commentData) => new Comment(commentData).save();
+
+// Reply helpers
+export const updateReplyById = (replyId, content) =>
+    Comment.findByIdAndUpdate(replyId, { content }, { new: true });
+
+export const deleteReplyById = (replyId) =>
+    Comment.findByIdAndDelete(replyId);
+
+export const removeReplyFromComment = (commentId, replyId) =>
+    Comment.findByIdAndUpdate(commentId, { $pull: { replies: replyId } });

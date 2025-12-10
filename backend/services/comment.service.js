@@ -131,3 +131,81 @@ export const createReplyToComment = async (userId, commentId, authorId, content)
         throw error;
     }
 }
+
+export const updateReplyForComment = async (userId, commentId, replyId, content, currentUserId, currentUserRole) => {
+    try {
+        const user = await UserRepository.findUserById(userId);
+        if (!user) {
+            throw new NotFoundError();
+        }
+        
+        // Check if parent comment exists and belongs to user
+        const hasComment = await UserRepository.userHasComment(userId, commentId);
+        if(!hasComment) {
+            throw new NotFoundError();
+        }
+
+        // Check if reply exists
+        const reply = await commentRepository.findCommentById(replyId);
+        if (!reply) {
+            throw new NotFoundError();
+        }
+
+        // Verify reply belongs to the parent comment
+        // Only check if parentComment is set, otherwise skip (reply is validated by being in parent's replies array)
+        if (reply.parentComment) {
+            const replyParentId = reply.parentComment?.toString() || reply.parentComment?._id?.toString() || reply.parentComment;
+            const commentIdStr = commentId.toString();
+            if (replyParentId && replyParentId !== commentIdStr) {
+                throw new NotFoundError();
+            }
+        }
+
+        // Check permissions: only author can update
+        const isAuthor = reply.author.toString() === currentUserId;
+        
+        if (!isAuthor) {
+            throw new ForbiddenError();
+        }
+
+        return await commentRepository.updateReplyById(replyId, content)
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+export const deleteReplyFromComment = async (userId, commentId, replyId, currentUserId, currentUserRole) => {
+    try{
+        // Check if reply exists and get author
+        const reply = await commentRepository.findCommentById(replyId);
+        if (!reply) {
+            throw new NotFoundError();
+        }
+
+        // Verify reply belongs to the parent comment
+        // Only check if parentComment is set, otherwise skip (reply is validated by being in parent's replies array)
+        if (reply.parentComment) {
+            const replyParentId = reply.parentComment?.toString() || reply.parentComment?._id?.toString() || reply.parentComment;
+            const commentIdStr = commentId.toString();
+            if (replyParentId && replyParentId !== commentIdStr) {
+                throw new NotFoundError();
+            }
+        }
+
+        // Check permissions: only author or admin can delete
+        const isAuthor = reply.author.toString() === currentUserId;
+        const isAdmin = currentUserRole && currentUserRole.toLowerCase() === roleEnum.ADMIN.toLowerCase();
+        
+        if (!isAuthor && !isAdmin) {
+            throw new ForbiddenError();
+        }
+
+        // Remove reply from parent comment's replies array
+        await commentRepository.removeReplyFromComment(commentId, replyId);
+        // Delete the reply itself
+        return await commentRepository.deleteReplyById(replyId);
+    }catch(error){
+        throw error;
+    }
+}

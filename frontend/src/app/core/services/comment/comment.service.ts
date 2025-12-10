@@ -142,4 +142,40 @@ export class CommentService {
       catchError(this.handleError)
     );
   }
+
+  /**
+   * Updates a reply
+   * @param userId The ID of the user
+   * @param commentId The ID of the parent comment
+   * @param replyId The ID of the reply
+   * @param content The new content of the reply
+   * @returns Observable with the updated reply
+   */
+  updateReply(userId: string, commentId: string, replyId: string, content: string): Observable<any> {
+    return this.http.put<any>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.comments}/${userId}/${commentId}/replies/${replyId}`,
+      { content },
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      tap(reply => console.log('Antwort erfolgreich aktualisiert:', reply)),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Deletes a reply
+   * @param userId The ID of the user
+   * @param commentId The ID of the parent comment
+   * @param replyId The ID of the reply
+   * @returns Observable with the confirmation
+   */
+  deleteReply(userId: string, commentId: string, replyId: string): Observable<any> {
+    return this.http.delete(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.comments}/${userId}/${commentId}/replies/${replyId}`,
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      tap(response => console.log('Antwort erfolgreich gelöscht:', response)),
+      catchError(this.handleError)
+    );
+  }
 } 

@@ -138,3 +138,79 @@ export const addReplyToComment = async (req, res) => {
     res.status(500).json({ message: 'Fehler beim Hinzufügen der Antwort', error: error.message })
   }
 }
+
+export const updateReply = async (req, res) => {
+  try {
+    const { userId, commentId, replyId } = req.params
+    const { content } = req.body
+    const currentUserId = req.user.id;
+    const currentUserRole = req.user.role;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      logger.warn('Invalid user ID for reply update:', userId);
+      return res.status(400).json({ message: 'Ungültige Benutzer-ID' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(commentId)) {
+      logger.warn('Invalid comment ID for reply update:', commentId);
+      return res.status(400).json({ message: 'Ungültige Kommentar-ID' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(replyId)) {
+      logger.warn('Invalid reply ID for update:', replyId);
+      return res.status(400).json({ message: 'Ungültige Antwort-ID' });
+    }
+
+    const updatedReply = await commentService.updateReplyForComment(userId, commentId, replyId, content, currentUserId, currentUserRole)
+
+    if (!updatedReply) {
+      return res.status(404).json({ message: 'Reply not found' })
+    }
+    logger.info(`Reply ${replyId} updated by user ${currentUserId}`);
+    res.status(200).json(updatedReply)
+  } catch (error) {
+    if (error.name === 'ForbiddenError' || error.constructor.name === 'ForbiddenError') {
+      logger.warn(`User ${req.user.id} attempted to update reply ${req.params.replyId} without permission`);
+      return res.status(403).json({ message: 'Sie haben keine Berechtigung, diese Antwort zu bearbeiten' });
+    }
+    logger.error('Error updating reply:', error);
+    res.status(500).json({ message: 'Failed to update reply', error: error.message })
+  }
+}
+
+export const deleteReply = async (req, res) => {
+  try {
+    const { userId, commentId, replyId } = req.params
+    const currentUserId = req.user.id;
+    const currentUserRole = req.user.role;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      logger.warn('Invalid user ID for reply deletion:', userId);
+      return res.status(400).json({ message: 'Ungültige Benutzer-ID' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(commentId)) {
+      logger.warn('Invalid comment ID for reply deletion:', commentId);
+      return res.status(400).json({ message: 'Ungültige Kommentar-ID' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(replyId)) {
+      logger.warn('Invalid reply ID for deletion:', replyId);
+      return res.status(400).json({ message: 'Ungültige Antwort-ID' });
+    }
+
+    const result = await commentService.deleteReplyFromComment(userId, commentId, replyId, currentUserId, currentUserRole)
+    if (!result) {
+      return res.status(404).json({ message: 'Reply not found' })
+    }
+    logger.info(`Reply ${replyId} deleted by user ${currentUserId}`);
+    res.status(200).json({ message: 'Reply deleted successfully' })
+  } catch (error) {
+    if (error.name === 'ForbiddenError' || error.constructor.name === 'ForbiddenError') {
+      logger.warn(`User ${req.user.id} attempted to delete reply ${req.params.replyId} without permission`);
+      return res.status(403).json({ message: 'Sie haben keine Berechtigung, diese Antwort zu löschen' });
+    }
+    logger.error('Error deleting reply:', error);
+    res.status(500).json({ message: 'Failed to delete reply', error: error.message })
+  }
+}
