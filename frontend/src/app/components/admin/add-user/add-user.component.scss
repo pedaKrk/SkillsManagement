@@ -135,8 +135,72 @@
 
 .selected-skills-list {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.selected-skill-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.level-selector-container {
+  position: relative;
+  margin-left: auto;
+
+  .current-level-display {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+
+    .level-badge {
+      padding: 4px 12px;
+      border-radius: 16px;
+      color: white;
+      font-weight: 500;
+      text-transform: capitalize;
+      &.beginner { background-color: #007bff; }
+      &.intermediate { background-color: #ffc107; color: #212529; }
+      &.advanced { background-color: #28a745; }
+      &.expert { background-color: #dc3545; }
+    }
+
+    .level-arrow {
+      margin-left: 8px;
+      transition: transform 0.2s ease-in-out;
+
+      &.rotated {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  .level-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-top: 4px;
+    z-index: 10000;
+    width: 150px;
+
+    .level-option {
+      padding: 8px 12px;
+      cursor: pointer;
+      &:hover {
+        background-color: #f0f0f0;
+      }
+    }
+  }
 }
 
 .no-skills-selected {

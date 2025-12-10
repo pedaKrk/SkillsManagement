@@ -160,8 +160,24 @@
               {{ 'SKILLS.NO_SKILLS_SELECTED' | translate }}
             </div>
             <div *ngIf="skillsFormArray.length > 0" class="selected-skills-list">
-              <div class="skill-badge selected" *ngFor="let skillName of getSelectedSkillsNames()">
-                {{ skillName }}
+              <div class="selected-skill-item" *ngFor="let skillId of skillsFormArray.value">
+                <div class="skill-badge selected">
+                  {{ getSelectedSkillName(skillId) }}
+                </div>
+                <div class="level-selector-container">
+                  <div class="current-level-display clickable" (click)="skillLevelDropdownState[skillId] = !skillLevelDropdownState[skillId]">
+                    <span class="level-badge" [ngClass]="getSkillLevelClass(skillId)">
+                      {{ 'SKILL_LEVELS.' + getSkillLevel(skillId) | translate }}
+                    </span>
+                    <i class="fa fa-caret-down level-arrow" [class.rotated]="skillLevelDropdownState[skillId]"></i>
+                  </div>
+                  
+                  <div class="level-dropdown" *ngIf="skillLevelDropdownState[skillId]">
+                    <div *ngFor="let level of skillLevels" class="level-option" (click)="setSkillLevel(skillId, level); skillLevelDropdownState[skillId] = false">
+                      {{ 'SKILL_LEVELS.' + level | translate }}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
