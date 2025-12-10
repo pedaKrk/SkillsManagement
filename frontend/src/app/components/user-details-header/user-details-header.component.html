@@ -1,0 +1,43 @@
+<div class="user-header">
+  <div class="user-avatar-container">
+    <div *ngIf="!user?.profileImageUrl" class="user-avatar">
+      <span class="initials">{{ getUserInitials() }}</span>
+    </div>
+    <div *ngIf="user?.profileImageUrl" class="user-avatar">
+      <img
+        [src]="getProfileImageUrl(user.profileImageUrl)"
+        alt="Profilbild"
+        class="profile-image"
+        (error)="handleImageError()"
+      >
+      <div *ngIf="showInitialsOnError" class="initials-fallback">
+        <span class="initials">{{ getUserInitials() }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="user-info">
+    <h1 class="user-name">{{ getUserFullName() }}</h1>
+    <div class="user-username">{{'@'}}{{ user?.username }}</div>
+
+    <div class="user-role" *ngIf="user?.role">
+      <span class="label">{{ 'PROFILE.ROLE' | translate }}</span>
+      <span class="value">{{ getFormattedRole() }}</span>
+    </div>
+
+    <div class="user-employment">
+      <span class="label">{{ 'PROFILE.EMPLOYMENT_TYPE' | translate }}</span>
+      <span class="value">{{ getEmploymentType() }}</span>
+    </div>
+
+    <div *ngIf="isAdmin || isOwnProfile" class="admin-actions mt-3">
+      <button class="btn btn-primary" (click)="onEditUser()">
+        <i class="fa fa-pencil"></i> {{ 'PROFILE.EDIT_PROFILE' | translate }}
+      </button>
+      <button *ngIf="isAdmin" class="btn btn-secondary" (click)="onSendEmail()">
+        <i class="fa fa-envelope"></i> {{ 'PROFILE.SEND_EMAIL' | translate }}
+      </button>
+    </div>
+  </div>
+</div>
+
