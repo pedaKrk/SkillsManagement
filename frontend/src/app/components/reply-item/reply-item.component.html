@@ -1,0 +1,66 @@
+<div *ngIf="reply" class="reply-card">
+  <div class="reply-header">
+    <span class="reply-author">{{ reply.authorName }}</span>
+    <span class="reply-date">{{ formatDate(reply.createdAt) }}</span>
+  </div>
+  
+  <!-- Edit form for reply -->
+  <div *ngIf="editing" class="edit-reply-form">
+    <textarea
+      [(ngModel)]="editText"
+      class="form-control"
+      rows="3"
+      [placeholder]="'COMMON.ENTER_TEXT' | translate"
+    ></textarea>
+    <div class="edit-actions">
+      <button
+        class="btn btn-primary btn-sm"
+        (click)="saveEdit()"
+        [disabled]="!editText.trim() || isLoading"
+      >
+        {{ 'COMMON.SAVE' | translate }}
+      </button>
+      <button
+        class="btn btn-secondary btn-sm"
+        (click)="cancelEdit()"
+        [disabled]="isLoading"
+      >
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+    </div>
+  </div>
+  
+  <!-- Display reply text (when not editing) -->
+  <div *ngIf="!editing" class="reply-text" [class.expanded]="isExpanded">
+    {{ getDisplayText(reply.text, isExpanded) }}
+    <button
+      *ngIf="isTextTooLong(reply.text)"
+      class="text-expand-btn"
+      (click)="toggleExpansion()"
+    >
+      {{ isExpanded ? ('USER.SHOW_LESS' | translate) : ('USER.SHOW_MORE' | translate) }}
+    </button>
+  </div>
+  
+  <!-- Edit/Delete buttons for reply -->
+  <div *ngIf="!editing" class="reply-actions">
+    <!-- Edit button (for author only) -->
+    <button
+      *ngIf="isReplyAuthor()"
+      class="btn-edit"
+      (click)="startEdit()"
+      [disabled]="isOtherEditing"
+    >
+      <i class="fa fa-pencil"></i> {{ 'COMMON.EDIT' | translate }}
+    </button>
+    <!-- Delete button (for author or admin) -->
+    <button
+      *ngIf="canDeleteReply()"
+      class="btn-delete"
+      (click)="deleteReply()"
+    >
+      <i class="fa fa-trash"></i> {{ 'COMMON.DELETE' | translate }}
+    </button>
+  </div>
+</div>
+
