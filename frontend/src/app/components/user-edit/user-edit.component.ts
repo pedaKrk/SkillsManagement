@@ -5,11 +5,11 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { UserService } from '../../core/services/user/user.service';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { DialogService } from '../../core/services/dialog/dialog.service';
+import { ImageService } from '../../core/services/image/image.service';
 import { User } from '../../models/user.model';
 import { UserRole } from '../../models/enums/user-roles.enum';
 import { EmploymentType } from '../../models/enums/employment-type.enum';
 import { environment } from '../../../environments/environment';
-import imageCompression from 'browser-image-compression';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
@@ -47,7 +47,8 @@ export class UserEditComponent implements OnInit {
     private formBuilder: FormBuilder,
     private userService: UserService,
     private authService: AuthService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private imageService: ImageService
   ) {
     this.initForm();
   }
@@ -272,48 +273,21 @@ export class UserEditComponent implements OnInit {
     
     const file = input.files[0];
     
-    // check if it is an image
-    if (!file.type.match(/image\/(jpeg|jpg|png|gif|webp)/)) {
-      this.imageError = 'Nur Bilddateien (JPEG, PNG, GIF, WebP) sind erlaubt.';
-      return;
-    }
-    
     try {
       this.isLoading = true;
       
-      // compression options
-      const options = {
-        maxSizeMB: 1,             // maximum size after compression: 1 MB
-        maxWidthOrHeight: 1920,   // maximum width or height: 1920 pixels
-        useWebWorker: true,       // use web worker for better performance
-        initialQuality: 0.8       // initial quality: 80%
-      };
+      // Process and compress the image using the ImageService
+      const result = await this.imageService.processAndCompress(file);
       
-      // compress the image
-      console.log('Original image size:', (file.size / 1024 / 1024).toFixed(2), 'MB');
-      const compressedFile = await imageCompression(file, options);
-      console.log('Compressed image size:', (compressedFile.size / 1024 / 1024).toFixed(2), 'MB');
-      
-      // compressed image for the preview
-      this.selectedImageFile = compressedFile;
+      // Set the processed image and preview
+      this.selectedImageFile = result.file;
+      this.previewImageUrl = result.previewUrl;
       this.removeImageFlag = false;
-      
-      const reader = new FileReader();
-      reader.onload = (e: ProgressEvent<FileReader>) => {
-        if (e.target?.result) {
-          this.previewImageUrl = e.target.result as string;
-        }
-        this.isLoading = false;
-      };
-      reader.onerror = () => {
-        this.imageError = 'Fehler beim Lesen der Bilddatei.';
-        this.isLoading = false;
-      };
-      reader.readAsDataURL(compressedFile);
+      this.isLoading = false;
       
     } catch (error) {
-      console.error('Fehler bei der Bildkomprimierung:', error);
-      this.imageError = 'Fehler bei der Verarbeitung des Bildes. Bitte versuchen Sie es mit einem anderen Bild.';
+      console.error('Fehler bei der Bildverarbeitung:', error);
+      this.imageError = error instanceof Error ? error.message : 'Fehler bei der Verarbeitung des Bildes. Bitte versuchen Sie es mit einem anderen Bild.';
       this.isLoading = false;
     }
   }

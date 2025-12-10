@@ -16,4 +16,7 @@ export * from './dialog';
 // Dashboard Services
 export * from './dashboard.service';
 
+// Image Services
+export * from './image/image.service';
+
 
