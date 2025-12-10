@@ -135,7 +135,7 @@ export class CommentItemComponent {
     if (!this.comment || !this.editText.trim()) return;
 
     this.isLoading = true;
-    const commentId = this.comment.id || this.comment._id;
+    const commentId = this.comment.id || this.comment._id || '';
 
     if (!commentId) {
       this.translateService.get(['COMMON.ERROR', 'PROFILE.COMMENT_ID_NOT_FOUND']).subscribe(translations => {
@@ -266,7 +266,7 @@ export class CommentItemComponent {
     if (!this.comment || !this.replyText.trim()) return;
 
     this.isLoading = true;
-    const commentId = this.comment.id || this.comment._id;
+    const commentId = this.comment.id || this.comment._id || '';
 
     if (!commentId) {
       this.translateService.get(['COMMON.ERROR', 'PROFILE.COMMENT_ID_NOT_FOUND']).subscribe(translations => {
@@ -347,8 +347,10 @@ export class CommentItemComponent {
    */
   toggleExpansion(): void {
     if (this.comment) {
-      const commentId = this.comment.id || this.comment._id;
-      this.expansionToggled.emit(commentId);
+      const commentId = this.comment.id || this.comment._id || '';
+      if (commentId) {
+        this.expansionToggled.emit(commentId);
+      }
     }
   }
 

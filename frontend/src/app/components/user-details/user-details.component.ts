@@ -1,27 +1,29 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { UserService } from '../../core/services/user/user.service';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { DialogService, FormDialogConfig } from '../../core/services/dialog/dialog.service';
-import { CommentService } from '../../core/services/comment/comment.service';
 import { EmailService } from '../../core/services/email/email.service';
-import { User, Comment, UserSkillEntry } from '../../models/user.model';
+import { User } from '../../models/user.model';
 import { UserRole } from '../../models/enums/user-roles.enum';
-import { environment } from '../../../environments/environment';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import {UserStatisticsComponent} from '../user-statistics/user-statistics.component';
+import { UserStatisticsComponent } from '../user-statistics/user-statistics.component';
+import { UserDetailsHeaderComponent } from '../user-details-header/user-details-header.component';
+import { UserSkillsDisplayComponent } from '../user-skills-display/user-skills-display.component';
+import { UserCommentsSectionComponent } from '../user-comments-section/user-comments-section.component';
 
 @Component({
   selector: 'app-user-details',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     RouterModule,
     TranslateModule,
-    UserStatisticsComponent
+    UserStatisticsComponent,
+    UserDetailsHeaderComponent,
+    UserSkillsDisplayComponent,
+    UserCommentsSectionComponent
   ],
   templateUrl: './user-details.component.html',
   styleUrl: './user-details.component.scss'
@@ -33,35 +35,6 @@ export class UserDetailsComponent implements OnInit {
   error: string | null = null;
   showInitialsOnError: boolean = false;
 
-  // for comments
-  newComment: string = '';
-  comments: Comment[] = [];
-
-  // answer to comments
-  replyingToComment: Comment | null = null;
-  replyText: string = '';
-
-  // for editing comments
-  editingComment: Comment | null = null;
-  editCommentText: string = '';
-
-  // for editing replies
-  editingReply: Comment | null = null;
-  editReplyText: string = '';
-
-  // for filtering comments
-  commentSearchTerm: string = '';
-  selectedAuthor: string = '';
-  dateFrom: string = '';
-  dateTo: string = '';
-
-  // for displaying long texts
-  expandedComments: Set<string> = new Set<string>();
-  expandedReplies: Set<string> = new Set<string>();
-  maxTextLength: number = 150; // Maximum number of characters before text is truncated
-
-  isAuthorDropdownOpen: boolean = false;
-
   // permissions
   canAddComments: boolean = false;
   isAdmin: boolean = false;
@@ -72,7 +45,6 @@ export class UserDetailsComponent implements OnInit {
     private userService: UserService,
     private authService: AuthService,
     private dialogService: DialogService,
-    private commentService: CommentService,
     private emailService: EmailService,
     private translateService: TranslateService,
     private cdr: ChangeDetectorRef
@@ -115,126 +87,14 @@ export class UserDetailsComponent implements OnInit {
           ...entry,
           skill: { ...entry.skill, level: (entry as any).level }
         }));
-        this.loadComments();
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading user details:', error);
-        if (error.status === 500) {
-          this.error = this.translateService.instant('PROFILE.SERVER_ERROR');
-        } else if (error.status === 404) {
-          this.error = this.translateService.instant('PROFILE.NOT_FOUND');
-        } else if (error.status === 401) {
-          this.error = this.translateService.instant('PROFILE.UNAUTHORIZED');
-        } else {
-          this.error = this.translateService.instant('PROFILE.ERROR_LOADING');
-        }
+        this.error = 'Fehler beim Laden der Benutzerdaten.';
         this.isLoading = false;
       }
     });
-  }
-
-  /**
-   * loads comments for the user
-   */
-  loadComments(): void {
-    this.isLoading = true;
-
-    this.commentService.getCommentsForUser(this.userId).subscribe({
-      next: (comments) => {
-        // collect all unique user IDs
-        const authorIds = new Set<string>();
-        comments.forEach(comment => {
-          if (comment.author?._id) {
-            authorIds.add(comment.author._id);
-          }
-          if (comment.replies) {
-            comment.replies.forEach((reply: { author?: { _id?: string } }) => {
-              if (reply.author?._id) {
-                authorIds.add(reply.author._id);
-              }
-            });
-          }
-        });
-
-        // load user data for all authors
-        Promise.all(
-          Array.from(authorIds).map(authorId => this.userService.getUserById(authorId).toPromise())
-        ).then(authors => {
-          // create a map for quick access to user data
-          const authorMap = new Map(
-            authors
-              .filter(author => author != null)
-              .map(author => [author._id, author])
-          );
-
-          // convert comments to the correct format
-          this.comments = comments.map(comment => {
-            const author = comment.author?._id ? authorMap.get(comment.author._id) : null;
-            const authorData = author || comment.author || { username: 'Unbekannt' };
-            const authorName = this.createFormalName(authorData);
-
-            // convert replies, if available
-            const commentId = comment.id || comment._id || '';
-            const replies = comment.replies ? comment.replies.map((reply: any) => {
-              const replyAuthor = reply.author?._id ? authorMap.get(reply.author._id) : null;
-              const replyAuthorData = replyAuthor || reply.author || { username: 'Unbekannt' };
-              const replyAuthorName = this.createFormalName(replyAuthorData);
-
-              // Get parentComment ID from reply object, or fallback to the comment ID
-              const parentId = reply.parentComment?._id || reply.parentComment || commentId;
-
-              return {
-                id: reply.id || reply._id || '',
-                userId: this.userId,
-                authorId: replyAuthorData._id || '',
-                authorName: replyAuthorName,
-                text: reply.content || '',
-                createdAt: new Date(reply.time_stamp || new Date()),
-                parentId: parentId
-              };
-            }) : [];
-
-            return {
-              id: comment.id || comment._id || '',
-              userId: this.userId,
-              authorId: authorData._id || '',
-              authorName: authorName,
-              text: comment.content || '',
-              createdAt: new Date(comment.time_stamp || new Date()),
-              replies: replies
-            };
-          });
-          this.isLoading = false;
-        });
-      },
-      error: (error) => {
-        console.error('Error loading comments:', error);
-        this.comments = [];
-        this.isLoading = false;
-      }
-    });
-  }
-
-  /**
-   * returns all unique authors who have written comments
-   * @returns array of author objects with id and name
-   */
-  getUniqueAuthors(): {id: string, name: string}[] {
-    const uniqueAuthors = new Map<string, string>();
-
-    // add each author only once (based on the ID)
-    this.comments.forEach(comment => {
-      if (comment.authorId && comment.authorName) {
-        uniqueAuthors.set(comment.authorId, comment.authorName);
-      }
-    });
-
-    // convert the map to an array of objects
-    return Array.from(uniqueAuthors.entries()).map(([id, name]) => ({
-      id,
-      name
-    }));
   }
 
   /**
@@ -255,42 +115,6 @@ export class UserDetailsComponent implements OnInit {
   }
 
   /**
-   * checks if the current user is the author of a comment
-   */
-  isCommentAuthor(comment: Comment): boolean {
-    const currentUser = this.authService.currentUserValue;
-    if (!currentUser || !comment.authorId) {
-      return false;
-    }
-    return currentUser.id === comment.authorId;
-  }
-
-  /**
-   * checks if the current user can delete a comment (author or admin)
-   */
-  canDeleteComment(comment: Comment): boolean {
-    return this.isCommentAuthor(comment) || this.isAdmin;
-  }
-
-  /**
-   * checks if the current user is the author of a reply
-   */
-  isReplyAuthor(reply: Comment): boolean {
-    const currentUser = this.authService.currentUserValue;
-    if (!currentUser || !reply.authorId) {
-      return false;
-    }
-    return currentUser.id === reply.authorId;
-  }
-
-  /**
-   * checks if the current user can delete a reply (author or admin)
-   */
-  canDeleteReply(reply: Comment): boolean {
-    return this.isReplyAuthor(reply) || this.isAdmin;
-  }
-
-  /**
    * checks if the current user is viewing their own profile
    */
   isOwnProfile(): boolean {
@@ -298,141 +122,6 @@ export class UserDetailsComponent implements OnInit {
     if (!currentUser) return false;
 
     return currentUser.id === this.userId;
-  }
-
-  /**
-   * adds a new comment
-   */
-  addComment(): void {
-    if (!this.newComment.trim()) {
-      return;
-    }
-
-    this.isLoading = true;
-
-    // check if user is logged in
-    const currentUser = this.authService.currentUserValue;
-    if (!currentUser || !currentUser.token) {
-      console.error('Benutzer ist nicht angemeldet');
-      this.dialogService.showError(
-        'Fehler',
-        'Sie müssen angemeldet sein, um Kommentare hinzuzufügen.'
-      );
-      this.isLoading = false;
-      return;
-    }
-
-    this.commentService.addCommentToUser(this.userId, this.newComment).subscribe({
-      next: (comment) => {
-        if (comment && (comment.id || comment._id)) {
-          // load the full user data for the author
-          this.userService.getUserById(currentUser.id).subscribe({
-            next: (fullUserData) => {
-              const authorName = this.createFormalName(fullUserData);
-
-              const newComment: Comment = {
-                id: comment.id || comment._id || '',
-                userId: this.userId,
-                authorId: comment.author?._id || currentUser.id,
-                authorName: authorName,
-                text: comment.content || this.newComment,
-                createdAt: new Date(comment.time_stamp) || new Date()
-              };
-
-              this.comments.unshift(newComment);
-              this.newComment = '';
-
-              this.dialogService.showSuccess({
-                title: this.translateService.instant('COMMON.SUCCESS') || 'Success',
-                message: this.translateService.instant('PROFILE.COMMENT_ADDED_SUCCESS') || 'Comment was successfully added.',
-                buttonText: this.translateService.instant('COMMON.OK') || 'OK'
-              });
-              this.isLoading = false;
-            },
-            error: (error) => {
-              console.error('Fehler beim Laden der Benutzerdaten:', error);
-              // fallback to the username
-              const newComment: Comment = {
-                id: comment.id || comment._id || '',
-                userId: this.userId,
-                authorId: comment.author?._id || currentUser.id,
-                authorName: currentUser.username || 'Unbekannter Benutzer',
-                text: comment.content || this.newComment,
-                createdAt: new Date(comment.time_stamp) || new Date()
-              };
-
-              this.comments.unshift(newComment);
-              this.newComment = '';
-              this.isLoading = false;
-            }
-          });
-        }
-      },
-      error: (error) => {
-        console.error('Error adding comment:', error);
-        this.translateService.get(['COMMON.ERROR', 'PROFILE.COMMENT_ADD_ERROR']).subscribe(translations => {
-          this.dialogService.showError(
-            translations['COMMON.ERROR'] || 'Error',
-            translations['PROFILE.COMMENT_ADD_ERROR'] || 'The comment could not be added. Please try again later.'
-          );
-        });
-        this.isLoading = false;
-      }
-    });
-  }
-
-  /**
-   * creates a formal name from title (if available), first name and last name
-   */
-  private createFormalName(user: any): string {
-    const parts = [];
-    if (user.title) {
-      parts.push(user.title);
-    }
-    if (user.firstName) {
-      parts.push(user.firstName);
-    }
-    if (user.lastName) {
-      parts.push(user.lastName);
-    }
-    return parts.length > 0 ? parts.join(' ') : user.username || 'Unbekannter Benutzer';
-  }
-
-  /**
-   * filters comments based on the filter criteria
-   */
-  filterComments(): Comment[] {
-    return this.comments.filter(comment => {
-      // filter by text
-      if (this.commentSearchTerm &&
-          !comment.text.toLowerCase().includes(this.commentSearchTerm.toLowerCase())) {
-        return false;
-      }
-
-      // filter by author
-      if (this.selectedAuthor && comment.authorId !== this.selectedAuthor) {
-        return false;
-      }
-
-      // filter by date (from)
-      if (this.dateFrom) {
-        const fromDate = new Date(this.dateFrom);
-        if (comment.createdAt < fromDate) {
-          return false;
-        }
-      }
-
-      // filter by date (to)
-      if (this.dateTo) {
-        const toDate = new Date(this.dateTo);
-        toDate.setHours(23, 59, 59, 999); // end of the day
-        if (comment.createdAt > toDate) {
-          return false;
-        }
-      }
-
-      return true;
-    });
   }
 
   /**
@@ -444,364 +133,10 @@ export class UserDetailsComponent implements OnInit {
   }
 
   /**
-   * formats the date for display
-   */
-  formatDate(date: Date): string {
-    if (!date) return '';
-    return new Date(date).toLocaleDateString('de-DE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  }
-
-  /**
-   * returns the initials of the user (for the avatar)
-   */
-  getUserInitials(): string {
-
-    if (!this.user) {
-      console.log('No user object available');
-      return '';
-    }
-
-    if (!this.user.firstName || !this.user.lastName) {
-      console.log('Missing firstName or lastName:', {
-        firstName: this.user.firstName,
-        lastName: this.user.lastName
-      });
-      return '';
-    }
-
-    const initials = (this.user.firstName.charAt(0) + this.user.lastName.charAt(0)).toUpperCase();
-    return initials;
-  }
-
-  /**
-   * returns the formatted name of the user
-   */
-  getUserFullName(): string {
-    if (!this.user) return '';
-    return `${this.user.title ? this.user.title + ' ' : ''}${this.user.firstName} ${this.user.lastName}`;
-  }
-
-  /**
-   * returns the formatted employment type
-   */
-  getEmploymentType(): string {
-    if (!this.user) return '';
-    return this.user.employmentType === 'Internal' ? 'Intern' : 'Extern';
-  }
-
-  /**
-   * returns the german role name
-   * @returns The german role name
-   */
-  getFormattedRole(): string {
-    if (!this.user) {
-      return '';
-    }
-    return this.user.role.replace('_', ' ');
-  }
-
-  /**
-   * returns the name of a skill, regardless of the format
-   * @param skill the skill object
-   * @returns the name of the skill
-   */
-  getSkillName(skill: any): string {
-    if (!skill) return 'Unbekannte Fähigkeit';
-    if (typeof skill === 'string') return skill;
-    if (skill.name) return skill.name;
-    if (skill._id) return `Fähigkeit (ID: ${skill._id.substring(0, 5)}...)`;
-    return 'Unbekannte Fähigkeit';
-  }
-
-  /**
-   * Returns the name of an author by its ID
-   * @param authorId The ID of the author
-   * @returns The name of the author or "All authors", if no ID is given
-   */
-  getAuthorNameById(authorId: string): string {
-    if (!authorId) return 'Alle Autoren';
-
-    const author = this.getUniqueAuthors().find(a => a.id === authorId);
-    return author ? author.name : 'Unbekannter Autor';
-  }
-
-  /**
-   * Sets the selected author
-   * @param authorId The ID of the selected author or an empty string for "All authors"
-   */
-  selectAuthor(authorId: string): void {
-    this.selectedAuthor = authorId;
-    this.isAuthorDropdownOpen = false;
-  }
-
-  /**
-   * Opens or closes the author dropdown
-   */
-  toggleAuthorDropdown(): void {
-    this.isAuthorDropdownOpen = !this.isAuthorDropdownOpen;
-  }
-
-  /**
    * navigates back to the user list
    */
   goBack(): void {
     this.router.navigate(['/user']);
-  }
-
-  /**
-   * sets the comment to reply to
-   * @param comment the comment to reply to
-   */
-  replyToComment(comment: Comment): void {
-    this.replyingToComment = comment;
-    this.replyText = '';
-  }
-
-  /**
-   * cancels the reply to a comment
-   */
-  cancelReply(): void {
-    this.replyingToComment = null;
-    this.replyText = '';
-  }
-
-  /**
-   * adds a reply to a comment
-   */
-  addReply(): void {
-    if (!this.replyingToComment || !this.replyText.trim()) {
-      return;
-    }
-
-    this.isLoading = true;
-
-    // check if user is logged in
-    const currentUser = this.authService.currentUserValue;
-    if (!currentUser || !currentUser.token) {
-      console.error('Benutzer ist nicht angemeldet');
-      this.dialogService.showError(
-        'Fehler',
-        'Sie müssen angemeldet sein, um auf Kommentare zu antworten.'
-      );
-      this.isLoading = false;
-      return;
-    }
-
-    // add reply to comment
-    this.commentService.addReplyToComment(
-      this.userId,
-      this.replyingToComment.id || this.replyingToComment._id || '',
-      this.replyText
-    ).subscribe({
-      next: (reply: any) => {
-        if (reply && (reply.id || reply._id)) {
-          // Lade die vollständigen Benutzerdaten für den Autor
-          this.userService.getUserById(currentUser.id).subscribe({
-            next: (fullUserData) => {
-              const authorName = this.createFormalName(fullUserData);
-
-              // create new reply
-              const newReply: Comment = {
-                id: reply.id || reply._id || '',
-                userId: this.userId,
-                authorId: reply.author?._id || currentUser.id,
-                authorName: authorName,
-                text: reply.content || this.replyText,
-                createdAt: new Date(reply.time_stamp) || new Date(),
-                parentId: this.replyingToComment?.id || this.replyingToComment?._id || ''
-              };
-
-              // add reply to comment
-              if (this.replyingToComment && !this.replyingToComment.replies) {
-                this.replyingToComment.replies = [];
-              }
-
-              if (this.replyingToComment && this.replyingToComment.replies) {
-                this.replyingToComment.replies.push(newReply);
-              }
-
-              // clear input field and end reply mode
-              this.replyText = '';
-              this.replyingToComment = null;
-
-              this.translateService.get(['COMMON.SUCCESS', 'PROFILE.REPLY_ADDED_SUCCESS', 'COMMON.OK']).subscribe(translations => {
-                this.dialogService.showSuccess({
-                  title: translations['COMMON.SUCCESS'] || 'Success',
-                  message: translations['PROFILE.REPLY_ADDED_SUCCESS'] || 'Reply was successfully added.',
-                  buttonText: translations['COMMON.OK'] || 'OK'
-                });
-              });
-              this.isLoading = false;
-            },
-            error: (error) => {
-              console.error('Fehler beim Laden der Benutzerdaten:', error);
-              // Fallback to the username
-              const newReply: Comment = {
-                id: reply.id || reply._id || '',
-                userId: this.userId,
-                authorId: reply.author?._id || currentUser.id,
-                authorName: currentUser.username || 'Unbekannter Benutzer',
-                text: reply.content || this.replyText,
-                createdAt: new Date(reply.time_stamp) || new Date(),
-                parentId: this.replyingToComment?.id || this.replyingToComment?._id || ''
-              };
-
-              if (this.replyingToComment && !this.replyingToComment.replies) {
-                this.replyingToComment.replies = [];
-              }
-
-              if (this.replyingToComment && this.replyingToComment.replies) {
-                this.replyingToComment.replies.push(newReply);
-              }
-
-              this.replyText = '';
-              this.replyingToComment = null;
-              this.isLoading = false;
-            }
-          });
-        }
-      },
-      error: (error) => {
-        console.error('Fehler beim Hinzufügen der Antwort:', error);
-        this.translateService.get(['COMMON.ERROR', 'PROFILE.REPLY_ADD_ERROR']).subscribe(translations => {
-          this.dialogService.showError(
-            translations['COMMON.ERROR'] || 'Error',
-            translations['PROFILE.REPLY_ADD_ERROR'] || 'The reply could not be added. Please try again later.'
-          );
-        });
-        this.isLoading = false;
-      }
-    });
-  }
-
-  /**
-   * checks if a text is too long and should be truncated
-   * @param text the text to check
-   * @returns true, if the text is longer than maxTextLength
-   */
-  isTextTooLong(text: string | undefined): boolean {
-    return !!text && text.length > this.maxTextLength;
-  }
-
-  /**
-   * returns a truncated text if it is too long
-   * @param text the text to truncate
-   * @param isExpanded whether the text is already expanded
-   * @returns the truncated text or the full text if it is expanded
-   */
-  getDisplayText(text: string | undefined, isExpanded: boolean): string {
-    if (!text) return '';
-    if (isExpanded || text.length <= this.maxTextLength) return text;
-    return text.substring(0, this.maxTextLength) + '...';
-  }
-
-  /**
-   * toggles the expansion status of a comment
-   * @param commentId the ID of the comment
-   */
-  toggleCommentExpansion(commentId: string | undefined): void {
-    if (!commentId) return;
-
-    if (this.expandedComments.has(commentId)) {
-      this.expandedComments.delete(commentId);
-    } else {
-      this.expandedComments.add(commentId);
-    }
-  }
-
-  /**
-   * toggles the expansion status of a reply
-   * @param replyId the ID of the reply
-   */
-  toggleReplyExpansion(replyId: string | undefined): void {
-    if (!replyId) return;
-
-    if (this.expandedReplies.has(replyId)) {
-      this.expandedReplies.delete(replyId);
-    } else {
-      this.expandedReplies.add(replyId);
-    }
-  }
-
-  /**
-   * checks if a comment is expanded
-   * @param commentId the ID of the comment
-   * @returns true, if the comment is expanded
-   */
-  isCommentExpanded(commentId: string | undefined): boolean {
-    return !!commentId && this.expandedComments.has(commentId);
-  }
-
-  /**
-   * checks if a reply is expanded
-   * @param replyId the ID of the reply
-   * @returns true, if the reply is expanded
-   */
-  isReplyExpanded(replyId: string | undefined): boolean {
-    return !!replyId && this.expandedReplies.has(replyId);
-  }
-
-  /**
-   * returns the current user role for debugging purposes
-   */
-  getCurrentUserRole(): string {
-    const currentUser = this.authService.currentUserValue;
-    return currentUser?.role || 'keine Rolle';
-  }
-
-  /**
-   * returns the full URL for a profile image
-   * @param profileImageUrl the relative URL of the profile image
-   * @returns the full URL of the profile image
-   */
-  getProfileImageUrl(profileImageUrl: string): string {
-    if (!profileImageUrl) return '';
-
-    // if the URL is already absolute (starts with http or https), use it directly
-    if (profileImageUrl.startsWith('http')) {
-      return profileImageUrl;
-    }
-
-    // if the URL starts with a slash, remove it
-    const cleanUrl = profileImageUrl.startsWith('/') ? profileImageUrl.substring(1) : profileImageUrl;
-
-    // create the full URL
-    // use the base URL without the API path
-    const baseUrl = environment.apiUrl.split('/api/v1')[0];
-
-    // use a direct URL to the backend server
-    const fullUrl = `${baseUrl}/${cleanUrl}`;
-    console.log('Profilbild-URL:', fullUrl);
-
-    // use a static URL without timestamp to avoid Angular errors
-    return fullUrl;
-  }
-
-  /**
-   * Handles errors when loading the profile image
-   */
-  handleImageError(): void {
-    console.log('Fehler beim Laden des Profilbilds');
-    this.showInitialsOnError = true;
-
-    // if the user is available, set the profile image URL to undefined
-    if (this.user) {
-      this.user = {
-        ...this.user,
-        profileImageUrl: undefined
-      };
-    }
-  }
-
-  getSkillLevelClass(level: string): string {
-    if (!level) {
-      return '';
-    }
-    return level.toLowerCase();
   }
 
   /**
@@ -829,7 +164,7 @@ export class UserDetailsComponent implements OnInit {
               .join('');
           }
           
-          const userName = this.getUserFullName();
+          const userName = this.user ? `${this.user.title ? this.user.title + ' ' : ''}${this.user.firstName} ${this.user.lastName}` : '';
           const userEmail = this.user?.email || '';
           
           const formConfig: FormDialogConfig = {
@@ -897,390 +232,33 @@ export class UserDetailsComponent implements OnInit {
                   this.dialogService.showError(
                     this.translateService.instant('COMMON.ERROR') || 'Fehler',
                     this.translateService.instant('PROFILE.EMAIL_SEND_ERROR') || 'E-Mail konnte nicht gesendet werden.'
-                  ).subscribe();
+                  );
                 }
               });
             }
           });
-        } else {
-          this.dialogService.showError(
-            this.translateService.instant('COMMON.ERROR') || 'Fehler',
-            this.translateService.instant('USER.EMAIL_TEMPLATE_ERROR') || 'E-Mail-Vorlage konnte nicht geladen werden.'
-          ).subscribe();
         }
       },
-      error: (err) => {
-        console.error('Error loading email template:', err);
+      error: (error) => {
+        console.error('Error loading email template:', error);
         this.dialogService.showError(
           this.translateService.instant('COMMON.ERROR') || 'Fehler',
-          this.translateService.instant('USER.EMAIL_TEMPLATE_ERROR') || 'E-Mail-Vorlage konnte nicht geladen werden.'
-        ).subscribe();
-      }
-    });
-  }
-
-  /**
-   * starts editing a comment
-   */
-  startEditComment(comment: Comment): void {
-    this.editingComment = comment;
-    this.editCommentText = comment.text || '';
-    // Cancel any active reply
-    this.replyingToComment = null;
-    this.replyText = '';
-  }
-
-  /**
-   * cancels editing a comment
-   */
-  cancelEditComment(): void {
-    this.editingComment = null;
-    this.editCommentText = '';
-  }
-
-  /**
-   * saves the edited comment
-   */
-  saveEditComment(): void {
-    if (!this.editingComment || !this.editCommentText.trim()) {
-      return;
-    }
-
-    this.isLoading = true;
-    const commentId = this.editingComment.id || this.editingComment._id;
-    
-    if (!commentId) {
-      this.dialogService.showError('Fehler', 'Kommentar-ID nicht gefunden.');
-      this.isLoading = false;
-      return;
-    }
-
-    this.commentService.updateComment(this.userId, commentId, this.editCommentText).subscribe({
-      next: (updatedComment) => {
-        // Update the comment in the local array
-        const index = this.comments.findIndex(c => (c.id || c._id) === commentId);
-        if (index !== -1) {
-          this.comments[index].text = updatedComment.content || this.editCommentText;
-        }
-        
-        this.dialogService.showSuccess({
-          title: this.translateService.instant('COMMON.SUCCESS') || 'Success',
-          message: this.translateService.instant('PROFILE.COMMENT_UPDATED_SUCCESS') || 'Comment was successfully updated.',
-          buttonText: this.translateService.instant('COMMON.OK') || 'OK'
-        });
-        
-        this.cancelEditComment();
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error updating comment:', error);
-        this.translateService.get(['PROFILE.COMMENT_UPDATE_ERROR', 'PROFILE.COMMENT_EDIT_PERMISSION_ERROR', 'COMMON.ERROR']).subscribe(translations => {
-          let errorMessage = translations['PROFILE.COMMENT_UPDATE_ERROR'] || 'The comment could not be updated.';
-          if (error.status === 403) {
-            errorMessage = translations['PROFILE.COMMENT_EDIT_PERMISSION_ERROR'] || 'You do not have permission to edit this comment.';
-          }
-          this.dialogService.showError(
-            translations['COMMON.ERROR'] || 'Error',
-            errorMessage
-          );
-        });
-        this.isLoading = false;
-      }
-    });
-  }
-
-  /**
-   * deletes a comment
-   */
-  deleteComment(comment: Comment): void {
-    const commentId = comment.id || comment._id;
-    
-    if (!commentId) {
-      this.translateService.get(['COMMON.ERROR', 'PROFILE.COMMENT_ID_NOT_FOUND']).subscribe(translations => {
-        this.dialogService.showError(
-          translations['COMMON.ERROR'] || 'Error',
-          translations['PROFILE.COMMENT_ID_NOT_FOUND'] || 'Comment ID not found.'
+          this.translateService.instant('PROFILE.EMAIL_TEMPLATE_ERROR') || 'E-Mail-Vorlage konnte nicht geladen werden.'
         );
-      });
-      return;
-    }
-
-    this.translateService.get(['PROFILE.COMMENT_DELETE_CONFIRMATION', 'PROFILE.COMMENT_DELETE_MESSAGE', 'PROFILE.COMMENT_DELETE_CONFIRM', 'COMMON.CANCEL']).subscribe(translations => {
-      this.dialogService.showConfirmation({
-        title: translations['PROFILE.COMMENT_DELETE_CONFIRMATION'] || 'Delete Comment',
-        message: translations['PROFILE.COMMENT_DELETE_MESSAGE'] || 'Do you really want to delete this comment? This action cannot be undone.',
-        confirmText: translations['PROFILE.COMMENT_DELETE_CONFIRM'] || 'Yes, delete',
-        cancelText: translations['COMMON.CANCEL'] || 'Cancel',
-        dangerMode: true
-      }).subscribe(confirmed => {
-        if (confirmed) {
-          this.isLoading = true;
-          
-          this.commentService.deleteComment(this.userId, commentId).subscribe({
-            next: () => {
-              // Remove the comment from the local array
-              this.comments = this.comments.filter(c => (c.id || c._id) !== commentId);
-              
-              this.translateService.get(['COMMON.SUCCESS', 'PROFILE.COMMENT_DELETED_SUCCESS', 'COMMON.OK']).subscribe(successTranslations => {
-                this.dialogService.showSuccess({
-                  title: successTranslations['COMMON.SUCCESS'] || 'Success',
-                  message: successTranslations['PROFILE.COMMENT_DELETED_SUCCESS'] || 'Comment was successfully deleted.',
-                  buttonText: successTranslations['COMMON.OK'] || 'OK'
-                });
-              });
-              
-              this.isLoading = false;
-            },
-            error: (error) => {
-              console.error('Error deleting comment:', error);
-              this.translateService.get(['PROFILE.COMMENT_DELETE_ERROR', 'PROFILE.COMMENT_DELETE_PERMISSION_ERROR', 'COMMON.ERROR']).subscribe(errorTranslations => {
-                let errorMessage = errorTranslations['PROFILE.COMMENT_DELETE_ERROR'] || 'The comment could not be deleted.';
-                if (error.status === 403) {
-                  errorMessage = errorTranslations['PROFILE.COMMENT_DELETE_PERMISSION_ERROR'] || 'You do not have permission to delete this comment.';
-                }
-                this.dialogService.showError(
-                  errorTranslations['COMMON.ERROR'] || 'Error',
-                  errorMessage
-                );
-              });
-              this.isLoading = false;
-            }
-          });
-        }
-      });
-    });
-  }
-
-  /**
-   * starts editing a reply
-   */
-  startEditReply(reply: Comment): void {
-    this.editingReply = reply;
-    this.editReplyText = reply.text || '';
-    // Cancel any active comment edit
-    this.editingComment = null;
-    this.editCommentText = '';
-    // Cancel any active reply form
-    this.replyingToComment = null;
-    this.replyText = '';
-  }
-
-  /**
-   * cancels editing a reply
-   */
-  cancelEditReply(): void {
-    this.editingReply = null;
-    this.editReplyText = '';
-  }
-
-  /**
-   * saves the edited reply
-   */
-  saveEditReply(): void {
-    if (!this.editingReply || !this.editReplyText.trim()) {
-      return;
-    }
-
-    this.isLoading = true;
-    const replyId = this.editingReply.id || this.editingReply._id;
-    let parentCommentId = this.editingReply.parentId;
-    
-    // If parentId is not set, find the parent comment from the comments array
-    if (!parentCommentId) {
-      for (const comment of this.comments) {
-        if (comment.replies) {
-          const reply = comment.replies.find(r => (r.id || r._id) === replyId);
-          if (reply) {
-            parentCommentId = comment.id || comment._id;
-            break;
-          }
-        }
-      }
-    }
-    
-    if (!replyId || !parentCommentId) {
-      this.translateService.get(['COMMON.ERROR', 'PROFILE.COMMENT_ID_NOT_FOUND']).subscribe(translations => {
-        this.dialogService.showError(
-          translations['COMMON.ERROR'] || 'Error',
-          translations['PROFILE.COMMENT_ID_NOT_FOUND'] || 'Reply ID not found.'
-        );
-      });
-      this.isLoading = false;
-      return;
-    }
-
-    this.commentService.updateReply(this.userId, parentCommentId, replyId, this.editReplyText).subscribe({
-      next: (updatedReply) => {
-        // Find and update the reply in the comments array
-        for (const comment of this.comments) {
-          if (comment.replies) {
-            const replyIndex = comment.replies.findIndex(r => (r.id || r._id) === replyId);
-            if (replyIndex !== -1) {
-              comment.replies[replyIndex].text = updatedReply.content || this.editReplyText;
-              break;
-            }
-          }
-        }
-        
-        this.translateService.get(['COMMON.SUCCESS', 'PROFILE.REPLY_UPDATED_SUCCESS', 'COMMON.OK']).subscribe(translations => {
-          this.dialogService.showSuccess({
-            title: translations['COMMON.SUCCESS'] || 'Success',
-            message: translations['PROFILE.REPLY_UPDATED_SUCCESS'] || 'Reply was successfully updated.',
-            buttonText: translations['COMMON.OK'] || 'OK'
-          });
-        });
-        
-        this.cancelEditReply();
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error updating reply:', error);
-        this.translateService.get(['PROFILE.REPLY_UPDATE_ERROR', 'PROFILE.REPLY_EDIT_PERMISSION_ERROR', 'COMMON.ERROR']).subscribe(translations => {
-          let errorMessage = translations['PROFILE.REPLY_UPDATE_ERROR'] || 'The reply could not be updated.';
-          if (error.status === 403) {
-            errorMessage = translations['PROFILE.REPLY_EDIT_PERMISSION_ERROR'] || 'You do not have permission to edit this reply.';
-          }
-          this.dialogService.showError(
-            translations['COMMON.ERROR'] || 'Error',
-            errorMessage
-          );
-        });
-        this.isLoading = false;
       }
     });
   }
 
   /**
-   * deletes a reply
+   * Handles image error event from header component
    */
-  deleteReply(reply: Comment): void {
-    const replyId = reply.id || reply._id;
-    let parentCommentId = reply.parentId;
-    
-    // If parentId is not set, find the parent comment from the comments array
-    if (!parentCommentId) {
-      for (const comment of this.comments) {
-        if (comment.replies) {
-          const foundReply = comment.replies.find(r => (r.id || r._id) === replyId);
-          if (foundReply) {
-            parentCommentId = comment.id || comment._id;
-            break;
-          }
-        }
-      }
+  onImageError(): void {
+    this.showInitialsOnError = true;
+    if (this.user) {
+      this.user = {
+        ...this.user,
+        profileImageUrl: undefined
+      };
     }
-    
-    if (!replyId || !parentCommentId) {
-      this.translateService.get(['COMMON.ERROR', 'PROFILE.COMMENT_ID_NOT_FOUND']).subscribe(translations => {
-        this.dialogService.showError(
-          translations['COMMON.ERROR'] || 'Error',
-          translations['PROFILE.COMMENT_ID_NOT_FOUND'] || 'Reply ID not found.'
-        );
-      });
-      return;
-    }
-
-    this.translateService.get(['PROFILE.REPLY_DELETE_CONFIRMATION', 'PROFILE.REPLY_DELETE_MESSAGE', 'PROFILE.REPLY_DELETE_CONFIRM', 'COMMON.CANCEL']).subscribe(translations => {
-      this.dialogService.showConfirmation({
-        title: translations['PROFILE.REPLY_DELETE_CONFIRMATION'] || 'Delete Reply',
-        message: translations['PROFILE.REPLY_DELETE_MESSAGE'] || 'Do you really want to delete this reply? This action cannot be undone.',
-        confirmText: translations['PROFILE.REPLY_DELETE_CONFIRM'] || 'Yes, delete',
-        cancelText: translations['COMMON.CANCEL'] || 'Cancel',
-        dangerMode: true
-      }).subscribe(confirmed => {
-        if (confirmed) {
-          this.isLoading = true;
-          
-          this.commentService.deleteReply(this.userId, parentCommentId, replyId).subscribe({
-            next: () => {
-              // Remove the reply from the parent comment's replies array
-              const parentComment = this.comments.find(c => (c.id || c._id) === parentCommentId);
-              if (parentComment && parentComment.replies) {
-                const replyIndex = parentComment.replies.findIndex(r => (r.id || r._id) === replyId);
-                if (replyIndex !== -1) {
-                  parentComment.replies.splice(replyIndex, 1);
-                } else {
-                  // Fallback: search in all comments if not found in expected parent
-                  for (const comment of this.comments) {
-                    if (comment.replies) {
-                      const fallbackIndex = comment.replies.findIndex(r => (r.id || r._id) === replyId);
-                      if (fallbackIndex !== -1) {
-                        comment.replies.splice(fallbackIndex, 1);
-                        break;
-                      }
-                    }
-                  }
-                }
-              } else {
-                // Fallback: search in all comments if parent not found
-                for (const comment of this.comments) {
-                  if (comment.replies) {
-                    const replyIndex = comment.replies.findIndex(r => (r.id || r._id) === replyId);
-                    if (replyIndex !== -1) {
-                      comment.replies.splice(replyIndex, 1);
-                      break;
-                    }
-                  }
-                }
-              }
-              
-              // Force change detection to update the UI
-              this.cdr.detectChanges();
-              
-              this.translateService.get(['COMMON.SUCCESS', 'PROFILE.REPLY_DELETED_SUCCESS', 'COMMON.OK']).subscribe(successTranslations => {
-                this.dialogService.showSuccess({
-                  title: successTranslations['COMMON.SUCCESS'] || 'Success',
-                  message: successTranslations['PROFILE.REPLY_DELETED_SUCCESS'] || 'Reply was successfully deleted.',
-                  buttonText: successTranslations['COMMON.OK'] || 'OK'
-                });
-              });
-              
-              this.isLoading = false;
-            },
-            error: (error) => {
-              console.error('Error deleting reply:', error);
-              
-              // If reply was already deleted (404), just remove it from UI without showing error
-              if (error.status === 404) {
-                const parentComment = this.comments.find(c => (c.id || c._id) === parentCommentId);
-                if (parentComment && parentComment.replies) {
-                  const replyIndex = parentComment.replies.findIndex(r => (r.id || r._id) === replyId);
-                  if (replyIndex !== -1) {
-                    parentComment.replies.splice(replyIndex, 1);
-                  }
-                } else {
-                  // Fallback: search in all comments
-                  for (const comment of this.comments) {
-                    if (comment.replies) {
-                      const replyIndex = comment.replies.findIndex(r => (r.id || r._id) === replyId);
-                      if (replyIndex !== -1) {
-                        comment.replies.splice(replyIndex, 1);
-                        break;
-                      }
-                    }
-                  }
-                }
-                // Force change detection to update the UI
-                this.cdr.detectChanges();
-                this.isLoading = false;
-                return;
-              }
-              
-              this.translateService.get(['PROFILE.REPLY_DELETE_ERROR', 'PROFILE.REPLY_DELETE_PERMISSION_ERROR', 'COMMON.ERROR']).subscribe(errorTranslations => {
-                let errorMessage = errorTranslations['PROFILE.REPLY_DELETE_ERROR'] || 'The reply could not be deleted.';
-                if (error.status === 403) {
-                  errorMessage = errorTranslations['PROFILE.REPLY_DELETE_PERMISSION_ERROR'] || 'You do not have permission to delete this reply.';
-                }
-                this.dialogService.showError(
-                  errorTranslations['COMMON.ERROR'] || 'Error',
-                  errorMessage
-                );
-              });
-              this.isLoading = false;
-            }
-          });
-        }
-      });
-    });
   }
 }

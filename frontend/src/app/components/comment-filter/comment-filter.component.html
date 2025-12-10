@@ -3,9 +3,9 @@
     <input
       type="text"
       [(ngModel)]="searchTerm"
+      (input)="onSearchTermChange()"
       [placeholder]="'PROFILE.SEARCH_COMMENTS' | translate"
       class="search-input"
-      (ngModelChange)="onSearchTermChange()"
     >
 
     <div class="author-select-container">

@@ -5,7 +5,7 @@
     </div>
     <div *ngIf="user?.profileImageUrl" class="user-avatar">
       <img
-        [src]="getProfileImageUrl(user.profileImageUrl)"
+        [src]="getProfileImageUrl(user?.profileImageUrl || '')"
         alt="Profilbild"
         class="profile-image"
         (error)="handleImageError()"

@@ -119,8 +119,8 @@ export class ReplyItemComponent {
     if (!this.reply || !this.editText.trim()) return;
 
     this.isLoading = true;
-    const replyId = this.reply.id || this.reply._id;
-    let parentCommentId = this.parentCommentId || this.reply.parentId;
+    const replyId = this.reply.id || this.reply._id || '';
+    let parentCommentId = this.parentCommentId || this.reply.parentId || '';
 
     // Find parent comment ID if not provided
     if (!parentCommentId) {
@@ -164,8 +164,8 @@ export class ReplyItemComponent {
   deleteReply(): void {
     if (!this.reply) return;
 
-    const replyId = this.reply.id || this.reply._id;
-    let parentCommentId = this.parentCommentId || this.reply.parentId;
+    const replyId = this.reply.id || this.reply._id || '';
+    let parentCommentId = this.parentCommentId || this.reply.parentId || '';
 
     if (!replyId || !parentCommentId) {
       this.translateService.get(['COMMON.ERROR', 'PROFILE.COMMENT_ID_NOT_FOUND']).subscribe(translations => {
