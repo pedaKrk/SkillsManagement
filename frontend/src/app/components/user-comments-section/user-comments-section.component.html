@@ -1,0 +1,62 @@
+<div class="comments-section">
+  <h2 class="section-title">{{ 'PROFILE.COMMENTS' | translate }}</h2>
+
+  <!-- Add comment (only for authorized users) -->
+  <div class="add-comment-container" *ngIf="canAddComments">
+    <textarea
+      [(ngModel)]="newComment"
+      [placeholder]="'PROFILE.COMMENT_PLACEHOLDER' | translate"
+      class="comment-input"
+      rows="3"
+    ></textarea>
+    <button
+      class="btn btn-primary"
+      [disabled]="!newComment.trim() || isLoading"
+      (click)="addComment()"
+    >
+      {{ 'PROFILE.ADD_COMMENT' | translate }}
+    </button>
+  </div>
+
+  <!-- Comment filter -->
+  <app-comment-filter
+    [authors]="getUniqueAuthors()"
+    [initialFilters]="filters"
+    (filtersChanged)="onFiltersChanged($event)"
+  ></app-comment-filter>
+
+  <!-- Comment list -->
+  <div class="comments-list">
+    <div *ngIf="filteredComments.length === 0 && !isLoading" class="no-comments">
+      {{ 'USER.NO_COMMENTS' | translate }}
+    </div>
+
+    <app-comment-item
+      *ngFor="let comment of filteredComments"
+      [comment]="comment"
+      [userId]="userId"
+      [isAdmin]="isAdmin"
+      [isEditing]="isCommentBeingEdited(comment.id || comment._id)"
+      [isReplying]="isReplyingToComment(comment.id || comment._id)"
+      [isOtherEditing]="editingCommentId !== null && editingCommentId !== (comment.id || comment._id) || replyingToCommentId !== null && replyingToCommentId !== (comment.id || comment._id) || editingReplyId !== null"
+      [maxTextLength]="maxTextLength"
+      [isExpanded]="isCommentExpanded(comment.id || comment._id)"
+      [expandedReplies]="expandedReplies"
+      [editingReplyId]="editingReplyId"
+      (commentUpdated)="onCommentUpdated($event)"
+      (commentDeleted)="onCommentDeleted($event)"
+      (replyAdded)="onReplyAdded($event)"
+      (replyUpdated)="onReplyUpdated($event)"
+      (replyDeleted)="onReplyDeleted($event)"
+      (editStarted)="onCommentEditStarted($event)"
+      (editCancelled)="onCommentEditCancelled()"
+      (replyStarted)="onReplyStarted($event)"
+      (replyCancelled)="onReplyCancelled()"
+      (expansionToggled)="onCommentExpansionToggled($event)"
+      (replyExpansionToggled)="onReplyExpansionToggled($event)"
+      (replyEditStarted)="onReplyEditStarted($event)"
+      (replyEditCancelled)="onReplyEditCancelled()"
+    ></app-comment-item>
+  </div>
+</div>
+
