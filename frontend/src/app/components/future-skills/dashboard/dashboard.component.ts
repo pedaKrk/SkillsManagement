@@ -42,10 +42,6 @@ export class DashboardComponent implements OnInit {
       this.skillsData = data;
     });
 
-    this.dashboardService.getFieldsPopularity().subscribe(data => {
-      this.skillsPerFieldData = data;
-    });
-
     this.dashboardService.getGoalsPerformance().subscribe(data => {
       this.goalsPerformanceData = data;
     });
