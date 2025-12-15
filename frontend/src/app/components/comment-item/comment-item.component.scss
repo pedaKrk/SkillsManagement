@@ -38,6 +38,97 @@
     &.expanded {
       max-height: none;
     }
+
+    &.rich-text {
+      white-space: normal;
+      
+      .rich-text-content {
+        line-height: 1.6;
+        
+        // Style rich text content
+        ::ng-deep {
+          p {
+            margin: 0 0 0.75rem 0;
+            
+            &:last-child {
+              margin-bottom: 0;
+            }
+          }
+          
+          strong, b {
+            font-weight: 600;
+          }
+          
+          em, i {
+            font-style: italic;
+          }
+          
+          u {
+            text-decoration: underline;
+          }
+          
+          blockquote {
+            border-left: 3px solid #0077a9;
+            padding-left: 1rem;
+            margin: 0.75rem 0;
+            color: #6c757d;
+            font-style: italic;
+          }
+          
+          ul, ol {
+            margin: 0.75rem 0;
+            padding-left: 1.5rem;
+          }
+          
+          li {
+            margin-bottom: 0.25rem;
+          }
+          
+          code {
+            background-color: #f8f9fa;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+          }
+          
+          pre {
+            background-color: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 0.75rem 0;
+            
+            code {
+              background: none;
+              padding: 0;
+            }
+          }
+          
+          a {
+            color: #0077a9;
+            text-decoration: none;
+            
+            &:hover {
+              text-decoration: underline;
+            }
+          }
+          
+          h1, h2, h3, h4, h5, h6 {
+            margin: 1rem 0 0.5rem 0;
+            font-weight: 600;
+            
+            &:first-child {
+              margin-top: 0;
+            }
+          }
+          
+          h1 { font-size: 1.5rem; }
+          h2 { font-size: 1.3rem; }
+          h3 { font-size: 1.1rem; }
+        }
+      }
+    }
     
     .text-expand-btn {
       background: none;
@@ -47,6 +138,8 @@
       font-size: 0.9rem;
       cursor: pointer;
       margin-left: 0.5rem;
+      margin-top: 0.5rem;
+      display: inline-block;
       
       &:hover {
         text-decoration: underline;

@@ -31,10 +31,19 @@
   </div>
 
   <!-- Display mode -->
-  <div *ngIf="!editing" class="comment-text" [class.expanded]="isExpanded">
-    {{ getDisplayText(comment.text, isExpanded) }}
+  <div *ngIf="!editing" class="comment-text" [class.expanded]="isExpanded" [class.rich-text]="comment.isRichText">
+    <!-- Rich Text Display -->
+    <div 
+      *ngIf="comment.isRichText" 
+      [innerHTML]="getDisplayText(comment.content || comment.text, isExpanded, true)"
+      class="rich-text-content"
+    ></div>
+    <!-- Plain Text Display -->
+    <span *ngIf="!comment.isRichText">
+      {{ getDisplayText(comment.text || comment.content, isExpanded, false) }}
+    </span>
     <button
-      *ngIf="isTextTooLong(comment.text)"
+      *ngIf="isTextTooLong(comment.content || comment.text)"
       class="text-expand-btn"
       (click)="toggleExpansion()"
     >

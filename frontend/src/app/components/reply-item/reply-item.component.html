@@ -31,10 +31,19 @@
   </div>
   
   <!-- Display reply text (when not editing) -->
-  <div *ngIf="!editing" class="reply-text" [class.expanded]="isExpanded">
-    {{ getDisplayText(reply.text, isExpanded) }}
+  <div *ngIf="!editing" class="reply-text" [class.expanded]="isExpanded" [class.rich-text]="reply.isRichText">
+    <!-- Rich Text Display -->
+    <div 
+      *ngIf="reply.isRichText" 
+      [innerHTML]="getDisplayText(reply.content || reply.text, isExpanded, true)"
+      class="rich-text-content"
+    ></div>
+    <!-- Plain Text Display -->
+    <span *ngIf="!reply.isRichText">
+      {{ getDisplayText(reply.text || reply.content, isExpanded, false) }}
+    </span>
     <button
-      *ngIf="isTextTooLong(reply.text)"
+      *ngIf="isTextTooLong(reply.content || reply.text)"
       class="text-expand-btn"
       (click)="toggleExpansion()"
     >

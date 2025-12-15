@@ -207,7 +207,7 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy, AfterVie
                 attachments: reply.attachments || [],
                 createdAt: new Date(reply.time_stamp || new Date()),
                 parentId: parentId
-              };
+              } as Comment;
             }) : [];
 
             return {
@@ -221,7 +221,7 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy, AfterVie
               attachments: comment.attachments || [],
               createdAt: new Date(comment.time_stamp || new Date()),
               replies: replies
-            };
+            } as Comment;
           });
 
           this.applyFilters();

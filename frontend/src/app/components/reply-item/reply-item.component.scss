@@ -95,6 +95,99 @@
     &.expanded {
       max-height: none;
     }
+
+    &.rich-text {
+      white-space: normal;
+      
+      .rich-text-content {
+        line-height: 1.5;
+        
+        // Style rich text content
+        ::ng-deep {
+          p {
+            margin: 0 0 0.5rem 0;
+            
+            &:last-child {
+              margin-bottom: 0;
+            }
+          }
+          
+          strong, b {
+            font-weight: 600;
+          }
+          
+          em, i {
+            font-style: italic;
+          }
+          
+          u {
+            text-decoration: underline;
+          }
+          
+          blockquote {
+            border-left: 2px solid #0077a9;
+            padding-left: 0.75rem;
+            margin: 0.5rem 0;
+            color: #6c757d;
+            font-style: italic;
+            font-size: 0.9rem;
+          }
+          
+          ul, ol {
+            margin: 0.5rem 0;
+            padding-left: 1.25rem;
+          }
+          
+          li {
+            margin-bottom: 0.2rem;
+          }
+          
+          code {
+            background-color: #f8f9fa;
+            padding: 0.15rem 0.3rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+          }
+          
+          pre {
+            background-color: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+            font-size: 0.85rem;
+            
+            code {
+              background: none;
+              padding: 0;
+            }
+          }
+          
+          a {
+            color: #0077a9;
+            text-decoration: none;
+            
+            &:hover {
+              text-decoration: underline;
+            }
+          }
+          
+          h1, h2, h3, h4, h5, h6 {
+            margin: 0.75rem 0 0.4rem 0;
+            font-weight: 600;
+            
+            &:first-child {
+              margin-top: 0;
+            }
+          }
+          
+          h1 { font-size: 1.3rem; }
+          h2 { font-size: 1.15rem; }
+          h3 { font-size: 1rem; }
+        }
+      }
+    }
     
     .text-expand-btn {
       background: none;
@@ -104,6 +197,8 @@
       font-size: 0.85rem;
       cursor: pointer;
       margin-left: 0.5rem;
+      margin-top: 0.4rem;
+      display: inline-block;
       
       &:hover {
         text-decoration: underline;

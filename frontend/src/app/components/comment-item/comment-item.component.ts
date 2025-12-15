@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Comment } from '../../models/user.model';
 import { AuthService, CommentService, UserService, DialogService, UserUtilsService } from '../../core/services';
 import { ReplyItemComponent } from '../reply-item/reply-item.component';
@@ -58,6 +59,7 @@ export class CommentItemComponent {
     private dialogService: DialogService,
     private translateService: TranslateService,
     private userUtilsService: UserUtilsService,
+    private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -80,19 +82,85 @@ export class CommentItemComponent {
   }
 
   /**
-   * Checks if text is too long
+   * Checks if text is too long (for plain text or HTML)
    */
   isTextTooLong(text: string | undefined): boolean {
-    return !!text && text.length > this.maxTextLength;
+    if (!text) return false;
+    // For HTML, strip tags to check actual text length
+    const plainText = this.stripHtmlTags(text);
+    return plainText.length > this.maxTextLength;
+  }
+
+  /**
+   * Strips HTML tags to get plain text
+   */
+  private stripHtmlTags(html: string): string {
+    const tmp = document.createElement('DIV');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
   }
 
   /**
    * Gets display text (truncated if needed)
+   * Returns SafeHtml for rich text, plain string for regular text
    */
-  getDisplayText(text: string | undefined, isExpanded: boolean): string {
+  getDisplayText(text: string | undefined, isExpanded: boolean, isRichText: boolean = false): SafeHtml | string {
     if (!text) return '';
-    if (isExpanded || text.length <= this.maxTextLength) return text;
-    return text.substring(0, this.maxTextLength) + '...';
+    
+    if (isRichText) {
+      // For rich text, return HTML
+      if (isExpanded) {
+        return this.sanitizer.sanitize(1, text) || '';
+      } else {
+        // Truncate HTML content
+        const plainText = this.stripHtmlTags(text);
+        if (plainText.length <= this.maxTextLength) {
+          return this.sanitizer.sanitize(1, text) || '';
+        }
+        // Truncate and add ellipsis
+        const truncated = plainText.substring(0, this.maxTextLength);
+        // Try to preserve some HTML structure
+        const truncatedHtml = this.truncateHtml(text, this.maxTextLength);
+        return this.sanitizer.sanitize(1, truncatedHtml + '...') || '';
+      }
+    } else {
+      // Plain text
+      if (isExpanded || text.length <= this.maxTextLength) return text;
+      return text.substring(0, this.maxTextLength) + '...';
+    }
+  }
+
+  /**
+   * Truncates HTML while preserving structure
+   */
+  private truncateHtml(html: string, maxLength: number): string {
+    const tmp = document.createElement('DIV');
+    tmp.innerHTML = html;
+    const text = tmp.textContent || tmp.innerText || '';
+    
+    if (text.length <= maxLength) {
+      return html;
+    }
+    
+    // Simple truncation - just take first part
+    // In a production app, you might want more sophisticated HTML truncation
+    let truncated = '';
+    let currentLength = 0;
+    const walker = document.createTreeWalker(tmp, NodeFilter.SHOW_TEXT, null);
+    let node;
+    
+    while (node = walker.nextNode()) {
+      const nodeText = node.textContent || '';
+      if (currentLength + nodeText.length <= maxLength) {
+        truncated += nodeText;
+        currentLength += nodeText.length;
+      } else {
+        truncated += nodeText.substring(0, maxLength - currentLength);
+        break;
+      }
+    }
+    
+    return truncated;
   }
 
   /**
@@ -113,7 +181,8 @@ export class CommentItemComponent {
   startEdit(): void {
     if (this.isOtherEditing) return;
     this.editing = true;
-    this.editText = this.comment?.text || '';
+    // Use content if available (for rich text), otherwise use text
+    this.editText = this.comment?.content || this.comment?.text || '';
     this.editStarted.emit(this.comment!);
   }
 
