@@ -347,7 +347,12 @@
     "UNKNOWN_USER": "Unknown User",
     "USER_DATA_LOAD_ERROR": "Error loading user data",
     "USE_RICH_TEXT": "Use Rich Text",
-    "USE_PLAIN_TEXT": "Use Plain Text"
+    "USE_PLAIN_TEXT": "Use Plain Text",
+    "ADD_ATTACHMENTS": "Add Attachments",
+    "FILE_UPLOAD_HINT": "(Max. 5 files, 10 MB each)",
+    "REMOVE_FILE": "Remove file",
+    "MAX_FILES_EXCEEDED": "Maximum 5 files allowed.",
+    "FILE_TOO_LARGE": "One or more files exceed the maximum size of 10 MB."
   },
   "EDIT_PROFILE": {
     "HEADER": "Edit User Profile",

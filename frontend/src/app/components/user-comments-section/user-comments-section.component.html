@@ -39,9 +39,46 @@
       <div id="new-comment-quill-editor" class="quill-editor"></div>
     </div>
 
+    <!-- File Upload -->
+    <div class="file-upload-section">
+      <label class="file-upload-label">
+        <input
+          type="file"
+          multiple
+          (change)="onFileSelected($event)"
+          accept="*/*"
+          class="file-input"
+          [disabled]="isLoading"
+        />
+        <span class="file-upload-button">
+          <i class="fa fa-paperclip"></i> {{ 'PROFILE.ADD_ATTACHMENTS' | translate }}
+        </span>
+      </label>
+      <span class="file-upload-hint">{{ 'PROFILE.FILE_UPLOAD_HINT' | translate }}</span>
+    </div>
+
+    <!-- Selected Files List -->
+    <div *ngIf="selectedFiles.length > 0" class="selected-files-list">
+      <div *ngFor="let file of selectedFiles; let i = index" class="file-item">
+        <span class="file-name">
+          <i class="fa fa-file"></i> {{ file.name }}
+        </span>
+        <span class="file-size">{{ formatFileSize(file.size) }}</span>
+        <button
+          type="button"
+          class="btn-remove-file"
+          (click)="removeFile(i)"
+          [disabled]="isLoading"
+          [attr.aria-label]="'PROFILE.REMOVE_FILE' | translate"
+        >
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    </div>
+
     <button
       class="btn btn-primary"
-      [disabled]="(!newComment.trim() && (!isRichTextMode || !quillEditor)) || isLoading"
+      [disabled]="((!newComment.trim() && (!isRichTextMode || !quillEditor)) && selectedFiles.length === 0) || isLoading"
       (click)="addComment()"
     >
       {{ 'PROFILE.ADD_COMMENT' | translate }}

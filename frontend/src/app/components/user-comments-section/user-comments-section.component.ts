@@ -36,6 +36,7 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy, AfterVie
   newComment: string = '';
   isRichTextMode: boolean = false;
   quillEditor: Quill | null = null;
+  selectedFiles: File[] = [];
 
   // Filter state
   filters: CommentFilters = {
@@ -326,6 +327,56 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy, AfterVie
   }
 
   /**
+   * Handles file selection
+   */
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const filesArray = Array.from(input.files);
+      // Limit to 5 files total
+      const remainingSlots = 5 - this.selectedFiles.length;
+      if (remainingSlots > 0) {
+        this.selectedFiles.push(...filesArray.slice(0, remainingSlots));
+        if (filesArray.length > remainingSlots) {
+          this.translateService.get(['COMMON.ERROR', 'PROFILE.MAX_FILES_EXCEEDED']).subscribe(translations => {
+            this.dialogService.showError(
+              translations['COMMON.ERROR'] || 'Error',
+              translations['PROFILE.MAX_FILES_EXCEEDED'] || 'Maximum 5 files allowed. Only first ' + remainingSlots + ' files were added.'
+            );
+          });
+        }
+      } else {
+        this.translateService.get(['COMMON.ERROR', 'PROFILE.MAX_FILES_EXCEEDED']).subscribe(translations => {
+          this.dialogService.showError(
+            translations['COMMON.ERROR'] || 'Error',
+            translations['PROFILE.MAX_FILES_EXCEEDED'] || 'Maximum 5 files allowed.'
+          );
+        });
+      }
+      // Reset input to allow selecting same file again
+      input.value = '';
+    }
+  }
+
+  /**
+   * Removes a file from selection
+   */
+  removeFile(index: number): void {
+    this.selectedFiles.splice(index, 1);
+  }
+
+  /**
+   * Formats file size for display
+   */
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  /**
    * Adds a new comment
    */
   addComment(): void {
@@ -337,7 +388,20 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy, AfterVie
       if (content === '<p><br></p>' || content.trim() === '') {
         return;
       }
-    } else if (!content.trim()) {
+    } else if (!content.trim() && this.selectedFiles.length === 0) {
+      return;
+    }
+
+    // Validate file sizes (max 10MB per file)
+    const maxFileSize = 10 * 1024 * 1024; // 10 MB
+    const oversizedFiles = this.selectedFiles.filter(file => file.size > maxFileSize);
+    if (oversizedFiles.length > 0) {
+      this.translateService.get(['COMMON.ERROR', 'PROFILE.FILE_TOO_LARGE']).subscribe(translations => {
+        this.dialogService.showError(
+          translations['COMMON.ERROR'] || 'Error',
+          translations['PROFILE.FILE_TOO_LARGE'] || 'One or more files exceed the maximum size of 10 MB.'
+        );
+      });
       return;
     }
 
@@ -356,7 +420,7 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy, AfterVie
       return;
     }
 
-    this.commentService.addCommentToUser(this.userId, content, this.isRichTextMode, []).subscribe({
+    this.commentService.addCommentToUser(this.userId, content, this.isRichTextMode, this.selectedFiles).subscribe({
       next: (comment) => {
         if (comment && (comment.id || comment._id)) {
           this.userService.getUserById(currentUser.id).subscribe({
@@ -413,6 +477,7 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy, AfterVie
 
               this.comments.unshift(newComment);
               this.newComment = '';
+              this.selectedFiles = [];
               // Clear Quill editor if in rich text mode
               if (this.isRichTextMode && this.quillEditor) {
                 this.quillEditor.root.innerHTML = '';

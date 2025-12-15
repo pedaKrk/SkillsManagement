@@ -341,7 +341,12 @@
     "UNKNOWN_USER": "Unbekannter Benutzer",
     "USER_DATA_LOAD_ERROR": "Fehler beim Laden der Benutzerdaten",
     "USE_RICH_TEXT": "Rich Text verwenden",
-    "USE_PLAIN_TEXT": "Nur Text verwenden"
+    "USE_PLAIN_TEXT": "Nur Text verwenden",
+    "ADD_ATTACHMENTS": "Anhänge hinzufügen",
+    "FILE_UPLOAD_HINT": "(Max. 5 Dateien, je max. 10 MB)",
+    "REMOVE_FILE": "Datei entfernen",
+    "MAX_FILES_EXCEEDED": "Maximal 5 Dateien erlaubt.",
+    "FILE_TOO_LARGE": "Eine oder mehrere Dateien überschreiten die maximale Größe von 10 MB."
   },
   "EDIT_PROFILE": {
     "HEADER": "Benutzerprofil bearbeiten",
