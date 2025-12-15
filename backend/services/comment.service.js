@@ -23,7 +23,7 @@ export const getCommentsForUser = async (userId) => {
     }
 }
 
-export const createCommentForUser = async (userId, authorId, content) => {
+export const createCommentForUser = async (userId, authorId, content, isRichText = false, attachments = []) => {
     const user = await UserRepository.findUserById(userId);
     if (!user) {
         throw new NotFoundError();
@@ -34,6 +34,8 @@ export const createCommentForUser = async (userId, authorId, content) => {
     }
     const commentData = {
         content,
+        isRichText,
+        attachments,
         author: authorId,
         time_stamp: new Date()
     }
@@ -44,7 +46,7 @@ export const createCommentForUser = async (userId, authorId, content) => {
     return await commentRepository.findPopulatedComment(newComment.id);
 }
 
-export const updateCommentForUser = async (userId, commentId, content, currentUserId, currentUserRole) => {
+export const updateCommentForUser = async (userId, commentId, content, currentUserId, currentUserRole, isRichText = false, attachments = null) => {
     try {
         const user = await UserRepository.findUserById(userId);
         if (!user) {
@@ -68,7 +70,7 @@ export const updateCommentForUser = async (userId, commentId, content, currentUs
             throw new ForbiddenError();
         }
 
-        return await commentRepository.updateCommentById(commentId, content)
+        return await commentRepository.updateCommentById(commentId, content, isRichText, attachments)
     }
     catch (error) {
         throw error;
@@ -98,7 +100,7 @@ export const deleteCommentFromUser = async (userId, commentId, currentUserId, cu
     }
 }
 
-export const createReplyToComment = async (userId, commentId, authorId, content) => {
+export const createReplyToComment = async (userId, commentId, authorId, content, isRichText = false, attachments = []) => {
     try{
         const user = await UserRepository.findUserById(userId);
         if (!user) {
@@ -119,6 +121,8 @@ export const createReplyToComment = async (userId, commentId, authorId, content)
 
         const replyData = {
             content,
+            isRichText,
+            attachments,
             author: authorId,
             time_stamp: new Date(),
             parentComment: commentId
@@ -132,7 +136,7 @@ export const createReplyToComment = async (userId, commentId, authorId, content)
     }
 }
 
-export const updateReplyForComment = async (userId, commentId, replyId, content, currentUserId, currentUserRole) => {
+export const updateReplyForComment = async (userId, commentId, replyId, content, currentUserId, currentUserRole, isRichText = false, attachments = null) => {
     try {
         const user = await UserRepository.findUserById(userId);
         if (!user) {
@@ -168,7 +172,7 @@ export const updateReplyForComment = async (userId, commentId, replyId, content,
             throw new ForbiddenError();
         }
 
-        return await commentRepository.updateReplyById(replyId, content)
+        return await commentRepository.updateReplyById(replyId, content, isRichText, attachments)
     }
     catch (error) {
         throw error;

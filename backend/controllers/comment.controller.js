@@ -21,8 +21,29 @@ export const getCommentsForUser = async (req, res) => {
 export const addCommentToUser = async (req, res) => {
   try {
     const { userId } = req.params
-    const { content } = req.body
+    let content, isRichText = false;
+    
+    // Handle both JSON and FormData
+    if (req.body.content) {
+      // FormData - content might be a string
+      content = req.body.content;
+      isRichText = req.body.isRichText === 'true' || req.body.isRichText === true;
+    } else {
+      // JSON body (backward compatibility)
+      content = req.body.content;
+      isRichText = req.body.isRichText || false;
+    }
+    
     const commentAuthorId = req.user.id;
+    
+    // Process attachments from uploaded files
+    const attachments = (req.files || []).map(file => ({
+      filename: file.filename,
+      originalName: file.originalname,
+      path: file.path,
+      mimetype: file.mimetype,
+      size: file.size
+    }));
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       logger.warn('Invalid user ID for comment:', userId);
@@ -34,8 +55,8 @@ export const addCommentToUser = async (req, res) => {
       return res.status(400).json({ message: 'Keine gültige Autor-ID verfügbar' });
     }
 
-    const populatedComment = await commentService.createCommentForUser(userId, commentAuthorId, content)
-    logger.info(`Comment added to user ${userId} by ${commentAuthorId}`);
+    const populatedComment = await commentService.createCommentForUser(userId, commentAuthorId, content, isRichText, attachments)
+    logger.info(`Comment added to user ${userId} by ${commentAuthorId} with ${attachments.length} attachments`);
     res.status(201).json(populatedComment)
   } catch (error) {
     logger.error('Error adding comment:', error)
@@ -46,9 +67,31 @@ export const addCommentToUser = async (req, res) => {
 export const updateComment = async (req, res) => {
   try {
     const { userId, commentId } = req.params
-    const { content } = req.body
+    let content, isRichText = false;
+    
+    // Handle both JSON and FormData
+    if (req.body.content) {
+      content = req.body.content;
+      isRichText = req.body.isRichText === 'true' || req.body.isRichText === true;
+    } else {
+      content = req.body.content;
+      isRichText = req.body.isRichText || false;
+    }
+    
     const currentUserId = req.user.id;
     const currentUserRole = req.user.role;
+    
+    // Process attachments from uploaded files (if any)
+    let attachments = null;
+    if (req.files && req.files.length > 0) {
+      attachments = req.files.map(file => ({
+        filename: file.filename,
+        originalName: file.originalname,
+        path: file.path,
+        mimetype: file.mimetype,
+        size: file.size
+      }));
+    }
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       logger.warn('Invalid user ID for comment update:', userId);
@@ -60,7 +103,7 @@ export const updateComment = async (req, res) => {
       return res.status(400).json({ message: 'Ungültige Kommentar-ID' });
     }
 
-    const updatedComment = await commentService.updateCommentForUser(userId, commentId, content, currentUserId, currentUserRole)
+    const updatedComment = await commentService.updateCommentForUser(userId, commentId, content, currentUserId, currentUserRole, isRichText, attachments)
 
     if (!updatedComment) {
       return res.status(404).json({ message: 'Comment not found' })
@@ -112,8 +155,27 @@ export const deleteComment = async (req, res) => {
 export const addReplyToComment = async (req, res) => {
   try {
     const { userId, commentId } = req.params
-    const { content } = req.body
+    let content, isRichText = false;
+    
+    // Handle both JSON and FormData
+    if (req.body.content) {
+      content = req.body.content;
+      isRichText = req.body.isRichText === 'true' || req.body.isRichText === true;
+    } else {
+      content = req.body.content;
+      isRichText = req.body.isRichText || false;
+    }
+    
     let replyAuthorId = req.user.id;
+    
+    // Process attachments from uploaded files
+    const attachments = (req.files || []).map(file => ({
+      filename: file.filename,
+      originalName: file.originalname,
+      path: file.path,
+      mimetype: file.mimetype,
+      size: file.size
+    }));
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       logger.warn('Invalid user ID for reply:', userId);
@@ -130,8 +192,8 @@ export const addReplyToComment = async (req, res) => {
       return res.status(400).json({ message: 'Keine gültige Autor-ID verfügbar' });
     }
 
-    const populatedReply = await commentService.createReplyToComment(userId, commentId, replyAuthorId, content);
-    logger.info(`Reply added to comment ${commentId} by ${replyAuthorId}`);
+    const populatedReply = await commentService.createReplyToComment(userId, commentId, replyAuthorId, content, isRichText, attachments);
+    logger.info(`Reply added to comment ${commentId} by ${replyAuthorId} with ${attachments.length} attachments`);
     res.status(201).json(populatedReply)
   } catch (error) {
     logger.error('Error adding reply:', error)
@@ -142,9 +204,31 @@ export const addReplyToComment = async (req, res) => {
 export const updateReply = async (req, res) => {
   try {
     const { userId, commentId, replyId } = req.params
-    const { content } = req.body
+    let content, isRichText = false;
+    
+    // Handle both JSON and FormData
+    if (req.body.content) {
+      content = req.body.content;
+      isRichText = req.body.isRichText === 'true' || req.body.isRichText === true;
+    } else {
+      content = req.body.content;
+      isRichText = req.body.isRichText || false;
+    }
+    
     const currentUserId = req.user.id;
     const currentUserRole = req.user.role;
+    
+    // Process attachments from uploaded files (if any)
+    let attachments = null;
+    if (req.files && req.files.length > 0) {
+      attachments = req.files.map(file => ({
+        filename: file.filename,
+        originalName: file.originalname,
+        path: file.path,
+        mimetype: file.mimetype,
+        size: file.size
+      }));
+    }
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       logger.warn('Invalid user ID for reply update:', userId);
@@ -161,7 +245,7 @@ export const updateReply = async (req, res) => {
       return res.status(400).json({ message: 'Ungültige Antwort-ID' });
     }
 
-    const updatedReply = await commentService.updateReplyForComment(userId, commentId, replyId, content, currentUserId, currentUserRole)
+    const updatedReply = await commentService.updateReplyForComment(userId, commentId, replyId, content, currentUserId, currentUserRole, isRichText, attachments)
 
     if (!updatedReply) {
       return res.status(404).json({ message: 'Reply not found' })
