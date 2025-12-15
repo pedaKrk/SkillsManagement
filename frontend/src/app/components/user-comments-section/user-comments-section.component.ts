@@ -2,11 +2,9 @@ import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ChangeDetect
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
 import { Comment } from '../../models/user.model';
-import { CommentService } from '../../core/services/comment/comment.service';
-import { UserService } from '../../core/services/user/user.service';
-import { AuthService } from '../../core/services/auth/auth.service';
-import { DialogService } from '../../core/services/dialog/dialog.service';
+import { CommentService, UserService, AuthService, DialogService, UserUtilsService } from '../../core/services';
 import { CommentFilterComponent, CommentFilters } from '../comment-filter/comment-filter.component';
 import { CommentItemComponent } from '../comment-item/comment-item.component';
 
@@ -59,6 +57,7 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private dialogService: DialogService,
     private translateService: TranslateService,
+    private userUtilsService: UserUtilsService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -97,7 +96,7 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy {
 
         // Load user data for all authors
         Promise.all(
-          Array.from(authorIds).map(authorId => this.userService.getUserById(authorId).toPromise())
+          Array.from(authorIds).map(authorId => firstValueFrom(this.userService.getUserById(authorId)))
         ).then(authors => {
           // Create a map for quick access to user data
           const authorMap = new Map(
@@ -107,17 +106,18 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy {
           );
 
           // Convert comments to the correct format
+          const unknownUserText = this.translateService.instant('PROFILE.UNKNOWN_USER') || 'Unknown User';
           this.comments = comments.map(comment => {
             const author = comment.author?._id ? authorMap.get(comment.author._id) : null;
-            const authorData = author || comment.author || { username: 'Unbekannt' };
-            const authorName = this.createFormalName(authorData);
+            const authorData = author || comment.author || { username: unknownUserText };
+            const authorName = this.userUtilsService.createFormalName(authorData);
 
             // Convert replies, if available
             const commentId = comment.id || comment._id || '';
             const replies = comment.replies ? comment.replies.map((reply: any) => {
               const replyAuthor = reply.author?._id ? authorMap.get(reply.author._id) : null;
-              const replyAuthorData = replyAuthor || reply.author || { username: 'Unbekannt' };
-              const replyAuthorName = this.createFormalName(replyAuthorData);
+              const replyAuthorData = replyAuthor || reply.author || { username: unknownUserText };
+              const replyAuthorName = this.userUtilsService.createFormalName(replyAuthorData);
 
               // Get parentComment ID from reply object, or fallback to the comment ID
               const parentId = reply.parentComment?._id || reply.parentComment || commentId;
@@ -274,7 +274,7 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy {
         if (comment && (comment.id || comment._id)) {
           this.userService.getUserById(currentUser.id).subscribe({
             next: (fullUserData) => {
-              const authorName = this.createFormalName(fullUserData);
+              const authorName = this.userUtilsService.createFormalName(fullUserData);
 
               const newComment: Comment = {
                 id: comment.id || comment._id || '',
@@ -336,27 +336,6 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Creates a formal name from user data
-   */
-  private createFormalName(user: any): string {
-    const parts = [];
-    if (user.title) {
-      parts.push(user.title);
-    }
-    if (user.firstName) {
-      parts.push(user.firstName);
-    }
-    if (user.lastName) {
-      parts.push(user.lastName);
-    }
-    if (parts.length > 0) {
-      return parts.join(' ');
-    }
-    // Use username or fallback to translated unknown user text
-    // Note: For synchronous use, we use instant() method
-    return user.username || this.translateService.instant('PROFILE.UNKNOWN_USER') || 'Unknown User';
-  }
 
   /**
    * Handles comment update

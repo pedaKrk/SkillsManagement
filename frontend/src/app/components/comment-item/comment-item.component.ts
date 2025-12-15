@@ -3,10 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Comment } from '../../models/user.model';
-import { AuthService } from '../../core/services/auth/auth.service';
-import { CommentService } from '../../core/services/comment/comment.service';
-import { UserService } from '../../core/services/user/user.service';
-import { DialogService } from '../../core/services/dialog/dialog.service';
+import { AuthService, CommentService, UserService, DialogService, UserUtilsService } from '../../core/services';
 import { ReplyItemComponent } from '../reply-item/reply-item.component';
 import { ChangeDetectorRef } from '@angular/core';
 
@@ -60,6 +57,7 @@ export class CommentItemComponent {
     private userService: UserService,
     private dialogService: DialogService,
     private translateService: TranslateService,
+    private userUtilsService: UserUtilsService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -285,7 +283,7 @@ export class CommentItemComponent {
         if (currentUser) {
           this.userService.getUserById(currentUser.id).subscribe({
             next: (fullUserData) => {
-              const authorName = this.createFormalName(fullUserData);
+              const authorName = this.userUtilsService.createFormalName(fullUserData);
 
               const newReply: Comment = {
                 id: reply.id || reply._id || '',
@@ -325,26 +323,6 @@ export class CommentItemComponent {
     });
   }
 
-  /**
-   * Creates a formal name from user data
-   */
-  private createFormalName(user: any): string {
-    const parts = [];
-    if (user.title) {
-      parts.push(user.title);
-    }
-    if (user.firstName) {
-      parts.push(user.firstName);
-    }
-    if (user.lastName) {
-      parts.push(user.lastName);
-    }
-    if (parts.length > 0) {
-      return parts.join(' ');
-    }
-    // Use username or fallback to translated unknown user text
-    return user.username || this.translateService.instant('PROFILE.UNKNOWN_USER') || 'Unknown User';
-  }
 
   /**
    * Toggles text expansion
