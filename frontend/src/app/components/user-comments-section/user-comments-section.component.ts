@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ChangeDetectorRef, AfterViewInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ChangeDetectorRef, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -37,6 +37,8 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy, AfterVie
   isRichTextMode: boolean = false;
   quillEditor: Quill | null = null;
   selectedFiles: File[] = [];
+  
+  @ViewChild('fileInput', { static: false }) fileInputRef?: ElementRef<HTMLInputElement>;
 
   // Filter state
   filters: CommentFilters = {
@@ -355,6 +357,7 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy, AfterVie
       }
       // Reset input to allow selecting same file again
       input.value = '';
+      this.cdr.detectChanges();
     }
   }
 
@@ -363,6 +366,7 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy, AfterVie
    */
   removeFile(index: number): void {
     this.selectedFiles.splice(index, 1);
+    this.cdr.detectChanges();
   }
 
   /**
@@ -441,10 +445,17 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy, AfterVie
               };
 
               this.comments.unshift(newComment);
+              // Clear form data
               this.newComment = '';
+              this.selectedFiles = [];
+              // Clear file input
+              if (this.fileInputRef?.nativeElement) {
+                this.fileInputRef.nativeElement.value = '';
+              }
               // Clear Quill editor if in rich text mode
               if (this.isRichTextMode && this.quillEditor) {
                 this.quillEditor.root.innerHTML = '';
+                this.newComment = '';
               }
               this.applyFilters();
 
@@ -476,11 +487,17 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy, AfterVie
               };
 
               this.comments.unshift(newComment);
+              // Clear form data
               this.newComment = '';
               this.selectedFiles = [];
+              // Clear file input
+              if (this.fileInputRef?.nativeElement) {
+                this.fileInputRef.nativeElement.value = '';
+              }
               // Clear Quill editor if in rich text mode
               if (this.isRichTextMode && this.quillEditor) {
                 this.quillEditor.root.innerHTML = '';
+                this.newComment = '';
               }
               this.applyFilters();
               this.isLoading = false;
@@ -497,7 +514,9 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy, AfterVie
             translations['PROFILE.COMMENT_ADD_ERROR'] || 'The comment could not be added. Please try again later.'
           );
         });
+        // Don't clear files on error - user might want to retry
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }

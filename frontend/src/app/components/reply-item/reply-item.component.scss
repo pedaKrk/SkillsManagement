@@ -172,6 +172,23 @@
               text-decoration: underline;
             }
           }
+
+          // Preserve color and background-color styles from Quill
+          span[style*="color"],
+          p[style*="color"],
+          div[style*="color"],
+          strong[style*="color"],
+          em[style*="color"] {
+            // Colors are preserved via inline styles from Quill
+          }
+
+          span[style*="background-color"],
+          p[style*="background-color"],
+          div[style*="background-color"],
+          strong[style*="background-color"],
+          em[style*="background-color"] {
+            // Background colors are preserved via inline styles from Quill
+          }
           
           h1, h2, h3, h4, h5, h6 {
             margin: 0.75rem 0 0.4rem 0;

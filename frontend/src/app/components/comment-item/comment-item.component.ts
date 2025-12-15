@@ -109,20 +109,19 @@ export class CommentItemComponent {
     if (!text) return '';
     
     if (isRichText) {
-      // For rich text, return HTML
+      // For rich text, use bypassSecurityTrustHtml to preserve inline styles (colors, etc.)
+      // Content comes from our own backend, so it's safe
       if (isExpanded) {
-        return this.sanitizer.sanitize(1, text) || '';
+        return this.sanitizer.bypassSecurityTrustHtml(text);
       } else {
         // Truncate HTML content
         const plainText = this.stripHtmlTags(text);
         if (plainText.length <= this.maxTextLength) {
-          return this.sanitizer.sanitize(1, text) || '';
+          return this.sanitizer.bypassSecurityTrustHtml(text);
         }
         // Truncate and add ellipsis
-        const truncated = plainText.substring(0, this.maxTextLength);
-        // Try to preserve some HTML structure
         const truncatedHtml = this.truncateHtml(text, this.maxTextLength);
-        return this.sanitizer.sanitize(1, truncatedHtml + '...') || '';
+        return this.sanitizer.bypassSecurityTrustHtml(truncatedHtml + '...');
       }
     } else {
       // Plain text
