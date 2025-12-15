@@ -345,7 +345,9 @@
     "EMAIL_ATTACHMENTS_LABEL": "Attachments",
     "USER_NOT_LOGGED_IN": "You must be logged in to add comments.",
     "UNKNOWN_USER": "Unknown User",
-    "USER_DATA_LOAD_ERROR": "Error loading user data"
+    "USER_DATA_LOAD_ERROR": "Error loading user data",
+    "USE_RICH_TEXT": "Use Rich Text",
+    "USE_PLAIN_TEXT": "Use Plain Text"
   },
   "EDIT_PROFILE": {
     "HEADER": "Edit User Profile",

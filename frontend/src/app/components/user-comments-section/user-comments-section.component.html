@@ -3,15 +3,45 @@
 
   <!-- Add comment (only for authorized users) -->
   <div class="add-comment-container" *ngIf="canAddComments">
+    <!-- Rich Text / Plain Text Toggle -->
+    <div class="editor-mode-toggle">
+      <button
+        type="button"
+        class="btn-mode-toggle"
+        [class.active]="!isRichTextMode"
+        (click)="toggleRichTextMode()"
+        *ngIf="!isRichTextMode"
+      >
+        <i class="fa fa-font"></i> {{ 'PROFILE.USE_RICH_TEXT' | translate }}
+      </button>
+      <button
+        type="button"
+        class="btn-mode-toggle"
+        [class.active]="isRichTextMode"
+        (click)="toggleRichTextMode()"
+        *ngIf="isRichTextMode"
+      >
+        <i class="fa fa-align-left"></i> {{ 'PROFILE.USE_PLAIN_TEXT' | translate }}
+      </button>
+    </div>
+
+    <!-- Plain Text Editor -->
     <textarea
+      *ngIf="!isRichTextMode"
       [(ngModel)]="newComment"
       [placeholder]="'PROFILE.COMMENT_PLACEHOLDER' | translate"
       class="comment-input"
       rows="3"
     ></textarea>
+
+    <!-- Rich Text Editor -->
+    <div *ngIf="isRichTextMode" class="richtext-container">
+      <div id="new-comment-quill-editor" class="quill-editor"></div>
+    </div>
+
     <button
       class="btn btn-primary"
-      [disabled]="!newComment.trim() || isLoading"
+      [disabled]="(!newComment.trim() && (!isRichTextMode || !quillEditor)) || isLoading"
       (click)="addComment()"
     >
       {{ 'PROFILE.ADD_COMMENT' | translate }}

@@ -339,7 +339,9 @@
     "EMAIL_ATTACHMENTS_LABEL": "Anhänge",
     "USER_NOT_LOGGED_IN": "Sie müssen angemeldet sein, um Kommentare hinzuzufügen.",
     "UNKNOWN_USER": "Unbekannter Benutzer",
-    "USER_DATA_LOAD_ERROR": "Fehler beim Laden der Benutzerdaten"
+    "USER_DATA_LOAD_ERROR": "Fehler beim Laden der Benutzerdaten",
+    "USE_RICH_TEXT": "Rich Text verwenden",
+    "USE_PLAIN_TEXT": "Nur Text verwenden"
   },
   "EDIT_PROFILE": {
     "HEADER": "Benutzerprofil bearbeiten",

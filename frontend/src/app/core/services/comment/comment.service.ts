@@ -70,15 +70,51 @@ export class CommentService {
   }
 
   /**
+   * Gets auth headers without Content-Type (for FormData)
+   */
+  private getAuthHeadersForFormData(): HttpHeaders {
+    const currentUser = this.authService.currentUserValue;
+    if (currentUser && currentUser.token) {
+      return new HttpHeaders({
+        'Authorization': `Bearer ${currentUser.token}`
+        // Don't set Content-Type - browser will set it with boundary for FormData
+      });
+    }
+    return new HttpHeaders();
+  }
+
+  /**
    * Adds a comment to a user
    * @param userId The ID of the user
    * @param content The content of the comment
+   * @param isRichText Whether the content is rich text (HTML)
+   * @param attachments Optional file attachments
    * @returns Observable with the created comment
    */
-  addCommentToUser(userId: string, content: string): Observable<any> {
-    // we don't need to send the author-ID anymore, since it is extracted from the token
-    console.log(`Add comment to user with ID: ${userId}`);
+  addCommentToUser(userId: string, content: string, isRichText: boolean = false, attachments: File[] = []): Observable<any> {
+    console.log(`Add comment to user with ID: ${userId}, isRichText: ${isRichText}, attachments: ${attachments.length}`);
     
+    // If there are attachments or rich text, use FormData
+    if (attachments.length > 0 || isRichText) {
+      const formData = new FormData();
+      formData.append('content', content);
+      formData.append('isRichText', isRichText.toString());
+      
+      attachments.forEach((file, index) => {
+        formData.append('attachments', file);
+      });
+      
+      return this.http.post<any>(
+        `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.comments}/${userId}`,
+        formData,
+        { headers: this.getAuthHeadersForFormData() }
+      ).pipe(
+        tap(comment => console.log('Kommentar erfolgreich hinzugefügt:', comment)),
+        catchError(this.handleError)
+      );
+    }
+    
+    // Otherwise use JSON (backward compatible)
     return this.http.post<any>(
       `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.comments}/${userId}`,
       { content },
@@ -94,9 +130,32 @@ export class CommentService {
    * @param userId The ID of the user
    * @param commentId The ID of the comment
    * @param content The new content of the comment
+   * @param isRichText Whether the content is rich text (HTML)
+   * @param attachments Optional file attachments (replaces existing attachments)
    * @returns Observable with the updated comment
    */
-  updateComment(userId: string, commentId: string, content: string): Observable<any> {
+  updateComment(userId: string, commentId: string, content: string, isRichText: boolean = false, attachments: File[] = []): Observable<any> {
+    // If there are attachments or rich text, use FormData
+    if (attachments.length > 0 || isRichText) {
+      const formData = new FormData();
+      formData.append('content', content);
+      formData.append('isRichText', isRichText.toString());
+      
+      attachments.forEach((file) => {
+        formData.append('attachments', file);
+      });
+      
+      return this.http.put<any>(
+        `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.comments}/${userId}/${commentId}`,
+        formData,
+        { headers: this.getAuthHeadersForFormData() }
+      ).pipe(
+        tap(comment => console.log('Kommentar erfolgreich aktualisiert:', comment)),
+        catchError(this.handleError)
+      );
+    }
+    
+    // Otherwise use JSON (backward compatible)
     return this.http.put<any>(
       `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.comments}/${userId}/${commentId}`,
       { content },
@@ -128,11 +187,34 @@ export class CommentService {
    * @param userId Die ID des Benutzers
    * @param commentId Die ID des Kommentars
    * @param content Der Inhalt der Antwort
+   * @param isRichText Ob der Inhalt Rich Text (HTML) ist
+   * @param attachments Optionale Dateianhänge
    * @returns Observable mit der erstellten Antwort
    */
-  addReplyToComment(userId: string, commentId: string, content: string): Observable<any> {
-    console.log(`Füge Antwort zu Kommentar mit ID ${commentId} für Benutzer mit ID ${userId} hinzu`);
+  addReplyToComment(userId: string, commentId: string, content: string, isRichText: boolean = false, attachments: File[] = []): Observable<any> {
+    console.log(`Füge Antwort zu Kommentar mit ID ${commentId} für Benutzer mit ID ${userId} hinzu, isRichText: ${isRichText}, attachments: ${attachments.length}`);
     
+    // If there are attachments or rich text, use FormData
+    if (attachments.length > 0 || isRichText) {
+      const formData = new FormData();
+      formData.append('content', content);
+      formData.append('isRichText', isRichText.toString());
+      
+      attachments.forEach((file) => {
+        formData.append('attachments', file);
+      });
+      
+      return this.http.post<any>(
+        `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.comments}/${userId}/${commentId}/replies`,
+        formData,
+        { headers: this.getAuthHeadersForFormData() }
+      ).pipe(
+        tap(reply => console.log('Antwort erfolgreich hinzugefügt:', reply)),
+        catchError(this.handleError)
+      );
+    }
+    
+    // Otherwise use JSON (backward compatible)
     return this.http.post<any>(
       `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.comments}/${userId}/${commentId}/replies`,
       { content },
@@ -149,9 +231,32 @@ export class CommentService {
    * @param commentId The ID of the parent comment
    * @param replyId The ID of the reply
    * @param content The new content of the reply
+   * @param isRichText Whether the content is rich text (HTML)
+   * @param attachments Optional file attachments (replaces existing attachments)
    * @returns Observable with the updated reply
    */
-  updateReply(userId: string, commentId: string, replyId: string, content: string): Observable<any> {
+  updateReply(userId: string, commentId: string, replyId: string, content: string, isRichText: boolean = false, attachments: File[] = []): Observable<any> {
+    // If there are attachments or rich text, use FormData
+    if (attachments.length > 0 || isRichText) {
+      const formData = new FormData();
+      formData.append('content', content);
+      formData.append('isRichText', isRichText.toString());
+      
+      attachments.forEach((file) => {
+        formData.append('attachments', file);
+      });
+      
+      return this.http.put<any>(
+        `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.comments}/${userId}/${commentId}/replies/${replyId}`,
+        formData,
+        { headers: this.getAuthHeadersForFormData() }
+      ).pipe(
+        tap(reply => console.log('Antwort erfolgreich aktualisiert:', reply)),
+        catchError(this.handleError)
+      );
+    }
+    
+    // Otherwise use JSON (backward compatible)
     return this.http.put<any>(
       `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.comments}/${userId}/${commentId}/replies/${replyId}`,
       { content },

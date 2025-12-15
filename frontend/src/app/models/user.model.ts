@@ -31,6 +31,15 @@ export interface User{
     token?: string;
 }
 
+export interface CommentAttachment {
+  filename: string;
+  originalName: string;
+  path: string;
+  mimetype: string;
+  size: number;
+  _id?: string;
+}
+
 export interface Comment {
   id?: string;
   _id?: string;
@@ -39,6 +48,8 @@ export interface Comment {
   authorName: string;
   text: string;
   content?: string;
+  isRichText?: boolean;
+  attachments?: CommentAttachment[];
   createdAt: Date;
   time_stamp?: Date;
   author?: {

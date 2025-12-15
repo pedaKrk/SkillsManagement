@@ -1,8 +1,10 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ChangeDetectorRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
+import Quill from 'quill';
+import 'quill/dist/quill.snow.css';
 import { Comment } from '../../models/user.model';
 import { CommentService, UserService, AuthService, DialogService, UserUtilsService } from '../../core/services';
 import { CommentFilterComponent, CommentFilters } from '../comment-filter/comment-filter.component';
@@ -21,7 +23,7 @@ import { CommentItemComponent } from '../comment-item/comment-item.component';
   templateUrl: './user-comments-section.component.html',
   styleUrl: './user-comments-section.component.scss'
 })
-export class UserCommentsSectionComponent implements OnInit, OnDestroy {
+export class UserCommentsSectionComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() userId: string = '';
   @Input() canAddComments: boolean = false;
   @Input() isAdmin: boolean = false;
@@ -32,6 +34,8 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy {
   filteredComments: Comment[] = [];
   isLoading: boolean = false;
   newComment: string = '';
+  isRichTextMode: boolean = false;
+  quillEditor: Quill | null = null;
 
   // Filter state
   filters: CommentFilters = {
@@ -68,7 +72,76 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Cleanup if needed
+    // Cleanup Quill editor
+    if (this.quillEditor) {
+      this.quillEditor = null;
+    }
+  }
+
+  ngAfterViewInit(): void {
+    // Quill editor will be initialized when rich text mode is enabled
+  }
+
+  /**
+   * Toggles between plain text and rich text editor
+   */
+  toggleRichTextMode(): void {
+    this.isRichTextMode = !this.isRichTextMode;
+    
+    if (this.isRichTextMode) {
+      // Initialize Quill editor
+      setTimeout(() => {
+        const editorElement = document.getElementById('new-comment-quill-editor');
+        if (editorElement && !this.quillEditor) {
+          this.quillEditor = new Quill(editorElement, {
+            theme: 'snow',
+            modules: {
+              toolbar: [
+                ['bold', 'italic', 'underline', 'strike'],
+                ['blockquote', 'code-block'],
+                [{ 'header': 1 }, { 'header': 2 }],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'script': 'sub'}, { 'script': 'super' }],
+                [{ 'indent': '-1'}, { 'indent': '+1' }],
+                [{ 'size': ['small', false, 'large', 'huge'] }],
+                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                [{ 'color': [] }, { 'background': [] }],
+                [{ 'font': [] }],
+                [{ 'align': [] }],
+                ['clean'],
+                ['link']
+              ]
+            }
+          });
+          
+          // Set initial content if any
+          if (this.newComment && !this.newComment.startsWith('<')) {
+            // Plain text - convert to HTML
+            this.quillEditor.root.innerHTML = this.newComment.replace(/\n/g, '<br>');
+          } else if (this.newComment) {
+            this.quillEditor.root.innerHTML = this.newComment;
+          }
+          
+          // Update newComment when content changes
+          this.quillEditor.on('text-change', () => {
+            const html = this.quillEditor!.root.innerHTML;
+            // Only update if not empty (Quill adds <p><br></p> for empty content)
+            if (html !== '<p><br></p>') {
+              this.newComment = html;
+            } else {
+              this.newComment = '';
+            }
+          });
+        }
+      }, 100);
+    } else {
+      // Convert HTML to plain text when switching back
+      if (this.quillEditor) {
+        const text = this.quillEditor.getText();
+        this.newComment = text;
+        this.quillEditor = null;
+      }
+    }
   }
 
   /**
@@ -128,6 +201,9 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy {
                 authorId: replyAuthorData._id || '',
                 authorName: replyAuthorName,
                 text: reply.content || '',
+                content: reply.content || '',
+                isRichText: reply.isRichText || false,
+                attachments: reply.attachments || [],
                 createdAt: new Date(reply.time_stamp || new Date()),
                 parentId: parentId
               };
@@ -139,6 +215,9 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy {
               authorId: authorData._id || '',
               authorName: authorName,
               text: comment.content || '',
+              content: comment.content || '',
+              isRichText: comment.isRichText || false,
+              attachments: comment.attachments || [],
               createdAt: new Date(comment.time_stamp || new Date()),
               replies: replies
             };
@@ -250,7 +329,15 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy {
    * Adds a new comment
    */
   addComment(): void {
-    if (!this.newComment.trim()) {
+    // Get content from Quill editor if in rich text mode
+    let content = this.newComment;
+    if (this.isRichTextMode && this.quillEditor) {
+      content = this.quillEditor.root.innerHTML;
+      // Check if content is empty (Quill uses <p><br></p> for empty)
+      if (content === '<p><br></p>' || content.trim() === '') {
+        return;
+      }
+    } else if (!content.trim()) {
       return;
     }
 
@@ -269,7 +356,7 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.commentService.addCommentToUser(this.userId, this.newComment).subscribe({
+    this.commentService.addCommentToUser(this.userId, content, this.isRichTextMode, []).subscribe({
       next: (comment) => {
         if (comment && (comment.id || comment._id)) {
           this.userService.getUserById(currentUser.id).subscribe({
@@ -281,13 +368,20 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy {
                 userId: this.userId,
                 authorId: comment.author?._id || currentUser.id,
                 authorName: authorName,
-                text: comment.content || this.newComment,
+                text: comment.content || content,
+                content: comment.content || content,
+                isRichText: comment.isRichText || this.isRichTextMode,
+                attachments: comment.attachments || [],
                 createdAt: new Date(comment.time_stamp) || new Date(),
                 replies: []
               };
 
               this.comments.unshift(newComment);
               this.newComment = '';
+              // Clear Quill editor if in rich text mode
+              if (this.isRichTextMode && this.quillEditor) {
+                this.quillEditor.root.innerHTML = '';
+              }
               this.applyFilters();
 
               this.translateService.get(['COMMON.SUCCESS', 'PROFILE.COMMENT_ADDED_SUCCESS', 'COMMON.OK']).subscribe(translations => {
@@ -309,13 +403,20 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy {
                 userId: this.userId,
                 authorId: comment.author?._id || currentUser.id,
                 authorName: currentUser.username || unknownUserText,
-                text: comment.content || this.newComment,
+                text: comment.content || content,
+                content: comment.content || content,
+                isRichText: comment.isRichText || this.isRichTextMode,
+                attachments: comment.attachments || [],
                 createdAt: new Date(comment.time_stamp) || new Date(),
                 replies: []
               };
 
               this.comments.unshift(newComment);
               this.newComment = '';
+              // Clear Quill editor if in rich text mode
+              if (this.isRichTextMode && this.quillEditor) {
+                this.quillEditor.root.innerHTML = '';
+              }
               this.applyFilters();
               this.isLoading = false;
               this.cdr.detectChanges();
