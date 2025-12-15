@@ -7,6 +7,7 @@ import { Comment } from '../../models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { CommentService } from '../../core/services/comment/comment.service';
 import { DialogService } from '../../core/services/dialog/dialog.service';
+import { API_CONFIG } from '../../core/config/api.config';
 import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
@@ -156,6 +157,60 @@ export class ReplyItemComponent {
       month: '2-digit',
       year: 'numeric'
     });
+  }
+
+  /**
+   * Gets the download URL for an attachment
+   */
+  getAttachmentUrl(attachment: any): string {
+    if (!attachment || !attachment.path) return '';
+    // Extract base URL from API config (remove /api/v1)
+    const apiBaseUrl = API_CONFIG.baseUrl.replace('/api/v1', '');
+    return `${apiBaseUrl}/${attachment.path}`;
+  }
+
+  /**
+   * Gets file icon class based on mimetype
+   */
+  getFileIconClass(mimetype: string): string {
+    if (!mimetype) return 'fa-file';
+    
+    if (mimetype.startsWith('image/')) return 'fa-file-image';
+    if (mimetype.includes('pdf')) return 'fa-file-pdf';
+    if (mimetype.includes('word') || mimetype.includes('document')) return 'fa-file-word';
+    if (mimetype.includes('excel') || mimetype.includes('spreadsheet')) return 'fa-file-excel';
+    if (mimetype.includes('powerpoint') || mimetype.includes('presentation')) return 'fa-file-powerpoint';
+    if (mimetype.includes('zip') || mimetype.includes('archive')) return 'fa-file-archive';
+    if (mimetype.includes('text')) return 'fa-file-alt';
+    
+    return 'fa-file';
+  }
+
+  /**
+   * Formats file size for display
+   */
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  /**
+   * Downloads an attachment
+   */
+  downloadAttachment(attachment: any): void {
+    if (!attachment || !attachment.path) return;
+    
+    const url = this.getAttachmentUrl(attachment);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = attachment.originalName || attachment.filename;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   /**

@@ -51,6 +51,30 @@
     </button>
   </div>
 
+  <!-- Attachments -->
+  <div *ngIf="comment.attachments && comment.attachments.length > 0 && !editing" class="comment-attachments">
+    <div class="attachments-header">
+      <i class="fa fa-paperclip"></i>
+      <span>{{ 'PROFILE.ATTACHMENTS' | translate }} ({{ comment.attachments.length }})</span>
+    </div>
+    <div class="attachments-list">
+      <div *ngFor="let attachment of comment.attachments" class="attachment-item">
+        <i [class]="'fa ' + getFileIconClass(attachment.mimetype)"></i>
+        <span class="attachment-name">{{ attachment.originalName || attachment.filename }}</span>
+        <span class="attachment-size">{{ formatFileSize(attachment.size) }}</span>
+        <button
+          type="button"
+          class="btn-download-attachment"
+          (click)="downloadAttachment(attachment)"
+          [attr.aria-label]="'PROFILE.DOWNLOAD_ATTACHMENT' | translate"
+          [title]="'PROFILE.DOWNLOAD_ATTACHMENT' | translate"
+        >
+          <i class="fa fa-download"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- comment actions -->
   <div *ngIf="!editing" class="comment-actions">
     <button class="btn-reply" (click)="startReply()" [disabled]="isOtherEditing">
