@@ -339,7 +339,11 @@ export class CommentItemComponent {
     if (user.lastName) {
       parts.push(user.lastName);
     }
-    return parts.length > 0 ? parts.join(' ') : user.username || 'Unbekannter Benutzer';
+    if (parts.length > 0) {
+      return parts.join(' ');
+    }
+    // Use username or fallback to translated unknown user text
+    return user.username || this.translateService.instant('PROFILE.UNKNOWN_USER') || 'Unknown User';
   }
 
   /**

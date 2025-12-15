@@ -19,7 +19,8 @@
     "OR": "or",
     "OPTIONAL": "optional",
     "REQUIRED_FIELD": "Required field",
-    "OK": "OK"
+    "OK": "OK",
+    "ENTER_TEXT": "Enter text..."
   },
   "AUTH": {
     "LOGIN": "Login",
@@ -341,7 +342,10 @@
     "EMAIL_RECIPIENT_LABEL": "Recipient",
     "EMAIL_SENT_SUCCESS": "Email sent successfully.",
     "EMAIL_SEND_ERROR": "Failed to send email.",
-    "EMAIL_ATTACHMENTS_LABEL": "Attachments"
+    "EMAIL_ATTACHMENTS_LABEL": "Attachments",
+    "USER_NOT_LOGGED_IN": "You must be logged in to add comments.",
+    "UNKNOWN_USER": "Unknown User",
+    "USER_DATA_LOAD_ERROR": "Error loading user data"
   },
   "EDIT_PROFILE": {
     "HEADER": "Edit User Profile",

@@ -18,8 +18,9 @@
     "INFO": "Information",
     "OPTIONAL": "optional",
     "REQUIRED_FIELD": "Pflichtfeld",
-    "OK": "OK"
-},
+    "OK": "OK",
+    "ENTER_TEXT": "Text eingeben..."
+  },
   "AUTH": {
     "LOGIN": "Anmelden",
     "LOGOUT": "Abmelden",
@@ -335,7 +336,10 @@
     "EMAIL_RECIPIENT_LABEL": "Empfänger",
     "EMAIL_SENT_SUCCESS": "E-Mail wurde erfolgreich gesendet.",
     "EMAIL_SEND_ERROR": "E-Mail konnte nicht gesendet werden.",
-    "EMAIL_ATTACHMENTS_LABEL": "Anhänge"
+    "EMAIL_ATTACHMENTS_LABEL": "Anhänge",
+    "USER_NOT_LOGGED_IN": "Sie müssen angemeldet sein, um Kommentare hinzuzufügen.",
+    "UNKNOWN_USER": "Unbekannter Benutzer",
+    "USER_DATA_LOAD_ERROR": "Fehler beim Laden der Benutzerdaten"
   },
   "EDIT_PROFILE": {
     "HEADER": "Benutzerprofil bearbeiten",

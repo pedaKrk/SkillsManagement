@@ -258,11 +258,13 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy {
 
     const currentUser = this.authService.currentUserValue;
     if (!currentUser || !currentUser.token) {
-      console.error('Benutzer ist nicht angemeldet');
-      this.dialogService.showError(
-        'Fehler',
-        'Sie müssen angemeldet sein, um Kommentare hinzuzufügen.'
-      );
+      console.error('User is not logged in');
+      this.translateService.get(['COMMON.ERROR', 'PROFILE.USER_NOT_LOGGED_IN']).subscribe(translations => {
+        this.dialogService.showError(
+          translations['COMMON.ERROR'] || 'Error',
+          translations['PROFILE.USER_NOT_LOGGED_IN'] || 'You must be logged in to add comments.'
+        );
+      });
       this.isLoading = false;
       return;
     }
@@ -300,12 +302,13 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy {
               this.cdr.detectChanges();
             },
             error: (error) => {
-              console.error('Fehler beim Laden der Benutzerdaten:', error);
+              console.error('Error loading user data:', error);
+              const unknownUserText = this.translateService.instant('PROFILE.UNKNOWN_USER') || 'Unknown User';
               const newComment: Comment = {
                 id: comment.id || comment._id || '',
                 userId: this.userId,
                 authorId: comment.author?._id || currentUser.id,
-                authorName: currentUser.username || 'Unbekannter Benutzer',
+                authorName: currentUser.username || unknownUserText,
                 text: comment.content || this.newComment,
                 createdAt: new Date(comment.time_stamp) || new Date(),
                 replies: []
@@ -347,7 +350,12 @@ export class UserCommentsSectionComponent implements OnInit, OnDestroy {
     if (user.lastName) {
       parts.push(user.lastName);
     }
-    return parts.length > 0 ? parts.join(' ') : user.username || 'Unbekannter Benutzer';
+    if (parts.length > 0) {
+      return parts.join(' ');
+    }
+    // Use username or fallback to translated unknown user text
+    // Note: For synchronous use, we use instant() method
+    return user.username || this.translateService.instant('PROFILE.UNKNOWN_USER') || 'Unknown User';
   }
 
   /**
