@@ -236,16 +236,22 @@ export const getGoalsPerformance = async (req, res) => {
     }
 };
 export const getLecturersSkillFields = async (req, res) => {
+    console.log("📌 ENTERED getLecturersSkillFields");
+
     try {
-        // Load all future skills with lecturer + skill hierarchy
-        const futureSkills = await FutureSkills.find({})
+        console.log("📌 Loading future skills...");
+        const futures = await FutureSkills.find({})
+            .populate("skill_id")
             .populate("lecturer_id")
-            .populate({ path: "skill_id", model: "Skills" })
             .lean();
 
-        const allSkills = await Skills.find({}).lean();
+        console.log("📌 FutureSkills count:", futures.length);
+        console.log("📌 Example future skill:", futures[0]);
 
-        // Helper to find root field
+        console.log("📌 Loading skills collection...");
+        const allSkills = await Skills.find({}).lean();
+        console.log("📌 Skills count:", allSkills.length);
+
         const findRoot = (skill) => {
             if (!skill) return null;
 
@@ -261,48 +267,34 @@ export const getLecturersSkillFields = async (req, res) => {
             return current;
         };
 
-        const lecturerFields = {}; // { lecturerId: Set(fields...) }
+        const result = [];
 
-        // Build field list for each lecturer
-        for (const fs of futureSkills) {
-            const lecturer = fs.lecturer_id;
-            const skill = fs.skill_id;
-
-            if (!lecturer || !skill) continue;
-
-            const root = findRoot(skill);
-            if (!root?.name) continue;
-
-            if (!lecturerFields[lecturer._id]) {
-                lecturerFields[lecturer._id] = new Set();
+        for (const fs of futures) {
+            if (!fs.skill_id) {
+                console.log("⚠ Missing skill_id for", fs);
+                continue;
             }
 
-            lecturerFields[lecturer._id].add(root.name);
-        }
+            const root = findRoot(fs.skill_id);
 
-        // Count how many lecturers belong to each field
-        const counts = {};
-
-        for (const lecturerId in lecturerFields) {
-            for (const field of lecturerFields[lecturerId]) {
-                counts[field] = (counts[field] || 0) + 1;
+            if (!root) {
+                console.log("⚠ No root found for skill:", fs.skill_id.name);
+                continue;
             }
+
+            result.push({
+                name: `${fs.skill_id.name} (${root.name})`,
+                value: 1
+            });
         }
 
-        // Convert to ngx-charts format
-        const result = Object.entries(counts).map(([name, value]) => ({
-            name,
-            value
-        }));
+        console.log("📌 Final result:", result);
 
         return res.status(200).json(result);
 
     } catch (err) {
-        console.error("\n🔥 ERROR in getLecturersSkillFields:");
-        console.error("Message:", err.message);
-        console.error("Full error object:", err);
-        console.error("Stack:", err.stack);
-        return res.status(500).json({ message: "Backend error", error: err.message });
+        console.error("🔥 ERROR in getLecturersSkillFields:", err);
+        return res.status(500).json({ message: "Failed", error: err.toString() });
     }
-
 };
+

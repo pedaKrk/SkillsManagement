@@ -15,7 +15,6 @@ export class DashboardComponent implements OnInit {
   skillsLevelMatrixData: any[] = [];
   skillsData: any[] = [];
   skillsByLevelData: any[] = [];
-  skillsPerFieldData: any[] = [];
   goalsPerformanceData: any[] = [];
   lecturersSkillFields: any[] = [];
 
