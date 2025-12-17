@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import morgan from 'morgan'
 
 import userRoutes from './routes/user.routes.js'
 import skillRoutes from './routes/skill.routes.js'
@@ -14,7 +15,8 @@ import dashboardRoutes from './routes/dashboard.routes.js';
 import connectToDB from "./database/mongodb.js";
 import {smtpService} from "./services/mail/smtp.service.js";
 
-import { PORT } from "./config/env.js";
+import { PORT, NODE_ENV } from "./config/env.js";
+import logger from "./config/logger.js";
 
 import './models/user.model.js';
 import './models/comment.model.js';
@@ -26,6 +28,26 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express()
+
+// HTTP Request Logging with Morgan
+const morganStream = {
+  write: (message) => {
+    const statusCode = parseInt(message.split(' ')[message.split(' ').length - 2]);
+    if (statusCode >= 400) {
+      logger.warn(message.trim());
+    } else if (message.includes('POST') || message.includes('PUT') || message.includes('DELETE')) {
+      logger.info(message.trim());
+    }
+  }
+};
+
+const morganFormat = NODE_ENV === 'production' ? 'combined' : 'dev';
+app.use(morgan(morganFormat, { 
+  stream: morganStream,
+  skip: (req, res) => {
+    return req.method === 'OPTIONS' || (req.method === 'GET' && res.statusCode < 400);
+  }
+}));
 
 //  CORS for all Routs
 app.use(cors());
@@ -43,9 +65,15 @@ app.use('/api/v1/future-skills', futureSkillsRoutes)
 app.use('/api/v1/dashboard', dashboardRoutes)
 
 app.listen(PORT, async () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-  await connectToDB()
-  await smtpService.connect()
+  logger.info(`Server is running on http://localhost:${PORT}`);
+  try {
+    await connectToDB()
+    await smtpService.connect()
+    logger.info('Database and SMTP service connected successfully');
+  } catch (error) {
+    logger.error('Failed to initialize services:', error);
+    process.exit(1);
+  }
 })
 
 export default app

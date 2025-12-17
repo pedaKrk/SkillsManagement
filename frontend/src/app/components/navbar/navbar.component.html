@@ -44,9 +44,6 @@
               <a class="dropdown-item" [routerLink]="['/future-skills/dashboard']"  (click)="closeMenu()">
                 <i class="fa fa-tachometer"></i> {{ 'NAVIGATION.FUTURE_SKILLS_DASHBOARD' | translate }}
               </a>
-              <a class="dropdown-item" [routerLink]="['/future-skills/plan']"  (click)="closeMenu()">
-                <i class="fa fa-calendar"></i> {{ 'NAVIGATION.FUTURE_SKILLS_PLAN' | translate }}
-              </a>
               <a class="dropdown-item" [routerLink]="['/future-skills/progress']" (click)="closeMenu()">
                 <i class="fa fa-tasks"></i> {{ 'NAVIGATION.FUTURE_SKILLS_MANAGE_PROGRESS' | translate }}
               </a>
@@ -56,12 +53,12 @@
         <li class="nav-item" *ngIf="isAdminOrCompetenceLeader">
           <a class="nav-link" [routerLink]="['/user']" routerLinkActive="active" (click)="closeMenu()">{{ 'NAVIGATION.USER_OVERVIEW' | translate }}</a>
         </li>
-        
+
         <!-- Language Selector -->
         <li class="nav-item">
           <app-language-selector></app-language-selector>
         </li>
-        
+
         <!-- User Dropdown -->
         <li class="nav-item">
           <div class="user-dropdown" (clickOutside)="closeUserDropdown()">

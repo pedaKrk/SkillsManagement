@@ -167,6 +167,100 @@
   align-items: center;
 }
 
+// Rich Text Editor
+.richtext-container {
+  width: 100%;
+  background-color: white;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  overflow: hidden;
+  
+  .quill-editor {
+    min-height: 200px;
+    
+    ::ng-deep .ql-container {
+      font-size: 1rem;
+      min-height: 200px;
+    }
+    
+    ::ng-deep .ql-editor {
+      min-height: 200px;
+    }
+    
+    ::ng-deep .ql-toolbar {
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      border-bottom: 1px solid #ced4da;
+    }
+    
+    ::ng-deep .ql-container {
+      border: none;
+    }
+  }
+}
+
+// File Upload
+.file-upload-container {
+  position: relative;
+  width: 100%;
+}
+
+.file-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.file-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border: 2px dashed #ced4da;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: #0077a9;
+    background-color: #f8f9fa;
+  }
+  
+  .file-label-text {
+    flex: 1;
+    color: #495057;
+    font-size: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .file-label-button {
+    padding: 0.5rem 1rem;
+    background-color: #0077a9;
+    color: white;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-left: 1rem;
+    transition: background-color 0.2s ease;
+  }
+  
+  &:hover .file-label-button {
+    background-color: #005d85;
+  }
+}
+
+.file-input:focus + .file-label {
+  border-color: #0077a9;
+  box-shadow: 0 0 0 3px rgba(0, 119, 169, 0.15);
+}
+
 .dialog-footer {
   display: flex;
   justify-content: space-between;

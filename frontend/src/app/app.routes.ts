@@ -11,7 +11,6 @@ import { AdminGuard } from './core/guards/admin.guard';
 import { FutureSkillsGuard } from './core/guards/future-skills.guard';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
-import { PlanComponent } from './components/future-skills/plan/plan.component';
 import { DashboardComponent } from './components/future-skills/dashboard/dashboard.component';
 import { MainPageComponent } from './components/main-page/main-page.component';
 import { ManageProgressComponent } from './components/future-skills/manage-progress/manage-progress.component';
@@ -33,7 +32,6 @@ export const routes: Routes = [
     { path: '', redirectTo: '/main', pathMatch: 'full' },
     { path: 'future-skills/dashboard', component: DashboardComponent, canActivate: [AuthGuard, FutureSkillsGuard] },
     { path: 'future-skills', redirectTo: 'future-skills/dashboard', pathMatch: 'full' },
-    { path: 'future-skills/plan', component: PlanComponent, canActivate: [AuthGuard, FutureSkillsGuard] },
     { path: 'future-skills/progress', component: ManageProgressComponent, canActivate: [AuthGuard, FutureSkillsGuard] },
     { path: 'inactive-users', component: InactiveUsersComponent, canActivate: [AuthGuard, FutureSkillsGuard] },
     { path: 'skill-edit', component: SkillEditComponent, canActivate: [AuthGuard, AdminGuard] },

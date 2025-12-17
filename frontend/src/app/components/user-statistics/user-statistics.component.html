@@ -1,3 +1,4 @@
 <h2 class="section-title">{{ 'PROFILE.STATISTICS' | translate }}</h2>
 
-<div echarts [options]="radarOptions" class="radar-chart"></div>
+<app-radar-chart [title]="'Skills Distributions'" [name]="'Skills'" [indicators]="indicators" [counts]="counts"></app-radar-chart>
+<app-bar-chart [xAxisData]="xData" [yAxisData]="yData" ></app-bar-chart>

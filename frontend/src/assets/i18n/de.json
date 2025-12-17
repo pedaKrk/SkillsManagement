@@ -209,7 +209,8 @@
     "EMAIL_SENT_SUCCESS": "E-Mail wurde erfolgreich gesendet!",
     "EMAIL_SEND_ERROR": "Fehler beim Senden der E-Mail.",
     "EMAIL_UNAUTHORIZED": "Sie sind nicht autorisiert.",
-    "EMAIL_INVALID": "Ungültige Eingabe."
+    "EMAIL_INVALID": "Ungültige Eingabe.",
+    "EMAIL_ATTACHMENTS_LABEL": "Anhänge"
   },
   "DASHBOARD": {
     "DASHBOARD": "Dashboard",
@@ -301,10 +302,31 @@
     "ADD_COMMENT": "Kommentar hinzufügen",
     "COMMENT_PLACEHOLDER": "Schreiben Sie einen Kommentar...",
     "SEARCH_COMMENTS": "Kommentare durchsuchen...",
+    "COMMENT_ADDED_SUCCESS": "Kommentar wurde erfolgreich hinzugefügt.",
+    "COMMENT_UPDATED_SUCCESS": "Kommentar wurde erfolgreich aktualisiert.",
+    "COMMENT_DELETED_SUCCESS": "Kommentar wurde erfolgreich gelöscht.",
+    "COMMENT_ADD_ERROR": "Der Kommentar konnte nicht hinzugefügt werden. Bitte versuchen Sie es später erneut.",
+    "COMMENT_UPDATE_ERROR": "Der Kommentar konnte nicht aktualisiert werden.",
+    "COMMENT_DELETE_ERROR": "Der Kommentar konnte nicht gelöscht werden.",
+    "COMMENT_EDIT_PERMISSION_ERROR": "Sie haben keine Berechtigung, diesen Kommentar zu bearbeiten.",
+    "COMMENT_DELETE_PERMISSION_ERROR": "Sie haben keine Berechtigung, diesen Kommentar zu löschen.",
+    "COMMENT_DELETE_CONFIRMATION": "Kommentar löschen",
+    "COMMENT_DELETE_MESSAGE": "Möchten Sie diesen Kommentar wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "COMMENT_DELETE_CONFIRM": "Ja, löschen",
+    "COMMENT_ID_NOT_FOUND": "Kommentar-ID nicht gefunden.",
+    "REPLY_ADDED_SUCCESS": "Antwort wurde erfolgreich hinzugefügt.",
+    "REPLY_ADD_ERROR": "Die Antwort konnte nicht hinzugefügt werden. Bitte versuchen Sie es später erneut.",
     "ALL_AUTHORS": "Alle Autoren",
     "FROM": "Von:",
     "TO": "Bis:",
-    "NO_COMMENTS": "Keine Kommentare vorhanden."
+    "NO_COMMENTS": "Keine Kommentare vorhanden.",
+    "SEND_EMAIL": "E-Mail senden",
+    "EMAIL_DIALOG_TITLE": "E-Mail senden",
+    "EMAIL_DIALOG_INFO": "E-Mail an {{userName}} senden",
+    "EMAIL_RECIPIENT_LABEL": "Empfänger",
+    "EMAIL_SENT_SUCCESS": "E-Mail wurde erfolgreich gesendet.",
+    "EMAIL_SEND_ERROR": "E-Mail konnte nicht gesendet werden.",
+    "EMAIL_ATTACHMENTS_LABEL": "Anhänge"
   },
   "EDIT_PROFILE": {
     "HEADER": "Benutzerprofil bearbeiten",

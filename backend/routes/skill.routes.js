@@ -6,14 +6,20 @@ import {
     createSkill,
     updateSkill,
     deleteSkill,
-    getRootSkills
+    getRootSkills,
+    addFutureSkillToSkills,
+    getAllSkillNames,
+    getSkillLevels
 } from '../controllers/skill.controller.js'
 import {authenticateToken, authorizeRole} from '../middleware/auth.middleware.js'
 
-//public
-router.get('/root', getRootSkills)
-router.get('/:id', getSkillById)
-router.get('/', getAllSkills)
+router.post('/from-future/:futureSkillId', authenticateToken, addFutureSkillToSkills);
+//public - specific routes must come before parameterized routes
+router.get('/names', getAllSkillNames);
+router.get('/levels', getSkillLevels);
+router.get('/root', getRootSkills);
+router.get('/', getAllSkills);
+router.get('/:id', getSkillById);
 
 // private
 router.post('/', authenticateToken, authorizeRole(['Admin', 'competence_leader']), createSkill)

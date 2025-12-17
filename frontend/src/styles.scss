@@ -1,5 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 
+/* Import Quill Editor Styles */
+@import 'quill/dist/quill.snow.css';
+
 /* Global Variables */
 :root {
   --primary-color: #0077a9;

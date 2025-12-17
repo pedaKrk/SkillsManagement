@@ -1,5 +1,7 @@
 import {futureSkillRepository} from '../repositories/future.skill.repository.js'
 import {NotFoundError} from "../errors/not.found.error.js";
+import FutureSkill from "../models/future.skill.model.js";
+
 
 export const getAllFutureSkills = async () => {
     try{
@@ -38,3 +40,16 @@ export const deleteFutureSkill = async (id) => {
         throw error
     }
 }
+
+export const getFutureSkillById = async (id) => {
+    const futureSkill = await futureSkillRepository.findFutureSkillById(id);
+
+    if (!futureSkill) return null;
+
+    // manual populate
+    return await FutureSkill.populate(futureSkill, [
+        { path: "skill_id" },
+        { path: "lecturer_id" }
+    ]);
+};
+

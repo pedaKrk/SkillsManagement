@@ -5,6 +5,7 @@ import {comparePassword, hashPassword} from "./auth.service.js";
 import path from "path";
 import fs from "fs";
 import UserRepository from "../repositories/user.repository.js";
+import logger from "../config/logger.js";
 
 export const getAllUsers = async () => {
     return UserRepository.findAllActiveUsers()
@@ -261,9 +262,12 @@ export const uploadProfileImage = async (id, file) => {
             }
         }
 
-        const profileImageUrl = `/uploads/${file.filename}`;
-        console.log('Speichere Profilbild-URL:', profileImageUrl);
-        console.log('Vollständiger Dateipfad:', path.join(process.cwd(), profileImageUrl.replace(/^\//, '')));
+        // Extract filename from file object (could be file.filename or from file.path)
+        const filename = file.filename || path.basename(file.path);
+        const profileImageUrl = `/uploads/${filename}`;
+        logger.debug('File object:', { filename: file.filename, path: file.path, originalname: file.originalname });
+        logger.debug('Speichere Profilbild-URL:', profileImageUrl);
+        logger.debug('Vollständiger Dateipfad:', path.join(process.cwd(), profileImageUrl.replace(/^\//, '')));
 
         return await UserRepository.updateUserProfileImage(id, profileImageUrl);
     }
@@ -291,5 +295,32 @@ export const removeProfileImage = async (id) => {
     }
     catch (error) {
         throw error
+    }
+}
+
+export const findUserByIdentifier = async (identifier) => {
+    try {
+        return await UserRepository.findUserByIdentifier(identifier);
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+export const findUsersByRoles = async (roles) => {
+    try {
+        return await UserRepository.findUsersByRoles(roles);
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+export const resetUserPassword = async (userId, hashedPassword, mustChangePassword = true) => {
+    try {
+        return await UserRepository.updateUserPasswordWithFlag(userId, hashedPassword, mustChangePassword);
+    }
+    catch (error) {
+        throw error;
     }
 }

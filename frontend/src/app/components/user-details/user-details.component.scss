@@ -184,6 +184,9 @@
   
   .admin-actions {
     margin-top: 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
     
     .btn-primary {
       background-color: #0077a9;
@@ -195,6 +198,7 @@
       display: inline-flex;
       align-items: center;
       transition: background-color 0.2s ease;
+      cursor: pointer;
       
       i {
         margin-right: 0.5rem;
@@ -203,6 +207,29 @@
       
       &:hover {
         background-color: #005d85;
+        text-decoration: none;
+      }
+    }
+    
+    .btn-secondary {
+      background-color: #17a2b8;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 4px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      transition: background-color 0.2s ease;
+      cursor: pointer;
+      
+      i {
+        margin-right: 0.5rem;
+        font-size: 1rem;
+      }
+      
+      &:hover {
+        background-color: #138496;
         text-decoration: none;
       }
     }
@@ -499,9 +526,12 @@
     .comment-actions {
       display: flex;
       justify-content: flex-start;
+      gap: 0.75rem;
       margin-bottom: 0.75rem;
       
-      .btn-reply {
+      .btn-reply,
+      .btn-edit,
+      .btn-delete {
         background: none;
         border: none;
         color: #6c757d;
@@ -511,14 +541,82 @@
         display: flex;
         align-items: center;
         
-        &:hover {
+        &:hover:not(:disabled) {
           color: #0077a9;
           text-decoration: underline;
+        }
+        
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
         
         i {
           margin-right: 0.25rem;
           font-size: 0.8rem;
+        }
+      }
+      
+      .btn-delete {
+        &:hover:not(:disabled) {
+          color: #dc3545;
+        }
+      }
+    }
+    
+    .edit-comment-form {
+      margin-bottom: 0.75rem;
+      
+      .edit-comment-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        resize: vertical;
+        margin-bottom: 0.5rem;
+        
+        &:focus {
+          border-color: #0077a9;
+          outline: none;
+          box-shadow: 0 0 0 0.2rem rgba(0, 119, 169, 0.25);
+        }
+      }
+      
+      .edit-comment-actions {
+        display: flex;
+        gap: 0.5rem;
+        
+        .btn {
+          padding: 0.5rem 1rem;
+          font-size: 0.9rem;
+          border-radius: 4px;
+          cursor: pointer;
+          border: none;
+          
+          &.btn-primary {
+            background-color: #0077a9;
+            color: white;
+            
+            &:hover:not(:disabled) {
+              background-color: #005f87;
+            }
+            
+            &:disabled {
+              opacity: 0.6;
+              cursor: not-allowed;
+            }
+          }
+          
+          &.btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            
+            &:hover {
+              background-color: #5a6268;
+            }
+          }
         }
       }
     }

@@ -143,6 +143,7 @@
     "EMAIL_SEND_BUTTON": "Send Email",
     "EMAIL_NO_USERS_SELECTED": "Please select at least one user.",
     "EMAIL_TEMPLATE_ERROR": "Failed to load email template.",
+    "EMAIL_ATTACHMENTS_LABEL": "Attachments",
     "USER_EDIT_TITLE": "Edit profile of {{name}}",
     "USER_EDIT_SUBTITLE": "Edit information for {{name}}"
   },
@@ -210,7 +211,8 @@
     "EMAIL_SENT_SUCCESS": "Email sent successfully!",
     "EMAIL_SEND_ERROR": "Failed to send email.",
     "EMAIL_UNAUTHORIZED": "You are not authorized.",
-    "EMAIL_INVALID": "Invalid input."
+    "EMAIL_INVALID": "Invalid input.",
+    "EMAIL_ATTACHMENTS_LABEL": "Attachments"
   },
   "DASHBOARD": {
     "DASHBOARD": "Dashboard",
@@ -302,6 +304,20 @@
     "ADD_COMMENT": "Add Comment",
     "COMMENT_PLACEHOLDER": "Write a comment...",
     "SEARCH_COMMENTS": "Search comments...",
+    "COMMENT_ADDED_SUCCESS": "Comment was successfully added.",
+    "COMMENT_UPDATED_SUCCESS": "Comment was successfully updated.",
+    "COMMENT_DELETED_SUCCESS": "Comment was successfully deleted.",
+    "COMMENT_ADD_ERROR": "The comment could not be added. Please try again later.",
+    "COMMENT_UPDATE_ERROR": "The comment could not be updated.",
+    "COMMENT_DELETE_ERROR": "The comment could not be deleted.",
+    "COMMENT_EDIT_PERMISSION_ERROR": "You do not have permission to edit this comment.",
+    "COMMENT_DELETE_PERMISSION_ERROR": "You do not have permission to delete this comment.",
+    "COMMENT_DELETE_CONFIRMATION": "Delete Comment",
+    "COMMENT_DELETE_MESSAGE": "Do you really want to delete this comment? This action cannot be undone.",
+    "COMMENT_DELETE_CONFIRM": "Yes, delete",
+    "COMMENT_ID_NOT_FOUND": "Comment ID not found.",
+    "REPLY_ADDED_SUCCESS": "Reply was successfully added.",
+    "REPLY_ADD_ERROR": "The reply could not be added. Please try again later.",
     "ALL_AUTHORS": "All Authors",
     "FROM": "From:",
     "TO": "To:",
@@ -309,7 +325,14 @@
     "REPLY": "Reply",
     "SHOW_MORE": "Show more",
     "SHOW_LESS": "Show less",
-    "REPLY_PLACEHOLDER": "Write a reply..."
+    "REPLY_PLACEHOLDER": "Write a reply...",
+    "SEND_EMAIL": "Send Email",
+    "EMAIL_DIALOG_TITLE": "Send Email",
+    "EMAIL_DIALOG_INFO": "Send email to {{userName}}",
+    "EMAIL_RECIPIENT_LABEL": "Recipient",
+    "EMAIL_SENT_SUCCESS": "Email sent successfully.",
+    "EMAIL_SEND_ERROR": "Failed to send email.",
+    "EMAIL_ATTACHMENTS_LABEL": "Attachments"
   },
   "EDIT_PROFILE": {
     "HEADER": "Edit User Profile",

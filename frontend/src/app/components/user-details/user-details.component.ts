@@ -4,8 +4,9 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { UserService } from '../../core/services/user/user.service';
 import { AuthService } from '../../core/services/auth/auth.service';
-import { DialogService } from '../../core/services/dialog/dialog.service';
+import { DialogService, FormDialogConfig } from '../../core/services/dialog/dialog.service';
 import { CommentService } from '../../core/services/comment/comment.service';
+import { EmailService } from '../../core/services/email/email.service';
 import { User, Comment, UserSkillEntry } from '../../models/user.model';
 import { UserRole } from '../../models/enums/user-roles.enum';
 import { environment } from '../../../environments/environment';
@@ -40,6 +41,10 @@ export class UserDetailsComponent implements OnInit {
   replyingToComment: Comment | null = null;
   replyText: string = '';
 
+  // for editing comments
+  editingComment: Comment | null = null;
+  editCommentText: string = '';
+
   // for filtering comments
   commentSearchTerm: string = '';
   selectedAuthor: string = '';
@@ -64,6 +69,7 @@ export class UserDetailsComponent implements OnInit {
     private authService: AuthService,
     private dialogService: DialogService,
     private commentService: CommentService,
+    private emailService: EmailService,
     private translateService: TranslateService
   ) {}
 
@@ -239,6 +245,24 @@ export class UserDetailsComponent implements OnInit {
   }
 
   /**
+   * checks if the current user is the author of a comment
+   */
+  isCommentAuthor(comment: Comment): boolean {
+    const currentUser = this.authService.currentUserValue;
+    if (!currentUser || !comment.authorId) {
+      return false;
+    }
+    return currentUser.id === comment.authorId;
+  }
+
+  /**
+   * checks if the current user can delete a comment (author or admin)
+   */
+  canDeleteComment(comment: Comment): boolean {
+    return this.isCommentAuthor(comment) || this.isAdmin;
+  }
+
+  /**
    * checks if the current user is viewing their own profile
    */
   isOwnProfile(): boolean {
@@ -291,9 +315,9 @@ export class UserDetailsComponent implements OnInit {
               this.newComment = '';
 
               this.dialogService.showSuccess({
-                title: 'Erfolg',
-                message: 'Kommentar wurde erfolgreich hinzugefügt.',
-                buttonText: 'OK'
+                title: this.translateService.instant('COMMON.SUCCESS') || 'Success',
+                message: this.translateService.instant('PROFILE.COMMENT_ADDED_SUCCESS') || 'Comment was successfully added.',
+                buttonText: this.translateService.instant('COMMON.OK') || 'OK'
               });
               this.isLoading = false;
             },
@@ -318,10 +342,12 @@ export class UserDetailsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error adding comment:', error);
-        this.dialogService.showError(
-          'Fehler',
-          'Der Kommentar konnte nicht hinzugefügt werden. Bitte versuchen Sie es später erneut.'
-        );
+        this.translateService.get(['COMMON.ERROR', 'PROFILE.COMMENT_ADD_ERROR']).subscribe(translations => {
+          this.dialogService.showError(
+            translations['COMMON.ERROR'] || 'Error',
+            translations['PROFILE.COMMENT_ADD_ERROR'] || 'The comment could not be added. Please try again later.'
+          );
+        });
         this.isLoading = false;
       }
     });
@@ -574,10 +600,12 @@ export class UserDetailsComponent implements OnInit {
               this.replyText = '';
               this.replyingToComment = null;
 
-              this.dialogService.showSuccess({
-                title: 'Erfolg',
-                message: 'Antwort wurde erfolgreich hinzugefügt.',
-                buttonText: 'OK'
+              this.translateService.get(['COMMON.SUCCESS', 'PROFILE.REPLY_ADDED_SUCCESS', 'COMMON.OK']).subscribe(translations => {
+                this.dialogService.showSuccess({
+                  title: translations['COMMON.SUCCESS'] || 'Success',
+                  message: translations['PROFILE.REPLY_ADDED_SUCCESS'] || 'Reply was successfully added.',
+                  buttonText: translations['COMMON.OK'] || 'OK'
+                });
               });
               this.isLoading = false;
             },
@@ -611,10 +639,12 @@ export class UserDetailsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Fehler beim Hinzufügen der Antwort:', error);
-        this.dialogService.showError(
-          'Fehler',
-          'Die Antwort konnte nicht hinzugefügt werden. Bitte versuchen Sie es später erneut.'
-        );
+        this.translateService.get(['COMMON.ERROR', 'PROFILE.REPLY_ADD_ERROR']).subscribe(translations => {
+          this.dialogService.showError(
+            translations['COMMON.ERROR'] || 'Error',
+            translations['PROFILE.REPLY_ADD_ERROR'] || 'The reply could not be added. Please try again later.'
+          );
+        });
         this.isLoading = false;
       }
     });
@@ -744,5 +774,252 @@ export class UserDetailsComponent implements OnInit {
       return '';
     }
     return level.toLowerCase();
+  }
+
+  /**
+   * Sends an email to the user
+   */
+  sendEmail(): void {
+    if (!this.user) {
+      return;
+    }
+
+    // Load email template from backend
+    this.emailService.getUserListEmail().subscribe({
+      next: (res) => {
+        if (res.success) {
+          const defaultSubject = this.translateService.instant('USER.EMAIL_SUBJECT') || 'Nachricht vom Skills Management System';
+          let defaultMessage = res.template || '';
+          
+          // Convert plain text template to HTML for Quill editor
+          // Replace line breaks with <p> tags to preserve formatting
+          if (defaultMessage && !defaultMessage.includes('<')) {
+            defaultMessage = defaultMessage
+              .split('\n')
+              .filter((line: string) => line.trim().length > 0)
+              .map((line: string) => `<p>${line.trim()}</p>`)
+              .join('');
+          }
+          
+          const userName = this.getUserFullName();
+          const userEmail = this.user?.email || '';
+          
+          const formConfig: FormDialogConfig = {
+            title: this.translateService.instant('PROFILE.EMAIL_DIALOG_TITLE'),
+            message: this.translateService.instant('PROFILE.EMAIL_DIALOG_INFO', { userName }),
+            formFields: [
+              {
+                id: 'recipient',
+                label: this.translateService.instant('PROFILE.EMAIL_RECIPIENT_LABEL'),
+                type: 'text',
+                defaultValue: `${userName} (${userEmail})`,
+                required: true,
+                disabled: true
+              },
+              {
+                id: 'subject',
+                label: this.translateService.instant('USER.EMAIL_SUBJECT_LABEL'),
+                type: 'text',
+                defaultValue: defaultSubject,
+                required: true,
+                placeholder: this.translateService.instant('USER.EMAIL_SUBJECT_PLACEHOLDER')
+              },
+              {
+                id: 'message',
+                label: this.translateService.instant('USER.EMAIL_MESSAGE_LABEL'),
+                type: 'richtext',
+                defaultValue: defaultMessage,
+                required: true,
+                placeholder: this.translateService.instant('USER.EMAIL_MESSAGE_PLACEHOLDER')
+              },
+              {
+                id: 'attachments',
+                label: this.translateService.instant('PROFILE.EMAIL_ATTACHMENTS_LABEL') || 'Anhänge',
+                type: 'file',
+                required: false,
+                multiple: true,
+                accept: '*/*'
+              }
+            ],
+            submitText: this.translateService.instant('USER.EMAIL_SEND_BUTTON'),
+            cancelText: this.translateService.instant('COMMON.CANCEL'),
+            closeOnBackdropClick: false
+          };
+
+          this.dialogService.showFormDialog(formConfig).subscribe(formData => {
+            if (formData && this.user?.email) {
+              let attachments: File[] = [];
+              if (formData.attachments) {
+                if (formData.attachments instanceof FileList) {
+                  attachments = Array.from(formData.attachments);
+                } else if (Array.isArray(formData.attachments)) {
+                  attachments = formData.attachments.filter((f: any) => f instanceof File) as File[];
+                }
+              }
+              this.emailService.sendEmailToUser(this.user.email, formData.subject, formData.message, attachments).subscribe({
+                next: (response) => {
+                  this.dialogService.showSuccess({
+                    title: this.translateService.instant('COMMON.SUCCESS') || 'Erfolg',
+                    message: this.translateService.instant('PROFILE.EMAIL_SENT_SUCCESS') || 'E-Mail wurde erfolgreich gesendet.',
+                    buttonText: this.translateService.instant('COMMON.OK') || 'OK'
+                  }).subscribe();
+                },
+                error: (error) => {
+                  console.error('Error sending email:', error);
+                  this.dialogService.showError(
+                    this.translateService.instant('COMMON.ERROR') || 'Fehler',
+                    this.translateService.instant('PROFILE.EMAIL_SEND_ERROR') || 'E-Mail konnte nicht gesendet werden.'
+                  ).subscribe();
+                }
+              });
+            }
+          });
+        } else {
+          this.dialogService.showError(
+            this.translateService.instant('COMMON.ERROR') || 'Fehler',
+            this.translateService.instant('USER.EMAIL_TEMPLATE_ERROR') || 'E-Mail-Vorlage konnte nicht geladen werden.'
+          ).subscribe();
+        }
+      },
+      error: (err) => {
+        console.error('Error loading email template:', err);
+        this.dialogService.showError(
+          this.translateService.instant('COMMON.ERROR') || 'Fehler',
+          this.translateService.instant('USER.EMAIL_TEMPLATE_ERROR') || 'E-Mail-Vorlage konnte nicht geladen werden.'
+        ).subscribe();
+      }
+    });
+  }
+
+  /**
+   * starts editing a comment
+   */
+  startEditComment(comment: Comment): void {
+    this.editingComment = comment;
+    this.editCommentText = comment.text || '';
+    // Cancel any active reply
+    this.replyingToComment = null;
+    this.replyText = '';
+  }
+
+  /**
+   * cancels editing a comment
+   */
+  cancelEditComment(): void {
+    this.editingComment = null;
+    this.editCommentText = '';
+  }
+
+  /**
+   * saves the edited comment
+   */
+  saveEditComment(): void {
+    if (!this.editingComment || !this.editCommentText.trim()) {
+      return;
+    }
+
+    this.isLoading = true;
+    const commentId = this.editingComment.id || this.editingComment._id;
+    
+    if (!commentId) {
+      this.dialogService.showError('Fehler', 'Kommentar-ID nicht gefunden.');
+      this.isLoading = false;
+      return;
+    }
+
+    this.commentService.updateComment(this.userId, commentId, this.editCommentText).subscribe({
+      next: (updatedComment) => {
+        // Update the comment in the local array
+        const index = this.comments.findIndex(c => (c.id || c._id) === commentId);
+        if (index !== -1) {
+          this.comments[index].text = updatedComment.content || this.editCommentText;
+        }
+        
+        this.dialogService.showSuccess({
+          title: this.translateService.instant('COMMON.SUCCESS') || 'Success',
+          message: this.translateService.instant('PROFILE.COMMENT_UPDATED_SUCCESS') || 'Comment was successfully updated.',
+          buttonText: this.translateService.instant('COMMON.OK') || 'OK'
+        });
+        
+        this.cancelEditComment();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error updating comment:', error);
+        this.translateService.get(['PROFILE.COMMENT_UPDATE_ERROR', 'PROFILE.COMMENT_EDIT_PERMISSION_ERROR', 'COMMON.ERROR']).subscribe(translations => {
+          let errorMessage = translations['PROFILE.COMMENT_UPDATE_ERROR'] || 'The comment could not be updated.';
+          if (error.status === 403) {
+            errorMessage = translations['PROFILE.COMMENT_EDIT_PERMISSION_ERROR'] || 'You do not have permission to edit this comment.';
+          }
+          this.dialogService.showError(
+            translations['COMMON.ERROR'] || 'Error',
+            errorMessage
+          );
+        });
+        this.isLoading = false;
+      }
+    });
+  }
+
+  /**
+   * deletes a comment
+   */
+  deleteComment(comment: Comment): void {
+    const commentId = comment.id || comment._id;
+    
+    if (!commentId) {
+      this.translateService.get(['COMMON.ERROR', 'PROFILE.COMMENT_ID_NOT_FOUND']).subscribe(translations => {
+        this.dialogService.showError(
+          translations['COMMON.ERROR'] || 'Error',
+          translations['PROFILE.COMMENT_ID_NOT_FOUND'] || 'Comment ID not found.'
+        );
+      });
+      return;
+    }
+
+    this.translateService.get(['PROFILE.COMMENT_DELETE_CONFIRMATION', 'PROFILE.COMMENT_DELETE_MESSAGE', 'PROFILE.COMMENT_DELETE_CONFIRM', 'COMMON.CANCEL']).subscribe(translations => {
+      this.dialogService.showConfirmation({
+        title: translations['PROFILE.COMMENT_DELETE_CONFIRMATION'] || 'Delete Comment',
+        message: translations['PROFILE.COMMENT_DELETE_MESSAGE'] || 'Do you really want to delete this comment? This action cannot be undone.',
+        confirmText: translations['PROFILE.COMMENT_DELETE_CONFIRM'] || 'Yes, delete',
+        cancelText: translations['COMMON.CANCEL'] || 'Cancel',
+        dangerMode: true
+      }).subscribe(confirmed => {
+        if (confirmed) {
+          this.isLoading = true;
+          
+          this.commentService.deleteComment(this.userId, commentId).subscribe({
+            next: () => {
+              // Remove the comment from the local array
+              this.comments = this.comments.filter(c => (c.id || c._id) !== commentId);
+              
+              this.translateService.get(['COMMON.SUCCESS', 'PROFILE.COMMENT_DELETED_SUCCESS', 'COMMON.OK']).subscribe(successTranslations => {
+                this.dialogService.showSuccess({
+                  title: successTranslations['COMMON.SUCCESS'] || 'Success',
+                  message: successTranslations['PROFILE.COMMENT_DELETED_SUCCESS'] || 'Comment was successfully deleted.',
+                  buttonText: successTranslations['COMMON.OK'] || 'OK'
+                });
+              });
+              
+              this.isLoading = false;
+            },
+            error: (error) => {
+              console.error('Error deleting comment:', error);
+              this.translateService.get(['PROFILE.COMMENT_DELETE_ERROR', 'PROFILE.COMMENT_DELETE_PERMISSION_ERROR', 'COMMON.ERROR']).subscribe(errorTranslations => {
+                let errorMessage = errorTranslations['PROFILE.COMMENT_DELETE_ERROR'] || 'The comment could not be deleted.';
+                if (error.status === 403) {
+                  errorMessage = errorTranslations['PROFILE.COMMENT_DELETE_PERMISSION_ERROR'] || 'You do not have permission to delete this comment.';
+                }
+                this.dialogService.showError(
+                  errorTranslations['COMMON.ERROR'] || 'Error',
+                  errorMessage
+                );
+              });
+              this.isLoading = false;
+            }
+          });
+        }
+      });
+    });
   }
 }
