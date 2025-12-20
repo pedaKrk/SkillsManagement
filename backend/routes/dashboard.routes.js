@@ -11,7 +11,7 @@ const router = express.Router();
 router.get('/skills-level-matrix', getSkillsLevelMatrix);
 router.get('/skills-by-level', getSkillsByLevel);
 router.get('/skills-popularity', getSkillsPopularity);
-router.get('/lecturers-skill-fields',getLecturersSkillFields);
+router.get('/lecturers-skill-fields', getLecturersSkillFields);
 router.get('/future-skills-growth', getFutureSkillsGrowth);
 
 

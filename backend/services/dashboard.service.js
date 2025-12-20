@@ -58,7 +58,6 @@ class DashboardService {
         return await futureSkillRepository.getFutureSkillsGrowthByMonth();
     }
 
-
     async getSkillsPopularity() {
         return await futureSkillRepository.getSkillsPopularity();
     }

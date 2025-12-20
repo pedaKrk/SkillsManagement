@@ -37,12 +37,14 @@ export class DashboardService {
   }
 
   getLecturersSkillFields(): Observable<any> {
-    return this.http.get(`${API_CONFIG.baseUrl}/${API_CONFIG.endpoints.dashboard.lecturersSkillFields}`).pipe(
-      catchError(error => {
-        console.error('Error loading Fields popularity:', error);
-        return throwError(() => new Error('Error getting Fields popularity'));
-      })
-    );
+    return this.http
+      .get(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.dashboard.lecturersSkillFields}`)
+      .pipe(
+        catchError(error => {
+          console.error('Error loading lecturers skill fields:', error);
+          return throwError(() => new Error('Error getting lecturers skill fields'));
+        })
+      );
   }
 
 
