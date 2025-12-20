@@ -19,6 +19,10 @@ export class DashboardComponent implements OnInit {
   skillsData: any[] = [];
   skillsByLevelData: any[] = [];
   lecturersSkillFields: any[] = [];
+  // KPI values (computed, not hard-coded)
+  totalSkills = 0;
+  skillLevelsCount = 0;
+  lecturersCount= 0;
 
   // ✅ Professional color palette for all charts
   colorScheme: Color = {
@@ -50,18 +54,47 @@ export class DashboardComponent implements OnInit {
 
     this.dashboardService.getSkillsLevelMatrix().subscribe(data => {
       this.skillsLevelMatrixData = data;
+
+      // Total skills = number of skills in matrix
+      this.totalSkills = data.length;
+
+      // Skill levels = unique level names across all skills
+      const levels = new Set<string>();
+      data.forEach((skill: any) => {
+        skill.series?.forEach((s: any) => levels.add(s.name));
+      });
+      this.skillLevelsCount = levels.size;
     });
 
     this.dashboardService.getSkillsByLevel().subscribe(data => {
       this.skillsByLevelData = data;
+
+      // Fallback: number of levels returned
+      if (!this.skillLevelsCount) {
+        this.skillLevelsCount = data.length;
+      }
     });
 
     this.dashboardService.getSkillsPopularity().subscribe(data => {
       this.skillsData = data;
+
+      // Alternative source for total skills if needed
+      if (!this.totalSkills) {
+        this.totalSkills = data.length;
+      }
     });
 
     this.dashboardService.getLecturersSkillFields().subscribe(data => {
       this.lecturersSkillFields = data;
+
+      // count unique lecturers
+      const uniqueLecturers = new Set(
+        data
+          .map((item: any) => item.lecturer_id)
+          .filter(Boolean)
+      );
+
+      this.lecturersCount = uniqueLecturers.size;
     });
   }
-}
+  }

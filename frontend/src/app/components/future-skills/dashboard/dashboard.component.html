@@ -9,19 +9,19 @@
   <!-- KPI ROW -->
   <div class="kpi-grid">
     <div class="kpi-card blue">
-      <div class="kpi-value">{{ skillsData?.length || 0 }}</div>
+      <div class="kpi-value">{{ totalSkills }}</div>
       <div class="kpi-label">Total Skills</div>
     </div>
 
     <div class="kpi-card green">
-      <div class="kpi-value">{{ skillsByLevelData?.length || 0 }}</div>
+      <div class="kpi-value">{{ skillLevelsCount }}</div>
       <div class="kpi-label">Skill Levels</div>
     </div>
 
     <div class="kpi-card purple">
-      <div class="kpi-value">{{ lecturersSkillFields?.length || 0 }}</div>
-      <div class="kpi-label">Skill Fields</div>
-    </div>
+    <div class="kpi-value">{{ lecturersCount }}</div>
+    <div class="kpi-label">Lecturers</div>
+  </div>
   </div>
 
   <!-- MAIN CHART -->
@@ -61,7 +61,7 @@
     [labels]="true"
     [doughnut]="true"
     [arcWidth]="0.35"
-    [view]="[420, 520]"
+    [view]="[620, 420]"
     [animations]="true">
   </ngx-charts-pie-chart>
 </div>
