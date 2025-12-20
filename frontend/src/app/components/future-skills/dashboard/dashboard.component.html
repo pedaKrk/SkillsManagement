@@ -97,4 +97,22 @@
         [labels]="true">
       </ngx-charts-pie-chart>
     </div>
+  <div class="chart-card large">
+    <div class="chart-title">Future Skills Growth Over Time</div>
+
+    <ngx-charts-line-chart
+      [results]="futureSkillsGrowthData"
+      [scheme]="colorScheme"
+      [xAxis]="true"
+      [yAxis]="true"
+      [legend]="false"
+      [showXAxisLabel]="true"
+      [showYAxisLabel]="true"
+      xAxisLabel="Month"
+      yAxisLabel="Future Skills Count"
+      [autoScale]="true"
+      [animations]="true">
+    </ngx-charts-line-chart>
   </div>
+
+</div>

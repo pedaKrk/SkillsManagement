@@ -120,6 +120,11 @@ ngx-charts-pie-chart {
   height: 320px;
 }
 
+ngx-charts-line-chart,
+ngx-charts-area-chart {
+  height: 420px;
+}
+
 /* AXIS & GRID */
 ngx-charts text {
   font-size: 12px;

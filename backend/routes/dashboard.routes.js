@@ -3,8 +3,7 @@ import {
     getSkillsLevelMatrix,
     getSkillsByLevel,
     getSkillsPopularity,
-    getFieldsPopularity,
-    getUserFutureSkillLevelMatrix, getUserSkillDistribution
+    getUserFutureSkillLevelMatrix, getUserSkillDistribution, getLecturersSkillFields, getFutureSkillsGrowth
 } from '../controllers/dashboard.controller.js';
 
 const router = express.Router();
@@ -12,7 +11,9 @@ const router = express.Router();
 router.get('/skills-level-matrix', getSkillsLevelMatrix);
 router.get('/skills-by-level', getSkillsByLevel);
 router.get('/skills-popularity', getSkillsPopularity);
-router.get('/fields-popularity', getFieldsPopularity);
+router.get('/lecturers-skill-fields',getLecturersSkillFields);
+router.get('/future-skills-growth', getFutureSkillsGrowth);
+
 
 
 router.get('/user/:userId/future-skills-level-matrix', getUserFutureSkillLevelMatrix);

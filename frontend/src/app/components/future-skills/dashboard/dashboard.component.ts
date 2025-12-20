@@ -19,6 +19,8 @@ export class DashboardComponent implements OnInit {
   skillsData: any[] = [];
   skillsByLevelData: any[] = [];
   lecturersSkillFields: any[] = [];
+  futureSkillsGrowthData: any[] = [];
+
   // KPI values (computed, not hard-coded)
   totalSkills = 0;
   skillLevelsCount = 0;
@@ -95,6 +97,16 @@ export class DashboardComponent implements OnInit {
       );
 
       this.lecturersCount = uniqueLecturers.size;
+    });
+
+
+    this.dashboardService.getFutureSkillsGrowth().subscribe(data => {
+      this.futureSkillsGrowthData = [
+        {
+          name: 'Future Skills',
+          series: data
+        }
+      ];
     });
   }
   }
