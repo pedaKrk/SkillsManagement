@@ -30,7 +30,6 @@ export const API_CONFIG = {
       create: '/future-skills',
       update: (id: string) => `/future-skills/${id}`,
       delete: (id: string) => `/future-skills/${id}`,
-      skillLevels: '/future-skills/skill-levels',
       sendEmail: '/future-skills/send-email',
       getTemplate: '/email/future-skill-status-email',
       addToSkills: (id: string) => `/future-skills/${id}/add-to-skills`,
@@ -39,7 +38,10 @@ export const API_CONFIG = {
       skillsLevelMatrix: '/dashboard/skills-level-matrix',
       skillsByLevel: '/dashboard/skills-by-level',
       skillsPopularity: '/dashboard/skills-popularity',
-      fieldsPopularity: '/dashboard/fields-popularity'
+      lecturersSkillFields: '/dashboard/lecturers-skill-fields',
+      futureSkillsGrowth: '/dashboard/future-skills-growth',
+      userFutureSkillLevelMatrix: (id: string) => `dashboard/user/${id}/future-skills-level-matrix`,
+      userSkillsDistribution: (id: string) => `/dashboard/user/${id}/skills/distribution`
     },
     comments: '/comments'
     //  API-Endpoints

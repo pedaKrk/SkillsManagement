@@ -14,7 +14,19 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
+    // Get extension from originalname, or fallback to mimetype
+    let ext = path.extname(file.originalname);
+    if (!ext && file.mimetype) {
+      // Map mimetype to extension if originalname has no extension (e.g., "blob")
+      const mimeToExt = {
+        'image/jpeg': '.jpg',
+        'image/jpg': '.jpg',
+        'image/png': '.png',
+        'image/gif': '.gif',
+        'image/webp': '.webp'
+      };
+      ext = mimeToExt[file.mimetype] || '';
+    }
     cb(null, 'profile-' + uniqueSuffix + ext);
   }
 });

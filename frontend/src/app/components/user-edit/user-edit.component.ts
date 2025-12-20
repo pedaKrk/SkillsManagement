@@ -361,8 +361,12 @@ export class UserEditComponent implements OnInit {
           this.user = updatedUserData as User;
         }
         
+        // Remove skills from userData to avoid validation errors
+        // Skills should only be updated through the skills management page
+        const { skills, ...userDataWithoutSkills } = userData;
+        
         // update the remaining user data
-        this.userService.updateUser(this.userId, userData).subscribe({
+        this.userService.updateUser(this.userId, userDataWithoutSkills).subscribe({
           next: (response) => {
             this.isLoading = false;
             
@@ -467,7 +471,10 @@ export class UserEditComponent implements OnInit {
    * @param uploadImageAfter whether to upload a profile image after the update
    */
   private updateUser(userData: any, uploadImageAfter: boolean = false): void {
-    this.userService.updateUser(this.userId, userData).subscribe({
+    // Remove skills from userData to avoid validation errors
+    // Skills should only be updated through the skills management page
+    const { skills, ...userDataWithoutSkills } = userData;
+    this.userService.updateUser(this.userId, userDataWithoutSkills).subscribe({
       next: (response) => {
         if (uploadImageAfter) {
           // after updating the user data, upload the profile image

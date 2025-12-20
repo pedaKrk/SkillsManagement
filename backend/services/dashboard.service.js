@@ -1,5 +1,7 @@
 import UserRepository from "../repositories/user.repository.js";
 import SkillRepository from "../repositories/skill.repository.js";
+import {futureSkillRepository} from "../repositories/future.skill.repository.js";
+import skillLevelEnum from "../models/enums/skill.level.enum.js";
 
 class DashboardService {
     async getUserSkillDistribution(userId) {
@@ -31,6 +33,39 @@ class DashboardService {
             count: counts.get(rootSkill._id.toString()),
         }))
     }
+
+    async getSkillsLevelMatrix() {
+        return await futureSkillRepository.getFutureSkillLevelMatrix();
+    }
+
+    async getSkillsByLevel() {
+        const levels = Object.values(skillLevelEnum);
+        const data = [];
+
+        for (const level of levels) {
+            const count = await futureSkillRepository.countFutureSkillsByLevel(level);
+            data.push({ name: level, value: count });
+        }
+
+        return data;
+    }
+
+    async getLecturersSkillFields() {
+        return await futureSkillRepository.getLecturersSkillFields();
+    }
+
+    async getFutureSkillsGrowth() {
+        return await futureSkillRepository.getFutureSkillsGrowthByMonth();
+    }
+
+    async getSkillsPopularity() {
+        return await futureSkillRepository.getSkillsPopularity();
+    }
+
+    async getUserFutureSkillLevelMatrix(userId) {
+        return await futureSkillRepository.getUserFutureSkillLevelMatrix(userId);
+    }
+
 }
 
 export default new DashboardService();

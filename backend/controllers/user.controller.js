@@ -63,10 +63,12 @@ export const createUser = async (req, res) => {
   try {
     const userData = req.body
 
-    const newUser = userService.createUser(userData)
+    const newUser = await userService.createUser(userData)
+    logger.info(`User created: ${newUser.email} (${newUser._id})`);
 
     res.status(201).json(newUser)
   } catch (error) {
+    logger.error('Error creating user:', error);
     res.status(500).json({ message: 'Failed to create user', error })
   }
 }
@@ -135,29 +137,30 @@ export const changePassword = async (req, res) => {
   }
 }
 
-// ToDo: Error regarding ProfileImage, add and del
 export const uploadProfileImage = async (req, res) => {
   try {
-    console.info("Upload profile image");
+    logger.info("Upload profile image");
     const { id } = req.params;
     const file = req.file;
     
     if (!mongoose.Types.ObjectId.isValid(id)) {
+      logger.warn(`Invalid user ID for profile image upload: ${id}`);
       return res.status(400).json({ message: 'Ungültige Benutzer-ID' });
     }
 
-    if (file) {
+    if (!file) {
+      logger.warn(`No file provided for profile image upload: ${id}`);
       return res.status(400).json({ message: 'Keine Datei hochgeladen' });
     }
     
-    const updatedUser = await userService.uploadProfileImage(id, file)
+    logger.debug('File object:', { filename: file.filename, originalname: file.originalname, path: file.path });
     
-    res.status(200).json({
-      message: 'Profilbild erfolgreich hochgeladen',
-      user: updatedUser
-    });
+    const updatedUser = await userService.uploadProfileImage(id, file);
+    logger.info(`Profile image uploaded successfully for user: ${id}`);
+    
+    res.status(200).json(updatedUser);
   } catch (error) {
-    console.error('Fehler beim Hochladen des Profilbilds:', error);
+    logger.error('Fehler beim Hochladen des Profilbilds:', error);
     res.status(500).json({
       message: 'Fehler beim Hochladen des Profilbilds',
       error: error.message
@@ -167,21 +170,20 @@ export const uploadProfileImage = async (req, res) => {
 
 export const removeProfileImage = async (req, res) => {
   try {
-    console.info("remove profile image");
+    logger.info("Remove profile image");
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
+      logger.warn(`Invalid user ID for profile image removal: ${id}`);
       return res.status(400).json({ message: 'Ungültige Benutzer-ID' });
     }
 
-    const updatedUser = userService.removeProfileImage(id)
+    const updatedUser = await userService.removeProfileImage(id);
+    logger.info(`Profile image removed successfully for user: ${id}`);
     
-    res.status(200).json({
-      message: 'Profilbild erfolgreich entfernt',
-      user: updatedUser
-    });
+    res.status(200).json(updatedUser);
   } catch (error) {
-    console.error('Fehler beim Entfernen des Profilbilds:', error);
+    logger.error('Fehler beim Entfernen des Profilbilds:', error);
     res.status(500).json({
       message: 'Fehler beim Entfernen des Profilbilds',
       error: error.message
@@ -269,7 +271,7 @@ export const getUserStatus = async (req, res) => {
   try {
     const { id } = req.params;
     
-    const isActive = userService.getUserStatus(id);
+    const isActive = await userService.getUserStatus(id);
     
     res.status(200).json({ isActive });
   } catch (error) {

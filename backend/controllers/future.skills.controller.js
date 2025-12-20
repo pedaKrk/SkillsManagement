@@ -1,28 +1,7 @@
-import Skill from '../models/skill.model.js'
 import mongoose from 'mongoose';
-import skillLevelEnum from '../models/enums/skill.level.enum.js';
 import {mailService} from "../services/mail/mail.service.js";
 import * as futureSkillService from '../services/future.skill.service.js';
-
-// ToDo: move to skill endpoint
-export const getAllSkillNames = async (req, res) => {
-    try {
-        const names = await Skill.find('name');
-        res.json(names);
-    } catch (err) {
-        res.status(500).json({ message: 'Failed to get skill names' });
-    }
-};
-
-// ToDo: move to skill endpoint
-export const getSkillLevels = (req, res) => {
-    try {
-        const levels = Object.values(skillLevelEnum);
-        res.status(200).json(levels);
-    } catch (err) {
-        res.status(500).json({ message: 'Failed to load skill levels', error: err });
-    }
-};
+import logger from '../config/logger.js';
 
 export const getAllFutureSkills = async (req, res) => {
     try {
@@ -96,7 +75,7 @@ export const sendFutureSkillMail = async (req, res) => {
             data: result
         });
     } catch (error) {
-        console.error('Error in sendFutureSkillMail:', error);
+        logger.error('Error in sendFutureSkillMail:', error);
         return res.status(500).json({
             success: false,
             message: 'Failed to send email',

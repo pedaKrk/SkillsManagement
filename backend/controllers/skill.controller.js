@@ -4,6 +4,7 @@ import FutureSkill from '../models/future.skill.model.js';
 import User from '../models/user.model.js';
 import SkillRepository from "../repositories/skill.repository.js";
 import { skillService } from '../services/skill.service.js';
+import skillLevelEnum from '../models/enums/skill.level.enum.js';
 import logger from '../config/logger.js';
 
 
@@ -152,3 +153,23 @@ export const getRootSkills = async (req, res) => {
         res.status(500).json({ message: 'Failed to get root skills', error })
     }
 }
+
+export const getAllSkillNames = async (req, res) => {
+    try {
+        const names = await skillService.getAllSkillNames();
+        res.status(200).json(names);
+    } catch (err) {
+        logger.error('Error getting skill names:', err);
+        res.status(500).json({ message: 'Failed to get skill names', error: err });
+    }
+};
+
+export const getSkillLevels = (req, res) => {
+    try {
+        const levels = Object.values(skillLevelEnum);
+        res.status(200).json(levels);
+    } catch (err) {
+        logger.error('Error getting skill levels:', err);
+        res.status(500).json({ message: 'Failed to load skill levels', error: err });
+    }
+};
