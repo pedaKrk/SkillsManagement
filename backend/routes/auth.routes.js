@@ -1,16 +1,20 @@
-import express from 'express'
-import { registerUser, login, logout, resetPassword } from "../controllers/auth.controller.js";
-import { authenticateToken } from '../middleware/auth.middleware.js';
+import express from "express";
+import {
+	registerUser,
+	login,
+	logout,
+	resetPassword,
+} from "../controllers/auth.controller.js";
+import { authenticateToken } from "../middleware/auth.middleware.js";
 
-const router = express.Router()
+const router = express.Router();
 
-router.post('/register', registerUser);
-router.post('/login', login);
-router.post('/logout', authenticateToken, logout);
-router.post('/reset-password', resetPassword);
+router.post("/register", registerUser);
+router.post("/login", login);
+router.post("/logout", authenticateToken, logout);
+router.post("/reset-password", resetPassword);
 
-export default router
-
+export default router;
 
 /**
  * @openapi
@@ -20,19 +24,32 @@ export default router
  *     tags:
  *       - Auth
  *     requestBody:
- *       description: User registration data
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
  *             properties:
+ *               title:
+ *                 type: string
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               phone:
+ *                 type: string
  *               email:
  *                 type: string
  *               username:
  *                 type: string
+ *               password:
+ *                 type: string
  *               role:
  *                 type: string
+ *               employmentType:
+ *                 type: Internal | External
+ *               skills:
+ *                 type: Skill ObjectId
  *     responses:
  *       201:
  *         description: User successfully registered
@@ -111,4 +128,3 @@ export default router
  *       404:
  *         description: User not found
  */
-
