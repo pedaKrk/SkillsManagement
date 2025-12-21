@@ -41,13 +41,20 @@
           <div class="user-dropdown" (clickOutside)="closeFutureSkillsDropdown()">
             <a class="nav-link user-dropdown-toggle" (click)="toggleDropdown($event)">{{ 'NAVIGATION.FUTURE_SKILLS' | translate }} <span class="dropdown-arrow">{{ isDropdownOpen ? '' : '▾' }}</span></a>
             <div class="user-dropdown-menu" *ngIf="isDropdownOpen">
-              <a class="dropdown-item" [routerLink]="['/future-skills/dashboard']"  (click)="closeMenu()">
-                <i class="fa fa-tachometer"></i> {{ 'NAVIGATION.FUTURE_SKILLS_DASHBOARD' | translate }}
-              </a>
-              <a class="dropdown-item" [routerLink]="['/future-skills/progress']" (click)="closeMenu()">
-                <i class="fa fa-tasks"></i> {{ 'NAVIGATION.FUTURE_SKILLS_MANAGE_PROGRESS' | translate }}
-              </a>
-            </div>
+            <a class="dropdown-item" [routerLink]="['/future-skills/dashboard']" (click)="closeMenu()">
+              <i class="fa fa-tachometer"></i> {{ 'NAVIGATION.FUTURE_SKILLS_DASHBOARD' | translate }}
+            </a>
+
+            <a class="dropdown-item" [routerLink]="['/future-skills/progress']" (click)="closeMenu()">
+              <i class="fa fa-tasks"></i> {{ 'NAVIGATION.FUTURE_SKILLS_MANAGE_PROGRESS' | translate }}
+            </a>
+
+            <!-- ✅ SKIL-123: Skills Overview -->
+            <a class="dropdown-item" [routerLink]="['/future-skills/skills-overview']" (click)="closeMenu()">
+              <i class="fa fa-list"></i> Skills Overview
+            </a>
+          </div>
+
           </div>
         </li>
         <li class="nav-item" *ngIf="isAdminOrCompetenceLeader">

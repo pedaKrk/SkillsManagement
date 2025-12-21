@@ -1,0 +1,46 @@
+<div class="container">
+  <h1>Skills Overview</h1>
+
+  <!-- Search -->
+  <div class="search-container">
+    <input
+      type="text"
+      class="search-box"
+      placeholder="Search skills or users"
+      [(ngModel)]="searchTerm"
+      (input)="applySearch()"
+    />
+    <button class="btn secondary" (click)="applySearch()">
+      Apply Filters
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-container">
+    <table class="skills-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>User</th>
+          <th>Skill</th>
+          <th>Current Level</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let row of filteredRows; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ row.user }}</td>
+          <td>{{ row.skill }}</td>
+          <td>{{ row.level }}</td>
+        </tr>
+
+        <tr *ngIf="filteredRows.length === 0">
+          <td colspan="4" class="empty">
+            No skills found
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
