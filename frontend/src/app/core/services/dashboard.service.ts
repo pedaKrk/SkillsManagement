@@ -36,14 +36,25 @@ export class DashboardService {
     );
   }
 
-  getFieldsPopularity(): Observable<any> {
-    return this.http.get(`${API_CONFIG.baseUrl}/${API_CONFIG.endpoints.dashboard.fieldsPopularity}`).pipe(
-      catchError(error => {
-        console.error('Error loading Fields popularity:', error);
-        return throwError(() => new Error('Error getting Fields popularity'));
-      })
+  getLecturersSkillFields(): Observable<any> {
+    return this.http
+      .get(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.dashboard.lecturersSkillFields}`)
+      .pipe(
+        catchError(error => {
+          console.error('Error loading lecturers skill fields:', error);
+          return throwError(() => new Error('Error getting lecturers skill fields'));
+        })
+      );
+  }
+
+
+  getFutureSkillsGrowth(): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.dashboard.futureSkillsGrowth}`
     );
   }
+
+
 
   getUserFutureSkillLevelMatrix(userId: string): Observable<any> {
     return this.http.get(`${API_CONFIG.baseUrl}/${API_CONFIG.endpoints.dashboard.userFutureSkillLevelMatrix(userId)}`).pipe(

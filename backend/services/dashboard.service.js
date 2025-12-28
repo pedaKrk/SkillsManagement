@@ -50,17 +50,22 @@ class DashboardService {
         return data;
     }
 
-    async getSkillsPopularity() {
-        return await futureSkillRepository.getSkillsPopularity();
+    async getLecturersSkillFields() {
+        return await futureSkillRepository.getLecturersSkillFields();
     }
 
-    async getFieldsPopularity() {
-        return await futureSkillRepository.getFieldsPopularity();
+    async getFutureSkillsGrowth() {
+        return await futureSkillRepository.getFutureSkillsGrowthByMonth();
+    }
+
+    async getSkillsPopularity() {
+        return await futureSkillRepository.getSkillsPopularity();
     }
 
     async getUserFutureSkillLevelMatrix(userId) {
         return await futureSkillRepository.getUserFutureSkillLevelMatrix(userId);
     }
+
 }
 
 export default new DashboardService();

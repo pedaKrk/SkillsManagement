@@ -34,16 +34,34 @@ export const getSkillsPopularity = async (req, res) => {
     }
 };
 
-// GET /api/v1/dashboard/fields-popularity
-export const getFieldsPopularity = async (req, res) => {
+// GET /api/v1/dashboard/lecturers-skill-fields
+export const getLecturersSkillFields = async (req, res) => {
     try {
-        const result = await DashboardService.getFieldsPopularity();
-        res.status(200).json(result);
+        const data = await DashboardService.getLecturersSkillFields();
+        res.status(200).json(data);
     } catch (err) {
-        logger.error('Error fetching Fields Popularity:', err);
-        res.status(500).json({ message: 'Error fetching Fields Popularity', error: err });
+        logger.error('Error in getLecturersSkillFields:', err);
+        res.status(500).json({
+            message: 'Failed to load lecturers skill fields',
+            error: err.toString()
+        });
     }
 };
+
+
+// GET /api/v1/dashboard/future-skills-growth
+export const getFutureSkillsGrowth = async (req, res) => {
+    try {
+        const data = await DashboardService.getFutureSkillsGrowth();
+        res.status(200).json(data);
+    } catch (err) {
+        res.status(500).json({
+            message: 'Failed to load future skills growth',
+            error: err.toString()
+        });
+    }
+};
+
 
 export const getUserFutureSkillLevelMatrix = async (req, res) => {
     try{
