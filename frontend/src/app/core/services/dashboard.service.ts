@@ -27,6 +27,14 @@ export class DashboardService {
     );
   }
 
+  getLecturersCount(): Observable<{ value: number }> {
+    return this.http.get<{ value: number }>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.dashboard.lecturersCount}`
+    );
+  }
+
+
+
   getSkillsPopularity(): Observable<any> {
     return this.http.get(`${API_CONFIG.baseUrl}/${API_CONFIG.endpoints.dashboard.skillsPopularity}`).pipe(
       catchError(error => {

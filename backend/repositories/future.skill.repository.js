@@ -119,6 +119,10 @@ class FutureSkillRepository {
         return FutureSkill.countDocuments({future_achievable_level: level});
     }
 
+    countDistinctLecturers = () => {
+        return FutureSkill.distinct('lecturer_id').then(ids => ids.length);
+    };
+
     getSkillsPopularity = () => {
         return FutureSkill.aggregate([
             {

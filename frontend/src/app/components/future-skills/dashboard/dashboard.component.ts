@@ -77,6 +77,11 @@ export class DashboardComponent implements OnInit {
       }
     });
 
+    this.dashboardService.getLecturersCount().subscribe(res => {
+      this.lecturersCount = res.value;
+    });
+
+
     this.dashboardService.getSkillsPopularity().subscribe(data => {
       this.skillsData = data;
 
@@ -88,16 +93,8 @@ export class DashboardComponent implements OnInit {
 
     this.dashboardService.getLecturersSkillFields().subscribe(data => {
       this.lecturersSkillFields = data;
-
-      // count unique lecturers
-      const uniqueLecturers = new Set(
-        data
-          .map((item: any) => item.lecturer_id)
-          .filter(Boolean)
-      );
-
-      this.lecturersCount = uniqueLecturers.size;
     });
+
 
 
     this.dashboardService.getFutureSkillsGrowth().subscribe(data => {

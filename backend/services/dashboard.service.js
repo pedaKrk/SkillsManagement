@@ -2,6 +2,7 @@ import UserRepository from "../repositories/user.repository.js";
 import SkillRepository from "../repositories/skill.repository.js";
 import {futureSkillRepository} from "../repositories/future.skill.repository.js";
 import skillLevelEnum from "../models/enums/skill.level.enum.js";
+import FutureSkill from '../models/future.skill.model.js';
 
 class DashboardService {
     async getUserSkillDistribution(userId) {
@@ -49,6 +50,12 @@ class DashboardService {
 
         return data;
     }
+
+    async getLecturersCount() {
+        const lecturerIds = await FutureSkill.distinct('lecturer_id');
+        return lecturerIds.length;
+    }
+
 
     async getLecturersSkillFields() {
         return await futureSkillRepository.getLecturersSkillFields();
