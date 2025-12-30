@@ -33,6 +33,12 @@ export class DashboardService {
     );
   }
 
+  getLecturerEngagementTop3(): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.dashboard.lecturerEngagement}`
+    );
+  }
+
 
 
   getSkillsPopularity(): Observable<any> {

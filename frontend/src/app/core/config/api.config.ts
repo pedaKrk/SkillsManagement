@@ -41,6 +41,7 @@ export const API_CONFIG = {
       skillsPopularity: '/dashboard/skills-popularity',
       lecturersSkillFields: '/dashboard/lecturers-skill-fields',
       futureSkillsGrowth: '/dashboard/future-skills-growth',
+      lecturerEngagement: '/dashboard/lecturer-engagement',
       userFutureSkillLevelMatrix: (id: string) => `dashboard/user/${id}/future-skills-level-matrix`,
       userSkillsDistribution: (id: string) => `/dashboard/user/${id}/skills/distribution`
     },

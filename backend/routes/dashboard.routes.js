@@ -7,7 +7,7 @@ import {
     getUserSkillDistribution,
     getLecturersSkillFields,
     getFutureSkillsGrowth,
-    getLecturersCount
+    getLecturersCount, getLecturerEngagementTop3
 } from '../controllers/dashboard.controller.js';
 
 const router = express.Router();
@@ -18,6 +18,8 @@ router.get('/lecturers-count', getLecturersCount);
 router.get('/skills-popularity', getSkillsPopularity);
 router.get('/lecturers-skill-fields', getLecturersSkillFields);
 router.get('/future-skills-growth', getFutureSkillsGrowth);
+router.get('/lecturer-engagement', getLecturerEngagementTop3);
+
 
 
 

@@ -123,4 +123,20 @@
     </ngx-charts-line-chart>
   </div>
 
+  <div class="chart-title">Lecturer Engagement (Top 3)</div>
+
+  <ngx-charts-bar-horizontal
+    [results]="lecturerEngagementData"
+    [scheme]="colorScheme"
+    [xAxis]="true"
+    [yAxis]="true"
+    xAxisLabel="Number of Future Skills">
+  [xAxisTicks]="xAxisTicks"
+  [xAxisTickFormatting]="xAxisTickFormatting"
+  [xScaleMax]="xScaleMax"
+  [yAxisWidth]="160"
+  [roundEdges]="true">
+  </ngx-charts-bar-horizontal>
+
 </div>
+

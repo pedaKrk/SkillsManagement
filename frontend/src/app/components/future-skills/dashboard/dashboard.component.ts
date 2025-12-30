@@ -20,6 +20,8 @@ export class DashboardComponent implements OnInit {
   skillsByLevelData: any[] = [];
   lecturersSkillFields: any[] = [];
   futureSkillsGrowthData: any[] = [];
+  lecturerEngagementData: any[] = [];
+
 
   // KPI values (computed, not hard-coded)
   totalSkills = 0;
@@ -48,6 +50,22 @@ export class DashboardComponent implements OnInit {
 
   get yMax(): number {
     return 10;
+  }
+
+  xAxisTickFormatting = (value: number) => {
+    return Number.isInteger(value) ? value.toString() : '';
+  };
+
+  get xScaleMax(): number {
+    if (!this.lecturerEngagementData?.length) return 5;
+
+    const max = Math.max(...this.lecturerEngagementData.map(d => d.value));
+    return Math.ceil(max);
+  }
+
+  get xAxisTicks(): number[] {
+    const max = this.xScaleMax;
+    return Array.from({ length: max }, (_, i) => i + 1);
   }
 
   constructor(private dashboardService: DashboardService) {}
@@ -95,6 +113,9 @@ export class DashboardComponent implements OnInit {
       this.lecturersSkillFields = data;
     });
 
+    this.dashboardService.getLecturerEngagementTop3().subscribe(data => {
+      this.lecturerEngagementData = data;
+    });
 
 
     this.dashboardService.getFutureSkillsGrowth().subscribe(data => {
