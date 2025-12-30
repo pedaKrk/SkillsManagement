@@ -97,9 +97,9 @@ export const getUserSkillDistribution = async (req, res) => {
 }
 
 // GET /api/v1/dashboard/lecturer-engagement
-export const getLecturerEngagementTop3 = async (req, res) => {
+export const getLecturerEngagementTop5 = async (req, res) => {
     try {
-        const data = await DashboardService.getLecturerEngagementTop3();
+        const data = await DashboardService.getLecturerEngagementTop5();
         res.status(200).json(data);
     } catch (err) {
         res.status(500).json({

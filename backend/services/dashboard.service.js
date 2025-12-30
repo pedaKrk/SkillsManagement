@@ -73,8 +73,8 @@ class DashboardService {
         return await futureSkillRepository.getUserFutureSkillLevelMatrix(userId);
     }
 
-    async getLecturerEngagementTop3() {
-        return await futureSkillRepository.getLecturerEngagementTop3();
+    async getLecturerEngagementTop5() {
+        return await futureSkillRepository.getLecturerEngagementTop5();
     }
 
 

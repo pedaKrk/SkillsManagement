@@ -227,7 +227,7 @@ class FutureSkillRepository {
     };
 
 
-    getLecturerEngagementTop3 = () => {
+    getLecturerEngagementTop5 = () => {
         return FutureSkill.aggregate([
             {
                 $group: {
@@ -236,7 +236,7 @@ class FutureSkillRepository {
                 }
             },
             {$sort: {value: -1}},
-            {$limit: 3}, // ✅ TOP 3
+            {$limit: 5}, // ✅ TOP 5
             {
                 $lookup: {
                     from: 'users',
