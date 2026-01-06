@@ -16,6 +16,13 @@ export const registerUser = async (req, res) => {
             return res.status(400).json({ message: "Email is required" });
         }
 
+        // Only allow @technikum-wien.at E-Mail
+        const allowedDomain = '@technikum-wien.at';
+        if (!email.endsWith(allowedDomain)) {
+            logger.warn(`User registration blocked due to invalid email domain: ${email}`);
+            return res.status(400).json({message: `Only ${allowedDomain} email addresses are allowed`});
+        }
+
         // Generate password for all users
         const userPassword = generatePassword();
         const hashedPassword = await hashPassword(userPassword);
