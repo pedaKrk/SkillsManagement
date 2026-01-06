@@ -12,6 +12,17 @@ export const getSkillsLevelMatrix = async (req, res) => {
     }
 };
 
+// GET /api/v1/dashboard/lecturers-count
+export const getLecturersCount = async (req, res) => {
+    try {
+        const count = await DashboardService.getLecturersCount();
+        res.status(200).json({ value: count });
+    } catch (err) {
+        console.error('getLecturersCount error:', err);
+        res.status(500).json({ message: 'Failed to load lecturers count' });
+    }
+};
+
 // GET /api/v1/dashboard/skills-by-level
 export const getSkillsByLevel = async (req, res) => {
     try {
@@ -84,5 +95,18 @@ export const getUserSkillDistribution = async (req, res) => {
         res.status(500).json({ message: 'Failed to getUserSkillDistribution', error: err });
     }
 }
+
+// GET /api/v1/dashboard/lecturer-engagement
+export const getLecturerEngagementTop5 = async (req, res) => {
+    try {
+        const data = await DashboardService.getLecturerEngagementTop5();
+        res.status(200).json(data);
+    } catch (err) {
+        res.status(500).json({
+            message: 'Failed to load lecturer engagement',
+            error: err.toString()
+        });
+    }
+};
 
 

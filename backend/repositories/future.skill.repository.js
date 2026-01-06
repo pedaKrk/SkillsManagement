@@ -119,6 +119,7 @@ class FutureSkillRepository {
         return FutureSkill.countDocuments({future_achievable_level: level});
     }
 
+
     getSkillsPopularity = () => {
         return FutureSkill.aggregate([
             {
@@ -196,10 +197,10 @@ class FutureSkillRepository {
             {
                 $group: {
                     _id: {
-                        year: { $year: '$target_date' },
-                        month: { $month: '$target_date' }
+                        year: {$year: '$target_date'},
+                        month: {$month: '$target_date'}
                     },
-                    count: { $sum: 1 }
+                    count: {$sum: 1}
                 }
             },
             {
@@ -207,13 +208,13 @@ class FutureSkillRepository {
                     _id: 0,
                     name: {
                         $concat: [
-                            { $toString: '$_id.year' },
+                            {$toString: '$_id.year'},
                             '-',
                             {
                                 $cond: [
-                                    { $lt: ['$_id.month', 10] },
-                                    { $concat: ['0', { $toString: '$_id.month' }] },
-                                    { $toString: '$_id.month' }
+                                    {$lt: ['$_id.month', 10]},
+                                    {$concat: ['0', {$toString: '$_id.month'}]},
+                                    {$toString: '$_id.month'}
                                 ]
                             }
                         ]
@@ -221,10 +222,45 @@ class FutureSkillRepository {
                     value: '$count'
                 }
             },
-            { $sort: { name: 1 } }
+            {$sort: {name: 1}}
+        ]);
+    };
+
+
+    getLecturerEngagementTop5 = () => {
+        return FutureSkill.aggregate([
+            {
+                $group: {
+                    _id: '$lecturer_id',
+                    value: {$sum: 1}
+                }
+            },
+            {$sort: {value: -1}},
+            {$limit: 5}, // ✅ TOP 5
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'lecturer'
+                }
+            },
+            {$unwind: '$lecturer'},
+            {
+                $project: {
+                    _id: 0,
+                    name: {
+                        $concat: [
+                            '$lecturer.firstName',
+                            ' ',
+                            '$lecturer.lastName'
+                        ]
+                    },
+                    value: 1
+                }
+            }
         ]);
     };
 
 }
-
     export const futureSkillRepository = new FutureSkillRepository();

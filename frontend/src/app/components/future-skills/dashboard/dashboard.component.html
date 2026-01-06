@@ -19,7 +19,7 @@
     </div>
 
     <div class="kpi-card purple">
-    <div class="kpi-value">{{ lecturersCount }}</div>
+    <div class="kpi-value">{{ lecturersCount ?? '—' }}</div>
     <div class="kpi-label">Lecturers</div>
   </div>
   </div>
@@ -95,8 +95,6 @@
     <ngx-charts-pie-chart
       [results]="lecturersSkillFields"
       [scheme]="colorScheme"
-      [legend]="true"
-      [legendPosition]="LegendPosition.Below"
       [labels]="true"
       [doughnut]="true"
       [arcWidth]="0.35"
@@ -122,5 +120,24 @@
       [animations]="true">
     </ngx-charts-line-chart>
   </div>
+  <div class="chart-card large">
+  <div class="chart-title">Lecturer Engagement (Top 5)</div>
+
+  <ngx-charts-bar-vertical
+    [results]="lecturerEngagementData"
+    [scheme]="colorScheme"
+    [legend]="true"
+    [legendPosition]="LegendPosition.Right"
+    [xAxis]="true"
+    [yAxis]="true"
+    [showXAxisLabel]="true"
+    [showYAxisLabel]="true"
+    [yAxisTickFormatting]="yAxisTickFormatting"
+    yAxisLabel="Number of Future Skills"
+    [barPadding]="32"
+    [animations]="true">
+  </ngx-charts-bar-vertical>
 
 </div>
+</div>
+

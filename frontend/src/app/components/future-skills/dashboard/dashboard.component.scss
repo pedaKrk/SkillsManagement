@@ -115,9 +115,13 @@ ngx-charts-bar-vertical-stacked {
   height: 420px;
 }
 
-ngx-charts-bar-vertical,
 ngx-charts-pie-chart {
-  height: 320px;
+  height: 220px;
+  width: 300px;
+  margin: 0 auto;
+}
+.chart-card.large ngx-charts-bar-vertical {
+  height: 420px;
 }
 
 ngx-charts-line-chart,
@@ -167,12 +171,7 @@ ngx-charts-legend .legend-label-text {
     height: 360px;
   }
 
-  ngx-charts-bar-vertical,
-  ngx-charts-pie-chart {
-    height: 280px;
-  }
-
-  .chart-card.bar-slim ngx-charts-bar-vertical {
+  .chart-card.bar-slim {
     height: 360px;
   }
   .chart-card.bar-slim ngx-charts text {
