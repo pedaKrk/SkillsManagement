@@ -2,6 +2,7 @@ import UserRepository from "../repositories/user.repository.js";
 import SkillRepository from "../repositories/skill.repository.js";
 import {futureSkillRepository} from "../repositories/future.skill.repository.js";
 import skillLevelEnum from "../models/enums/skill.level.enum.js";
+import FutureSkill from '../models/future.skill.model.js';
 
 class DashboardService {
     async getUserSkillDistribution(userId) {
@@ -50,17 +51,33 @@ class DashboardService {
         return data;
     }
 
-    async getSkillsPopularity() {
-        return await futureSkillRepository.getSkillsPopularity();
+    async getLecturersCount() {
+        const lecturerIds = await FutureSkill.distinct('lecturer_id');
+        return lecturerIds.length;
     }
 
-    async getFieldsPopularity() {
-        return await futureSkillRepository.getFieldsPopularity();
+
+    async getLecturersSkillFields() {
+        return await futureSkillRepository.getLecturersSkillFields();
+    }
+
+    async getFutureSkillsGrowth() {
+        return await futureSkillRepository.getFutureSkillsGrowthByMonth();
+    }
+
+    async getSkillsPopularity() {
+        return await futureSkillRepository.getSkillsPopularity();
     }
 
     async getUserFutureSkillLevelMatrix(userId) {
         return await futureSkillRepository.getUserFutureSkillLevelMatrix(userId);
     }
+
+    async getLecturerEngagementTop5() {
+        return await futureSkillRepository.getLecturerEngagementTop5();
+    }
+
+
 }
 
 export default new DashboardService();

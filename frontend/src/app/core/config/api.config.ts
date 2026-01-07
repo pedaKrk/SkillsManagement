@@ -37,8 +37,13 @@ export const API_CONFIG = {
     dashboard: {
       skillsLevelMatrix: '/dashboard/skills-level-matrix',
       skillsByLevel: '/dashboard/skills-by-level',
+      lecturersCount: '/dashboard/lecturers-count',
       skillsPopularity: '/dashboard/skills-popularity',
-      fieldsPopularity: '/dashboard/fields-popularity'
+      lecturersSkillFields: '/dashboard/lecturers-skill-fields',
+      futureSkillsGrowth: '/dashboard/future-skills-growth',
+      lecturerEngagement: '/dashboard/lecturer-engagement',
+      userFutureSkillLevelMatrix: (id: string) => `dashboard/user/${id}/future-skills-level-matrix`,
+      userSkillsDistribution: (id: string) => `/dashboard/user/${id}/skills/distribution`
     },
     comments: '/comments'
     //  API-Endpoints
