@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import path from 'path'
+import fs from 'fs'
 import { fileURLToPath } from 'url'
 import morgan from 'morgan'
 
@@ -54,7 +55,28 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Determine uploads directory path
+// In production (Docker): process.cwd() is usually /app
+// In development: process.cwd() is the project root
+// Try process.cwd() first (matches multer), fallback to __dirname
+let uploadsPath;
+const uploadsPathCwd = path.join(process.cwd(), 'uploads');
+const uploadsPathDirname = path.join(__dirname, 'uploads');
+
+// Check which path exists, prefer process.cwd() to match multer
+if (fs.existsSync(uploadsPathCwd)) {
+  uploadsPath = uploadsPathCwd;
+} else if (fs.existsSync(uploadsPathDirname)) {
+  uploadsPath = uploadsPathDirname;
+  logger.warn(`Using __dirname for uploads path: ${uploadsPath}. Consider using process.cwd() for consistency.`);
+} else {
+  // If neither exists, use process.cwd() (will be created by multer)
+  uploadsPath = uploadsPathCwd;
+  logger.info(`Uploads directory will be created at: ${uploadsPath}`);
+}
+
+logger.info(`Serving static files from: ${uploadsPath}`);
+app.use('/uploads', express.static(uploadsPath));
 
 app.use('/api/v1/users', userRoutes)
 app.use('/api/v1/skills', skillRoutes)

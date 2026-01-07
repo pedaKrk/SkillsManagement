@@ -6,16 +6,46 @@
   
   <!-- Edit mode -->
   <div *ngIf="editing" class="edit-comment-form">
+    <!-- Rich Text / Plain Text Toggle -->
+    <div class="editor-mode-toggle">
+      <button
+        type="button"
+        class="btn-mode-toggle"
+        [class.active]="!isRichTextEditMode"
+        (click)="toggleRichTextEditMode()"
+        *ngIf="!isRichTextEditMode"
+      >
+        <i class="fa fa-font"></i> {{ 'PROFILE.USE_RICH_TEXT' | translate }}
+      </button>
+      <button
+        type="button"
+        class="btn-mode-toggle"
+        [class.active]="isRichTextEditMode"
+        (click)="toggleRichTextEditMode()"
+        *ngIf="isRichTextEditMode"
+      >
+        <i class="fa fa-align-left"></i> {{ 'PROFILE.USE_PLAIN_TEXT' | translate }}
+      </button>
+    </div>
+
+    <!-- Plain Text Editor -->
     <textarea
+      *ngIf="!isRichTextEditMode"
       [(ngModel)]="editText"
       [placeholder]="'USER.COMMENT_PLACEHOLDER' | translate"
       class="edit-comment-input"
       rows="3"
     ></textarea>
+
+    <!-- Rich Text Editor -->
+    <div *ngIf="isRichTextEditMode" class="richtext-container">
+      <div id="edit-comment-quill-editor" class="quill-editor"></div>
+    </div>
+
     <div class="edit-comment-actions">
       <button
         class="btn btn-primary btn-sm"
-        [disabled]="!editText.trim() || isLoading"
+        [disabled]="((!editText.trim() && (!isRichTextEditMode || !quillEditor)) || isLoading)"
         (click)="saveEdit()"
       >
         {{ 'COMMON.SAVE' | translate }}
@@ -101,16 +131,46 @@
 
   <!-- reply form -->
   <div *ngIf="replying" class="reply-form">
+    <!-- Rich Text / Plain Text Toggle -->
+    <div class="editor-mode-toggle">
+      <button
+        type="button"
+        class="btn-mode-toggle"
+        [class.active]="!isRichTextReplyMode"
+        (click)="toggleRichTextReplyMode()"
+        *ngIf="!isRichTextReplyMode"
+      >
+        <i class="fa fa-font"></i> {{ 'PROFILE.USE_RICH_TEXT' | translate }}
+      </button>
+      <button
+        type="button"
+        class="btn-mode-toggle"
+        [class.active]="isRichTextReplyMode"
+        (click)="toggleRichTextReplyMode()"
+        *ngIf="isRichTextReplyMode"
+      >
+        <i class="fa fa-align-left"></i> {{ 'PROFILE.USE_PLAIN_TEXT' | translate }}
+      </button>
+    </div>
+
+    <!-- Plain Text Editor -->
     <textarea
+      *ngIf="!isRichTextReplyMode"
       [(ngModel)]="replyText"
       [placeholder]="'USER.REPLY_PLACEHOLDER' | translate"
       class="reply-input"
       rows="2"
     ></textarea>
+
+    <!-- Rich Text Editor -->
+    <div *ngIf="isRichTextReplyMode" class="richtext-container">
+      <div id="reply-quill-editor" class="quill-editor"></div>
+    </div>
+
     <div class="reply-actions">
       <button
         class="btn btn-primary btn-sm"
-        [disabled]="!replyText.trim() || isLoading"
+        [disabled]="((!replyText.trim() && (!isRichTextReplyMode || !quillReplyEditor)) || isLoading)"
         (click)="addReply()"
       >
         {{ 'USER.REPLY' | translate }}

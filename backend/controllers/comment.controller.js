@@ -1,6 +1,51 @@
 import mongoose from 'mongoose'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import * as commentService from '../services/comment.service.js'
 import logger from '../config/logger.js'
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/**
+ * Converts absolute file path to relative path from uploads directory
+ * @param {string} absolutePath - Absolute file path
+ * @returns {string} Relative path from uploads directory (e.g., "comment-attachments/filename")
+ */
+function getRelativePath(absolutePath) {
+  if (!absolutePath) return '';
+  
+  try {
+    // Normalize path separators
+    const normalizedPath = path.normalize(absolutePath);
+    
+    // Try to find relative path from process.cwd()/uploads first (most reliable)
+    const uploadsDir = path.join(process.cwd(), 'uploads');
+    const uploadsDirNormalized = path.normalize(uploadsDir);
+    
+    if (normalizedPath.startsWith(uploadsDirNormalized)) {
+      const relativePath = path.relative(uploadsDirNormalized, normalizedPath);
+      return relativePath.replace(/\\/g, '/'); // Normalize to forward slashes for URLs
+    }
+    
+    // Fallback: Find 'uploads' directory in the path string
+    const uploadsIndex = normalizedPath.indexOf('uploads');
+    if (uploadsIndex !== -1) {
+      // Extract everything after 'uploads/' or 'uploads\'
+      const afterUploads = normalizedPath.substring(uploadsIndex + 'uploads'.length);
+      // Remove leading path separator
+      const relativePath = afterUploads.replace(/^[\/\\]+/, '');
+      return relativePath.replace(/\\/g, '/'); // Normalize to forward slashes
+    }
+    
+    // If we can't determine relative path, log warning and return empty string
+    logger.warn(`Could not determine relative path for: ${absolutePath}`);
+    return '';
+  } catch (error) {
+    logger.error(`Error converting path to relative: ${absolutePath}`, error);
+    return '';
+  }
+}
 
 export const getCommentsForUser = async (req, res) => {
   try {
@@ -87,7 +132,7 @@ export const updateComment = async (req, res) => {
       attachments = req.files.map(file => ({
         filename: file.filename,
         originalName: file.originalname,
-        path: file.path,
+        path: getRelativePath(file.path),
         mimetype: file.mimetype,
         size: file.size
       }));
@@ -172,7 +217,7 @@ export const addReplyToComment = async (req, res) => {
     const attachments = (req.files || []).map(file => ({
       filename: file.filename,
       originalName: file.originalname,
-      path: file.path,
+      path: getRelativePath(file.path),
       mimetype: file.mimetype,
       size: file.size
     }));
@@ -224,7 +269,7 @@ export const updateReply = async (req, res) => {
       attachments = req.files.map(file => ({
         filename: file.filename,
         originalName: file.originalname,
-        path: file.path,
+        path: getRelativePath(file.path),
         mimetype: file.mimetype,
         size: file.size
       }));

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -8,6 +8,8 @@ import { AuthService, CommentService, UserService, DialogService, UserUtilsServi
 import { API_CONFIG } from '../../core/config/api.config';
 import { ReplyItemComponent } from '../reply-item/reply-item.component';
 import { ChangeDetectorRef } from '@angular/core';
+import Quill from 'quill';
+import 'quill/dist/quill.snow.css';
 
 @Component({
   selector: 'app-comment-item',
@@ -21,7 +23,7 @@ import { ChangeDetectorRef } from '@angular/core';
   templateUrl: './comment-item.component.html',
   styleUrl: './comment-item.component.scss'
 })
-export class CommentItemComponent {
+export class CommentItemComponent implements AfterViewInit, OnDestroy {
   @Input() comment: Comment | null = null;
   @Input() userId: string = '';
   @Input() isAdmin: boolean = false;
@@ -49,8 +51,12 @@ export class CommentItemComponent {
 
   editing: boolean = false;
   editText: string = '';
+  isRichTextEditMode: boolean = false;
+  quillEditor: Quill | null = null;
   replying: boolean = false;
   replyText: string = '';
+  isRichTextReplyMode: boolean = false;
+  quillReplyEditor: Quill | null = null;
   isLoading: boolean = false;
 
   constructor(
@@ -63,6 +69,64 @@ export class CommentItemComponent {
     private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef
   ) {}
+
+  ngAfterViewInit(): void {
+    // Quill editors will be initialized when edit/reply modes are enabled
+  }
+
+  ngOnDestroy(): void {
+    // Cleanup Quill editors
+    if (this.quillEditor) {
+      this.quillEditor = null;
+    }
+    if (this.quillReplyEditor) {
+      this.quillReplyEditor = null;
+    }
+  }
+
+  /**
+   * Creates a Quill editor instance with full formatting options
+   */
+  private createQuillEditor(editorId: string, initialContent: string = ''): Quill {
+    const editorElement = document.getElementById(editorId);
+    if (!editorElement) {
+      throw new Error(`Editor element with ID ${editorId} not found`);
+    }
+
+    const quill = new Quill(editorElement, {
+      theme: 'snow',
+      modules: {
+        toolbar: [
+          ['bold', 'italic', 'underline', 'strike'],
+          ['blockquote', 'code-block'],
+          [{ 'header': 1 }, { 'header': 2 }],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          [{ 'script': 'sub'}, { 'script': 'super' }],
+          [{ 'indent': '-1'}, { 'indent': '+1' }],
+          [{ 'size': ['small', false, 'large', 'huge'] }],
+          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+          [{ 'color': [] }, { 'background': [] }],
+          [{ 'font': [] }],
+          [{ 'align': [] }],
+          ['clean'],
+          ['link', 'image']
+        ]
+      }
+    });
+
+    // Set initial content
+    if (initialContent) {
+      if (initialContent.startsWith('<')) {
+        // HTML content
+        quill.root.innerHTML = initialContent;
+      } else {
+        // Plain text - convert to HTML
+        quill.root.innerHTML = initialContent.replace(/\n/g, '<br>');
+      }
+    }
+
+    return quill;
+  }
 
   /**
    * Checks if the current user is the author of the comment
@@ -180,11 +244,28 @@ export class CommentItemComponent {
    */
   getAttachmentUrl(attachment: any): string {
     if (!attachment || !attachment.path) return '';
-    // Path is relative to uploads folder, e.g., "uploads/comment-attachments/filename"
-    // Backend serves /uploads as static
+    
     // Extract base URL from API config (remove /api/v1)
     const apiBaseUrl = API_CONFIG.baseUrl.replace('/api/v1', '');
-    return `${apiBaseUrl}/${attachment.path}`;
+    
+    let relativePath = attachment.path;
+    
+    // Handle absolute paths (old entries in database)
+    if (relativePath.includes('uploads')) {
+      // Extract relative path from absolute path
+      const uploadsIndex = relativePath.indexOf('uploads');
+      if (uploadsIndex !== -1) {
+        const afterUploads = relativePath.substring(uploadsIndex + 'uploads'.length);
+        relativePath = afterUploads.replace(/^[\/\\]+/, ''); // Remove leading slashes
+      }
+    }
+    
+    // Ensure path doesn't already start with uploads/
+    if (!relativePath.startsWith('uploads/')) {
+      relativePath = `uploads/${relativePath}`;
+    }
+    
+    return `${apiBaseUrl}/${relativePath}`;
   }
 
   /**
@@ -219,16 +300,55 @@ export class CommentItemComponent {
    * Downloads an attachment
    */
   downloadAttachment(attachment: any): void {
-    if (!attachment || !attachment.path) return;
+    if (!attachment || !attachment.path) {
+      this.translateService.get(['COMMON.ERROR', 'PROFILE.ATTACHMENT_NOT_FOUND']).subscribe(translations => {
+        this.dialogService.showError(
+          translations['COMMON.ERROR'] || 'Error',
+          translations['PROFILE.ATTACHMENT_NOT_FOUND'] || 'Attachment not found.'
+        );
+      });
+      return;
+    }
     
-    const url = this.getAttachmentUrl(attachment);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = attachment.originalName || attachment.filename;
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      const url = this.getAttachmentUrl(attachment);
+      if (!url) {
+        throw new Error('Invalid attachment URL');
+      }
+      
+      // Try to fetch the file first to check if it exists
+      fetch(url, { method: 'HEAD' })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`File not found: ${response.status} ${response.statusText}`);
+          }
+          // File exists, proceed with download
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = attachment.originalName || attachment.filename;
+          link.target = '_blank';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        })
+        .catch(error => {
+          console.error('Error downloading attachment:', error);
+          this.translateService.get(['COMMON.ERROR', 'PROFILE.ATTACHMENT_DOWNLOAD_ERROR']).subscribe(translations => {
+            this.dialogService.showError(
+              translations['COMMON.ERROR'] || 'Error',
+              translations['PROFILE.ATTACHMENT_DOWNLOAD_ERROR'] || `Failed to download attachment: ${error.message}`
+            );
+          });
+        });
+    } catch (error) {
+      console.error('Error downloading attachment:', error);
+      this.translateService.get(['COMMON.ERROR', 'PROFILE.ATTACHMENT_DOWNLOAD_ERROR']).subscribe(translations => {
+        this.dialogService.showError(
+          translations['COMMON.ERROR'] || 'Error',
+          translations['PROFILE.ATTACHMENT_DOWNLOAD_ERROR'] || 'Failed to download attachment.'
+        );
+      });
+    }
   }
 
   /**
@@ -239,7 +359,31 @@ export class CommentItemComponent {
     this.editing = true;
     // Use content if available (for rich text), otherwise use text
     this.editText = this.comment?.content || this.comment?.text || '';
+    this.isRichTextEditMode = this.comment?.isRichText || false;
     this.editStarted.emit(this.comment!);
+    
+    // Initialize Quill editor if rich text mode
+    if (this.isRichTextEditMode) {
+      setTimeout(() => {
+        try {
+          this.quillEditor = this.createQuillEditor('edit-comment-quill-editor', this.editText);
+          
+          // Update editText when content changes
+          this.quillEditor.on('text-change', () => {
+            const html = this.quillEditor!.root.innerHTML;
+            if (html !== '<p><br></p>') {
+              this.editText = html;
+            } else {
+              this.editText = '';
+            }
+          });
+        } catch (error) {
+          console.error('Error initializing Quill editor for edit:', error);
+          this.isRichTextEditMode = false;
+        }
+      }, 100);
+    }
+    this.cdr.detectChanges();
   }
 
   /**
@@ -248,14 +392,67 @@ export class CommentItemComponent {
   cancelEdit(): void {
     this.editing = false;
     this.editText = '';
+    this.isRichTextEditMode = false;
+    if (this.quillEditor) {
+      this.quillEditor = null;
+    }
     this.editCancelled.emit();
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Toggles between plain text and rich text editor for editing
+   */
+  toggleRichTextEditMode(): void {
+    this.isRichTextEditMode = !this.isRichTextEditMode;
+    
+    if (this.isRichTextEditMode) {
+      // Initialize Quill editor
+      setTimeout(() => {
+        try {
+          this.quillEditor = this.createQuillEditor('edit-comment-quill-editor', this.editText);
+          
+          // Update editText when content changes
+          this.quillEditor.on('text-change', () => {
+            const html = this.quillEditor!.root.innerHTML;
+            if (html !== '<p><br></p>') {
+              this.editText = html;
+            } else {
+              this.editText = '';
+            }
+          });
+        } catch (error) {
+          console.error('Error initializing Quill editor for edit:', error);
+          this.isRichTextEditMode = false;
+        }
+      }, 100);
+    } else {
+      // Convert HTML to plain text when switching back
+      if (this.quillEditor) {
+        this.editText = this.quillEditor.getText();
+        this.quillEditor = null;
+      }
+    }
+    this.cdr.detectChanges();
   }
 
   /**
    * Saves the edited comment
    */
   saveEdit(): void {
-    if (!this.comment || !this.editText.trim()) return;
+    // Get content from Quill editor if in rich text mode
+    let content = this.editText;
+    if (this.isRichTextEditMode && this.quillEditor) {
+      content = this.quillEditor.root.innerHTML;
+      // Check if content is empty (Quill uses <p><br></p> for empty)
+      if (content === '<p><br></p>' || content.trim() === '') {
+        return;
+      }
+    } else if (!content.trim()) {
+      return;
+    }
+
+    if (!this.comment) return;
 
     this.isLoading = true;
     const commentId = this.comment.id || this.comment._id || '';
@@ -271,15 +468,21 @@ export class CommentItemComponent {
       return;
     }
 
-    this.commentService.updateComment(this.userId, commentId, this.editText).subscribe({
+    this.commentService.updateComment(this.userId, commentId, content, this.isRichTextEditMode).subscribe({
       next: (updatedComment) => {
         const updated: Comment = {
           ...this.comment!,
-          text: updatedComment.content || this.editText
+          text: updatedComment.content || content,
+          content: updatedComment.content || content,
+          isRichText: updatedComment.isRichText || this.isRichTextEditMode
         };
         this.commentUpdated.emit(updated);
         this.editing = false;
         this.editText = '';
+        this.isRichTextEditMode = false;
+        if (this.quillEditor) {
+          this.quillEditor = null;
+        }
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -370,7 +573,9 @@ export class CommentItemComponent {
     if (this.isOtherEditing) return;
     this.replying = true;
     this.replyText = '';
+    this.isRichTextReplyMode = false;
     this.replyStarted.emit(this.comment!);
+    this.cdr.detectChanges();
   }
 
   /**
@@ -379,14 +584,67 @@ export class CommentItemComponent {
   cancelReply(): void {
     this.replying = false;
     this.replyText = '';
+    this.isRichTextReplyMode = false;
+    if (this.quillReplyEditor) {
+      this.quillReplyEditor = null;
+    }
     this.replyCancelled.emit();
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Toggles between plain text and rich text editor for replies
+   */
+  toggleRichTextReplyMode(): void {
+    this.isRichTextReplyMode = !this.isRichTextReplyMode;
+    
+    if (this.isRichTextReplyMode) {
+      // Initialize Quill editor
+      setTimeout(() => {
+        try {
+          this.quillReplyEditor = this.createQuillEditor('reply-quill-editor', this.replyText);
+          
+          // Update replyText when content changes
+          this.quillReplyEditor.on('text-change', () => {
+            const html = this.quillReplyEditor!.root.innerHTML;
+            if (html !== '<p><br></p>') {
+              this.replyText = html;
+            } else {
+              this.replyText = '';
+            }
+          });
+        } catch (error) {
+          console.error('Error initializing Quill editor for reply:', error);
+          this.isRichTextReplyMode = false;
+        }
+      }, 100);
+    } else {
+      // Convert HTML to plain text when switching back
+      if (this.quillReplyEditor) {
+        this.replyText = this.quillReplyEditor.getText();
+        this.quillReplyEditor = null;
+      }
+    }
+    this.cdr.detectChanges();
   }
 
   /**
    * Adds a reply to the comment
    */
   addReply(): void {
-    if (!this.comment || !this.replyText.trim()) return;
+    // Get content from Quill editor if in rich text mode
+    let content = this.replyText;
+    if (this.isRichTextReplyMode && this.quillReplyEditor) {
+      content = this.quillReplyEditor.root.innerHTML;
+      // Check if content is empty (Quill uses <p><br></p> for empty)
+      if (content === '<p><br></p>' || content.trim() === '') {
+        return;
+      }
+    } else if (!content.trim()) {
+      return;
+    }
+
+    if (!this.comment) return;
 
     this.isLoading = true;
     const commentId = this.comment.id || this.comment._id || '';
@@ -402,7 +660,7 @@ export class CommentItemComponent {
       return;
     }
 
-    this.commentService.addReplyToComment(this.userId, commentId, this.replyText).subscribe({
+    this.commentService.addReplyToComment(this.userId, commentId, content, this.isRichTextReplyMode).subscribe({
       next: (reply) => {
         const currentUser = this.authService.currentUserValue;
         if (currentUser) {
@@ -415,7 +673,10 @@ export class CommentItemComponent {
                 userId: this.userId,
                 authorId: fullUserData._id || '',
                 authorName: authorName,
-                text: reply.content || this.replyText,
+                text: reply.content || content,
+                content: reply.content || content,
+                isRichText: reply.isRichText || this.isRichTextReplyMode,
+                attachments: reply.attachments || [],
                 createdAt: new Date(reply.time_stamp || new Date()),
                 parentId: commentId
               };
@@ -423,6 +684,10 @@ export class CommentItemComponent {
               this.replyAdded.emit({ commentId, reply: newReply });
               this.replying = false;
               this.replyText = '';
+              this.isRichTextReplyMode = false;
+              if (this.quillReplyEditor) {
+                this.quillReplyEditor = null;
+              }
               this.isLoading = false;
               this.cdr.detectChanges();
             },
