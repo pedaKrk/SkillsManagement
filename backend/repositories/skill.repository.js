@@ -29,6 +29,10 @@ class SkillRepository {
 
     deleteSkill = (id) => Skill.findByIdAndDelete(id)
 
+    getTopLevelSkills = () => {
+        return Skill.find({ parent_id: null }).select('_id name')
+    }
+
     // Hierarchie-Management
     addChildToParent = async (parentId, childId) => {
         return await Skill.findByIdAndUpdate(
@@ -73,6 +77,30 @@ class SkillRepository {
 
         return await Skill.findByIdAndDelete(skillId)
     }
+    getSkillTreeIds = async (rootSkillId) => {
+        const skills = await Skill.find().select('_id parent_id').lean()
+
+        const result = new Set([rootSkillId.toString()])
+        let changed = true
+
+        while (changed) {
+            changed = false
+
+            for (const skill of skills) {
+                if (
+                    skill.parent_id &&
+                    result.has(skill.parent_id.toString()) &&
+                    !result.has(skill._id.toString())
+                ) {
+                    result.add(skill._id.toString())
+                    changed = true
+                }
+            }
+        }
+
+        return Array.from(result)
+    }
+
 }
 
 export default new SkillRepository()

@@ -24,6 +24,26 @@
   </div>
   </div>
 
+  <div class="dashboard-filter">
+    <span class="filter-label">Domain:</span>
+
+    <select
+      class="filter-select"
+      #rootSelect
+      (change)="onRootSkillChange(rootSelect.value)"
+    >
+      <option value="">All Domains</option>
+
+      <option
+        *ngFor="let skill of topLevelSkills"
+        [value]="skill._id"
+      >
+        {{ skill.name }}
+      </option>
+    </select>
+
+  </div>
+
   <!-- MAIN CHART -->
   <div class="chart-section">
     <div class="chart-card large">

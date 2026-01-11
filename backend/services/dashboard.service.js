@@ -77,6 +77,30 @@ class DashboardService {
         return await futureSkillRepository.getLecturerEngagementTop5();
     }
 
+    async getSkillsPopularityByRootSkill(rootSkillId) {
+
+        // 1️⃣ get all descendant skill IDs
+        const skillIds = await SkillRepository.getSkillTreeIds(rootSkillId);
+
+        // 2️⃣ delegate aggregation to repository
+        return await futureSkillRepository.getSkillsPopularityBySkillIds(
+            Array.from(skillIds)
+        );
+    }
+
+
+
+    async getDashboardDataByTopLevelSkill(rootSkillId) {
+        return {
+            skillsLevelMatrix: await futureSkillRepository.getFutureSkillLevelMatrixByRootSkill(rootSkillId),
+            skillsByLevel: await futureSkillRepository.getSkillsByLevelByRootSkill(rootSkillId),
+            lecturersCount: await futureSkillRepository.getLecturersCountByRootSkill(rootSkillId),
+            skillsPopularity: await futureSkillRepository.getSkillsPopularityByRootSkill(rootSkillId),
+            lecturersSkillFields: await futureSkillRepository.getLecturersSkillFieldsByRootSkill(rootSkillId),
+            futureSkillsGrowth: await futureSkillRepository.getFutureSkillsGrowthByRootSkill(rootSkillId),
+            lecturerEngagementTop5: await futureSkillRepository.getLecturerEngagementTop5ByRootSkill(rootSkillId),
+        };
+    }
 
 }
 

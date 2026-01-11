@@ -109,6 +109,10 @@ class SkillService {
             throw error
         }
     }
+
+    async getTopLevelSkills() {
+        return await SkillRepository.getTopLevelSkills();
+    }
 }
 
 export const skillService = new SkillService()

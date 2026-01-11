@@ -3,7 +3,6 @@ import Skill from '../models/skill.model.js';
 import FutureSkill from '../models/future.skill.model.js';
 import User from '../models/user.model.js';
 import SkillRepository from "../repositories/skill.repository.js";
-import { skillService } from '../services/skill.service.js';
 import skillLevelEnum from '../models/enums/skill.level.enum.js';
 import logger from '../config/logger.js';
 
@@ -172,4 +171,16 @@ export const getSkillLevels = (req, res) => {
         logger.error('Error getting skill levels:', err);
         res.status(500).json({ message: 'Failed to load skill levels', error: err });
     }
+};
+
+export const getTopLevelSkills = async (req, res) => {
+  try {
+    const skills = await SkillRepository.getTopLevelSkills();
+    res.status(200).json(skills);
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to load top-level skills",
+      error: err.toString()
+    });
+  }
 };
