@@ -77,6 +77,7 @@ class SkillRepository {
 
         return await Skill.findByIdAndDelete(skillId)
     }
+
     getSkillTreeIds = async (rootSkillId) => {
         const skills = await Skill.find().select('_id parent_id').lean()
 

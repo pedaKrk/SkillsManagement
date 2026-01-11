@@ -3,6 +3,7 @@ import Skill from '../models/skill.model.js';
 import FutureSkill from '../models/future.skill.model.js';
 import User from '../models/user.model.js';
 import SkillRepository from "../repositories/skill.repository.js";
+import { skillService } from '../services/skill.service.js';
 import skillLevelEnum from '../models/enums/skill.level.enum.js';
 import logger from '../config/logger.js';
 
