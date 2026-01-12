@@ -30,8 +30,9 @@ class SkillRepository {
     deleteSkill = (id) => Skill.findByIdAndDelete(id)
 
     getTopLevelSkills = () => {
-        return Skill.find({ parent_id: null }).select('_id name')
-    }
+        return Skill.find({ parent_id: null })
+            .select('_id name');
+    };
 
     // Hierarchie-Management
     addChildToParent = async (parentId, childId) => {
@@ -101,6 +102,9 @@ class SkillRepository {
 
         return Array.from(result)
     }
+
+
+
 
 }
 

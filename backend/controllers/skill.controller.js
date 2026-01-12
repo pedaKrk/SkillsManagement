@@ -180,7 +180,7 @@ export const getTopLevelSkills = async (req, res) => {
     res.status(200).json(skills);
   } catch (err) {
     res.status(500).json({
-      message: "Failed to load top-level skills",
+      message: 'Failed to load top-level skills',
       error: err.toString()
     });
   }
