@@ -173,3 +173,15 @@ export const getSkillLevels = (req, res) => {
         res.status(500).json({ message: 'Failed to load skill levels', error: err });
     }
 };
+
+export const getTopLevelSkills = async (req, res) => {
+  try {
+    const skills = await SkillRepository.getTopLevelSkills();
+    res.status(200).json(skills);
+  } catch (err) {
+    res.status(500).json({
+      message: 'Failed to load top-level skills',
+      error: err.toString()
+    });
+  }
+};

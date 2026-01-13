@@ -34,16 +34,22 @@ export const getSkillsByLevel = async (req, res) => {
     }
 };
 
-// GET /api/v1/dashboard/skills-popularity
+// GET /api/v1/dashboard/skills-popularity?rootSkillId=123
 export const getSkillsPopularity = async (req, res) => {
     try {
-        const skills = await DashboardService.getSkillsPopularity();
-        res.status(200).json(skills);
+        const { rootSkillId } = req.query;
+
+        const data = rootSkillId
+            ? await DashboardService.getSkillsPopularityByRootSkill(rootSkillId)
+            : await DashboardService.getSkillsPopularity();
+
+        res.status(200).json(data);
     } catch (err) {
-        logger.error('Error in getSkillsPopularity:', err);
-        res.status(500).json({ message: 'Failed to load skills popularity', error: err });
+        res.status(500).json({ message: 'Failed', error: err.toString() });
     }
 };
+
+
 
 // GET /api/v1/dashboard/lecturers-skill-fields
 export const getLecturersSkillFields = async (req, res) => {
@@ -105,6 +111,26 @@ export const getLecturerEngagementTop5 = async (req, res) => {
         res.status(500).json({
             message: 'Failed to load lecturer engagement',
             error: err.toString()
+        });
+    }
+};
+
+// GET /api/v1/dashboard/by-root-skill/:rootSkillId
+export const getDashboardByRootSkill = async (req, res) => {
+    try {
+        const { rootSkillId } = req.params;
+
+        const data = await DashboardService.getDashboardDataByTopLevelSkill(rootSkillId);
+
+        res.status(200).json(data);
+    } catch (err) {
+        console.error('🔥 DASHBOARD ROOT SKILL ERROR 🔥');
+        console.error(err);          // <<< THIS IS CRITICAL
+        console.error(err.stack);    // <<< THIS IS CRITICAL
+
+        res.status(500).json({
+            message: 'Failed to load dashboard data for root skill',
+            error: err.message
         });
     }
 };

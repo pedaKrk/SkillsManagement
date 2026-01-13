@@ -9,7 +9,7 @@ import {
     getRootSkills,
     addFutureSkillToSkills,
     getAllSkillNames,
-    getSkillLevels
+    getSkillLevels, getTopLevelSkills
 } from '../controllers/skill.controller.js'
 import {authenticateToken, authorizeRole} from '../middleware/auth.middleware.js'
 
@@ -19,6 +19,7 @@ router.get('/names', getAllSkillNames);
 router.get('/levels', getSkillLevels);
 router.get('/root', getRootSkills);
 router.get('/', getAllSkills);
+router.get('/top-level', getTopLevelSkills);
 router.get('/:id', getSkillById);
 
 // private

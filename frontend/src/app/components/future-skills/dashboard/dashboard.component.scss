@@ -179,3 +179,28 @@ ngx-charts-legend .legend-label-text {
     fill: #374151;
   }
 }
+
+/* FILTER */
+.dashboard-filter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 0 32px;
+}
+
+.filter-label {
+  font-weight: 600;
+  color: #374151; /* slate-700 */
+}
+
+.filter-select {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  font-size: 0.95rem;
+  cursor: pointer;
+  min-width: 220px;
+}
+
