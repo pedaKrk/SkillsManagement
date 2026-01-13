@@ -124,12 +124,15 @@ export const getDashboardByRootSkill = async (req, res) => {
 
         res.status(200).json(data);
     } catch (err) {
+        console.error('🔥 DASHBOARD ROOT SKILL ERROR 🔥');
+        console.error(err);          // <<< THIS IS CRITICAL
+        console.error(err.stack);    // <<< THIS IS CRITICAL
+
         res.status(500).json({
             message: 'Failed to load dashboard data for root skill',
-            error: err.toString()
+            error: err.message
         });
     }
 };
-
 
 

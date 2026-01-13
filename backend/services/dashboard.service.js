@@ -91,14 +91,23 @@ class DashboardService {
 
 
     async getDashboardDataByTopLevelSkill(rootSkillId) {
+
+        // 1️⃣ Get all skills under selected domain
+        const skillIds = await SkillRepository.getSkillTreeIds(rootSkillId);
+
         return {
-            skillsLevelMatrix: await futureSkillRepository.getFutureSkillLevelMatrixByRootSkill(rootSkillId),
-            skillsByLevel: await futureSkillRepository.getSkillsByLevelByRootSkill(rootSkillId),
-            lecturersCount: await futureSkillRepository.getLecturersCountByRootSkill(rootSkillId),
-            skillsPopularity: await futureSkillRepository.getSkillsPopularityByRootSkill(rootSkillId),
-            lecturersSkillFields: await futureSkillRepository.getLecturersSkillFieldsByRootSkill(rootSkillId),
-            futureSkillsGrowth: await futureSkillRepository.getFutureSkillsGrowthByRootSkill(rootSkillId),
-            lecturerEngagementTop5: await futureSkillRepository.getLecturerEngagementTop5ByRootSkill(rootSkillId),
+            // still global (safe, already working)
+            skillsLevelMatrix: await this.getSkillsLevelMatrix(),
+            skillsByLevel: await this.getSkillsByLevel(),
+            lecturersCount: await this.getLecturersCount(),
+
+            // ✅ NOW ACTUALLY FILTERED
+            skillsPopularity: await futureSkillRepository
+                .getSkillsPopularityBySkillIds(skillIds),
+
+            lecturersSkillFields: await this.getLecturersSkillFields(),
+            futureSkillsGrowth: await this.getFutureSkillsGrowth(),
+            lecturerEngagementTop5: await this.getLecturerEngagementTop5(),
         };
     }
 

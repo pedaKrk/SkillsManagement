@@ -110,9 +110,6 @@ class SkillService {
         }
     }
 
-    async getTopLevelSkills() {
-        return await SkillRepository.getTopLevelSkills();
-    }
 }
 
 export const skillService = new SkillService()

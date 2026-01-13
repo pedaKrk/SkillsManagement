@@ -64,7 +64,8 @@ export class DashboardComponent implements OnInit {
     return 10;
   }
 
-  constructor(private dashboardService: DashboardService) {}
+  constructor(private dashboardService: DashboardService) {
+  }
 
   // =========================
   // INIT
@@ -86,7 +87,7 @@ export class DashboardComponent implements OnInit {
   loadDefaultDashboard(): void {
 
     this.dashboardService.getSkillsLevelMatrix().subscribe(data => {
-      this.skillsLevelMatrixData = data;
+      this.skillsLevelMatrixData = [...data];
       this.totalSkills = data.length;
 
       const levels = new Set<string>();
@@ -97,7 +98,7 @@ export class DashboardComponent implements OnInit {
     });
 
     this.dashboardService.getSkillsByLevel().subscribe(data => {
-      this.skillsByLevelData = data;
+      this.skillsByLevelData = [...data];
     });
 
     this.dashboardService.getLecturersCount().subscribe(res => {
@@ -105,40 +106,48 @@ export class DashboardComponent implements OnInit {
     });
 
     this.dashboardService.getSkillsPopularity().subscribe(data => {
-      this.skillsData = data;
+      this.skillsData = [...data];
     });
 
     this.dashboardService.getLecturersSkillFields().subscribe(data => {
-      this.lecturersSkillFields = data;
+      this.lecturersSkillFields = [...data];
     });
 
     this.dashboardService.getLecturerEngagementTop5().subscribe(data => {
-      this.lecturerEngagementData = data;
+      this.lecturerEngagementData = [...data];
     });
 
     this.dashboardService.getFutureSkillsGrowth().subscribe(data => {
       this.futureSkillsGrowthData = [
-        { name: 'Future Skills', series: data }
+        {
+          name: 'Future Skills',
+          series: [...data]
+        }
       ];
     });
   }
+
 
   // =========================
   // FILTERED DASHBOARD
   // =========================
   loadDashboardByRootSkill(rootSkillId: string): void {
-
     this.dashboardService.getDashboardByRootSkill(rootSkillId)
       .subscribe(data => {
 
-        this.skillsLevelMatrixData = data.skillsLevelMatrix;
-        this.skillsByLevelData = data.skillsByLevel;
-        this.skillsData = data.skillsPopularity;
-        this.lecturersSkillFields = data.lecturersSkillFields;
-        this.lecturerEngagementData = data.lecturerEngagementTop5;
+        this.skillsLevelMatrixData = [...data.skillsLevelMatrix];
+        this.skillsByLevelData = [...data.skillsByLevel];
+        this.skillsData = [...data.skillsPopularity];
+        this.lecturersSkillFields = [...data.lecturersSkillFields];
+        this.lecturerEngagementData = [...data.lecturerEngagementTop5];
+
+        this.futureSkillsGrowthData = [
+          {name: 'Future Skills', series: [...data.futureSkillsGrowth]}
+        ];
+
         this.lecturersCount = data.lecturersCount;
 
-        // KPI recalculation
+        // KPIs
         this.totalSkills = data.skillsLevelMatrix.length;
 
         const levels = new Set<string>();
@@ -146,23 +155,20 @@ export class DashboardComponent implements OnInit {
           skill.series?.forEach((s: any) => levels.add(s.name))
         );
         this.skillLevelsCount = levels.size;
-
-        this.futureSkillsGrowthData = [
-          { name: 'Future Skills', series: data.futureSkillsGrowth }
-        ];
       });
   }
+
 
   // =========================
   // FILTER HANDLER
   // =========================
   onRootSkillChange(rootSkillId: string): void {
-    this.selectedRootSkillId = rootSkillId || null;
+    console.log('Selected domain:', rootSkillId);
 
-    if (!this.selectedRootSkillId) {
+    if (!rootSkillId) {
       this.loadDefaultDashboard();
     } else {
-      this.loadDashboardByRootSkill(this.selectedRootSkillId);
+      this.loadDashboardByRootSkill(rootSkillId);
     }
   }
 }

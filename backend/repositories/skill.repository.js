@@ -80,28 +80,32 @@ class SkillRepository {
     }
 
     getSkillTreeIds = async (rootSkillId) => {
-        const skills = await Skill.find().select('_id parent_id').lean()
+        const skills = await Skill.find()
+            .select('_id parent_id')
+            .lean();
 
-        const result = new Set([rootSkillId.toString()])
-        let changed = true
+        const result = new Set([rootSkillId.toString()]);
+        let changed = true;
 
         while (changed) {
-            changed = false
+            changed = false;
 
             for (const skill of skills) {
-                if (
-                    skill.parent_id &&
-                    result.has(skill.parent_id.toString()) &&
-                    !result.has(skill._id.toString())
-                ) {
-                    result.add(skill._id.toString())
-                    changed = true
+                if (!skill.parent_id) continue; // ✅ GUARD
+
+                const parentId = skill.parent_id.toString();
+                const skillId = skill._id.toString();
+
+                if (result.has(parentId) && !result.has(skillId)) {
+                    result.add(skillId);
+                    changed = true;
                 }
             }
         }
 
-        return Array.from(result)
-    }
+        return Array.from(result);
+    };
+
 
 
 
