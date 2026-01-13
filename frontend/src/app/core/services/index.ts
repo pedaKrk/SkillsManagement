@@ -16,4 +16,12 @@ export * from './dialog';
 // Dashboard Services
 export * from './dashboard.service';
 
+// Image Services
+export * from './image/image.service';
+
+// Comment Services
+export * from './comment/comment.service';
+
+// User Utils Services
+export * from './user-utils/user-utils.service';
 

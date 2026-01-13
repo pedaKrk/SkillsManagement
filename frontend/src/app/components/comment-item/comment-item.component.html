@@ -1,0 +1,208 @@
+<div *ngIf="comment" class="comment-card">
+  <div class="comment-header">
+    <span class="comment-author">{{ comment.authorName }}</span>
+    <span class="comment-date">{{ formatDate(comment.createdAt) }}</span>
+  </div>
+  
+  <!-- Edit mode -->
+  <div *ngIf="editing" class="edit-comment-form">
+    <!-- Rich Text / Plain Text Toggle -->
+    <div class="editor-mode-toggle">
+      <button
+        type="button"
+        class="btn-mode-toggle"
+        [class.active]="!isRichTextEditMode"
+        (click)="toggleRichTextEditMode()"
+        *ngIf="!isRichTextEditMode"
+      >
+        <i class="fa fa-font"></i> {{ 'PROFILE.USE_RICH_TEXT' | translate }}
+      </button>
+      <button
+        type="button"
+        class="btn-mode-toggle"
+        [class.active]="isRichTextEditMode"
+        (click)="toggleRichTextEditMode()"
+        *ngIf="isRichTextEditMode"
+      >
+        <i class="fa fa-align-left"></i> {{ 'PROFILE.USE_PLAIN_TEXT' | translate }}
+      </button>
+    </div>
+
+    <!-- Plain Text Editor -->
+    <textarea
+      *ngIf="!isRichTextEditMode"
+      [(ngModel)]="editText"
+      [placeholder]="'USER.COMMENT_PLACEHOLDER' | translate"
+      class="edit-comment-input"
+      rows="3"
+    ></textarea>
+
+    <!-- Rich Text Editor -->
+    <div *ngIf="isRichTextEditMode" class="richtext-container">
+      <div id="edit-comment-quill-editor" class="quill-editor"></div>
+    </div>
+
+    <div class="edit-comment-actions">
+      <button
+        class="btn btn-primary btn-sm"
+        [disabled]="((!editText.trim() && (!isRichTextEditMode || !quillEditor)) || isLoading)"
+        (click)="saveEdit()"
+      >
+        {{ 'COMMON.SAVE' | translate }}
+      </button>
+      <button
+        class="btn btn-secondary btn-sm"
+        (click)="cancelEdit()"
+        [disabled]="isLoading"
+      >
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Display mode -->
+  <div *ngIf="!editing" class="comment-text" [class.expanded]="isExpanded" [class.rich-text]="comment.isRichText">
+    <!-- Rich Text Display -->
+    <div 
+      *ngIf="comment.isRichText" 
+      [innerHTML]="getDisplayText(comment.content || comment.text, isExpanded, true)"
+      class="rich-text-content"
+    ></div>
+    <!-- Plain Text Display -->
+    <span *ngIf="!comment.isRichText">
+      {{ getDisplayText(comment.text || comment.content, isExpanded, false) }}
+    </span>
+    <button
+      *ngIf="isTextTooLong(comment.content || comment.text)"
+      class="text-expand-btn"
+      (click)="toggleExpansion()"
+    >
+      {{ isExpanded ? ('PROFILE.SHOW_LESS' | translate) : ('PROFILE.SHOW_MORE' | translate) }}
+    </button>
+  </div>
+
+  <!-- Attachments -->
+  <div *ngIf="comment.attachments && comment.attachments.length > 0 && !editing" class="comment-attachments">
+    <div class="attachments-header">
+      <i class="fa fa-paperclip"></i>
+      <span>{{ 'PROFILE.ATTACHMENTS' | translate }} ({{ comment.attachments.length }})</span>
+    </div>
+    <div class="attachments-list">
+      <div *ngFor="let attachment of comment.attachments" class="attachment-item">
+        <i [class]="'fa ' + getFileIconClass(attachment.mimetype)"></i>
+        <span class="attachment-name">{{ attachment.originalName || attachment.filename }}</span>
+        <span class="attachment-size">{{ formatFileSize(attachment.size) }}</span>
+        <button
+          type="button"
+          class="btn-download-attachment"
+          (click)="downloadAttachment(attachment)"
+          [attr.aria-label]="'PROFILE.DOWNLOAD_ATTACHMENT' | translate"
+          [title]="'PROFILE.DOWNLOAD_ATTACHMENT' | translate"
+        >
+          <i class="fa fa-download"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- comment actions -->
+  <div *ngIf="!editing" class="comment-actions">
+    <button class="btn-reply" (click)="startReply()" [disabled]="isOtherEditing">
+      <i class="fa fa-reply"></i> {{ 'USER.REPLY' | translate }}
+    </button>
+    <!-- Edit button (only for author) -->
+    <button
+      *ngIf="isCommentAuthor()"
+      class="btn-edit"
+      (click)="startEdit()"
+      [disabled]="isOtherEditing"
+    >
+      <i class="fa fa-pencil"></i> {{ 'COMMON.EDIT' | translate }}
+    </button>
+    <!-- Delete button (for author or admin) -->
+    <button
+      *ngIf="canDeleteComment()"
+      class="btn-delete"
+      (click)="deleteComment()"
+    >
+      <i class="fa fa-trash"></i> {{ 'COMMON.DELETE' | translate }}
+    </button>
+  </div>
+
+  <!-- reply form -->
+  <div *ngIf="replying" class="reply-form">
+    <!-- Rich Text / Plain Text Toggle -->
+    <div class="editor-mode-toggle">
+      <button
+        type="button"
+        class="btn-mode-toggle"
+        [class.active]="!isRichTextReplyMode"
+        (click)="toggleRichTextReplyMode()"
+        *ngIf="!isRichTextReplyMode"
+      >
+        <i class="fa fa-font"></i> {{ 'PROFILE.USE_RICH_TEXT' | translate }}
+      </button>
+      <button
+        type="button"
+        class="btn-mode-toggle"
+        [class.active]="isRichTextReplyMode"
+        (click)="toggleRichTextReplyMode()"
+        *ngIf="isRichTextReplyMode"
+      >
+        <i class="fa fa-align-left"></i> {{ 'PROFILE.USE_PLAIN_TEXT' | translate }}
+      </button>
+    </div>
+
+    <!-- Plain Text Editor -->
+    <textarea
+      *ngIf="!isRichTextReplyMode"
+      [(ngModel)]="replyText"
+      [placeholder]="'USER.REPLY_PLACEHOLDER' | translate"
+      class="reply-input"
+      rows="2"
+    ></textarea>
+
+    <!-- Rich Text Editor -->
+    <div *ngIf="isRichTextReplyMode" class="richtext-container">
+      <div id="reply-quill-editor" class="quill-editor"></div>
+    </div>
+
+    <div class="reply-actions">
+      <button
+        class="btn btn-primary btn-sm"
+        [disabled]="((!replyText.trim() && (!isRichTextReplyMode || !quillReplyEditor)) || isLoading)"
+        (click)="addReply()"
+      >
+        {{ 'USER.REPLY' | translate }}
+      </button>
+      <button
+        class="btn btn-secondary btn-sm"
+        (click)="cancelReply()"
+        [disabled]="isLoading"
+      >
+        {{ 'USER.CANCEL' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- replies -->
+  <div *ngIf="comment.replies && comment.replies.length > 0" class="replies-container">
+    <app-reply-item
+      *ngFor="let reply of comment.replies"
+      [reply]="reply"
+      [parentCommentId]="comment.id || comment._id || ''"
+      [userId]="userId"
+      [isAdmin]="isAdmin"
+      [isEditing]="isReplyBeingEdited(reply.id || reply._id)"
+      [isOtherEditing]="editing || replying || (editingReplyId !== null && editingReplyId !== (reply.id || reply._id))"
+      [maxTextLength]="maxTextLength"
+      [isExpanded]="isReplyExpanded(reply.id || reply._id)"
+      (replyUpdated)="onReplyUpdated($event)"
+      (replyDeleted)="onReplyDeleted($event)"
+      (editStarted)="onReplyEditStarted($event)"
+      (editCancelled)="onReplyEditCancelled()"
+      (expansionToggled)="onReplyExpansionToggled($event)"
+    ></app-reply-item>
+  </div>
+</div>
+

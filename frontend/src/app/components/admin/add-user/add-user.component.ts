@@ -1,14 +1,16 @@
 // Import required Angular modules and services
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray, FormControl } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth/auth.service';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { API_CONFIG } from '../../../core/config/api.config';
+import { SkillService } from '../../../core/services/skill/skill.service';
 import { UserRole } from '../../../models/enums/user-roles.enum';
+import { SkillLevel } from '../../../models/enums/skill-level.enum';
 import { NgZone } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subject, takeUntil } from 'rxjs';
+import { startWith, map } from 'rxjs/operators';
 
 interface Skill {
   _id: string;
@@ -24,13 +26,12 @@ interface Skill {
     CommonModule, 
     ReactiveFormsModule, 
     RouterModule, 
-    HttpClientModule,
     TranslateModule
   ],
   templateUrl: './add-user.component.html',
   styleUrls: ['./add-user.component.scss']
 })
-export class AddUserComponent implements OnInit {
+export class AddUserComponent implements OnInit, OnDestroy {
   // Form properties
   addUserForm!: FormGroup;
   loading = false;
@@ -55,6 +56,12 @@ export class AddUserComponent implements OnInit {
   skillsError: string | null = null;
   skillSearchControl = new FormControl('');
   isSkillDropdownOpen = false;
+  private destroy$ = new Subject<void>();
+  
+  // Selected skills with levels
+  selectedSkillsWithLevels: Map<string, { skillId: string, level: SkillLevel }> = new Map();
+  skillLevels = Object.values(SkillLevel);
+  skillLevelDropdownState: { [skillId: string]: boolean } = {};
   
   // for permission control
   isAdminOrCompetenceLeader: boolean = false;
@@ -64,7 +71,7 @@ export class AddUserComponent implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private authService: AuthService,
-    private http: HttpClient,
+    private skillService: SkillService,
     private ngZone: NgZone,
     private translateService: TranslateService
   ) {
@@ -86,75 +93,52 @@ export class AddUserComponent implements OnInit {
     // Check user permissions
     this.checkUserPermissions();
     
-    this.loadSkills();
-    
-    // Subscribe to search input changes
-    this.skillSearchControl.valueChanges.subscribe(searchTerm => {
-      this.filterSkills(searchTerm || '');
+    // Subscribe to filtered skills from service
+    this.skillService.getFilteredSkills(
+      this.skillSearchControl.valueChanges.pipe(
+        map(value => value || ''),
+        startWith('')
+      )
+    ).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (result) => {
+        this.availableSkills = result.skills;
+        this.filteredSkills = result.skills;
+        this.isLoadingSkills = result.isLoading;
+        this.skillsError = result.error;
+      }
     });
   }
 
-  // Load skills from database
-  loadSkills() {
-    this.isLoadingSkills = true;
-    this.skillsError = null;
-    
-    console.log('Loading skills from:', `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.skills.all}`);
-    
-    this.http.get<Skill[]>(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.skills.all}`)
-      .subscribe({
-        next: (skills) => {
-          console.log('Skills loaded successfully:', skills);
-          if (skills && Array.isArray(skills)) {
-            this.availableSkills = skills;
-            this.filteredSkills = [...skills];
-            console.log('Available skills count:', this.availableSkills.length);
-          } else {
-            console.error('Received skills are not an array:', skills);
-            this.skillsError = 'Ungültiges Datenformat für Skills erhalten.';
-            this.availableSkills = [];
-            this.filteredSkills = [];
-          }
-          this.isLoadingSkills = false;
-        },
-        error: (error) => {
-          console.error('Fehler beim Laden der Skills:', error);
-          let errorMessage = 'Skills konnten nicht geladen werden. ';
-          
-          if (error.status === 0) {
-            errorMessage += 'Keine Verbindung zum Server möglich. Bitte überprüfen Sie Ihre Internetverbindung.';
-          } else if (error.status === 404) {
-            errorMessage += 'Skills-Endpunkt nicht gefunden.';
-          } else if (error.status === 500) {
-            errorMessage += 'Serverfehler beim Laden der Skills.';
-          } else {
-            errorMessage += 'Bitte versuchen Sie es später erneut.';
-          }
-          
-          this.skillsError = errorMessage;
-          this.isLoadingSkills = false;
-          this.availableSkills = [];
-          this.filteredSkills = [];
-        }
-      });
-  }
-  
-  // Keine Dummy-Skills mehr laden
-  retryLoadSkills() {
-    this.loadSkills();
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+    document.removeEventListener('click', this.handleOutsideClick);
   }
 
-  // Filter skills based on search term
-  filterSkills(searchTerm: string) {
-    if (!searchTerm.trim()) {
-      this.filteredSkills = [...this.availableSkills];
-      return;
-    }
+  // Retry loading skills
+  retryLoadSkills() {
+    // Clear cache to force reload
+    this.skillService['allSkillsCache'] = null;
+    this.skillService['allSkillsSubject'].next([]);
     
-    const term = searchTerm.toLowerCase().trim();
-    this.filteredSkills = this.availableSkills.filter(skill => 
-      skill.name.toLowerCase().includes(term)
-    );
+    // Re-subscribe to trigger reload
+    this.skillService.getFilteredSkills(
+      this.skillSearchControl.valueChanges.pipe(
+        map(value => value || ''),
+        startWith('')
+      )
+    ).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (result) => {
+        this.availableSkills = result.skills;
+        this.filteredSkills = result.skills;
+        this.isLoadingSkills = result.isLoading;
+        this.skillsError = result.error;
+      }
+    });
   }
 
   // Toggle skill dropdown
@@ -170,10 +154,10 @@ export class AddUserComponent implements OnInit {
         document.addEventListener('click', this.handleOutsideClick);
       }, 0);
       
-      // if no skills are loaded, load them
+      // if no skills are loaded, trigger reload
       if (this.availableSkills.length === 0 && !this.isLoadingSkills && !this.skillsError) {
         console.log('No skills available, reloading...');
-        this.loadSkills();
+        this.retryLoadSkills();
       }
     } else {
       // remove the event listener when the dropdown is closed
@@ -217,6 +201,12 @@ export class AddUserComponent implements OnInit {
       .filter(name => name !== '');
   }
 
+  // get selected skill name by ID
+  getSelectedSkillName(skillId: string): string {
+    const skill = this.availableSkills.find(s => s._id === skillId);
+    return skill ? skill.name : '';
+  }
+
   // getter for skills FormArray
   get skillsFormArray() {
     return this.addUserForm.get('skills') as FormArray;
@@ -230,13 +220,41 @@ export class AddUserComponent implements OnInit {
     
     const index = this.findSkillIndexInFormArray(skillId);
     if (index === -1) {
-      // add skill
+      // add skill with default level (Beginner)
       this.skillsFormArray.push(this.formBuilder.control(skillId));
+      this.selectedSkillsWithLevels.set(skillId, {
+        skillId: skillId,
+        level: SkillLevel.BEGINNER
+      });
     } else {
       // remove skill
       this.skillsFormArray.removeAt(index);
+      this.selectedSkillsWithLevels.delete(skillId);
+      this.skillLevelDropdownState[skillId] = false;
     }
   }
+
+  // Set skill level
+  setSkillLevel(skillId: string, level: SkillLevel) {
+    if (this.selectedSkillsWithLevels.has(skillId)) {
+      this.selectedSkillsWithLevels.set(skillId, {
+        skillId: skillId,
+        level: level
+      });
+    }
+  }
+
+  // Get skill level
+  getSkillLevel(skillId: string): SkillLevel {
+    const skillData = this.selectedSkillsWithLevels.get(skillId);
+    return skillData?.level || SkillLevel.BEGINNER;
+  }
+
+  // Get skill level as string for ngClass
+  getSkillLevelClass(skillId: string): string {
+    return this.getSkillLevel(skillId).toLowerCase();
+  }
+
 
   // check if a skill is selected
   isSkillSelected(skillId: string): boolean {
@@ -290,6 +308,31 @@ export class AddUserComponent implements OnInit {
     this.error = '';
 
     // get form values
+    const currentUser = this.authService.currentUserValue;
+    const currentUserId = currentUser?.id;
+    
+    if (!currentUserId) {
+      this.error = 'Sie müssen angemeldet sein, um einen Benutzer zu erstellen.';
+      this.loading = false;
+      return;
+    }
+    
+    // Convert skill IDs to the format expected by the backend
+    // Backend expects: { skill: ObjectId, levelHistory: [{ level, changedAt, changedBy }] }
+    const formattedSkills = this.skillsFormArray.value.map((skillId: string) => {
+      const skillData = this.selectedSkillsWithLevels.get(skillId);
+      const level = skillData?.level || SkillLevel.BEGINNER;
+      
+      return {
+        skill: skillId,
+        levelHistory: [{
+          level: level,
+          changedAt: new Date(),
+          changedBy: currentUserId
+        }]
+      };
+    });
+
     const userData = {
       username: this.addUserForm.get('username')?.value,
       email: this.addUserForm.get('email')?.value,
@@ -299,7 +342,7 @@ export class AddUserComponent implements OnInit {
       employmentType: this.addUserForm.get('employmentType')?.value,
       role: this.addUserForm.get('role')?.value,
       phoneNumber: this.addUserForm.get('phoneNumber')?.value,
-      skills: this.skillsFormArray.value
+      skills: formattedSkills
     };
 
     // call adminCreateUser method from auth service
@@ -315,6 +358,8 @@ export class AddUserComponent implements OnInit {
         while (this.skillsFormArray.length) {
           this.skillsFormArray.removeAt(0);
         }
+        this.selectedSkillsWithLevels.clear();
+        this.skillLevelDropdownState = {};
         this.submitted = false;
         this.loading = false;
       },

@@ -1,0 +1,34 @@
+<div class="details-section">
+  <h2 class="section-title">{{ 'PROFILE.SKILLS' | translate }}</h2>
+  <div class="skills-container" *ngIf="userSkills && userSkills.length > 0">
+    <div class="skill-card" *ngFor="let userSkill of userSkills">
+      <div class="skill-header">
+        <span class="skill-name">{{ getSkillName(userSkill.skill) }}</span>
+        <!-- The last level -->
+        <span *ngIf="userSkill.levelHistory && userSkill.levelHistory.length > 0"
+              class="level-badge"
+              [ngClass]="getSkillLevelClass(userSkill.levelHistory[userSkill.levelHistory.length - 1].level)">
+          {{ userSkill.levelHistory[userSkill.levelHistory.length - 1].level | translate }}
+        </span>
+      </div>
+      <!-- Skill History -->
+      <div class="skill-history">
+        <div *ngFor="let history of userSkill.levelHistory; let i = index" class="skill-meta-modern">
+          <span [class.current-level]="i === userSkill.levelHistory.length - 1">
+            Level '{{ history.level | translate }}'
+            <span *ngIf="history.changedBy">
+              {{ 'USER.BY' | translate }} {{ history.changedBy.firstName }} {{ history.changedBy.lastName }}
+            </span>
+            <span *ngIf="history.changedAt">
+              {{ 'USER.ON' | translate }} {{ history.changedAt | date:'short' }}
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="no-skills" *ngIf="!userSkills || userSkills.length === 0">
+    {{ 'PROFILE.NO_SKILLS' | translate }}
+  </div>
+</div>
+

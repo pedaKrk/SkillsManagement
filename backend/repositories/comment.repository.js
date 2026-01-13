@@ -15,8 +15,13 @@ export const findCommentsByIds = (commentIds) =>
 export const findPopulatedComment = (commentId) =>
     Comment.findById(commentId).populate('author', 'username')
 
-export const updateCommentById = (commentId, content) =>
-    Comment.findByIdAndUpdate(commentId, { content }, { new: true })
+export const updateCommentById = (commentId, content, isRichText = false, attachments = null) => {
+    const updateData = { content, isRichText };
+    if (attachments !== null) {
+        updateData.attachments = attachments;
+    }
+    return Comment.findByIdAndUpdate(commentId, updateData, { new: true });
+}
 
 export const deleteCommentById = (commentId) =>
     Comment.findByIdAndDelete(commentId)
@@ -25,3 +30,18 @@ export const addReplyToComment = (commentId, replyId) =>
     Comment.findByIdAndUpdate(commentId, { $push: { replies: replyId } })
 
 export const createComment = (commentData) => new Comment(commentData).save();
+
+// Reply helpers
+export const updateReplyById = (replyId, content, isRichText = false, attachments = null) => {
+    const updateData = { content, isRichText };
+    if (attachments !== null) {
+        updateData.attachments = attachments;
+    }
+    return Comment.findByIdAndUpdate(replyId, updateData, { new: true });
+};
+
+export const deleteReplyById = (replyId) =>
+    Comment.findByIdAndDelete(replyId);
+
+export const removeReplyFromComment = (commentId, replyId) =>
+    Comment.findByIdAndUpdate(commentId, { $pull: { replies: replyId } });

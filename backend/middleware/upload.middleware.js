@@ -119,4 +119,57 @@ export const handleEmailAttachmentsUpload = (req, res, next) => {
     }
     next();
   });
+};
+
+// Multer configuration for comment attachments
+const commentAttachmentsStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const commentUploadsDir = path.join(process.cwd(), 'uploads', 'comment-attachments');
+    if (!fs.existsSync(commentUploadsDir)) {
+      fs.mkdirSync(commentUploadsDir, { recursive: true });
+    }
+    cb(null, commentUploadsDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, 'comment-attachment-' + uniqueSuffix + ext);
+  }
+});
+
+export const uploadCommentAttachments = multer({
+  storage: commentAttachmentsStorage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10 MB per file
+    files: 5 // Max 5 attachments
+  }
+}).array('attachments', 5);
+
+export const handleCommentAttachmentsUpload = (req, res, next) => {
+  uploadCommentAttachments(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+          success: false,
+          message: 'File is too large. Maximum size: 10 MB per file.'
+        });
+      }
+      if (err.code === 'LIMIT_FILE_COUNT') {
+        return res.status(400).json({
+          success: false,
+          message: 'Too many files. Maximum: 5 attachments.'
+        });
+      }
+      return res.status(400).json({
+        success: false,
+        message: `Upload error: ${err.message}`
+      });
+    } else if (err) {
+      return res.status(400).json({
+        success: false,
+        message: err.message
+      });
+    }
+    next();
+  });
 }; 

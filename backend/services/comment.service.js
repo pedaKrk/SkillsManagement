@@ -23,7 +23,7 @@ export const getCommentsForUser = async (userId) => {
     }
 }
 
-export const createCommentForUser = async (userId, authorId, content) => {
+export const createCommentForUser = async (userId, authorId, content, isRichText = false, attachments = []) => {
     const user = await UserRepository.findUserById(userId);
     if (!user) {
         throw new NotFoundError();
@@ -34,6 +34,8 @@ export const createCommentForUser = async (userId, authorId, content) => {
     }
     const commentData = {
         content,
+        isRichText,
+        attachments,
         author: authorId,
         time_stamp: new Date()
     }
@@ -44,7 +46,7 @@ export const createCommentForUser = async (userId, authorId, content) => {
     return await commentRepository.findPopulatedComment(newComment.id);
 }
 
-export const updateCommentForUser = async (userId, commentId, content, currentUserId, currentUserRole) => {
+export const updateCommentForUser = async (userId, commentId, content, currentUserId, currentUserRole, isRichText = false, attachments = null) => {
     try {
         const user = await UserRepository.findUserById(userId);
         if (!user) {
@@ -68,7 +70,7 @@ export const updateCommentForUser = async (userId, commentId, content, currentUs
             throw new ForbiddenError();
         }
 
-        return await commentRepository.updateCommentById(commentId, content)
+        return await commentRepository.updateCommentById(commentId, content, isRichText, attachments)
     }
     catch (error) {
         throw error;
@@ -98,7 +100,7 @@ export const deleteCommentFromUser = async (userId, commentId, currentUserId, cu
     }
 }
 
-export const createReplyToComment = async (userId, commentId, authorId, content) => {
+export const createReplyToComment = async (userId, commentId, authorId, content, isRichText = false, attachments = []) => {
     try{
         const user = await UserRepository.findUserById(userId);
         if (!user) {
@@ -119,6 +121,8 @@ export const createReplyToComment = async (userId, commentId, authorId, content)
 
         const replyData = {
             content,
+            isRichText,
+            attachments,
             author: authorId,
             time_stamp: new Date(),
             parentComment: commentId
@@ -128,6 +132,84 @@ export const createReplyToComment = async (userId, commentId, authorId, content)
         return await commentRepository.findPopulatedComment(reply.id)
     }
     catch(error){
+        throw error;
+    }
+}
+
+export const updateReplyForComment = async (userId, commentId, replyId, content, currentUserId, currentUserRole, isRichText = false, attachments = null) => {
+    try {
+        const user = await UserRepository.findUserById(userId);
+        if (!user) {
+            throw new NotFoundError();
+        }
+        
+        // Check if parent comment exists and belongs to user
+        const hasComment = await UserRepository.userHasComment(userId, commentId);
+        if(!hasComment) {
+            throw new NotFoundError();
+        }
+
+        // Check if reply exists
+        const reply = await commentRepository.findCommentById(replyId);
+        if (!reply) {
+            throw new NotFoundError();
+        }
+
+        // Verify reply belongs to the parent comment
+        // Only check if parentComment is set, otherwise skip (reply is validated by being in parent's replies array)
+        if (reply.parentComment) {
+            const replyParentId = reply.parentComment?.toString() || reply.parentComment?._id?.toString() || reply.parentComment;
+            const commentIdStr = commentId.toString();
+            if (replyParentId && replyParentId !== commentIdStr) {
+                throw new NotFoundError();
+            }
+        }
+
+        // Check permissions: only author can update
+        const isAuthor = reply.author.toString() === currentUserId;
+        
+        if (!isAuthor) {
+            throw new ForbiddenError();
+        }
+
+        return await commentRepository.updateReplyById(replyId, content, isRichText, attachments)
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+export const deleteReplyFromComment = async (userId, commentId, replyId, currentUserId, currentUserRole) => {
+    try{
+        // Check if reply exists and get author
+        const reply = await commentRepository.findCommentById(replyId);
+        if (!reply) {
+            throw new NotFoundError();
+        }
+
+        // Verify reply belongs to the parent comment
+        // Only check if parentComment is set, otherwise skip (reply is validated by being in parent's replies array)
+        if (reply.parentComment) {
+            const replyParentId = reply.parentComment?.toString() || reply.parentComment?._id?.toString() || reply.parentComment;
+            const commentIdStr = commentId.toString();
+            if (replyParentId && replyParentId !== commentIdStr) {
+                throw new NotFoundError();
+            }
+        }
+
+        // Check permissions: only author or admin can delete
+        const isAuthor = reply.author.toString() === currentUserId;
+        const isAdmin = currentUserRole && currentUserRole.toLowerCase() === roleEnum.ADMIN.toLowerCase();
+        
+        if (!isAuthor && !isAdmin) {
+            throw new ForbiddenError();
+        }
+
+        // Remove reply from parent comment's replies array
+        await commentRepository.removeReplyFromComment(commentId, replyId);
+        // Delete the reply itself
+        return await commentRepository.deleteReplyById(replyId);
+    }catch(error){
         throw error;
     }
 }
