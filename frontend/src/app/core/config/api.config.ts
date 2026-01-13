@@ -22,7 +22,8 @@ export const API_CONFIG = {
       all: '/skills',
       root: '/skills/root',
       names: '/skills/names',
-      levels: '/skills/levels'
+      levels: '/skills/levels',
+      topLevel: '/skills/top-level'
     },
 
     futureSkills: {
@@ -42,6 +43,7 @@ export const API_CONFIG = {
       lecturersSkillFields: '/dashboard/lecturers-skill-fields',
       futureSkillsGrowth: '/dashboard/future-skills-growth',
       lecturerEngagement: '/dashboard/lecturer-engagement',
+      byRootSkill: (id: string) => `/dashboard/by-root-skill/${id}`,
       userFutureSkillLevelMatrix: (id: string) => `dashboard/user/${id}/future-skills-level-matrix`,
       userSkillsDistribution: (id: string) => `/dashboard/user/${id}/skills/distribution`
     },

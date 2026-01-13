@@ -261,6 +261,36 @@ class FutureSkillRepository {
             }
         ]);
     };
-
+    getSkillsPopularityBySkillIds = (skillIds) => {
+        return FutureSkill.aggregate([
+            {
+                $match: {
+                    skill_id: { $in: skillIds.map(id => new mongoose.Types.ObjectId(id)) }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'skills',
+                    localField: 'skill_id',
+                    foreignField: '_id',
+                    as: 'skill'
+                }
+            },
+            { $unwind: '$skill' },
+            {
+                $group: {
+                    _id: '$skill.name',
+                    value: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    name: '$_id',
+                    value: 1
+                }
+            }
+        ]);
+    };
 }
     export const futureSkillRepository = new FutureSkillRepository();

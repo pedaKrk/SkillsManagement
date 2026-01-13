@@ -4,7 +4,6 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { DashboardService } from '../../../core';
 import { Color, ScaleType, LegendPosition } from '@swimlane/ngx-charts';
 
-
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -14,7 +13,9 @@ import { Color, ScaleType, LegendPosition } from '@swimlane/ngx-charts';
 })
 export class DashboardComponent implements OnInit {
 
-  // Chart data
+  // =========================
+  // CHART DATA
+  // =========================
   skillsLevelMatrixData: any[] = [];
   skillsData: any[] = [];
   skillsByLevelData: any[] = [];
@@ -22,94 +23,152 @@ export class DashboardComponent implements OnInit {
   futureSkillsGrowthData: any[] = [];
   lecturerEngagementData: any[] = [];
 
+  // =========================
+  // FILTER
+  // =========================
+  topLevelSkills: any[] = [];
+  selectedRootSkillId: string | null = null;
 
-  // KPI values (computed, not hard-coded)
+  // =========================
+  // KPI VALUES
+  // =========================
   totalSkills = 0;
   skillLevelsCount = 0;
-  lecturersCount= 0;
+  lecturersCount = 0;
 
-  // ✅ Professional color palette for all charts
+  // =========================
+  // COLOR SCHEME
+  // =========================
   colorScheme: Color = {
     name: 'dashboard',
     selectable: true,
     group: ScaleType.Ordinal,
     domain: [
-      '#2563EB', // Blue
-      '#16A34A', // Green
-      '#DC2626', // Red
-      '#7C3AED', // Purple
-      '#F59E0B'  // Amber
+      '#2563EB',
+      '#16A34A',
+      '#DC2626',
+      '#7C3AED',
+      '#F59E0B'
     ]
   };
+
   LegendPosition = LegendPosition;
 
-  // Axis helpers
-  yAxisTickFormatting = (value: number) => {
-    return Number.isInteger(value) ? value.toString() : '';
-  };
+  // =========================
+  // AXIS HELPERS
+  // =========================
+  yAxisTickFormatting = (value: number) =>
+    Number.isInteger(value) ? value.toString() : '';
 
   get yMax(): number {
     return 10;
   }
 
+  constructor(private dashboardService: DashboardService) {
+  }
 
-  constructor(private dashboardService: DashboardService) {}
-
+  // =========================
+  // INIT
+  // =========================
   ngOnInit(): void {
 
-    this.dashboardService.getSkillsLevelMatrix().subscribe(data => {
-      this.skillsLevelMatrixData = data;
+    // Load filter dropdown
+    this.dashboardService.getTopLevelSkills().subscribe(data => {
+      this.topLevelSkills = data;
+    });
 
-      // Total skills = number of skills in matrix
+    // Load default dashboard
+    this.loadDefaultDashboard();
+  }
+
+  // =========================
+  // DEFAULT DASHBOARD
+  // =========================
+  loadDefaultDashboard(): void {
+
+    this.dashboardService.getSkillsLevelMatrix().subscribe(data => {
+      this.skillsLevelMatrixData = [...data];
       this.totalSkills = data.length;
 
-      // Skill levels = unique level names across all skills
       const levels = new Set<string>();
-      data.forEach((skill: any) => {
-        skill.series?.forEach((s: any) => levels.add(s.name));
-      });
+      data.forEach((skill: any) =>
+        skill.series?.forEach((s: any) => levels.add(s.name))
+      );
       this.skillLevelsCount = levels.size;
     });
 
     this.dashboardService.getSkillsByLevel().subscribe(data => {
-      this.skillsByLevelData = data;
-
-      // Fallback: number of levels returned
-      if (!this.skillLevelsCount) {
-        this.skillLevelsCount = data.length;
-      }
+      this.skillsByLevelData = [...data];
     });
 
     this.dashboardService.getLecturersCount().subscribe(res => {
       this.lecturersCount = res.value;
     });
 
-
     this.dashboardService.getSkillsPopularity().subscribe(data => {
-      this.skillsData = data;
-
-      // Alternative source for total skills if needed
-      if (!this.totalSkills) {
-        this.totalSkills = data.length;
-      }
+      this.skillsData = [...data];
     });
 
     this.dashboardService.getLecturersSkillFields().subscribe(data => {
-      this.lecturersSkillFields = data;
+      this.lecturersSkillFields = [...data];
     });
 
     this.dashboardService.getLecturerEngagementTop5().subscribe(data => {
-      this.lecturerEngagementData = data;
+      this.lecturerEngagementData = [...data];
     });
-
 
     this.dashboardService.getFutureSkillsGrowth().subscribe(data => {
       this.futureSkillsGrowthData = [
         {
           name: 'Future Skills',
-          series: data
+          series: [...data]
         }
       ];
     });
   }
+
+
+  // =========================
+  // FILTERED DASHBOARD
+  // =========================
+  loadDashboardByRootSkill(rootSkillId: string): void {
+    this.dashboardService.getDashboardByRootSkill(rootSkillId)
+      .subscribe(data => {
+
+        this.skillsLevelMatrixData = [...data.skillsLevelMatrix];
+        this.skillsByLevelData = [...data.skillsByLevel];
+        this.skillsData = [...data.skillsPopularity];
+        this.lecturersSkillFields = [...data.lecturersSkillFields];
+        this.lecturerEngagementData = [...data.lecturerEngagementTop5];
+
+        this.futureSkillsGrowthData = [
+          {name: 'Future Skills', series: [...data.futureSkillsGrowth]}
+        ];
+
+        this.lecturersCount = data.lecturersCount;
+
+        // KPIs
+        this.totalSkills = data.skillsLevelMatrix.length;
+
+        const levels = new Set<string>();
+        data.skillsLevelMatrix.forEach((skill: any) =>
+          skill.series?.forEach((s: any) => levels.add(s.name))
+        );
+        this.skillLevelsCount = levels.size;
+      });
   }
+
+
+  // =========================
+  // FILTER HANDLER
+  // =========================
+  onRootSkillChange(rootSkillId: string): void {
+    console.log('Selected domain:', rootSkillId);
+
+    if (!rootSkillId) {
+      this.loadDefaultDashboard();
+    } else {
+      this.loadDashboardByRootSkill(rootSkillId);
+    }
+  }
+}

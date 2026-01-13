@@ -24,6 +24,26 @@
   </div>
   </div>
 
+  <div class="dashboard-filter">
+    <span class="filter-label">Filter:</span>
+
+    <select
+      class="filter-select"
+      #rootSelect
+      (change)="onRootSkillChange(rootSelect.value)"
+    >
+      <option value="">All Skills</option>
+
+      <option
+        *ngFor="let skill of topLevelSkills"
+        [value]="skill._id"
+      >
+        {{ skill.name }}
+      </option>
+    </select>
+
+  </div>
+
   <!-- MAIN CHART -->
   <div class="chart-section">
     <div class="chart-card large">
@@ -50,7 +70,7 @@
   </div>
 
   <!-- GRID -->
-  <<div class="chart-card pie-large">
+  <div class="chart-card pie-large">
   <div class="chart-title">Skills by Level</div>
 
   <ngx-charts-pie-chart

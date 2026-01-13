@@ -109,6 +109,7 @@ class SkillService {
             throw error
         }
     }
+
 }
 
 export const skillService = new SkillService()

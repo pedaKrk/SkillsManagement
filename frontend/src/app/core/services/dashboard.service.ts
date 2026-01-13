@@ -39,8 +39,6 @@ export class DashboardService {
     );
   }
 
-
-
   getSkillsPopularity(): Observable<any> {
     return this.http.get(`${API_CONFIG.baseUrl}/${API_CONFIG.endpoints.dashboard.skillsPopularity}`).pipe(
       catchError(error => {
@@ -87,4 +85,23 @@ export class DashboardService {
       })
     );
   }
+
+  getTopLevelSkills(): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${API_CONFIG.baseUrl}/skills/top-level`
+    ).pipe(
+      catchError(error => {
+        console.error('Error loading top-level skills:', error);
+        return throwError(() => new Error('Error getting top-level skills'));
+      })
+    );
+  }
+
+  getDashboardByRootSkill(rootSkillId: string): Observable<any> {
+    return this.http.get<any>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.dashboard.byRootSkill(rootSkillId)}`
+    );
+  }
+
+
 }
