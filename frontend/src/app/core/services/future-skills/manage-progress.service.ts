@@ -7,7 +7,8 @@ import {API_CONFIG} from '../../config/api.config';
 @Injectable({ providedIn: 'root' })
 export class ManageProgressService {
   //private apiUrl = 'http://localhost:3000/api/v1/email'
-  private apiUrl = 'http://localhost:3000/api/v1/future-skills';
+  //private apiUrl = 'http://localhost:3000/api/v1/future-skills'; DELETE
+  private apiUrl = `${API_CONFIG.baseUrl}/future-skills`;
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
@@ -30,16 +31,19 @@ export class ManageProgressService {
 
   getAllLecturers(): Observable<any[]> {
     const headers = this.getAuthHeaders();
-    return this.http.get<any[]>('http://localhost:3000/api/v1/users/', { headers });
+    //return this.http.get<any[]>('http://localhost:3000/api/v1/users/', { headers }); DELETE
+    return this.http.get<any[]>(`${API_CONFIG.baseUrl}/users`, { headers });
   }
 
 
   fetchAllSkillNames(): Observable<any[]> {
-    return this.http.get<any[]>('http://localhost:3000/api/v1/skills');
+    //return this.http.get<any[]>('http://localhost:3000/api/v1/skills'); DELETE 
+    return this.http.get<any[]>(`${API_CONFIG.baseUrl}/skills`);
   }
 
   fetchAllSkillLevels(): Observable<string[]> {
-    return this.http.get<string[]>('http://localhost:3000/api/v1/skills/levels');
+    //return this.http.get<string[]>('http://localhost:3000/api/v1/skills/levels'); DELETE
+    return this.http.get<string[]>(`${API_CONFIG.baseUrl}/skills/levels`);
   }
 
   updateSkill(id: string, updatedSkill: any): Observable<any> {
@@ -69,7 +73,8 @@ export class ManageProgressService {
    */
   getFutureSkillStatusEmail(userName: string, skillName: string): Observable<any> {
     const headers = this.getAuthHeaders();
-    const emailApiUrl = 'http://localhost:3000/api/v1/email';
+    //const emailApiUrl = 'http://localhost:3000/api/v1/email'; DELETE
+    const emailApiUrl = `${API_CONFIG.baseUrl}/email`;
 
     return this.http.get(
       `${emailApiUrl}/future-skill-status-email?userName=${encodeURIComponent(userName)}&skillName=${encodeURIComponent(skillName)}`,
