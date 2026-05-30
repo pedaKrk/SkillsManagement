@@ -4,6 +4,8 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { DashboardService } from '../../../core';
 import { Color, ScaleType, LegendPosition } from '@swimlane/ngx-charts';
 
+type DashboardMode = 'future' | 'normal';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -12,6 +14,7 @@ import { Color, ScaleType, LegendPosition } from '@swimlane/ngx-charts';
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
+  dashboardMode: DashboardMode = 'future';
 
   // =========================
   // CHART DATA
@@ -54,6 +57,36 @@ export class DashboardComponent implements OnInit {
 
   LegendPosition = LegendPosition;
 
+  get dashboardTitle(): string {
+    return this.dashboardMode === 'future'
+      ? 'Future-Skills Dashboard'
+      : 'Skills Dashboard';
+  }
+
+  get dashboardSubtitle(): string {
+    return this.dashboardMode === 'future'
+      ? 'Overview of future skills, levels and field distribution'
+      : 'Overview of current skills, levels and field distribution';
+  }
+
+  get growthChartTitle(): string {
+    return this.dashboardMode === 'future'
+      ? 'Future Skills Growth Over Time'
+      : 'Skills Growth Over Time';
+  }
+
+  get growthYAxisLabel(): string {
+    return this.dashboardMode === 'future'
+      ? 'Future Skills Count'
+      : 'Skills Count';
+  }
+
+  get engagementYAxisLabel(): string {
+    return this.dashboardMode === 'future'
+      ? 'Number of Future Skills'
+      : 'Number of Skills';
+  }
+
   // =========================
   // AXIS HELPERS
   // =========================
@@ -61,7 +94,12 @@ export class DashboardComponent implements OnInit {
     Number.isInteger(value) ? value.toString() : '';
 
   get yMax(): number {
-    return 10;
+    const maxValue = Math.max(
+      0,
+      ...this.skillsData.map(skill => Number(skill.value) || 0)
+    );
+
+    return Math.max(10, maxValue);
   }
 
   constructor(private dashboardService: DashboardService) {
@@ -85,6 +123,10 @@ export class DashboardComponent implements OnInit {
   // DEFAULT DASHBOARD
   // =========================
   loadDefaultDashboard(): void {
+    if (this.dashboardMode === 'normal') {
+      this.loadNormalSkillsDashboard();
+      return;
+    }
 
     this.dashboardService.getSkillsLevelMatrix().subscribe(data => {
       this.skillsLevelMatrixData = [...data];
@@ -132,6 +174,11 @@ export class DashboardComponent implements OnInit {
   // FILTERED DASHBOARD
   // =========================
   loadDashboardByRootSkill(rootSkillId: string): void {
+    if (this.dashboardMode === 'normal') {
+      this.loadNormalSkillsDashboard(rootSkillId);
+      return;
+    }
+
     this.dashboardService.getDashboardByRootSkill(rootSkillId)
       .subscribe(data => {
 
@@ -163,12 +210,58 @@ export class DashboardComponent implements OnInit {
   // FILTER HANDLER
   // =========================
   onRootSkillChange(rootSkillId: string): void {
-    console.log('Selected domain:', rootSkillId);
+    this.selectedRootSkillId = rootSkillId || null;
 
     if (!rootSkillId) {
       this.loadDefaultDashboard();
     } else {
       this.loadDashboardByRootSkill(rootSkillId);
     }
+  }
+
+  onDashboardModeChange(mode: DashboardMode): void {
+    if (this.dashboardMode === mode) {
+      return;
+    }
+
+    this.dashboardMode = mode;
+    this.loadDashboardForCurrentSelection();
+  }
+
+  private loadDashboardForCurrentSelection(): void {
+    if (this.selectedRootSkillId) {
+      this.loadDashboardByRootSkill(this.selectedRootSkillId);
+    } else {
+      this.loadDefaultDashboard();
+    }
+  }
+
+  private loadNormalSkillsDashboard(rootSkillId?: string): void {
+    const request = rootSkillId
+      ? this.dashboardService.getNormalSkillsDashboardByRootSkill(rootSkillId)
+      : this.dashboardService.getNormalSkillsDashboard();
+
+    request.subscribe(data => this.applyNormalSkillsDashboardData(data));
+  }
+
+  private applyNormalSkillsDashboardData(data: any): void {
+    this.skillsLevelMatrixData = [...data.skillsLevelMatrix];
+    this.skillsByLevelData = [...data.skillsByLevel];
+    this.skillsData = [...data.skillsPopularity];
+    this.lecturersSkillFields = [...data.lecturersSkillFields];
+    this.lecturerEngagementData = [...data.lecturerEngagementTop5];
+
+    this.futureSkillsGrowthData = [
+      {name: 'Skills', series: [...data.skillsGrowth]}
+    ];
+
+    this.lecturersCount = data.lecturersCount;
+    this.totalSkills = data.skillsLevelMatrix.length;
+
+    const levels = new Set<string>();
+    data.skillsLevelMatrix.forEach((skill: any) =>
+      skill.series?.forEach((s: any) => levels.add(s.name))
+    );
+    this.skillLevelsCount = levels.size;
   }
 }

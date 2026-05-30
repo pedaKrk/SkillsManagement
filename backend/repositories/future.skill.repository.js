@@ -1,5 +1,6 @@
 import FutureSkill from '../models/future.skill.model.js'
 import Skill from "../models/skill.model.js";
+import mongoose from 'mongoose';
 
 class FutureSkillRepository {
 

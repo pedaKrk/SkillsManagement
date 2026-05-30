@@ -2,8 +2,27 @@
 
   <!-- HEADER -->
   <div class="dashboard-header">
-    <h1>Future-Skills Dashboard</h1>
-    <p>Overview of future skills, levels and field distribution</p>
+    <h1>{{ dashboardTitle }}</h1>
+    <p>{{ dashboardSubtitle }}</p>
+  </div>
+
+  <div class="dashboard-mode-toggle" role="group" aria-label="Dashboard type">
+    <button
+      type="button"
+      class="mode-button"
+      [class.active]="dashboardMode === 'future'"
+      (click)="onDashboardModeChange('future')"
+    >
+      Future Skills
+    </button>
+    <button
+      type="button"
+      class="mode-button"
+      [class.active]="dashboardMode === 'normal'"
+      (click)="onDashboardModeChange('normal')"
+    >
+      Skills
+    </button>
   </div>
 
   <!-- KPI ROW -->
@@ -19,7 +38,7 @@
     </div>
 
     <div class="kpi-card purple">
-    <div class="kpi-value">{{ lecturersCount ?? '—' }}</div>
+    <div class="kpi-value">{{ lecturersCount }}</div>
     <div class="kpi-label">Lecturers</div>
   </div>
   </div>
@@ -30,6 +49,7 @@
     <select
       class="filter-select"
       #rootSelect
+      [value]="selectedRootSkillId || ''"
       (change)="onRootSkillChange(rootSelect.value)"
     >
       <option value="">All Skills</option>
@@ -124,7 +144,7 @@
   </div>
 
   <div class="chart-card large">
-    <div class="chart-title">Future Skills Growth Over Time</div>
+    <div class="chart-title">{{ growthChartTitle }}</div>
 
     <ngx-charts-line-chart
       [results]="futureSkillsGrowthData"
@@ -135,7 +155,7 @@
       [showXAxisLabel]="true"
       [showYAxisLabel]="true"
       xAxisLabel="Month"
-      yAxisLabel="Future Skills Count"
+      [yAxisLabel]="growthYAxisLabel"
       [autoScale]="true"
       [animations]="true">
     </ngx-charts-line-chart>
@@ -153,7 +173,7 @@
     [showXAxisLabel]="true"
     [showYAxisLabel]="true"
     [yAxisTickFormatting]="yAxisTickFormatting"
-    yAxisLabel="Number of Future Skills"
+    [yAxisLabel]="engagementYAxisLabel"
     [barPadding]="32"
     [animations]="true">
   </ngx-charts-bar-vertical>
