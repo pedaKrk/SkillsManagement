@@ -13,6 +13,18 @@ export const getAllUsers = async () => {
         .select('-password')
         .populate({ path: 'skills.skill', select: 'name description level category parent_id' })
         .populate({ path: 'skills.levelHistory.changedBy', select: 'firstName lastName email' })
+        .populate({
+            path: 'comments',
+            select: 'content isRichText author time_stamp replies',
+            populate: [
+                { path: 'author', select: 'username firstName lastName' },
+                {
+                    path: 'replies',
+                    select: 'content isRichText author time_stamp',
+                    populate: { path: 'author', select: 'username firstName lastName' }
+                }
+            ]
+        })
         .lean();
 }
 

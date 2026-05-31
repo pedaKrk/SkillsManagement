@@ -42,6 +42,7 @@ export interface User{
     competenceField?: CompetenceField;
     skills?: UserSkillEntry[];
     futureSkills?: UserFutureSkillEntry[];
+    comments?: Comment[];
     profileImageUrl?: string;
     token?: string;
 }

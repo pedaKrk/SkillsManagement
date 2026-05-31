@@ -7,4 +7,5 @@ export interface Skill {
     level?: SkillLevel;
     category?: string;
     parent_id?: string | null;
+    children?: any[];
 } 

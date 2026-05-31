@@ -37,6 +37,16 @@
             class="form-control"
           >
         </div>
+
+        <div class="search-bar">
+          <input 
+            type="text" 
+            [(ngModel)]="fullTextSearchTerm" 
+            (ngModelChange)="applyFilters()"
+            [placeholder]="'USER.FULL_TEXT_SEARCH' | translate" 
+            class="form-control"
+          >
+        </div>
         
         <div class="filter-row">
           <!-- Skill-Filter Dropdown -->

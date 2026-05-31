@@ -102,6 +102,7 @@
     "SEND_EMAIL": "E-Mail an ausgewählte Person(en) senden",
     "SORT_ASCENDING": "Aufsteigend sortieren",
     "SEARCH_BY_NAME": "Nach Namen suchen...",
+    "FULL_TEXT_SEARCH": "Volltextsuche inkl. Kommentare...",
     "FILTER_BY_SKILLS": "Nach Skills filtern",
     "SKILLS_SELECTED": "Skills: {count} ausgewählt",
     "SEARCH_SKILLS": "Skills suchen...",
