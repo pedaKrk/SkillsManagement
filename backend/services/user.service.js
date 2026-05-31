@@ -6,6 +6,7 @@ import path from "path";
 import fs from "fs";
 import UserRepository from "../repositories/user.repository.js";
 import logger from "../config/logger.js";
+import FutureSkill from "../models/future.skill.model.js";
 
 export const getAllUsers = async () => {
     return UserRepository.findAllActiveUsers()
@@ -52,7 +53,14 @@ export const getUserById = async (id) => {
         }
     ]);
 
-    return user;
+    const futureSkills = await FutureSkill.find({ lecturer_id: id })
+        .populate('skill_id', 'name')
+        .lean();
+
+    return {
+        ...user.toObject(),
+        futureSkills
+    };
 }
 
 export const getAllLecturers = async () => {
