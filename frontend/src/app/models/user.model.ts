@@ -17,6 +17,16 @@ export interface UserSkillEntry {
     }[];
 }
 
+export interface UserFutureSkillEntry {
+    _id: string;
+    name: string;
+    description?: string;
+    category?: string;
+    future_achievable_level: string;
+    skill_id?: Skill;
+    target_date?: Date | string;
+}
+
 export interface User{
     id: string;
     _id?: string;
@@ -31,6 +41,7 @@ export interface User{
     languages?: UserLanguage[];
     competenceField?: CompetenceField;
     skills?: UserSkillEntry[];
+    futureSkills?: UserFutureSkillEntry[];
     profileImageUrl?: string;
     token?: string;
 }

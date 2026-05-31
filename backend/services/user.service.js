@@ -32,10 +32,16 @@ export const getUserById = async (id) => {
         },
         {
             path: 'futureSkills',
-            populate: {
-                path: 'lecturer_id',
-                select: 'firstName lastName'
-            }
+            populate: [
+                {
+                    path: 'skill_id',
+                    select: 'name'
+                },
+                {
+                    path: 'lecturer_id',
+                    select: 'firstName lastName'
+                }
+            ]
         },
         {
             path: 'comments',

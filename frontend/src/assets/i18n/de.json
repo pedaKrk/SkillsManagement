@@ -311,6 +311,8 @@
     "PHONE_NUMBER": "Telefonnummer:",
     "SKILLS": "Skills",
     "NO_SKILLS": "Keine Fähigkeiten angegeben",
+    "FUTURE_SKILLS": "Future Skills",
+    "NO_FUTURE_SKILLS": "Keine Future Skills angegeben",
     "STATISTICS": "Statistiken",
     "COMMENTS": "Kommentare",
     "ADD_COMMENT": "Kommentar hinzufügen",
