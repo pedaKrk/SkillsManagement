@@ -7,6 +7,8 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { SkillService } from '../../../core/services/skill/skill.service';
 import { UserRole } from '../../../models/enums/user-roles.enum';
 import { SkillLevel } from '../../../models/enums/skill-level.enum';
+import { UserLanguage } from '../../../models/enums/user-language.enum';
+import { CompetenceField } from '../../../models/enums/competence-field.enum';
 import { NgZone } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
@@ -48,6 +50,11 @@ export class AddUserComponent implements OnInit, OnDestroy {
     { id: UserRole.COMPETENCE_LEADER, name: 'KompetenzleiterIn', value: UserRole.COMPETENCE_LEADER },
     { id: UserRole.LECTURER, name: 'LektorIn', value: UserRole.LECTURER }
   ];
+  languageOptions = [
+    { value: UserLanguage.GERMAN, labelKey: 'USER.LANGUAGE_GERMAN' },
+    { value: UserLanguage.ENGLISH, labelKey: 'USER.LANGUAGE_ENGLISH' }
+  ];
+  competenceFields = Object.values(CompetenceField);
 
   // Skills from database
   availableSkills: Skill[] = [];
@@ -83,6 +90,8 @@ export class AddUserComponent implements OnInit, OnDestroy {
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       employmentType: ['Internal', Validators.required],
+      languages: [[UserLanguage.GERMAN], Validators.required],
+      competenceField: [CompetenceField.FIELD_1, Validators.required],
       role: [UserRole.LECTURER, Validators.required], // Default role is LektorIn
       phoneNumber: [''], // Optional phone number field
       skills: this.formBuilder.array([])
@@ -139,6 +148,32 @@ export class AddUserComponent implements OnInit, OnDestroy {
         this.skillsError = result.error;
       }
     });
+  }
+
+  isLanguageSelected(language: UserLanguage): boolean {
+    const selectedLanguages = this.addUserForm.get('languages')?.value || [];
+    return selectedLanguages.includes(language);
+  }
+
+  onLanguageToggle(language: UserLanguage, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    const control = this.addUserForm.get('languages');
+    const selectedLanguages: UserLanguage[] = [...(control?.value || [])];
+
+    if (checked && !selectedLanguages.includes(language)) {
+      selectedLanguages.push(language);
+    }
+
+    if (!checked) {
+      const index = selectedLanguages.indexOf(language);
+      if (index > -1) {
+        selectedLanguages.splice(index, 1);
+      }
+    }
+
+    control?.setValue(selectedLanguages);
+    control?.markAsDirty();
+    control?.markAsTouched();
   }
 
   // Toggle skill dropdown
@@ -340,6 +375,8 @@ export class AddUserComponent implements OnInit, OnDestroy {
       firstName: this.addUserForm.get('firstName')?.value,
       lastName: this.addUserForm.get('lastName')?.value,
       employmentType: this.addUserForm.get('employmentType')?.value,
+      languages: this.addUserForm.get('languages')?.value,
+      competenceField: this.addUserForm.get('competenceField')?.value,
       role: this.addUserForm.get('role')?.value,
       phoneNumber: this.addUserForm.get('phoneNumber')?.value,
       skills: formattedSkills
@@ -352,6 +389,8 @@ export class AddUserComponent implements OnInit, OnDestroy {
         this.success = 'Benutzer wurde erfolgreich erstellt';
         this.addUserForm.reset({
           employmentType: 'Internal',
+          languages: [UserLanguage.GERMAN],
+          competenceField: CompetenceField.FIELD_1,
           role: UserRole.LECTURER
         });
         // clear skills

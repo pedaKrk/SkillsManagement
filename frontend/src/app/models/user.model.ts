@@ -1,5 +1,7 @@
 import {UserRole} from './enums/user-roles.enum';
 import {EmploymentType} from './enums/employment-type.enum';
+import {UserLanguage} from './enums/user-language.enum';
+import {CompetenceField} from './enums/competence-field.enum';
 import { Skill } from './skill.model';
 
 export interface UserSkillEntry {
@@ -26,6 +28,8 @@ export interface User{
     email: string;
     phoneNumber?: string;
     employmentType: EmploymentType;
+    languages?: UserLanguage[];
+    competenceField?: CompetenceField;
     skills?: UserSkillEntry[];
     profileImageUrl?: string;
     token?: string;

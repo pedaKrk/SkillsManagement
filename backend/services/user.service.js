@@ -73,6 +73,10 @@ export const updateUser = async (userId, updateData, currentUser) => {
             throw new ForbiddenError();
         }
 
+        if (!isAdmin) {
+            delete updateData.role;
+        }
+
         if (updateData.skills && Array.isArray(updateData.skills)) {
             const user = await UserRepository.findUserById(userId);
             if (!user) {

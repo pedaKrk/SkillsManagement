@@ -11,6 +11,8 @@ import { Skill } from '../../models/skill.model';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
 import { UserRole } from '../../models/enums/user-roles.enum';
+import { UserLanguage } from '../../models/enums/user-language.enum';
+import { CompetenceField } from '../../models/enums/competence-field.enum';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -328,6 +330,20 @@ export class UserListComponent implements OnInit, OnDestroy {
   // helper method to check if a user is selected
   isUserSelected(userId: string): boolean {
     return this.selectedUsers.includes(userId);
+  }
+
+  getLanguageLabelKeys(user: User): string[] {
+    const languages = user.languages?.length ? user.languages : [UserLanguage.GERMAN];
+
+    return languages.map(language =>
+      language === UserLanguage.ENGLISH ? 'USER.LANGUAGE_ENGLISH' : 'USER.LANGUAGE_GERMAN'
+    );
+  }
+
+  getCompetenceFieldLabelKey(user: User): string {
+    const competenceField = user.competenceField || CompetenceField.FIELD_1;
+    const fieldNumber = competenceField.replace('competence_field_', '');
+    return `USER.COMPETENCE_FIELD_${fieldNumber}`;
   }
   
   // generate PDF
