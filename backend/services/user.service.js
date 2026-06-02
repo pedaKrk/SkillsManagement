@@ -6,12 +6,25 @@ import path from "path";
 import fs from "fs";
 import UserRepository from "../repositories/user.repository.js";
 import logger from "../config/logger.js";
+import FutureSkill from "../models/future.skill.model.js";
 
 export const getAllUsers = async () => {
     return UserRepository.findAllActiveUsers()
         .select('-password')
         .populate({ path: 'skills.skill', select: 'name description level category parent_id' })
         .populate({ path: 'skills.levelHistory.changedBy', select: 'firstName lastName email' })
+        .populate({
+            path: 'comments',
+            select: 'content isRichText author time_stamp replies',
+            populate: [
+                { path: 'author', select: 'username firstName lastName' },
+                {
+                    path: 'replies',
+                    select: 'content isRichText author time_stamp',
+                    populate: { path: 'author', select: 'username firstName lastName' }
+                }
+            ]
+        })
         .lean();
 }
 
@@ -32,10 +45,16 @@ export const getUserById = async (id) => {
         },
         {
             path: 'futureSkills',
-            populate: {
-                path: 'lecturer_id',
-                select: 'firstName lastName'
-            }
+            populate: [
+                {
+                    path: 'skill_id',
+                    select: 'name'
+                },
+                {
+                    path: 'lecturer_id',
+                    select: 'firstName lastName'
+                }
+            ]
         },
         {
             path: 'comments',
@@ -46,7 +65,14 @@ export const getUserById = async (id) => {
         }
     ]);
 
-    return user;
+    const futureSkills = await FutureSkill.find({ lecturer_id: id })
+        .populate('skill_id', 'name')
+        .lean();
+
+    return {
+        ...user.toObject(),
+        futureSkills
+    };
 }
 
 export const getAllLecturers = async () => {
@@ -71,6 +97,10 @@ export const updateUser = async (userId, updateData, currentUser) => {
 
         if (!isAdmin && !isCompetenceLeader && !isOwnProfile) {
             throw new ForbiddenError();
+        }
+
+        if (!isAdmin) {
+            delete updateData.role;
         }
 
         if (updateData.skills && Array.isArray(updateData.skills)) {

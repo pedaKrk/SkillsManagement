@@ -9,6 +9,8 @@ import { ImageService } from '../../core/services/image/image.service';
 import { User } from '../../models/user.model';
 import { UserRole } from '../../models/enums/user-roles.enum';
 import { EmploymentType } from '../../models/enums/employment-type.enum';
+import { UserLanguage } from '../../models/enums/user-language.enum';
+import { CompetenceField } from '../../models/enums/competence-field.enum';
 import { environment } from '../../../environments/environment';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -34,6 +36,11 @@ export class UserEditComponent implements OnInit {
   // for the dropdown lists
   userRoles = Object.values(UserRole);
   employmentTypes = Object.values(EmploymentType);
+  languageOptions = [
+    { value: UserLanguage.GERMAN, labelKey: 'USER.LANGUAGE_GERMAN' },
+    { value: UserLanguage.ENGLISH, labelKey: 'USER.LANGUAGE_ENGLISH' }
+  ];
+  competenceFields = Object.values(CompetenceField);
   
   // for the profile image editing
   previewImageUrl: string | null = null;
@@ -150,6 +157,8 @@ export class UserEditComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       title: [''],
       phoneNumber: [''],
+      languages: [[UserLanguage.GERMAN], [Validators.required]],
+      competenceField: [CompetenceField.FIELD_1, [Validators.required]],
       // Always add role and employmentType controls, but they will be disabled for non-admins
       role: [''],
       employmentType: ['']
@@ -235,6 +244,8 @@ export class UserEditComponent implements OnInit {
       email: string;
       title: string;
       phoneNumber: string;
+      languages: UserLanguage[];
+      competenceField: CompetenceField;
       role: string;
       employmentType: string;
     } = {
@@ -244,11 +255,39 @@ export class UserEditComponent implements OnInit {
       email: this.user.email,
       title: this.user.title || '',
       phoneNumber: this.user.phoneNumber || '',
+      languages: this.user.languages?.length ? this.user.languages : [UserLanguage.GERMAN],
+      competenceField: this.user.competenceField || CompetenceField.FIELD_1,
       role: this.user.role || '',
       employmentType: this.user.employmentType || ''
     };
 
     this.userForm.patchValue(formData);
+  }
+
+  isLanguageSelected(language: UserLanguage): boolean {
+    const selectedLanguages = this.userForm.get('languages')?.value || [];
+    return selectedLanguages.includes(language);
+  }
+
+  onLanguageToggle(language: UserLanguage, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    const control = this.userForm.get('languages');
+    const selectedLanguages: UserLanguage[] = [...(control?.value || [])];
+
+    if (checked && !selectedLanguages.includes(language)) {
+      selectedLanguages.push(language);
+    }
+
+    if (!checked) {
+      const index = selectedLanguages.indexOf(language);
+      if (index > -1) {
+        selectedLanguages.splice(index, 1);
+      }
+    }
+
+    control?.setValue(selectedLanguages);
+    control?.markAsDirty();
+    control?.markAsTouched();
   }
   
   /**

@@ -4,6 +4,8 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { User } from '../../models/user.model';
 import { environment } from '../../../environments/environment';
+import { UserLanguage } from '../../models/enums/user-language.enum';
+import { CompetenceField } from '../../models/enums/competence-field.enum';
 
 @Component({
   selector: 'app-user-details-header',
@@ -61,6 +63,20 @@ export class UserDetailsHeaderComponent {
   getEmploymentType(): string {
     if (!this.user) return '';
     return this.user.employmentType === 'Internal' ? 'Intern' : 'Extern';
+  }
+
+  getLanguages(): UserLanguage[] {
+    return this.user?.languages?.length ? this.user.languages : [UserLanguage.GERMAN];
+  }
+
+  getLanguageTranslationKey(language: UserLanguage): string {
+    return language === UserLanguage.ENGLISH ? 'USER.LANGUAGE_ENGLISH' : 'USER.LANGUAGE_GERMAN';
+  }
+
+  getCompetenceField(): string {
+    const competenceField = this.user?.competenceField || CompetenceField.FIELD_1;
+    const fieldNumber = competenceField.replace('competence_field_', '');
+    return `USER.COMPETENCE_FIELD_${fieldNumber}`;
   }
 
   /**

@@ -66,6 +66,27 @@ h2 {
   margin-bottom: 20px;
 }
 
+.checkbox-group {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-top: 0.35rem;
+}
+
+.checkbox-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0;
+  font-weight: 400;
+  cursor: pointer;
+
+  input {
+    width: 16px;
+    height: 16px;
+  }
+}
+
 label {
   display: block;
   margin-bottom: 8px;

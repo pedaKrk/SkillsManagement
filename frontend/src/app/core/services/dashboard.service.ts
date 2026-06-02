@@ -103,5 +103,16 @@ export class DashboardService {
     );
   }
 
+  getNormalSkillsDashboard(): Observable<any> {
+    return this.http.get<any>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.dashboard.normalSkills}`
+    );
+  }
+
+  getNormalSkillsDashboardByRootSkill(rootSkillId: string): Observable<any> {
+    return this.http.get<any>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.dashboard.normalSkillsByRootSkill(rootSkillId)}`
+    );
+  }
 
 }

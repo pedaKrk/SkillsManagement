@@ -135,4 +135,33 @@ export const getDashboardByRootSkill = async (req, res) => {
     }
 };
 
+// GET /api/v1/dashboard/normal-skills
+export const getNormalSkillsDashboard = async (req, res) => {
+    try {
+        const data = await DashboardService.getNormalSkillsDashboardData();
+        res.status(200).json(data);
+    } catch (err) {
+        logger.error('Error loading normal skills dashboard:', err);
+        res.status(500).json({
+            message: 'Failed to load normal skills dashboard',
+            error: err.message
+        });
+    }
+};
+
+// GET /api/v1/dashboard/normal-skills/by-root-skill/:rootSkillId
+export const getNormalSkillsDashboardByRootSkill = async (req, res) => {
+    try {
+        const { rootSkillId } = req.params;
+        const data = await DashboardService.getNormalSkillsDashboardData(rootSkillId);
+        res.status(200).json(data);
+    } catch (err) {
+        logger.error('Error loading normal skills dashboard by root skill:', err);
+        res.status(500).json({
+            message: 'Failed to load normal skills dashboard for root skill',
+            error: err.message
+        });
+    }
+};
+
 

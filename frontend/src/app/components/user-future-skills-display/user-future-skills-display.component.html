@@ -1,0 +1,29 @@
+<div class="details-section">
+  <h2 class="section-title">{{ 'PROFILE.FUTURE_SKILLS' | translate }}</h2>
+
+  <div class="skills-container" *ngIf="futureSkills && futureSkills.length > 0">
+    <div class="skill-card" *ngFor="let futureSkill of futureSkills">
+      <div class="skill-header">
+        <span class="skill-name">{{ getSkillName(futureSkill) }}</span>
+        <span
+          class="level-badge"
+          [ngClass]="getSkillLevelClass(futureSkill.future_achievable_level)"
+        >
+          {{ futureSkill.future_achievable_level | translate }}
+        </span>
+      </div>
+
+      <div class="skill-meta-modern" *ngIf="futureSkill.target_date">
+        {{ 'FUTURE_SKILLS.TARGET_DATE' | translate }}: {{ futureSkill.target_date | date:'mediumDate' }}
+      </div>
+
+      <div class="skill-meta-modern" *ngIf="futureSkill.description">
+        {{ futureSkill.description }}
+      </div>
+    </div>
+  </div>
+
+  <div class="no-skills" *ngIf="!futureSkills || futureSkills.length === 0">
+    {{ 'PROFILE.NO_FUTURE_SKILLS' | translate }}
+  </div>
+</div>

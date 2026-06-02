@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UserService } from '../../core/services/user/user.service';
+import { SkillService } from '../../core/services/skill/skill.service';
 import { PdfService } from '../../core/services/pdf/pdf.service';
 import { EmailService } from '../../core/services/email/email.service';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -11,6 +12,8 @@ import { Skill } from '../../models/skill.model';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
 import { UserRole } from '../../models/enums/user-roles.enum';
+import { UserLanguage } from '../../models/enums/user-language.enum';
+import { CompetenceField } from '../../models/enums/competence-field.enum';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -40,6 +43,7 @@ export class UserListComponent implements OnInit, OnDestroy {
   
   // for filtering
   searchTerm: string = '';
+  fullTextSearchTerm: string = '';
   selectedEmploymentType: string = '';
   selectedRole: string = '';
   selectedSkill: string = '';
@@ -53,6 +57,7 @@ export class UserListComponent implements OnInit, OnDestroy {
   skillSearchTerm: string = '';
   filteredSkillsList: string[] = [];
   allSkills: string[] = [];
+  allSkillDefinitions: Skill[] = [];
   
   // for user actions dropdown
   isUserActionsOpen: boolean = false;
@@ -79,6 +84,7 @@ export class UserListComponent implements OnInit, OnDestroy {
   
   constructor(
     private userService: UserService,
+    private skillService: SkillService,
     private pdfService: PdfService,
     private emailService: EmailService,
     private authService: AuthService,
@@ -162,11 +168,7 @@ export class UserListComponent implements OnInit, OnDestroy {
         
         this.filteredUsers = [...this.users];
         
-        // Load all available skills
         this.loadAllSkills();
-        
-        this.applyFilters();
-        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading users:', error);
@@ -214,6 +216,11 @@ export class UserListComponent implements OnInit, OnDestroy {
         (user.phoneNumber && user.phoneNumber.toLowerCase().includes(term))
       );
     }
+
+    if (this.fullTextSearchTerm.trim()) {
+      const term = this.fullTextSearchTerm.toLowerCase().trim();
+      filtered = filtered.filter(user => this.getUserFullText(user).includes(term));
+    }
     
     // filtering by employment type
     if (this.selectedEmploymentType) {
@@ -237,12 +244,9 @@ export class UserListComponent implements OnInit, OnDestroy {
         }
         
         // check if the user has at least one of the selected skills
-        return this.selectedSkills.some(selectedSkill => {
-          return user.skills!.some(skill => {
-            const skillName = this.getSkillName(skill);
-            return skillName.toLowerCase() === selectedSkill.toLowerCase();
-          });
-        });
+        return this.selectedSkills.some(selectedSkill =>
+          user.skills!.some(skill => this.doesUserSkillMatchSelectedSkill(skill, selectedSkill))
+        );
       });
     }
     
@@ -328,6 +332,66 @@ export class UserListComponent implements OnInit, OnDestroy {
   // helper method to check if a user is selected
   isUserSelected(userId: string): boolean {
     return this.selectedUsers.includes(userId);
+  }
+
+  getLanguageLabelKeys(user: User): string[] {
+    const languages = user.languages?.length ? user.languages : [UserLanguage.GERMAN];
+
+    return languages.map(language =>
+      language === UserLanguage.ENGLISH ? 'USER.LANGUAGE_ENGLISH' : 'USER.LANGUAGE_GERMAN'
+    );
+  }
+
+  getCompetenceFieldLabelKey(user: User): string {
+    const competenceField = user.competenceField || CompetenceField.FIELD_1;
+    const fieldNumber = competenceField.replace('competence_field_', '');
+    return `USER.COMPETENCE_FIELD_${fieldNumber}`;
+  }
+
+  private getUserFullText(user: User): string {
+    const searchableValues = [
+      user.username,
+      user.title,
+      user.firstName,
+      user.lastName,
+      user.email,
+      user.phoneNumber,
+      user.employmentType,
+      user.role,
+      ...(user.languages || []),
+      user.competenceField,
+      ...(user.skills || []).map(skill => this.getSkillName(skill)),
+      ...(user.comments || []).flatMap(comment => this.getCommentSearchValues(comment))
+    ];
+
+    return searchableValues
+      .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+      .map(value => this.normalizeSearchText(value))
+      .join(' ');
+  }
+
+  private getCommentSearchValues(comment: any): string[] {
+    const author = comment?.author;
+    const authorName = [
+      author?.username,
+      author?.firstName,
+      author?.lastName,
+      comment?.authorName
+    ];
+
+    return [
+      comment?.content,
+      comment?.text,
+      ...authorName,
+      ...(comment?.replies || []).flatMap((reply: any) => this.getCommentSearchValues(reply))
+    ].filter((value): value is string => typeof value === 'string');
+  }
+
+  private normalizeSearchText(value: string): string {
+    return value
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/&nbsp;/gi, ' ')
+      .toLowerCase();
   }
   
   // generate PDF
@@ -517,6 +581,7 @@ export class UserListComponent implements OnInit, OnDestroy {
   // reset filters
   resetFilters(): void {
     this.searchTerm = '';
+    this.fullTextSearchTerm = '';
     this.selectedEmploymentType = '';
     this.selectedRole = '';
     this.selectedSkill = '';
@@ -725,6 +790,66 @@ export class UserListComponent implements OnInit, OnDestroy {
     // fallback
     return this.translateService.instant('USER.UNKNOWN_SKILL');
   }
+
+  private getSkillId(skill: any): string | null {
+    if (!skill) return null;
+    if (typeof skill === 'string') return skill;
+    if (skill.skill?._id) return skill.skill._id;
+    if (skill.skill && typeof skill.skill === 'string') return skill.skill;
+    if (skill._id) return skill._id;
+    return null;
+  }
+
+  private getSkillDefinitionById(skillId: string | null): Skill | undefined {
+    if (!skillId) return undefined;
+    return this.allSkillDefinitions.find(skill => skill._id === skillId);
+  }
+
+  private getSkillDefinitionByName(skillName: string): Skill | undefined {
+    const normalizedName = skillName.toLowerCase();
+    return this.allSkillDefinitions.find(skill => skill.name.toLowerCase() === normalizedName);
+  }
+
+  private getParentId(skill: Skill): string | null {
+    const parent = skill.parent_id as string | null | undefined;
+    return parent || null;
+  }
+
+  private isAncestorSkill(ancestorId: string, descendantId: string): boolean {
+    let currentSkill = this.getSkillDefinitionById(descendantId);
+
+    while (currentSkill) {
+      const parentId = this.getParentId(currentSkill);
+      if (!parentId) {
+        return false;
+      }
+
+      if (parentId === ancestorId) {
+        return true;
+      }
+
+      currentSkill = this.getSkillDefinitionById(parentId);
+    }
+
+    return false;
+  }
+
+  private doesUserSkillMatchSelectedSkill(userSkill: any, selectedSkillName: string): boolean {
+    const userSkillName = this.getSkillName(userSkill);
+    if (userSkillName.toLowerCase() === selectedSkillName.toLowerCase()) {
+      return true;
+    }
+
+    const userSkillId = this.getSkillId(userSkill);
+    const selectedSkill = this.getSkillDefinitionByName(selectedSkillName);
+
+    if (!userSkillId || !selectedSkill) {
+      return false;
+    }
+
+    return this.isAncestorSkill(userSkillId, selectedSkill._id)
+      || this.isAncestorSkill(selectedSkill._id, userSkillId);
+  }
   
   // method to filter by skills (multiple)
   filterBySkill(skill: string): void {
@@ -754,6 +879,7 @@ export class UserListComponent implements OnInit, OnDestroy {
    */
   hasActiveFilters(): boolean {
     return this.searchTerm.trim() !== '' || 
+           this.fullTextSearchTerm.trim() !== '' ||
            this.selectedEmploymentType !== '' || 
            this.selectedRole !== '' || 
            this.selectedSkills.length > 0;
@@ -783,21 +909,37 @@ export class UserListComponent implements OnInit, OnDestroy {
   
   // method to load all skills
   loadAllSkills(): void {
-    const skillsSet = new Set<string>();
-    
-    this.users.forEach(user => {
-      if (user.skills && user.skills.length > 0) {
-        user.skills.forEach(skill => {
-          const skillName = this.getSkillName(skill);
-          if (skillName && skillName !== '-') {
-            skillsSet.add(skillName);
+    this.skillService.getAllSkills().subscribe({
+      next: (skills) => {
+        this.allSkillDefinitions = skills;
+        this.allSkills = skills
+          .map(skill => skill.name)
+          .filter(Boolean)
+          .sort((a, b) => a.localeCompare(b));
+        this.filteredSkillsList = [...this.allSkills];
+        this.applyFilters();
+        this.isLoading = false;
+      },
+      error: () => {
+        const skillsSet = new Set<string>();
+
+        this.users.forEach(user => {
+          if (user.skills && user.skills.length > 0) {
+            user.skills.forEach(skill => {
+              const skillName = this.getSkillName(skill);
+              if (skillName && skillName !== '-') {
+                skillsSet.add(skillName);
+              }
+            });
           }
         });
+
+        this.allSkills = Array.from(skillsSet).sort();
+        this.filteredSkillsList = [...this.allSkills];
+        this.applyFilters();
+        this.isLoading = false;
       }
     });
-    
-    this.allSkills = Array.from(skillsSet).sort();
-    this.filteredSkillsList = [...this.allSkills];
   }
   
   // method to open/close the skill dropdown

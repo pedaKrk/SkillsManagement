@@ -5,6 +5,8 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractContro
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { TranslateModule } from '@ngx-translate/core';
+import { UserLanguage } from '../../models/enums/user-language.enum';
+import { CompetenceField } from '../../models/enums/competence-field.enum';
 
 // Custom validator function for technikum-wien.at email
 function technikumEmailValidator(control: AbstractControl): ValidationErrors | null {
@@ -35,6 +37,11 @@ export class RegisterComponent implements OnInit {
   loading = false;
   submitted = false;
   error = '';
+  languageOptions = [
+    { value: UserLanguage.GERMAN, labelKey: 'USER.LANGUAGE_GERMAN' },
+    { value: UserLanguage.ENGLISH, labelKey: 'USER.LANGUAGE_ENGLISH' }
+  ];
+  competenceFields = Object.values(CompetenceField);
 
   constructor(
     private formBuilder: FormBuilder,
@@ -52,11 +59,39 @@ export class RegisterComponent implements OnInit {
       phoneNumber: [''], // Optional phone number field
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      employmentType: ['Internal', Validators.required]
+      employmentType: ['Internal', Validators.required],
+      languages: [[UserLanguage.GERMAN], Validators.required],
+      competenceField: [CompetenceField.FIELD_1, Validators.required]
     });
   }
 
   ngOnInit() {
+  }
+
+  isLanguageSelected(language: UserLanguage): boolean {
+    const selectedLanguages = this.registerForm.get('languages')?.value || [];
+    return selectedLanguages.includes(language);
+  }
+
+  onLanguageToggle(language: UserLanguage, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    const control = this.registerForm.get('languages');
+    const selectedLanguages: UserLanguage[] = [...(control?.value || [])];
+
+    if (checked && !selectedLanguages.includes(language)) {
+      selectedLanguages.push(language);
+    }
+
+    if (!checked) {
+      const index = selectedLanguages.indexOf(language);
+      if (index > -1) {
+        selectedLanguages.splice(index, 1);
+      }
+    }
+
+    control?.setValue(selectedLanguages);
+    control?.markAsDirty();
+    control?.markAsTouched();
   }
 
   // Handle form submission
@@ -79,7 +114,9 @@ export class RegisterComponent implements OnInit {
       phoneNumber: this.registerForm.get('phoneNumber')?.value,
       firstName: this.registerForm.get('firstName')?.value,
       lastName: this.registerForm.get('lastName')?.value,
-      employmentType: this.registerForm.get('employmentType')?.value
+      employmentType: this.registerForm.get('employmentType')?.value,
+      languages: this.registerForm.get('languages')?.value,
+      competenceField: this.registerForm.get('competenceField')?.value
     };
 
     // Call register method from auth service
