@@ -37,6 +37,16 @@
             class="form-control"
           >
         </div>
+
+        <div class="search-bar">
+          <input 
+            type="text" 
+            [(ngModel)]="fullTextSearchTerm" 
+            (ngModelChange)="applyFilters()"
+            [placeholder]="'USER.FULL_TEXT_SEARCH' | translate" 
+            class="form-control"
+          >
+        </div>
         
         <div class="filter-row">
           <!-- Skill-Filter Dropdown -->
@@ -172,16 +182,21 @@
               <span *ngIf="sortField === 'email'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
             </div>
           </th>
-          <th (click)="sortUsers('phoneNumber')" class="sortable">
-            <div class="header-content">
-              <span>{{ 'USER.PHONE_NUMBER_SHORT' | translate }}</span>
-              <span *ngIf="sortField === 'phoneNumber'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
-            </div>
-          </th>
           <th (click)="sortUsers('employmentType')" class="sortable">
             <div class="header-content">
               <span>{{ 'USER.EMPLOYMENT_TYPE' | translate }}</span>
-              <span *ngIf="sortField === 'employmentType'" class="sort-icon">{{ sortDirection === 'asc' ? '▼' : '▲' }}</span>
+              <span *ngIf="sortField === 'employmentType'" class="sort-icon">{{ sortDirection === 'asc' ? 'v' : '^' }}</span>
+            </div>
+          </th>
+          <th>
+            <div class="header-content">
+              <span>{{ 'USER.LANGUAGES' | translate }}</span>
+            </div>
+          </th>
+          <th (click)="sortUsers('competenceField')" class="sortable">
+            <div class="header-content">
+              <span>{{ 'USER.COMPETENCE_FIELD' | translate }}</span>
+              <span *ngIf="sortField === 'competenceField'" class="sort-icon">{{ sortDirection === 'asc' ? 'v' : '^' }}</span>
             </div>
           </th>
           <th (click)="sortUsers('skills')" class="sortable">
@@ -215,8 +230,13 @@
           <td [attr.data-label]="'USER.FIRST_NAME' | translate">{{ user.firstName }}</td>
           <td [attr.data-label]="'USER.LAST_NAME' | translate">{{ user.lastName }}</td>
           <td [attr.data-label]="'USER.EMAIL' | translate">{{ user.email }}</td>
-          <td [attr.data-label]="'USER.PHONE_NUMBER_SHORT' | translate">{{ user.phoneNumber || '-' }}</td>
           <td [attr.data-label]="'USER.EMPLOYMENT_TYPE' | translate">{{ user.employmentType === 'Internal' ? ('USER.INTERNAL' | translate) : ('USER.EXTERNAL' | translate) }}</td>
+          <td [attr.data-label]="'USER.LANGUAGES' | translate">
+            <ng-container *ngFor="let languageLabelKey of getLanguageLabelKeys(user); let last = last">
+              {{ languageLabelKey | translate }}<span *ngIf="!last">, </span>
+            </ng-container>
+          </td>
+          <td [attr.data-label]="'USER.COMPETENCE_FIELD' | translate">{{ getCompetenceFieldLabelKey(user) | translate }}</td>
           <td [attr.data-label]="'USER.SKILLS' | translate">
             <div class="skills-list">
               <span class="skill-badge" *ngFor="let entry of user.skills">
@@ -267,7 +287,7 @@
           </td>
         </tr>
         <tr *ngIf="filteredUsers.length === 0">
-          <td colspan="10" class="no-results">
+          <td colspan="11" class="no-results">
             {{ 'USER.NO_USERS_FOUND' | translate }}
           </td>
         </tr>
@@ -275,3 +295,4 @@
     </table>
   </div>
 </div>
+

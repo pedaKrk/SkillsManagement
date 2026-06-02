@@ -1,5 +1,7 @@
 import {UserRole} from './enums/user-roles.enum';
 import {EmploymentType} from './enums/employment-type.enum';
+import {UserLanguage} from './enums/user-language.enum';
+import {CompetenceField} from './enums/competence-field.enum';
 import { Skill } from './skill.model';
 
 export interface UserSkillEntry {
@@ -15,6 +17,16 @@ export interface UserSkillEntry {
     }[];
 }
 
+export interface UserFutureSkillEntry {
+    _id: string;
+    name: string;
+    description?: string;
+    category?: string;
+    future_achievable_level: string;
+    skill_id?: Skill;
+    target_date?: Date | string;
+}
+
 export interface User{
     id: string;
     _id?: string;
@@ -26,7 +38,11 @@ export interface User{
     email: string;
     phoneNumber?: string;
     employmentType: EmploymentType;
+    languages?: UserLanguage[];
+    competenceField?: CompetenceField;
     skills?: UserSkillEntry[];
+    futureSkills?: UserFutureSkillEntry[];
+    comments?: Comment[];
     profileImageUrl?: string;
     token?: string;
 }

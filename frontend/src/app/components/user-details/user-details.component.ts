@@ -10,6 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { UserStatisticsComponent } from '../user-statistics/user-statistics.component';
 import { UserDetailsHeaderComponent } from '../user-details-header/user-details-header.component';
 import { UserSkillsDisplayComponent } from '../user-skills-display/user-skills-display.component';
+import { UserFutureSkillsDisplayComponent } from '../user-future-skills-display/user-future-skills-display.component';
 import { UserCommentsSectionComponent } from '../user-comments-section/user-comments-section.component';
 
 @Component({
@@ -22,6 +23,7 @@ import { UserCommentsSectionComponent } from '../user-comments-section/user-comm
     UserStatisticsComponent,
     UserDetailsHeaderComponent,
     UserSkillsDisplayComponent,
+    UserFutureSkillsDisplayComponent,
     UserCommentsSectionComponent
   ],
   templateUrl: './user-details.component.html',

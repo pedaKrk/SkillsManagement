@@ -30,6 +30,20 @@
       <span class="value">{{ getEmploymentType() }}</span>
     </div>
 
+    <div class="user-languages">
+      <span class="label">{{ 'PROFILE.LANGUAGES' | translate }}</span>
+      <span class="value">
+        <ng-container *ngFor="let language of getLanguages(); let last = last">
+          {{ getLanguageTranslationKey(language) | translate }}<span *ngIf="!last">, </span>
+        </ng-container>
+      </span>
+    </div>
+
+    <div class="user-competence-field">
+      <span class="label">{{ 'PROFILE.COMPETENCE_FIELD' | translate }}</span>
+      <span class="value">{{ getCompetenceField() | translate }}</span>
+    </div>
+
     <div *ngIf="isAdmin || isOwnProfile" class="admin-actions mt-3">
       <button class="btn btn-primary" (click)="onEditUser()">
         <i class="fa fa-pencil"></i> {{ 'PROFILE.EDIT_PROFILE' | translate }}

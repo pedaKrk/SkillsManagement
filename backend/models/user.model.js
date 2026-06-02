@@ -1,6 +1,8 @@
 import mongoose from 'mongoose'
 import roleEnum from './enums/role.enum.js'
 import employmentTypeEnum from './enums/employment.type.enum.js'
+import userLanguageEnum from './enums/user.language.enum.js'
+import competenceFieldEnum from './enums/competence.field.enum.js'
 
 const userModel = new mongoose.Schema({
     username: {
@@ -44,6 +46,18 @@ const userModel = new mongoose.Schema({
         type: String,
         enum: employmentTypeEnum,
         required: true
+    },
+    languages: {
+        type: [{
+            type: String,
+            enum: Object.values(userLanguageEnum)
+        }],
+        default: [userLanguageEnum.GERMAN]
+    },
+    competenceField: {
+        type: String,
+        enum: Object.values(competenceFieldEnum),
+        default: competenceFieldEnum.FIELD_1
     },
     profileImageUrl: {
         type: String,
