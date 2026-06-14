@@ -14,8 +14,29 @@ import { RouterModule, Router } from '@angular/router';
 import { UserRole } from '../../models/enums/user-roles.enum';
 import { UserLanguage } from '../../models/enums/user-language.enum';
 import { CompetenceField } from '../../models/enums/competence-field.enum';
+import { EmploymentType } from '../../models/enums/employment-type.enum';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
+type UserColumnKey =
+  | 'username'
+  | 'title'
+  | 'firstName'
+  | 'lastName'
+  | 'email'
+  | 'phoneNumber'
+  | 'role'
+  | 'employmentType'
+  | 'languages'
+  | 'competenceField'
+  | 'skills';
+
+interface UserTableColumn {
+  key: UserColumnKey;
+  labelKey: string;
+  sortable: boolean;
+  defaultVisible: boolean;
+}
 
 @Component({
   selector: 'app-user-list',
@@ -46,8 +67,58 @@ export class UserListComponent implements OnInit, OnDestroy {
   fullTextSearchTerm: string = '';
   selectedEmploymentType: string = '';
   selectedRole: string = '';
+  selectedLanguage: string = '';
+  selectedCompetenceField: string = '';
   selectedSkill: string = '';
   selectedSkills: string[] = [];
+  areAdvancedFiltersOpen = false;
+
+  readonly roleFilterOptions = [
+    { value: '', labelKey: 'USER.ALL_ROLES_OPTION' },
+    { value: UserRole.ADMIN, labelKey: 'USER.ADMIN' },
+    { value: UserRole.COMPETENCE_LEADER, labelKey: 'USER.COMPETENCE_LEADER' },
+    { value: UserRole.LECTURER, labelKey: 'USER.LECTURER' }
+  ];
+
+  readonly employmentTypeFilterOptions = [
+    { value: '', labelKey: 'USER.ALL_EMPLOYMENT_TYPES_OPTION' },
+    { value: EmploymentType.INTERNAL, labelKey: 'USER.INTERNAL' },
+    { value: EmploymentType.EXTERNAL, labelKey: 'USER.EXTERNAL' }
+  ];
+
+  readonly languageFilterOptions = [
+    { value: '', labelKey: 'USER.ALL_LANGUAGES_OPTION' },
+    { value: UserLanguage.GERMAN, labelKey: 'USER.LANGUAGE_GERMAN' },
+    { value: UserLanguage.ENGLISH, labelKey: 'USER.LANGUAGE_ENGLISH' }
+  ];
+
+  readonly competenceFieldFilterOptions = [
+    { value: '', labelKey: 'USER.ALL_COMPETENCE_FIELDS_OPTION' },
+    { value: CompetenceField.FIELD_1, labelKey: 'USER.COMPETENCE_FIELD_1' },
+    { value: CompetenceField.FIELD_2, labelKey: 'USER.COMPETENCE_FIELD_2' },
+    { value: CompetenceField.FIELD_3, labelKey: 'USER.COMPETENCE_FIELD_3' },
+    { value: CompetenceField.FIELD_4, labelKey: 'USER.COMPETENCE_FIELD_4' },
+    { value: CompetenceField.FIELD_5, labelKey: 'USER.COMPETENCE_FIELD_5' }
+  ];
+
+  readonly tableColumns: UserTableColumn[] = [
+    { key: 'username', labelKey: 'USER.USERNAME', sortable: true, defaultVisible: true },
+    { key: 'title', labelKey: 'USER.TITLE', sortable: true, defaultVisible: true },
+    { key: 'firstName', labelKey: 'USER.FIRST_NAME', sortable: true, defaultVisible: true },
+    { key: 'lastName', labelKey: 'USER.LAST_NAME', sortable: true, defaultVisible: true },
+    { key: 'email', labelKey: 'USER.EMAIL', sortable: true, defaultVisible: true },
+    { key: 'phoneNumber', labelKey: 'USER.PHONE_NUMBER_SHORT', sortable: true, defaultVisible: false },
+    { key: 'role', labelKey: 'USER.ROLE', sortable: true, defaultVisible: false },
+    { key: 'employmentType', labelKey: 'USER.EMPLOYMENT_TYPE', sortable: true, defaultVisible: true },
+    { key: 'languages', labelKey: 'USER.LANGUAGES', sortable: false, defaultVisible: true },
+    { key: 'competenceField', labelKey: 'USER.COMPETENCE_FIELD', sortable: true, defaultVisible: true },
+    { key: 'skills', labelKey: 'USER.SKILLS', sortable: true, defaultVisible: true }
+  ];
+
+  visibleColumnKeys = new Set<UserColumnKey>(
+    this.tableColumns.filter(column => column.defaultVisible).map(column => column.key)
+  );
+  isColumnSettingsOpen = false;
   
   // for multiple selection
   selectedUsers: string[] = [];
@@ -235,6 +306,18 @@ export class UserListComponent implements OnInit, OnDestroy {
         user.role === this.selectedRole
       );
     }
+
+    if (this.selectedLanguage) {
+      filtered = filtered.filter(user =>
+        (user.languages || [UserLanguage.GERMAN]).includes(this.selectedLanguage as UserLanguage)
+      );
+    }
+
+    if (this.selectedCompetenceField) {
+      filtered = filtered.filter(user =>
+        (user.competenceField || CompetenceField.FIELD_1) === this.selectedCompetenceField
+      );
+    }
     
     // filtering by skills (multiple skills)
     if (this.selectedSkills.length > 0) {
@@ -346,6 +429,51 @@ export class UserListComponent implements OnInit, OnDestroy {
     const competenceField = user.competenceField || CompetenceField.FIELD_1;
     const fieldNumber = competenceField.replace('competence_field_', '');
     return `USER.COMPETENCE_FIELD_${fieldNumber}`;
+  }
+
+  getRoleLabelKey(user: User): string {
+    if (user.role === UserRole.ADMIN) return 'USER.ADMIN';
+    if (user.role === UserRole.COMPETENCE_LEADER) return 'USER.COMPETENCE_LEADER';
+    return 'USER.LECTURER';
+  }
+
+  getEmploymentTypeLabelKey(user: User): string {
+    return user.employmentType === EmploymentType.INTERNAL ? 'USER.INTERNAL' : 'USER.EXTERNAL';
+  }
+
+  isColumnVisible(columnKey: UserColumnKey): boolean {
+    return this.visibleColumnKeys.has(columnKey);
+  }
+
+  toggleColumn(columnKey: UserColumnKey): void {
+    if (this.visibleColumnKeys.has(columnKey)) {
+      if (this.visibleColumnKeys.size === 1) {
+        return;
+      }
+
+      this.visibleColumnKeys.delete(columnKey);
+      return;
+    }
+
+    this.visibleColumnKeys.add(columnKey);
+  }
+
+  resetColumnsToDefault(): void {
+    this.visibleColumnKeys = new Set<UserColumnKey>(
+      this.tableColumns.filter(column => column.defaultVisible).map(column => column.key)
+    );
+  }
+
+  toggleColumnSettings(): void {
+    this.isColumnSettingsOpen = !this.isColumnSettingsOpen;
+  }
+
+  toggleAdvancedFilters(): void {
+    this.areAdvancedFiltersOpen = !this.areAdvancedFiltersOpen;
+  }
+
+  getVisibleColumnCount(): number {
+    return this.visibleColumnKeys.size + 2;
   }
 
   private getUserFullText(user: User): string {
@@ -584,6 +712,8 @@ export class UserListComponent implements OnInit, OnDestroy {
     this.fullTextSearchTerm = '';
     this.selectedEmploymentType = '';
     this.selectedRole = '';
+    this.selectedLanguage = '';
+    this.selectedCompetenceField = '';
     this.selectedSkill = '';
     this.selectedSkills = [];
     this.applyFilters();
@@ -882,6 +1012,8 @@ export class UserListComponent implements OnInit, OnDestroy {
            this.fullTextSearchTerm.trim() !== '' ||
            this.selectedEmploymentType !== '' || 
            this.selectedRole !== '' || 
+           this.selectedLanguage !== '' ||
+           this.selectedCompetenceField !== '' ||
            this.selectedSkills.length > 0;
   }
   
