@@ -26,6 +26,7 @@ export class UserDetailsHeaderComponent {
 
   @Output() editUser = new EventEmitter<void>();
   @Output() sendEmail = new EventEmitter<void>();
+  @Output() manageSkills = new EventEmitter<void>();
   @Output() imageError = new EventEmitter<void>();
 
   /**
@@ -138,6 +139,13 @@ export class UserDetailsHeaderComponent {
    */
   onSendEmail(): void {
     this.sendEmail.emit();
+  }
+
+  /**
+   * Emits manage skills event
+   */
+  onManageSkills(): void {
+    this.manageSkills.emit();
   }
 }
 

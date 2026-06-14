@@ -132,6 +132,13 @@ export class UserDetailsComponent implements OnInit {
   }
 
   /**
+   * navigates to the skill management page of the user
+   */
+  manageSkills(): void {
+    this.router.navigate(['/users', this.userId, 'skills']);
+  }
+
+  /**
    * navigates back to the user list
    */
   goBack(): void {
