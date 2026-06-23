@@ -51,6 +51,9 @@
       <button *ngIf="isAdmin" class="btn btn-secondary" (click)="onSendEmail()">
         <i class="fa fa-envelope"></i> {{ 'PROFILE.SEND_EMAIL' | translate }}
       </button>
+      <button *ngIf="isAdmin && !isOwnProfile" class="btn btn-secondary" (click)="onManageSkills()">
+        <i class="fa fa-cog"></i> {{ 'USER.MANAGE_SKILLS' | translate }}
+      </button>
     </div>
   </div>
 </div>

@@ -64,6 +64,47 @@
       width: 100%;
       align-items: flex-start;
     }
+
+    .advanced-filters-toggle {
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+
+      .filter-arrow {
+        display: inline-block;
+        width: 0.75rem;
+        font-weight: 700;
+      }
+    }
+
+    .advanced-filters-panel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #fff;
+      border: 1px solid #e9ecef;
+      border-radius: 4px;
+    }
+
+    .filter-select {
+      min-width: 170px;
+      height: 38px;
+      padding: 0.45rem 0.75rem;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      background-color: white;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+      &:focus {
+        border-color: #0077a9;
+        box-shadow: 0 0 0 0.2rem rgba(0, 119, 169, 0.25);
+        outline: 0;
+      }
+    }
     
     .skill-filter {
       flex: 1;
@@ -253,6 +294,62 @@
           box-shadow: 0 3px 8px rgba(0, 119, 169, 0.4);
           transform: translateY(-1px);
         }
+      }
+    }
+
+    .column-settings {
+      position: relative;
+      align-self: flex-start;
+
+      .column-settings-btn {
+        height: 38px;
+        white-space: nowrap;
+      }
+    }
+
+    .column-settings-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.35rem 0.75rem;
+      width: 100%;
+      max-width: 100%;
+      padding: 0.75rem;
+      background-color: white;
+      border: 1px solid #e9ecef;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+      .column-option {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 0;
+        padding: 0.35rem 0.25rem;
+        color: #495057;
+        cursor: pointer;
+
+        input {
+          flex: 0 0 auto;
+          margin: 0;
+        }
+
+        span {
+          overflow-wrap: anywhere;
+        }
+      }
+
+      .reset-columns-btn {
+        justify-self: start;
+        white-space: nowrap;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .column-settings,
+      .column-settings-btn,
+      .reset-filter-btn,
+      .advanced-filters-toggle {
+        width: 100%;
       }
     }
   }
